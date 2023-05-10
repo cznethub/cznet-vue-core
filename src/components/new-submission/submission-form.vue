@@ -16,7 +16,7 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue2";
 import { JsonFormsRendererRegistryEntry } from "@jsonforms/core";
-import { CzRenderers } from "@/renderers/renderer.vue";
+import { CzRenderers } from "@/renderers/renderer";
 import { createAjv } from "@/renderers/validate/validate";
 import { ErrorObject } from "ajv";
 

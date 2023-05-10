@@ -1,5 +1,3 @@
-
-
 <template>
   <div>
     <v-combobox
@@ -42,7 +40,7 @@
         </div>
       </template>
     </v-combobox>
-    
+
     <v-text-field
       v-else
       :id="control.id + '-input'"
@@ -88,17 +86,21 @@ import {
   ControlElement,
   JsonFormsRendererRegistryEntry,
   rankWith,
-  isStringControl
-} from '@jsonforms/core'
-import { defineComponent } from 'vue'
-import { rendererProps, useJsonFormsControl, RendererProps } from '@jsonforms/vue2'
-import { useVuetifyControl } from '@/renderers/util/composition';
-import isArray from 'lodash/isArray';
-import every from 'lodash/every';
-import isString from 'lodash/isString';
+  isStringControl,
+} from "@jsonforms/core";
+import { defineComponent } from "vue";
+import {
+  rendererProps,
+  useJsonFormsControl,
+  RendererProps,
+} from "@jsonforms/vue2";
+import { useVuetifyControl } from "@/renderers/util/composition";
+import isArray from "lodash/isArray";
+import every from "lodash/every";
+import isString from "lodash/isString";
 
 const controlRenderer = defineComponent({
-  name: 'string-control-renderer',
+  name: "string-control-renderer",
   props: {
     ...rendererProps<ControlElement>(),
   },
@@ -112,11 +114,11 @@ const controlRenderer = defineComponent({
   created() {
     // If the value that was loaded is null, turn it into undefined
     if (this.control.data === null) {
-      this.handleChange(this.control.path, undefined)
+      this.handleChange(this.control.path, undefined);
     }
-    
+
     if (!this.control.data && this.control.schema.default) {
-      this.handleChange(this.control.path, this.control.schema.default)
+      this.handleChange(this.control.path, this.control.schema.default);
     }
   },
   computed: {
@@ -133,42 +135,43 @@ const controlRenderer = defineComponent({
       return suggestions;
     },
     placeholder(): string {
-      // @ts-ignore
-      return this.control.schema.options?.placeholder || this.appliedOptions.placeholder || ''
+      return (
+        // @ts-ignore
+        this.control.schema.options?.placeholder ||
+        this.appliedOptions.placeholder ||
+        ""
+      );
     },
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
     isReadOnly() {
       // @ts-ignore
-      return this.control.schema.options?.readonly
+      return this.control.schema.options?.readonly;
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
-    }
+      return this.control.errors.replaceAll(`is a required property`, ``);
+    },
   },
   methods: {
     // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error
     beforeChange(input: string) {
       if (!input?.trim()) {
-        this.handleChange(this.control.path, undefined)
+        this.handleChange(this.control.path, undefined);
+      } else {
+        this.onChange(input);
       }
-      else {
-        this.onChange(input)
-      }
-    }
-  }
+    },
+  },
 });
 
-export default controlRenderer
+export default controlRenderer;
 
-export const stringControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(2, isStringControl)
-}
+  tester: rankWith(2, isStringControl),
+};
 </script>
 
-<style lang="scss" scoped>
-  
-</style>
+<style lang="scss" scoped></style>

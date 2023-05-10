@@ -1,21 +1,28 @@
 <template>
   <div class="py-4">
-    <fieldset v-if="control.visible" class="cz-fieldset" 
-      :class="{'is-invalid': control.childErrors.length }" 
+    <fieldset
+      v-if="control.visible"
+      class="cz-fieldset"
+      :class="{ 'is-invalid': control.childErrors.length }"
       :data-id="computedLabel.replaceAll(` `, ``)"
     >
-      <legend v-if="computedLabel"
+      <legend
+        v-if="computedLabel"
         @click="noData && control.enabled ? addButtonClick() : null"
-        class="v-label" :class="styles.arrayList.label + (!noData ? ' v-label--active' : '')">
+        class="v-label"
+        :class="styles.arrayList.label + (!noData ? ' v-label--active' : '')"
+      >
         {{ computedLabel }}
       </legend>
 
       <v-tooltip bottom transition="fade">
         <template v-slot:activator="{ on: onTooltip }">
-          <v-btn icon color="primary"
-            @click="addButtonClick()" 
+          <v-btn
+            icon
+            color="primary"
+            @click="addButtonClick()"
             :class="styles.arrayList.addButton"
-            class="btn-add" 
+            class="btn-add"
             :aria-label="`Add to ${control.label}`"
             v-on="onTooltip"
             :disabled="
@@ -24,14 +31,19 @@
                 arraySchema !== undefined &&
                 arraySchema.maxItems !== undefined &&
                 control.data.length >= arraySchema.maxItems)
-            ">
+            "
+          >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </template>
         {{ `Add to ${control.label}` }}
       </v-tooltip>
-    
-      <v-card v-if="control.visible && !noData" :class="styles.arrayList.root" elevation="0">
+
+      <v-card
+        v-if="control.visible && !noData"
+        :class="styles.arrayList.root"
+        elevation="0"
+      >
         <v-container justify-space-around align-content-center>
           <v-row justify="center">
             <v-simple-table class="array-container flex">
@@ -160,7 +172,9 @@
         </v-container>
       </v-card>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 ml-2">{{ description }}</div>
+    <div v-if="description" class="text--secondary text-body-1 ml-2">
+      {{ description }}
+    </div>
     <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
       {{ cleanedErrors }}
     </div>
@@ -179,10 +193,10 @@ import {
   ControlElement,
   JsonSchema,
   Resolve,
-  and
-} from '@jsonforms/core';
-import startCase from 'lodash/startCase';
-import { defineComponent } from 'vue'
+  and,
+} from "@jsonforms/core";
+import startCase from "lodash/startCase";
+import { defineComponent } from "vue";
 import {
   DispatchCell,
   DispatchRenderer,
@@ -190,8 +204,11 @@ import {
   useJsonFormsArrayControl,
   RendererProps,
   useJsonFormsControl,
-} from '@jsonforms/vue2';
-import { useVuetifyArrayControl, useVuetifyControl } from '@/renderers/util/composition';
+} from "@jsonforms/vue2";
+import {
+  useVuetifyArrayControl,
+  useVuetifyControl,
+} from "@/renderers/util/composition";
 import {
   VCard,
   VCardTitle,
@@ -207,13 +224,13 @@ import {
   VAvatar,
   VSpacer,
   VSimpleTable,
-} from 'vuetify/lib';
-import ValidationBadge from '@/renderers/controls/components/ValidationBadge.vue';
-import ValidationIcon from '@/renderers/controls/components/ValidationIcon.vue';
-import { isEqual } from 'lodash';
+} from "vuetify/lib";
+import ValidationBadge from "@/renderers/controls/components/ValidationBadge.vue";
+import ValidationIcon from "@/renderers/controls/components/ValidationIcon.vue";
+import { isEqual } from "lodash";
 
 const controlRenderer = defineComponent({
-  name: 'array-control-renderer',
+  name: "array-control-renderer",
   components: {
     DispatchCell,
     DispatchRenderer,
@@ -242,8 +259,8 @@ const controlRenderer = defineComponent({
       ...useVuetifyControl(
         useJsonFormsControl(props),
         (value) => value || undefined
-      ),  // Needed for handleChange function
-      ...useVuetifyArrayControl(useJsonFormsArrayControl(props))
+      ), // Needed for handleChange function
+      ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
     };
   },
   computed: {
@@ -259,37 +276,33 @@ const controlRenderer = defineComponent({
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
   },
   created() {
     // @ts-ignore
-    const requiredItems = this.control.schema.contains?.enum || []
-    
-    requiredItems.map(item => {
+    const requiredItems = this.control.schema.contains?.enum || [];
+
+    requiredItems.map((item) => {
       if (!this.control.data) {
-        this.control.data = []
+        this.control.data = [];
       }
       // We most use isEqual to compare objects instead of Arra.includes
-      const isIncluded = this.control.data.some(existingItem => isEqual(item, existingItem))
+      const isIncluded = this.control.data.some((existingItem) =>
+        isEqual(item, existingItem)
+      );
       if (!isIncluded) {
-        this.addItem(
-          this.control.path,
-          item
-        )()
+        this.addItem(this.control.path, item)();
       }
-    })
+    });
 
     if (this.control.schema.default && !this.control.data) {
-      this.control.schema.default.map(item => {
-        this.addItem(
-          this.control.path,
-          item
-        )()
-      })
+      this.control.schema.default.map((item) => {
+        this.addItem(this.control.path, item)();
+      });
     }
   },
   methods: {
@@ -313,25 +326,25 @@ const controlRenderer = defineComponent({
       event.stopPropagation();
       this.removeItems?.(this.control.path, toDelete)();
       if (this.control.data.length === 0) {
-        this.handleChange(this.control.path, undefined)
+        this.handleChange(this.control.path, undefined);
       }
     },
     getValidColumnProps(scopedSchema: JsonSchema) {
       if (
-        scopedSchema.type === 'object' &&
-        typeof scopedSchema.properties === 'object'
+        scopedSchema.type === "object" &&
+        typeof scopedSchema.properties === "object"
       ) {
-        return Object.keys(scopedSchema.properties).filter(
-          (prop) => {
-            const property = scopedSchema.properties![prop]
-            return property.type !== 'array'
-              // @ts-ignore
-              && !property.options?.hidden 
-          }
-        );
+        return Object.keys(scopedSchema.properties).filter((prop) => {
+          const property = scopedSchema.properties![prop];
+          return (
+            property.type !== "array" &&
+            // @ts-ignore
+            !property.options?.hidden
+          );
+        });
       }
       // primitives
-      return [''];
+      return [""];
     },
     title(prop: string) {
       return this.control.schema.properties?.[prop]?.title ?? startCase(prop);
@@ -339,28 +352,33 @@ const controlRenderer = defineComponent({
     resolveUiSchema(propName: string) {
       return this.control.schema.properties
         ? this.controlWithoutLabel(`#/properties/${propName}`)
-        : this.controlWithoutLabel('#');
+        : this.controlWithoutLabel("#");
     },
     controlWithoutLabel(scope: string): ControlElement {
-      return { type: 'Control', scope: scope, label: false };
+      return { type: "Control", scope: scope, label: false };
     },
     // TODO: currently no way to propagate this to array elements.
     isRequired(item) {
       // @ts-ignore
-      return this.control.schema.contains?.enum?.some(requiredItem => isEqual(item, requiredItem))
-    }
+      return this.control.schema.contains?.enum?.some((requiredItem) =>
+        isEqual(item, requiredItem)
+      );
+    },
   },
 });
 
 export default controlRenderer;
 
 const useTableLayout = (uiSchema) => {
-  return uiSchema.options?.useTableLayout
-}
+  return uiSchema.options?.useTableLayout;
+};
 
-export const arrayControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(3, or(isPrimitiveArrayControl, and(isObjectArrayControl, useTableLayout))),
+  tester: rankWith(
+    3,
+    or(isPrimitiveArrayControl, and(isObjectArrayControl, useTableLayout))
+  ),
 };
 </script>
 

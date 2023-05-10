@@ -1,34 +1,53 @@
 <template>
   <div class="py-4" :data-id="computedLabel.replaceAll(` `, ``)">
-    <fieldset v-if="control.visible" class="cz-fieldset"
-      :class="{'is-invalid': control.childErrors.length, ...styles.arrayList.root }" elevation="0">
-      <legend v-if="computedLabel"
+    <fieldset
+      v-if="control.visible"
+      class="cz-fieldset"
+      :class="{
+        'is-invalid': control.childErrors.length,
+        ...styles.arrayList.root,
+      }"
+      elevation="0"
+    >
+      <legend
+        v-if="computedLabel"
         @click="noData && control.enabled ? addButtonClick() : null"
-        class="v-label" :class="styles.arrayList.label + (!noData ? ' v-label--active' : '')">
+        class="v-label"
+        :class="styles.arrayList.label + (!noData ? ' v-label--active' : '')"
+      >
         {{ computedLabel }}
       </legend>
 
       <v-tooltip bottom transition="fade">
         <template v-slot:activator="{ on: onTooltip }">
-          <v-btn icon color="primary"
-            @click="addButtonClick()" 
+          <v-btn
+            icon
+            color="primary"
+            @click="addButtonClick()"
             :class="styles.arrayList.addButton"
-            class="btn-add" 
+            class="btn-add"
             :aria-label="`Add to ${control.label}`"
             v-on="onTooltip"
             :disabled="
               !control.enabled ||
               (appliedOptions.restrict &&
-                maxItems !== undefined && control.data &&
+                maxItems !== undefined &&
+                control.data &&
                 control.data.length >= maxItems)
-            ">
+            "
+          >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </template>
         {{ `Add to ${control.label}` }}
       </v-tooltip>
 
-      <v-container v-if="!noData" class="pt-8" justify-space-around align-content-center>
+      <v-container
+        v-if="!noData"
+        class="pt-8"
+        justify-space-around
+        align-content-center
+      >
         <v-row justify="center">
           <v-expansion-panels focusable v-model="currentlyExpanded" multiple>
             <v-expansion-panel
@@ -39,13 +58,25 @@
               <v-expansion-panel-header :class="styles.arrayList.itemHeader">
                 <v-container py-0>
                   <v-row>
-                    <v-col v-if="!hideAvatar" align-self="center" px-0 class="flex-grow-0">
+                    <v-col
+                      v-if="!hideAvatar"
+                      align-self="center"
+                      px-0
+                      class="flex-grow-0"
+                    >
                       <v-chip aria-label="Index" color="primary">
-                        <span class="primary--text text--lighten-5">{{ index + 1 }}</span>
+                        <span class="primary--text text--lighten-5">{{
+                          index + 1
+                        }}</span>
                       </v-chip>
                     </v-col>
 
-                    <v-col v-if="appliedOptions.elementLabelProp" align-self="center" justify-self="start" class="text-truncate flex-grow-1">
+                    <v-col
+                      v-if="appliedOptions.elementLabelProp"
+                      align-self="center"
+                      justify-self="start"
+                      class="text-truncate flex-grow-1"
+                    >
                       {{ getItemLabel(element) }}
                     </v-col>
 
@@ -134,7 +165,10 @@
                   </v-row>
                 </v-container>
               </v-expansion-panel-header>
-              <v-expansion-panel-content :class="styles.arrayList.itemContent" class="pa-0 pt-4">
+              <v-expansion-panel-content
+                :class="styles.arrayList.itemContent"
+                class="pa-0 pt-4"
+              >
                 <dispatch-renderer
                   :schema="control.schema"
                   :uischema="foundUISchema"
@@ -156,7 +190,7 @@
       >
         <v-card>
           <v-card-title class="text-h5">
-            Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
+            Delete {{ childLabelForIndex(suggestToDelete) || "element" }}?
           </v-card-title>
 
           <v-card-text> The element will be deleted. </v-card-text>
@@ -179,7 +213,9 @@
         </v-card>
       </v-dialog>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 ml-2">{{ description }}</div>
+    <div v-if="description" class="text--secondary text-body-1 ml-2">
+      {{ description }}
+    </div>
     <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
       {{ cleanedErrors }}
     </div>
@@ -200,17 +236,21 @@ import {
   JsonSchema,
   getControlPath,
   or,
-  isObjectArrayControl
-} from '@jsonforms/core';
-import { defineComponent } from 'vue'
+  isObjectArrayControl,
+} from "@jsonforms/core";
+import { defineComponent } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsArrayControl,
   RendererProps,
   useJsonFormsControl,
-} from '@jsonforms/vue2';
-import { useNested, useVuetifyArrayControl, useVuetifyControl } from '@/renderers/util/composition';
+} from "@jsonforms/vue2";
+import {
+  useNested,
+  useVuetifyArrayControl,
+  useVuetifyControl,
+} from "@/renderers/util/composition";
 import {
   VCard,
   VCardActions,
@@ -231,15 +271,15 @@ import {
   VExpansionPanel,
   VExpansionPanelHeader,
   VExpansionPanelContent,
-} from 'vuetify/lib';
-import ValidationBadge from '@/renderers/controls/components/ValidationBadge.vue';
-import ValidationIcon from '@/renderers/controls/components/ValidationIcon.vue';
-import { ErrorObject } from 'ajv';
-import { ref } from 'vue';
-import { isEqual } from 'lodash';
+} from "vuetify/lib";
+import ValidationBadge from "@/renderers/controls/components/ValidationBadge.vue";
+import ValidationIcon from "@/renderers/controls/components/ValidationIcon.vue";
+import { ErrorObject } from "ajv";
+import { ref } from "vue";
+import { isEqual } from "lodash";
 
 const controlRenderer = defineComponent({
-  name: 'array-layout-renderer',
+  name: "array-layout-renderer",
   components: {
     DispatchRenderer,
     VCard,
@@ -272,51 +312,47 @@ const controlRenderer = defineComponent({
       ...useVuetifyControl(
         useJsonFormsControl(props),
         (value) => value || undefined
-      ),  // Needed for handleChange function
+      ), // Needed for handleChange function
       ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
     };
 
-    const currentlyExpanded: number[] = []
+    const currentlyExpanded: number[] = [];
     const suggestToDelete = ref<null | number>(null);
     // indicate to our child renderers that we are increasing the "nested" level
-    useNested('array');
+    useNested("array");
     return { ...control, currentlyExpanded, suggestToDelete };
   },
   created() {
     // @ts-ignore
-    const requiredItems = this.control.schema.contains?.enum || []
+    const requiredItems = this.control.schema.contains?.enum || [];
 
-    requiredItems.map(item => {
+    requiredItems.map((item) => {
       if (!this.control.data) {
-        this.handleChange(this.control.path, undefined)
+        this.handleChange(this.control.path, undefined);
       }
       // We most use isEqual to compare objects instead of Arra.includes
-      const isIncluded = this.control.data?.some(existingItem => isEqual(item, existingItem))
+      const isIncluded = this.control.data?.some((existingItem) =>
+        isEqual(item, existingItem)
+      );
       if (!isIncluded) {
-        this.addItem(
-          this.control.path,
-          item
-        )()
+        this.addItem(this.control.path, item)();
       }
-    })
+    });
 
     if (this.control.schema.default && !this.control.data) {
-      this.control.schema.default.map(item => {
-        this.addItem(
-          this.control.path,
-          item
-        )()
-      })
+      this.control.schema.default.map((item) => {
+        this.addItem(this.control.path, item)();
+      });
     }
 
     // Expand existing items
     if (this.control.data) {
-      this.currentlyExpanded = this.control.data.map((item, index) => index)
+      this.currentlyExpanded = this.control.data.map((item, index) => index);
     }
   },
   computed: {
     noData(): boolean {
-      return !this.control.data || this.control.data.length === 0
+      return !this.control.data || this.control.data.length === 0;
     },
     foundUISchema(): UISchemaElement {
       return findUISchema(
@@ -327,14 +363,14 @@ const controlRenderer = defineComponent({
         undefined,
         this.control.uischema,
         this.control.rootSchema
-      )
+      );
     },
     arraySchema(): JsonSchema | undefined {
       return Resolve.schema(
         this.control.rootSchema,
         this.control.uischema.scope,
         this.control.rootSchema
-      )
+      );
     },
     hideAvatar(): boolean {
       // @ts-ignore
@@ -342,18 +378,18 @@ const controlRenderer = defineComponent({
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     maxItems() {
       // @ts-ignore
-      return this.control.schema.maxItems || this.arraySchema?.maxItems
+      return this.control.schema.maxItems || this.arraySchema?.maxItems;
     },
     minItems() {
       // @ts-ignore
-      return this.control.schema.minItems || this.arraySchema?.minItems
+      return this.control.schema.minItems || this.arraySchema?.minItems;
     },
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
   },
   methods: {
@@ -380,7 +416,7 @@ const controlRenderer = defineComponent({
     removeItemsClick(toDelete: number[]): void {
       this.removeItems?.(this.control.path, toDelete)();
       if (this.control.data.length === 0) {
-        this.handleChange(this.control.path, undefined)
+        this.handleChange(this.control.path, undefined);
       }
     },
     childErrors(index: number): ErrorObject[] {
@@ -394,38 +430,42 @@ const controlRenderer = defineComponent({
     // TODO: currently no way to propagate this to array elements.
     isRequired(item) {
       // @ts-ignore
-      return this.control.schema.contains?.enum?.some(requiredItem => isEqual(item, requiredItem))
+      return this.control.schema.contains?.enum?.some((requiredItem) =>
+        isEqual(item, requiredItem)
+      );
     },
     getItemLabel(element) {
       // @ts-ignore
       if (Array.isArray(this.appliedOptions.elementLabelProp)) {
         // @ts-ignore
         return this.appliedOptions.elementLabelProp
-          .map(prop => element[prop])
-          .join(" ")
-      }
-      else {
+          .map((prop) => element[prop])
+          .join(" ");
+      } else {
         // @ts-ignore
-        return element[this.appliedOptions.elementLabelProp]
+        return element[this.appliedOptions.elementLabelProp];
       }
-    }
+    },
   },
 });
 
 export default controlRenderer;
 
 const useTableLayout = (uiSchema) => {
-  return false  // TODO: table layout disabled until issue with asterik is solved
+  return false; // TODO: table layout disabled until issue with asterik is solved
   // return uiSchema.options?.useTableLayout
-}
+};
 
 const useArrayLayout = (uiSchema) => {
-  return uiSchema.options?.useArrayLayout
-}
+  return uiSchema.options?.useArrayLayout;
+};
 
-export const arrayLayoutRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(4, or(isObjectArrayControl, isObjectArrayWithNesting, useArrayLayout)),
+  tester: rankWith(
+    4,
+    or(isObjectArrayControl, isObjectArrayWithNesting, useArrayLayout)
+  ),
 };
 </script>
 

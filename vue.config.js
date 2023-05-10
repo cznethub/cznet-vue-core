@@ -43,11 +43,6 @@ module.exports = {
   devServer: {
     disableHostCheck: true,
   },
-  transpileDependencies: [
-    "vuetify",
-    "@jsonforms/core",
-    "@jsonforms/vue",
-    "@jsonforms/vue-vanilla",
-  ],
+  transpileDependencies: ["vuetify", "@jsonforms/core", "@jsonforms/vue2"],
   publicPath: "/",
 };

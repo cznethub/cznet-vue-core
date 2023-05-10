@@ -32,7 +32,7 @@ import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
-  useJsonFormsLayout
+  useJsonFormsLayout,
 } from "@jsonforms/vue2";
 import { useVuetifyLayout } from "@/renderers/util/composition";
 
@@ -46,12 +46,12 @@ const layoutRenderer = defineComponent({
   },
   setup(props: RendererProps<Layout>) {
     return useVuetifyLayout(useJsonFormsLayout(props));
-  }
+  },
 });
 
 export default layoutRenderer;
 
-export const objectRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
   tester: rankWith(3, and(isLayout, uiTypeIs("Object"))),
 };

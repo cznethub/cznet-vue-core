@@ -1,8 +1,9 @@
 <template>
   <div class="py-3">
     <fieldset class="cz-fieldset">
-      <legend v-if="computedLabel"
-        class="v-label v-label--active">{{ computedLabel }}</legend>
+      <legend v-if="computedLabel" class="v-label v-label--active">
+        {{ computedLabel }}
+      </legend>
 
       <v-radio-group
         class="mt-0"
@@ -29,7 +30,9 @@
         ></v-radio>
       </v-radio-group>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 ml-2">{{ description }}</div>
+    <div v-if="description" class="text--secondary text-body-1 ml-2">
+      {{ description }}
+    </div>
     <div v-if="control.errors" class="ml-2 v-messages error--text">
       {{ control.errors }}
     </div>
@@ -44,20 +47,20 @@ import {
   isEnumControl,
   optionIs,
   and,
-} from '@jsonforms/core';
+} from "@jsonforms/core";
 import {
   rendererProps,
   useJsonFormsEnumControl,
   RendererProps,
-} from '@jsonforms/vue2';
-import { default as ControlWrapper } from './ControlWrapper.vue';
-import { VRadioGroup, VRadio, VLabel } from 'vuetify/lib';
+} from "@jsonforms/vue2";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
+import { VRadioGroup, VRadio, VLabel } from "vuetify/lib";
 
-import { useVuetifyControl } from '@/renderers/util/composition';
-import { defineComponent } from 'vue'
+import { useVuetifyControl } from "@/renderers/util/composition";
+import { defineComponent } from "vue";
 
 const controlRenderer = defineComponent({
-  name: 'radio-group-control-renderer',
+  name: "radio-group-control-renderer",
   components: {
     ControlWrapper,
     VRadioGroup,
@@ -72,15 +75,15 @@ const controlRenderer = defineComponent({
   },
   computed: {
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
-  }
+  },
 });
 
 export default controlRenderer;
 
-export const radioGroupControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(20, and(isEnumControl, optionIs('format', 'radio'))),
-}
+  tester: rankWith(20, and(isEnumControl, optionIs("format", "radio"))),
+};
 </script>

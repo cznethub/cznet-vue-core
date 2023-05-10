@@ -1,26 +1,34 @@
 <template>
   <div class="py-4">
-    <fieldset v-if="control.visible"
+    <fieldset
+      v-if="control.visible"
       :data-id="control.schema.title.replaceAll(` `, ``)"
       :class="{
-        ...styles.control.root, 
+        ...styles.control.root,
         'cz-fieldset': !isFlat,
         'is-borderless': isFlat,
-      }">
-
+      }"
+    >
       <template v-if="!isFlat">
-        <legend v-if="control.schema.title" 
-          @click="showForm()" :class="{ 'v-label--active': isAdded || !hasToggle }"
-          class="v-label">{{ computedLabel }}</legend>
+        <legend
+          v-if="control.schema.title"
+          @click="showForm()"
+          :class="{ 'v-label--active': isAdded || !hasToggle }"
+          class="v-label"
+        >
+          {{ computedLabel }}
+        </legend>
 
         <div v-if="hasToggle">
           <v-tooltip v-if="!isAdded" bottom transition="fade">
             <template v-slot:activator="{ on: onTooltip }">
-              <v-btn icon color="primary"
-                @click="showForm()" 
+              <v-btn
+                icon
+                color="primary"
+                @click="showForm()"
                 :disabled="!control.enabled"
                 :class="styles.arrayList.addButton"
-                class="btn-add" 
+                class="btn-add"
                 :aria-label="`Add to ${control.schema.title}`"
                 v-on="onTooltip"
               >
@@ -32,11 +40,13 @@
 
           <v-tooltip v-else bottom transition="fade">
             <template v-slot:activator="{ on: onTooltip }">
-              <v-btn icon color="error"
-                @click="removeForm()" 
+              <v-btn
+                icon
+                color="error"
+                @click="removeForm()"
                 :class="styles.arrayList.addButton"
                 :disabled="!control.enabled"
-                class="btn-add" 
+                class="btn-add"
                 aria-label="Remove"
                 v-on="onTooltip"
               >
@@ -104,8 +114,9 @@
             outlined
             dense
             persistent-hint
-          >{{ currentLabel }}</v-select>
-          
+            >{{ currentLabel }}</v-select
+          >
+
           <dispatch-renderer
             v-if="selectedIndex >= 0 && anyOfRenderInfos[selectedIndex]"
             :key="selectedIndex"
@@ -119,7 +130,9 @@
         </template>
       </template>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">{{ description }}</div>
+    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">
+      {{ description }}
+    </div>
     <div v-if="cleanedErrors" class="ml-2 mt-2 v-messages error--text">
       <v-divider v-if="isFlat" class="mb-4"></v-divider>
       {{ cleanedErrors }}
@@ -128,7 +141,6 @@
 </template>
 
 <script lang="ts">
-
 import {
   ControlElement,
   createCombinatorRenderInfos,
@@ -137,15 +149,15 @@ import {
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
   isAnyOfControl,
-} from '@jsonforms/core';
+} from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsAnyOfControl,
-} from '@jsonforms/vue2';
-import { defineComponent, ref } from 'vue'
-import { useVuetifyControl } from '@/renderers/util/composition';
+} from "@jsonforms/vue2";
+import { defineComponent, ref } from "vue";
+import { useVuetifyControl } from "@/renderers/util/composition";
 import {
   VDialog,
   VCard,
@@ -158,11 +170,11 @@ import {
   VTab,
   VTabsItems,
   VTabItem,
-} from 'vuetify/lib';
-import CombinatorProperties from '@/renderers/components/CombinatorProperties.vue'
+} from "vuetify/lib";
+import CombinatorProperties from "@/renderers/components/CombinatorProperties.vue";
 
 const controlRenderer = defineComponent({
-  name: 'one-of-renderer',
+  name: "one-of-renderer",
   components: {
     DispatchRenderer,
     CombinatorProperties,
@@ -184,7 +196,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const input = useJsonFormsAnyOfControl(props);
     const control = (input.control as any).value as typeof input.control;
-    const tabData: {[key: number]: any } = {} // Dictionary to store form state between tab changes
+    const tabData: { [key: number]: any } = {}; // Dictionary to store form state between tab changes
     const selectedIndex = ref(control.indexOfFittingSchema || 0);
     const isAdded = ref(false);
 
@@ -197,13 +209,13 @@ const controlRenderer = defineComponent({
   },
   created() {
     if (this.control.data) {
-      this.isAdded = true
+      this.isAdded = true;
     }
   },
   mounted() {
     // indexOfFittingSchema is only populated after mounted hook
-    this.selectedIndex = this.control.indexOfFittingSchema || 0
-    this.annotateFittingSchema()  // Watchers are not setup yet, so we call it manually
+    this.selectedIndex = this.control.indexOfFittingSchema || 0;
+    this.annotateFittingSchema(); // Watchers are not setup yet, so we call it manually
   },
   computed: {
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -211,128 +223,127 @@ const controlRenderer = defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.anyOf!,
         this.control.rootSchema,
-        'anyOf',
+        "anyOf",
         this.control.uischema,
         this.control.path,
         this.control.uischemas
       );
       // JsonSchema does not pass the required attribute, so we do it ourselves
-      info.map(i => { 
-        i.schema.required = this.control.schema.required
+      info.map((i) => {
+        i.schema.required = this.control.schema.required;
         // @ts-ignore: use detail uischema if specified
-        i.uischema = i.schema.options?.detail || i.uischema
-      })
-      return info
+        i.uischema = i.schema.options?.detail || i.uischema;
+      });
+      return info;
     },
     hasToggle() {
       // @ts-ignore
-      return !this.control.required && !this.control.schema.options?.flat
+      return !this.control.required && !this.control.schema.options?.flat;
     },
     isFlat() {
       // @ts-ignore
-      return this.control.schema.options?.flat
+      return this.control.schema.options?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore
-      return this.control.schema.options?.dropdown
+      return this.control.schema.options?.dropdown;
     },
     title(): string {
-      // @ts-ignore
-      return this.control.schema?.options?.title 
-      || this.control.schema.title
-      || ''
+      return (
+        // @ts-ignore
+        this.control.schema?.options?.title || this.control.schema.title || ""
+      );
     },
     description(): string {
-      return this.control.description
-      // @ts-ignore
-      || this.control.schema?.options?.description 
-      || this.appliedOptions.description
-      || this.anyOfRenderInfos[this.selectedIndex].schema.description
-      || ''
+      return (
+        this.control.description ||
+        // @ts-ignore
+        this.control.schema?.options?.description ||
+        this.appliedOptions.description ||
+        this.anyOfRenderInfos[this.selectedIndex].schema.description ||
+        ""
+      );
     },
     currentLabel(): string {
-      return this.selectedIndex >= 0 
+      return this.selectedIndex >= 0
         ? this.anyOfRenderInfos[this.selectedIndex].label
-        : ''
+        : "";
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
   },
   watch: {
     selectedIndex(newIndex, oldIndex) {
-      this.annotateFittingSchema()
-    }
+      this.annotateFittingSchema();
+    },
   },
   methods: {
     handleTabChange(): void {
       if (!this.control.enabled) {
-        return
+        return;
       }
 
-      this.$set(this.tabData, this.selectedIndex, this.control.data)  // Store form state before tab change
+      this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
       this.$nextTick(() => {
         // Tab has changed
         // If we had form data stored, restore it. Otherwise create default value.
         if (this.tabData[this.selectedIndex]) {
-          this.handleChange(this.control.path, this.tabData[this.selectedIndex])
-        }
-        else {
-          const schema = this.anyOfRenderInfos[this.selectedIndex].schema
-          const val = schema.type === 'object' || schema.type === 'array'
-            ? createDefaultValue(schema)
-            : undefined
-          
-          // Only create default values for objects and arrays
           this.handleChange(
             this.control.path,
-            val
-          )
+            this.tabData[this.selectedIndex]
+          );
+        } else {
+          const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
+          const val =
+            schema.type === "object" || schema.type === "array"
+              ? createDefaultValue(schema)
+              : undefined;
+
+          // Only create default values for objects and arrays
+          this.handleChange(this.control.path, val);
         }
-      })
+      });
     },
     annotateFittingSchema() {
       this.anyOfRenderInfos.map((info, index) => {
         // @ts-ignore: used by error handling to figure out the used fitting schema
-        info.schema.isFittingSchema = index === this.selectedIndex
-      })
+        info.schema.isFittingSchema = index === this.selectedIndex;
+      });
     },
     handleSelect(label: string) {
-      this.$set(this.tabData, this.selectedIndex, this.control.data)  // Store form state before tab change
-      this.selectedIndex = this.anyOfRenderInfos.findIndex((info: CombinatorSubSchemaRenderInfo) => info.label === label)
-      
+      this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
+      this.selectedIndex = this.anyOfRenderInfos.findIndex(
+        (info: CombinatorSubSchemaRenderInfo) => info.label === label
+      );
+
       if (this.selectedIndex === -1) {
-        this.handleChange(
-          this.control.path,
-          undefined
-        )
-      }
-      else if (this.tabData[this.selectedIndex]) {
-        this.handleChange(this.control.path, this.tabData[this.selectedIndex])
-      }
-      else {
+        this.handleChange(this.control.path, undefined);
+      } else if (this.tabData[this.selectedIndex]) {
+        this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
+      } else {
         this.handleChange(
           this.control.path,
           createDefaultValue(this.anyOfRenderInfos[this.selectedIndex].schema)
-        )
+        );
       }
     },
     showForm() {
       if (this.control.enabled) {
-        this.isAdded = true
+        this.isAdded = true;
       }
     },
     removeForm() {
-      this.isAdded = false
-      this.handleChange(this.control.path, undefined)
+      this.isAdded = false;
+      this.handleChange(this.control.path, undefined);
     },
   },
 });
 
 export default controlRenderer;
 
-export const anyOfRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(3, isAnyOfControl),
 };

@@ -54,8 +54,8 @@ import {
   schemaSubPathMatches,
   uiTypeIs,
   composePaths,
-} from '@jsonforms/core';
-import { VCheckbox, VContainer, VRow, VCol } from 'vuetify/lib';
+} from "@jsonforms/core";
+import { VCheckbox, VContainer, VRow, VCol } from "vuetify/lib";
 import {
   DispatchRenderer,
   rendererProps,
@@ -63,9 +63,9 @@ import {
   useControl,
   ControlProps,
   useJsonFormsControl,
-} from '@jsonforms/vue2';
-import { defineComponent } from 'vue';
-import { useVuetifyBasicControl } from '@/renderers/util/composition';
+} from "@jsonforms/vue2";
+import { defineComponent } from "vue";
+import { useVuetifyBasicControl } from "@/renderers/util/composition";
 
 //TODO: move into JsonForm Vue project under src/components/jsonFormsCompositions.ts
 const useJsonFormsMultiEnumControl = (props: ControlProps) => {
@@ -76,10 +76,10 @@ const useJsonFormsMultiEnumControl = (props: ControlProps) => {
   );
 };
 
-import { useVuetifyControl } from '@/renderers/util/composition';
+import { useVuetifyControl } from "@/renderers/util/composition";
 
 const controlRenderer = defineComponent({
-  name: 'enum-array-renderer',
+  name: "enum-array-renderer",
   components: {
     DispatchRenderer,
     VCheckbox,
@@ -95,19 +95,17 @@ const controlRenderer = defineComponent({
       ...useVuetifyControl(
         useJsonFormsControl(props),
         (value) => value || undefined
-      ),  // Needed for handleChange function
-      ...useVuetifyBasicControl(
-        useJsonFormsMultiEnumControl(props)
-      )
-    }
+      ), // Needed for handleChange function
+      ...useVuetifyBasicControl(useJsonFormsMultiEnumControl(props)),
+    };
   },
   computed: {
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
   },
   methods: {
@@ -118,12 +116,11 @@ const controlRenderer = defineComponent({
     // If value changed to an empty array, we need to set the data to undefined in order to trigger validation errors
     beforeChange(items) {
       if (!items.length) {
-        this.handleChange(this.control.path, undefined)
+        this.handleChange(this.control.path, undefined);
+      } else {
+        this.onChange(items);
       }
-      else {
-        this.onChange(items)
-      }
-    }
+    },
   },
 });
 
@@ -137,22 +134,22 @@ const hasOneOfItems = (schema: JsonSchema): boolean =>
   });
 
 const hasEnumItems = (schema: JsonSchema): boolean =>
-  schema.type === 'string' && schema.enum !== undefined;
+  schema.type === "string" && schema.enum !== undefined;
 
-export const enumArrayRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(
     5,
     and(
-      uiTypeIs('Control'),
+      uiTypeIs("Control"),
       and(
         schemaMatches(
           (schema) =>
-            hasType(schema, 'array') &&
+            hasType(schema, "array") &&
             !Array.isArray(schema.items) &&
             schema.uniqueItems === true
         ),
-        schemaSubPathMatches('items', (schema) => {
+        schemaSubPathMatches("items", (schema) => {
           return hasOneOfItems(schema) || hasEnumItems(schema);
         })
       )

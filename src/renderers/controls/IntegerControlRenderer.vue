@@ -35,19 +35,19 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isIntegerControl,
-} from '@jsonforms/core';
-import { defineComponent } from 'vue'
+} from "@jsonforms/core";
+import { defineComponent } from "vue";
 import {
   rendererProps,
   useJsonFormsControl,
   RendererProps,
-} from '@jsonforms/vue2';
-import { default as ControlWrapper } from './ControlWrapper.vue';
-import { useVuetifyControl } from '@/renderers/util/composition';
-import { VTextField } from 'vuetify/lib';
+} from "@jsonforms/vue2";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
+import { useVuetifyControl } from "@/renderers/util/composition";
+import { VTextField } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
-  name: 'integer-control-renderer',
+  name: "integer-control-renderer",
   components: {
     ControlWrapper,
     VTextField,
@@ -56,13 +56,10 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(
-      useJsonFormsControl(props),
-      (value) => {
-        const val = parseInt(value, 10)
-        return isNaN(val) ? undefined : val
-      }
-    );
+    return useVuetifyControl(useJsonFormsControl(props), (value) => {
+      const val = parseInt(value, 10);
+      return isNaN(val) ? undefined : val;
+    });
   },
   computed: {
     step(): number {
@@ -71,32 +68,35 @@ const controlRenderer = defineComponent({
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     placeholder(): string {
-      // @ts-ignore
-      return this.control.schema.options?.placeholder || this.appliedOptions.placeholder || ''
+      return (
+        // @ts-ignore
+        this.control.schema.options?.placeholder ||
+        this.appliedOptions.placeholder ||
+        ""
+      );
     },
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
   },
   methods: {
     // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error
     beforeChange(event) {
-      if (event.target.value === null || event.target.value.trim() === '') {
-        this.handleChange(this.control.path, undefined)
+      if (event.target.value === null || event.target.value.trim() === "") {
+        this.handleChange(this.control.path, undefined);
+      } else {
+        this.onChange(event.target.value);
       }
-      else {
-        this.onChange(event.target.value)
-      }
-    }
-  }
+    },
+  },
 });
 
 export default controlRenderer;
 
-export const integerControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(2, isIntegerControl),
 };

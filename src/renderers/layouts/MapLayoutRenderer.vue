@@ -37,14 +37,14 @@ import {
   rankWith,
   ControlElement,
 } from "@jsonforms/core";
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
-  useJsonFormsControlWithDetail
+  useJsonFormsControlWithDetail,
 } from "@jsonforms/vue2";
-import { useVuetifyControl,  } from "@/renderers/util/composition";
+import { useVuetifyControl } from "@/renderers/util/composition";
 import { VContainer, VRow, VCol } from "vuetify/lib";
 import { Loader, LoaderOptions } from "google-maps";
 const options: LoaderOptions = { libraries: ["drawing"] };
@@ -68,7 +68,7 @@ const layoutRenderer = defineComponent({
     const isEventFromMap = false;
     const timeout = 50;
     const initialized = false;
-    
+
     const rectangleOptions: google.maps.RectangleOptions = {
       fillColor: "#1976d2",
       fillOpacity: 0.25,
@@ -79,7 +79,7 @@ const layoutRenderer = defineComponent({
       draggable: true,
     };
 
-    const markerOptions: google.maps.MarkerOptions = {}
+    const markerOptions: google.maps.MarkerOptions = {};
     return {
       marker,
       rectangle,
@@ -89,7 +89,7 @@ const layoutRenderer = defineComponent({
       isEventFromMap,
       timeout,
       initialized,
-      ...useVuetifyControl(useJsonFormsControlWithDetail(props))
+      ...useVuetifyControl(useJsonFormsControlWithDetail(props)),
     };
   },
   mounted: async function () {
@@ -99,11 +99,10 @@ const layoutRenderer = defineComponent({
       this.loadDrawing();
 
       if (this.map) {
-        if (this.mapType === 'box') {
+        if (this.mapType === "box") {
           // Zoom and center to rectangle
-          (this.map as google.maps.Map).fitBounds(this.rectangle.bounds)
-        }
-        else {
+          (this.map as google.maps.Map).fitBounds(this.rectangle.bounds);
+        } else {
           // Recenter at marker
           (this.map as google.maps.Map).setCenter({
             lat: this.control.data.north,
@@ -114,17 +113,16 @@ const layoutRenderer = defineComponent({
     }
   },
   watch: {
-    'control.data': function (newData, oldData) {
+    "control.data": function (newData, oldData) {
       if (this.isEventFromMap) {
-        this.isEventFromMap = false
-      }
-      else {
+        this.isEventFromMap = false;
+      } else {
         if (this.initialized) {
-          this.loadDrawing()
-          this.isEventFromMap = false
+          this.loadDrawing();
+          this.isEventFromMap = false;
         }
       }
-    }
+    },
   },
   computed: {
     mapType(): "point" | "box" {
@@ -145,7 +143,7 @@ const layoutRenderer = defineComponent({
     hasData(): boolean {
       return (
         (this.mapType === "point" &&
-          !isNaN(this.control.data.north) && 
+          !isNaN(this.control.data.north) &&
           !isNaN(this.control.data.east)) ||
         (this.mapType === "box" &&
           !isNaN(this.control.data.northlimit) &&
@@ -175,18 +173,18 @@ const layoutRenderer = defineComponent({
       const icons = {
         track_directional: {
           icon: iconBase + "track-directional/track-8.png",
-        }
+        },
       };
 
-      this.markerOptions = { 
-        ...this.markerOptions, 
+      this.markerOptions = {
+        ...this.markerOptions,
         // animation: google.maps.Animation.DROP,
         icon: {
           url: icons.track_directional.icon,
           anchor: new google.maps.Point(20, 35),
-          scaledSize: new google.maps.Size(40, 40)
-        }
-      }
+          scaledSize: new google.maps.Size(40, 40),
+        },
+      };
 
       // add drawing menu
       const drawingManager = new google.maps.drawing.DrawingManager({
@@ -197,7 +195,7 @@ const layoutRenderer = defineComponent({
           drawingModes: [drawwingMode],
         },
         rectangleOptions: this.rectangleOptions,
-        markerOptions: this.markerOptions
+        markerOptions: this.markerOptions,
       });
 
       drawingManager.setMap(this.map);
@@ -208,7 +206,7 @@ const layoutRenderer = defineComponent({
         (marker: google.maps.Marker) => {
           this.clearMarkers();
           this.marker = marker;
-          this.isEventFromMap = true
+          this.isEventFromMap = true;
           this.handleDrawing();
         }
       );
@@ -219,8 +217,11 @@ const layoutRenderer = defineComponent({
         (rectangle: google.maps.Rectangle) => {
           this.clearRectangles();
           this.rectangle = rectangle;
-          rectangle.addListener("bounds_changed", () => { this.isEventFromMap = true; this.handleDrawing() });
-          this.isEventFromMap = true
+          rectangle.addListener("bounds_changed", () => {
+            this.isEventFromMap = true;
+            this.handleDrawing();
+          });
+          this.isEventFromMap = true;
           this.handleDrawing();
         }
       );
@@ -228,10 +229,10 @@ const layoutRenderer = defineComponent({
       this.initialized = true;
     },
     debouncedHandleChange() {
-      window.clearTimeout(this.timeout)
+      window.clearTimeout(this.timeout);
       this.timeout = window.setTimeout(() => {
-        this.handleChange(this.control.path, this.control.data)
-      }, 150)
+        this.handleChange(this.control.path, this.control.data);
+      }, 150);
     },
     handleDrawing() {
       // propagate to form inputs
@@ -255,7 +256,7 @@ const layoutRenderer = defineComponent({
 
         if (this.isEventFromMap) {
           // Debounced to prevent stuttering while draging the rectangle around
-          this.debouncedHandleChange()
+          this.debouncedHandleChange();
         }
       } else if (this.mapType === "point") {
         const position = this.marker.getPosition();
@@ -268,7 +269,7 @@ const layoutRenderer = defineComponent({
         }
 
         if (this.isEventFromMap) {
-          this.handleChange(this.control.path, this.control.data)
+          this.handleChange(this.control.path, this.control.data);
         }
       }
     },
@@ -293,7 +294,7 @@ const layoutRenderer = defineComponent({
     },
     loadRectangle() {
       if (this.map) {
-        this.clearRectangles()
+        this.clearRectangles();
 
         if (this.hasData) {
           this.rectangle = new google.maps.Rectangle({
@@ -307,7 +308,10 @@ const layoutRenderer = defineComponent({
             map: this.map,
           });
 
-          this.rectangle.addListener("bounds_changed", () => { this.isEventFromMap = true; this.handleDrawing() });
+          this.rectangle.addListener("bounds_changed", () => {
+            this.isEventFromMap = true;
+            this.handleDrawing();
+          });
         }
       }
     },
@@ -318,10 +322,13 @@ const layoutRenderer = defineComponent({
         if (this.hasData) {
           const marker = new google.maps.Marker({
             ...this.markerOptions,
-            position: { lat: this.control.data.north, lng: this.control.data.east },
+            position: {
+              lat: this.control.data.north,
+              lng: this.control.data.east,
+            },
             map: this.map,
           });
-          
+
           this.marker = marker;
         }
       }
@@ -330,7 +337,7 @@ const layoutRenderer = defineComponent({
 });
 
 export default layoutRenderer;
-export const mapLayoutRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
   tester: rankWith(2, uiTypeIs("MapLayout")),
 };

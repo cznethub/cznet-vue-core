@@ -4,10 +4,7 @@
     :class="`cz-fieldset my-4 ${styles.group.root}`"
     :data-id="generateId"
   >
-    <legend
-      v-if="layout.label"
-      class="v-label v-label--active"
-    >
+    <legend v-if="layout.label" class="v-label v-label--active">
       {{ layout.label }}
     </legend>
 
@@ -44,14 +41,13 @@ import {
   and,
   isLayout,
   uiTypeIs,
-  
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
-  useJsonFormsLayout
+  useJsonFormsLayout,
 } from "@jsonforms/vue2";
 import { useVuetifyLayout } from "@/renderers/util/composition";
 
@@ -76,7 +72,7 @@ const layoutRenderer = defineComponent({
 
 export default layoutRenderer;
 
-export const groupRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
   tester: rankWith(3, and(isLayout, uiTypeIs("Group"))),
 };

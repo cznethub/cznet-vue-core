@@ -648,7 +648,7 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-export const dateTimeControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(3, isDateTimeControl),
 };

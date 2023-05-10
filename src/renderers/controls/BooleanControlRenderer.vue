@@ -36,19 +36,19 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isBooleanControl,
-} from '@jsonforms/core';
-import { defineComponent } from 'vue'
+} from "@jsonforms/core";
+import { defineComponent } from "vue";
 import {
   rendererProps,
   useJsonFormsControl,
   RendererProps,
-} from '@jsonforms/vue2';
-import { default as ControlWrapper } from './ControlWrapper.vue';
-import { useVuetifyControl } from '@/renderers/util/composition';
-import { VCheckbox } from 'vuetify/lib';
+} from "@jsonforms/vue2";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
+import { useVuetifyControl } from "@/renderers/util/composition";
+import { VCheckbox } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
-  name: 'boolean-control-renderer',
+  name: "boolean-control-renderer",
   components: {
     VCheckbox,
     ControlWrapper,
@@ -64,28 +64,32 @@ const controlRenderer = defineComponent({
   },
   created() {
     if (!this.control.data && this.control.schema.default !== undefined) {
-      this.control.data = this.control.schema.default
-      this.handleChange(this.control.path, this.control.data)
+      this.control.data = this.control.schema.default;
+      this.handleChange(this.control.path, this.control.data);
     }
   },
   computed: {
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     placeholder(): string {
-      // @ts-ignore
-      return this.control.schema.options?.placeholder || this.appliedOptions.placeholder || ''
+      return (
+        // @ts-ignore
+        this.control.schema.options?.placeholder ||
+        this.appliedOptions.placeholder ||
+        ""
+      );
     },
     description(): string {
-      return this.control.description || this.appliedOptions.description || ''
+      return this.control.description || this.appliedOptions.description || "";
     },
   },
 });
 
 export default controlRenderer;
 
-export const booleanControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(1, isBooleanControl),
 };

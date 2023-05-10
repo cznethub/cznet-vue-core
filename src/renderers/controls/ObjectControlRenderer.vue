@@ -120,9 +120,9 @@ const controlRenderer = defineComponent({
     "control.data": function (newVal, oldVal) {
       if (newVal) {
         const filteredObj = Object.fromEntries(
-          Object.entries(newVal).filter(([_, value]) => value !== undefined)  // strip out undefined properties
+          Object.entries(newVal).filter(([_, value]) => value !== undefined) // strip out undefined properties
         );
-        
+
         if (isEqual(filteredObj, {})) {
           this.handleChange(this.control.path, undefined);
         }
@@ -178,7 +178,7 @@ const controlRenderer = defineComponent({
   },
 });
 export default controlRenderer;
-export const objectControlRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(2, isObjectControl),
 };

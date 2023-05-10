@@ -1,7 +1,13 @@
 <template>
   <div class="py-3">
-    <fieldset v-if="control.visible" class="cz-fieldset" :data-id="control.schema.title.replaceAll(` `, ``)">
-      <legend v-if="control.schema.title" class="v-label--active">{{ control.schema.title }}</legend>
+    <fieldset
+      v-if="control.visible"
+      class="cz-fieldset"
+      :data-id="control.schema.title.replaceAll(` `, ``)"
+    >
+      <legend v-if="control.schema.title" class="v-label--active">
+        {{ control.schema.title }}
+      </legend>
       <template v-if="delegateUISchema">
         <dispatch-renderer
           :schema="subSchema"
@@ -25,7 +31,9 @@
         />
       </template>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">{{ description }}</div>
+    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">
+      {{ description }}
+    </div>
     <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
       <v-divider v-if="isFlat" class="mb-4"></v-divider>
       {{ cleanedErrors }}
@@ -43,18 +51,18 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   UISchemaElement,
-} from '@jsonforms/core'
+} from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsAllOfControl,
-} from '@jsonforms/vue2'
-import { defineComponent } from 'vue'
-import { useVuetifyControl } from '@/renderers/util/composition';
+} from "@jsonforms/vue2";
+import { defineComponent } from "vue";
+import { useVuetifyControl } from "@/renderers/util/composition";
 
 const controlRenderer = defineComponent({
-  name: 'all-of-renderer',
+  name: "all-of-renderer",
   components: {
     DispatchRenderer,
   },
@@ -76,36 +84,38 @@ const controlRenderer = defineComponent({
       const info = createCombinatorRenderInfos(
         this.control.schema.allOf!,
         this.control.rootSchema,
-        'allOf',
+        "allOf",
         this.control.uischema,
         this.control.path,
         this.control.uischemas
       );
 
       // JsonSchema does not pass the required attribute, so we do it ourselves
-      info.map(i => { 
-        i.schema.required = this.control.schema.required
+      info.map((i) => {
+        i.schema.required = this.control.schema.required;
         // @ts-ignore: use detail uischema if specified
-        i.uischema = i.schema.options?.detail || i.uischema
-      })
-      return info
+        i.uischema = i.schema.options?.detail || i.uischema;
+      });
+      return info;
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``)
+      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     description(): string {
-      return this.control.description
-      || this.control.schema?.description 
-      || this.appliedOptions.description
-      || ''
+      return (
+        this.control.description ||
+        this.control.schema?.description ||
+        this.appliedOptions.description ||
+        ""
+      );
     },
   },
 });
 
 export default controlRenderer;
 
-export const allOfRenderer: JsonFormsRendererRegistryEntry = {
+export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(3, isAllOfControl),
 };
