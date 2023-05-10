@@ -1,13 +1,12 @@
 {
   "name": "@cznethub/cznet-vue-core",
-  "version": "0.1.16",
+  "version": "0.1.18",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "prebuild": "rimraf lib",
     "build": "cross-env NODE_ENV=production rollup --config rollup.config.js",
     "lint": "vue-cli-service lint",
-    "build-lib": "vue-cli-service build --target lib --name cznet-vue-core ./src/index.ts",
     "publish": "npm publish --access public"
   },
   "main": "lib/cznet-vue-core.cjs.js",
@@ -72,9 +71,7 @@
     "vue": "^2.7.14",
     "vuetify": "^2.6.14",
     "vue-class-component": "^7.2.6",
-    "vue-property-decorator": "^9.1.2",
-    "@jsonforms/core": "3.1.0-alpha.0",
-    "@jsonforms/vue2": "3.1.0-alpha.0"
+    "vue-property-decorator": "^9.1.2"
   },
   "eslintConfig": {
     "root": true,

@@ -18,6 +18,7 @@ const baseConfig = {
     "vuetify/lib",
     "@mdi/font",
     /^dayjs\/.*/,
+    "vue-property-decorator",
   ],
 };
 
