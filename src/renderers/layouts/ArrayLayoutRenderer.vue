@@ -271,6 +271,7 @@ import {
   VExpansionPanel,
   VExpansionPanelHeader,
   VExpansionPanelContent,
+  VChip,
 } from "vuetify/lib";
 import { ErrorObject } from "ajv";
 import { ref } from "vue";
