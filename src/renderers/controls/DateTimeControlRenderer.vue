@@ -134,7 +134,14 @@ import {
 } from "@/renderers/util";
 import { VueMaskDirective as Mask } from "v-mask";
 import dayjs from "dayjs";
-
+import {
+  VBtn,
+  VDatePicker,
+  VIcon,
+  VMenu,
+  VSpacer,
+  VTextField,
+} from "vuetify/lib";
 const JSON_SCHEMA_DATE_TIME_FORMATS = [
   "YYYY-MM-DDTHH:mm:ss.SSSZ",
   // 'YYYY-MM-DDTHH:mm:ss.SSS',
@@ -145,6 +152,14 @@ const JSON_SCHEMA_DATE_TIME_FORMATS = [
 const controlRenderer = defineComponent({
   name: "datetime-control-renderer",
   directives: { Mask },
+  components: {
+    VTextField,
+    VMenu,
+    VDatePicker,
+    VIcon,
+    VSpacer,
+    VBtn,
+  },
   props: {
     ...rendererProps<ControlElement>(),
   },
