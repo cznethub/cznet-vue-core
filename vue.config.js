@@ -1,51 +1,53 @@
-process.env.VUE_APP_VERSION = process.env.npm_package_version
+process.env.VUE_APP_VERSION = process.env.npm_package_version;
 
 const configureWebpack = (config) => {
-  if (process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== "development") {
     // prevent class name mangling
-    config.optimization.minimizer[0].options.terserOptions.keep_classnames = true
+    config.optimization.minimizer[0].options.terserOptions.keep_classnames = true;
     // config.plugins.push(new ImageminPlugin())
   }
 
-  config.externals = {
-    vuetify: 'Vuetify'
-  }
-}
+  // config.externals = {
+  //   vuetify: 'Vuetify'
+  // }
+};
 
 const chainWebpack = (config) => {
   config.module
-    .rule('vuetify')
-    .test('/.s(c|a)ss$/')
-    .use(['vue-style-loader', 'css-loader'])
-    .loader('sass-loader')
+    .rule("vuetify")
+    .test("/.s(c|a)ss$/")
+    .use(["vue-style-loader", "css-loader"])
+    .loader("sass-loader")
     .options({
-      implementation: require('sass'),
-      indentedSyntax: true // optional
+      implementation: require("sass"),
+      indentedSyntax: true, // optional
     })
     .options({
-      implementation: require('sass'),
+      implementation: require("sass"),
       sassOptions: {
-        indentedSyntax: true // optional
-      }
-    })
-}
+        indentedSyntax: true, // optional
+      },
+    });
+};
 
 module.exports = {
   // css: {extract: false},
   pluginOptions: {
     webpackBundleAnalyzer: {
-      openAnalyzer: false
-    }
+      openAnalyzer: false,
+      analyzerMode: "disabled",
+    },
   },
   chainWebpack,
   configureWebpack,
   devServer: {
-    disableHostCheck: true
+    disableHostCheck: true,
   },
   transpileDependencies: [
-    'vuetify',
+    "vuetify",
+    "@jsonforms/core",
+    "@jsonforms/vue",
+    "@jsonforms/vue-vanilla",
   ],
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/' + process.env.VUE_APP_PRODUCTION_DIR
-    : '/'
-}
+  publicPath: "/",
+};

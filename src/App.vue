@@ -1,28 +1,45 @@
 <template>
   <v-app app>
-    CZNet vue core components
+    <div class="text-center">CZNet vue core components</div>
+    <submission-form
+      :schema="schema"
+      :uischema="uischema"
+      :schemaDefaults="schemaDefaults"
+    />
     <cz-notifications />
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import CzNotifications from "@/components/base/cz.notifications.vue";
 import Notifications from "@/models/notifications";
+import SubmissionForm from "@/components/new-submission/submission-form.vue";
+
+const schema = require("@/schemas/schema.json");
+const uischema = require("@/schemas/uischema.json");
+const schemaDefaults = require("@/schemas/uischema.json");
 
 @Component({
   name: "app",
-  components: { CzNotifications },
+  components: { CzNotifications, SubmissionForm },
 })
 export default class App extends Vue {
+  protected schema;
+  protected uischema;
+  protected schemaDefaults;
+
   created() {
-    setTimeout(() => {
-      Notifications.openDialog({
-        title: `Testing....`,
-        content: 'error',
-        onConfirm: () => {}
-      })
-    }, 400)
+    this.schema = schema;
+    this.uischema = uischema;
+    this.schemaDefaults = schemaDefaults;
+  }
+  mounted() {
+    // Notifications.openDialog({
+    //   title: `Testing....`,
+    //   content: "error",
+    //   onConfirm: () => {},
+    // });
   }
 }
 </script>
@@ -32,7 +49,6 @@ export default class App extends Vue {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   margin-top: 60px;
 }

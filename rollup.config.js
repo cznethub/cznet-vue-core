@@ -15,7 +15,6 @@ const baseConfig = {
     ...Object.keys(packageJson.peerDependencies),
     // /^lodash\/.*/,
     'vuetify/lib',
-    'vuetify',
     'vue',
     // /^dayjs\/.*/,
   ],
