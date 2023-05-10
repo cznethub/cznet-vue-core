@@ -5,6 +5,7 @@ import resolve from "@rollup/plugin-node-resolve";
 import cleanup from "rollup-plugin-cleanup";
 import visualizer from "rollup-plugin-visualizer";
 import styles from "rollup-plugin-styles";
+import commonjs from "@rollup/plugin-commonjs";
 
 import packageJson from "./package.json";
 
@@ -58,6 +59,7 @@ const buildFormats = [
       }),
       cleanup({ extensions: ["js", "ts", "jsx", "tsx", "vue"] }),
       visualizer(),
+      commonjs(),
     ],
   },
   {
@@ -99,6 +101,7 @@ const buildFormats = [
         babelHelpers: "bundled",
       }),
       cleanup({ extensions: ["js", "ts", "jsx", "tsx", "vue"] }),
+      commonjs(),
     ],
   },
 ];

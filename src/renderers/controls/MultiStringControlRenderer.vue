@@ -53,9 +53,7 @@ import { useVuetifyControl } from "@/renderers/util/composition";
 
 const controlRenderer = defineComponent({
   name: "multi-string-control-renderer",
-  components: {
-    // ControlWrapper
-  },
+  components: {},
   props: {
     ...rendererProps<ControlElement>(),
   },

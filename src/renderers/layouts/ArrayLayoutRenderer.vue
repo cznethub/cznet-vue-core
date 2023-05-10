@@ -272,8 +272,6 @@ import {
   VExpansionPanelHeader,
   VExpansionPanelContent,
 } from "vuetify/lib";
-import ValidationBadge from "@/renderers/controls/components/ValidationBadge.vue";
-import ValidationIcon from "@/renderers/controls/components/ValidationIcon.vue";
 import { ErrorObject } from "ajv";
 import { ref } from "vue";
 import { isEqual } from "lodash";
@@ -301,8 +299,6 @@ const controlRenderer = defineComponent({
     VExpansionPanelHeader,
     VExpansionPanelContent,
     VContainer,
-    ValidationIcon,
-    ValidationBadge,
   },
   props: {
     ...rendererProps<ControlElement>(),

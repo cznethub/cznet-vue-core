@@ -44,16 +44,13 @@ import {
   useJsonFormsControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
 import { useVuetifyControl } from "@/renderers/util/composition";
 
 const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
 const controlRenderer = defineComponent({
   name: "number-control-renderer",
-  components: {
-    ControlWrapper,
-  },
+  components: {},
   props: {
     ...rendererProps<ControlElement>(),
   },

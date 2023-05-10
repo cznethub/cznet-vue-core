@@ -42,14 +42,12 @@ import {
   useJsonFormsControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { VTextField } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "integer-control-renderer",
   components: {
-    ControlWrapper,
     VTextField,
   },
   props: {

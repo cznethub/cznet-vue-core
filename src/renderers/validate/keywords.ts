@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import keywords from "ajv-keywords";
-import dynamicDefaults from "ajv-keywords";
+import dynamicDefaults from "ajv-keywords/dist/definitions/dynamicDefaults";
 import tranform from "./transform";
 
 import {
@@ -25,6 +25,5 @@ export const ajvKeywords = (ajv: Ajv) => {
   (dynamicDefaults.DEFAULTS as any).datetime = datetimeOffset;
   (dynamicDefaults.DEFAULTS as any).date = dateOffset;
   (dynamicDefaults.DEFAULTS as any).time = timeOffset;
-
   (dynamicDefaults.DEFAULTS as any).dateUnit = dateUnit;
 };

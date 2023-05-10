@@ -53,7 +53,6 @@ import {
   useJsonFormsEnumControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
 import { VRadioGroup, VRadio, VLabel } from "vuetify/lib";
 
 import { useVuetifyControl } from "@/renderers/util/composition";
@@ -62,7 +61,6 @@ import { defineComponent } from "vue";
 const controlRenderer = defineComponent({
   name: "radio-group-control-renderer",
   components: {
-    ControlWrapper,
     VRadioGroup,
     VRadio,
     VLabel,

@@ -225,8 +225,8 @@ import {
   VSpacer,
   VSimpleTable,
 } from "vuetify/lib";
-import ValidationBadge from "@/renderers/controls/components/ValidationBadge.vue";
-import ValidationIcon from "@/renderers/controls/components/ValidationIcon.vue";
+import ValidationBadge from "../controls/components/ValidationBadge.vue";
+import ValidationIcon from ".../controls/components/ValidationIcon.vue";
 import { isEqual } from "lodash";
 
 const controlRenderer = defineComponent({

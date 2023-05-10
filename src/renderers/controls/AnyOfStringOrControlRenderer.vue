@@ -41,14 +41,12 @@ import {
   useJsonFormsControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { VHover, VCombobox } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "anyof-string-or-enum-control-renderer",
   components: {
-    ControlWrapper,
     VHover,
     VCombobox,
   },
