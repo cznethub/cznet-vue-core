@@ -96,11 +96,15 @@ import cloneDeep from "lodash/cloneDeep";
 import { useNested, useVuetifyControl } from "@/renderers/util/composition";
 import { defineComponent, ref } from "vue";
 import { isEqual } from "lodash";
+import { VBtn, VIcon, VTooltip } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "object-renderer",
   components: {
     DispatchRenderer,
+    VBtn,
+    VIcon,
+    VTooltip,
   },
   props: {
     ...rendererProps<ControlElement>(),

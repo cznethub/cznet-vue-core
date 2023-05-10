@@ -55,7 +55,7 @@ import {
   uiTypeIs,
   composePaths,
 } from "@jsonforms/core";
-import { VCheckbox, VContainer, VRow, VCol } from "vuetify/lib";
+import { VContainer, VRow, VCol, VSelect, VHover } from "vuetify/lib";
 import {
   DispatchRenderer,
   rendererProps,
@@ -82,10 +82,11 @@ const controlRenderer = defineComponent({
   name: "enum-array-renderer",
   components: {
     DispatchRenderer,
-    VCheckbox,
     VContainer,
     VRow,
     VCol,
+    VSelect,
+    VHover,
   },
   props: {
     ...rendererProps<ControlElement>(),

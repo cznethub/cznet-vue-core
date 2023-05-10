@@ -172,6 +172,19 @@ import {
   VTabItem,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
+import {
+  VTabs,
+  VDialog,
+  VCard,
+  VCardTitle,
+  VCardText,
+  VCardActions,
+  VSpacer,
+  VBtn,
+  VTab,
+  VTabsItems,
+  VTabItem,
+} from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "one-of-renderer",

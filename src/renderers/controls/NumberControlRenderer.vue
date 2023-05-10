@@ -45,12 +45,13 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useVuetifyControl } from "@/renderers/util/composition";
+import { VTextField } from "vuetify/lib";
 
 const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
 const controlRenderer = defineComponent({
   name: "number-control-renderer",
-  components: {},
+  components: { VTextField },
   props: {
     ...rendererProps<ControlElement>(),
   },

@@ -99,10 +99,16 @@ import isArray from "lodash/isArray";
 import every from "lodash/every";
 import isString from "lodash/isString";
 
+import { VTextField, VCombobox } from "vuetify/lib";
+
 const controlRenderer = defineComponent({
   name: "string-control-renderer",
   props: {
     ...rendererProps<ControlElement>(),
+  },
+  components: {
+    VTextField,
+    VCombobox,
   },
   setup(props: RendererProps<ControlElement>) {
     return useVuetifyControl(

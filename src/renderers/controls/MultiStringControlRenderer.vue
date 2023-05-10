@@ -50,10 +50,11 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useVuetifyControl } from "@/renderers/util/composition";
+import { VTextarea } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "multi-string-control-renderer",
-  components: {},
+  components: { VTextarea },
   props: {
     ...rendererProps<ControlElement>(),
   },

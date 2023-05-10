@@ -90,6 +90,15 @@ import {
   useTranslator,
   useVuetifyControl,
 } from "@/renderers/util";
+import {
+  VBtn,
+  VDatePicker,
+  VIcon,
+  VMenu,
+  VSpacer,
+  VTextField,
+  VHover,
+} from "vuetify/lib";
 
 const JSON_SCHEMA_DATE_FORMATS = ["YYYY-MM-DD"];
 import { VueMaskDirective as Mask } from "v-mask";
@@ -106,6 +115,15 @@ const controlRenderer = defineComponent({
   directives: { Mask },
   props: {
     ...rendererProps<ControlElement>(),
+  },
+  components: {
+    VHover,
+    VTextField,
+    VMenu,
+    VDatePicker,
+    VIcon,
+    VSpacer,
+    VBtn,
   },
   setup(props: RendererProps<ControlElement>) {
     const t = useTranslator();

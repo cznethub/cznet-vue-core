@@ -60,11 +60,13 @@ import {
 } from "@jsonforms/vue2";
 import { defineComponent } from "vue";
 import { useVuetifyControl } from "@/renderers/util/composition";
+import { VDivider } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "all-of-renderer",
   components: {
     DispatchRenderer,
+    VDivider,
   },
   props: {
     ...rendererProps<ControlElement>(),

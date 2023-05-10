@@ -66,13 +66,14 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useVuetifyControl } from "@/renderers/util/composition";
-import { VSelect, VHover } from "vuetify/lib";
+import { VSelect, VHover, VAutocomplete } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
   name: "oneof-enum-control-renderer",
   components: {
     VSelect,
     VHover,
+    VAutocomplete,
   },
   directives: {},
   props: {

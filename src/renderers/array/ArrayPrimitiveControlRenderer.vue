@@ -57,13 +57,15 @@ import {
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
-import { VHover } from "vuetify/lib";
+import { VHover, VCombobox, VChip } from "vuetify/lib";
 import { useVuetifyControl } from "@/renderers/util/composition";
 
 const controlRenderer = defineComponent({
   name: "control-renderer",
   components: {
     VHover,
+    VCombobox,
+    VChip,
   },
   props: {
     ...rendererProps<ControlElement>(),
