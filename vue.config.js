@@ -13,6 +13,8 @@ const configureWebpack = (config) => {
 };
 
 const chainWebpack = (config) => {
+  config.plugins.delete("fork-ts-checker");
+
   config.module
     .rule("vuetify")
     .test("/.s(c|a)ss$/")
@@ -28,16 +30,12 @@ const chainWebpack = (config) => {
         indentedSyntax: true, // optional
       },
     });
+
+  return config;
 };
 
 module.exports = {
   // css: {extract: false},
-  pluginOptions: {
-    webpackBundleAnalyzer: {
-      openAnalyzer: false,
-      analyzerMode: "disabled",
-    },
-  },
   chainWebpack,
   configureWebpack,
   devServer: {

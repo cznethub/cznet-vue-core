@@ -28,7 +28,6 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
   enumControlRenderer,
   enumArrayRenderer,
   arrayPrimitiveControlRenderer,
-  // arrayControlRenderer,
   groupRenderer,
   numberControlRenderer,
   stringControlRenderer,

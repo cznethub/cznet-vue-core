@@ -4,22 +4,23 @@ import type {
   KeywordCxt,
   Code,
   Name,
-} from 'ajv';
-import { _, stringify, getProperty } from 'ajv/dist/compile/codegen';
-import capitalizeFn from 'lodash/capitalize';
-import startCaseFn from 'lodash/startCase';
+} from "ajv";
+import { getProperty } from "ajv/lib/compile/codegen/code";
+import { _, stringify } from "ajv";
+import capitalizeFn from "lodash/capitalize";
+import startCaseFn from "lodash/startCase";
 
 type TransformName =
-  | 'trimStart'
-  | 'trimEnd'
-  | 'trimLeft'
-  | 'trimRight'
-  | 'trim'
-  | 'toLowerCase'
-  | 'toUpperCase'
-  | 'toEnumCase'
-  | 'capitalize'
-  | 'startCase';
+  | "trimStart"
+  | "trimEnd"
+  | "trimLeft"
+  | "trimRight"
+  | "trim"
+  | "toLowerCase"
+  | "toUpperCase"
+  | "toEnumCase"
+  | "capitalize"
+  | "startCase";
 
 interface TransformConfig {
   hash: Record<string, string | undefined>;
@@ -46,18 +47,18 @@ const getDef: (() => CodeKeywordDefinition) & {
 
 function _getDef(): CodeKeywordDefinition {
   return {
-    keyword: 'transform',
-    schemaType: 'array',
-    before: 'enum',
+    keyword: "transform",
+    schemaType: "array",
+    before: "enum",
     code(cxt: KeywordCxt) {
       const { gen, data, schema, parentSchema, it } = cxt;
       const { parentData, parentDataProperty } = it;
       const tNames: string[] = schema;
       if (!tNames.length) return;
       let cfg: Name | undefined;
-      if (tNames.includes('toEnumCase')) {
+      if (tNames.includes("toEnumCase")) {
         const config = getEnumCaseCfg(parentSchema);
-        cfg = gen.scopeValue('obj', { ref: config, code: stringify(config) });
+        cfg = gen.scopeValue("obj", { ref: config, code: stringify(config) });
       }
       gen.if(
         _`typeof ${data} == "string" && ${parentData} !== undefined`,
@@ -72,21 +73,21 @@ function _getDef(): CodeKeywordDefinition {
         const t = ts.pop() as string;
         if (!(t in transform))
           throw new Error(`transform: unknown transformation ${t}`);
-        const func = gen.scopeValue('func', {
+        const func = gen.scopeValue("func", {
           ref: transform[t as TransformName],
           code: _`require("ajv-keywords/dist/definitions/transform").transform${getProperty(
             t
           )}`,
         });
         const arg = transformExpr(ts);
-        return cfg && t === 'toEnumCase'
+        return cfg && t === "toEnumCase"
           ? _`${func}(${arg}, ${cfg})`
           : _`${func}(${arg})`;
       }
     },
     metaSchema: {
-      type: 'array',
-      items: { type: 'string', enum: Object.keys(transform) },
+      type: "array",
+      items: { type: "string", enum: Object.keys(transform) },
     },
   };
 }
@@ -99,7 +100,7 @@ function getEnumCaseCfg(parentSchema: AnySchemaObject): TransformConfig {
   if (!parentSchema.enum)
     throw new Error('transform: "toEnumCase" requires "enum"');
   for (const v of parentSchema.enum) {
-    if (typeof v !== 'string') continue;
+    if (typeof v !== "string") continue;
     const k = configKey(v);
     // requires all `enum` values have unique keys
     if (cfg.hash[k]) {

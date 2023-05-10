@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { isDescriptionHidden } from "@jsonforms/core";
-import { defineComponent, PropType } from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "control-wrapper",

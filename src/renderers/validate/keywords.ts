@@ -1,7 +1,7 @@
-import Ajv from 'ajv';
-import keywords from 'ajv-keywords';
-import dynamicDefaults from 'ajv-keywords/dist/definitions/dynamicDefaults';
-import tranform from './transform';
+import Ajv from "ajv";
+import keywords from "ajv-keywords";
+import dynamicDefaults from "ajv-keywords";
+import tranform from "./transform";
 
 import {
   dateOffset,
@@ -10,13 +10,13 @@ import {
   dynamic,
   searchParams,
   timeOffset,
-} from './dynamicDefaults';
+} from "./dynamicDefaults";
 
 export const ajvKeywords = (ajv: Ajv) => {
   keywords(ajv);
 
   // add custom transform to be able to use more transformation functions since the transform keyword is not extensible as the dynamicDefaults
-  ajv.removeKeyword('transform');
+  ajv.removeKeyword("transform");
   ajv.addKeyword(tranform());
 
   // register new dynamic defaults

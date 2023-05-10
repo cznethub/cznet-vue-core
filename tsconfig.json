@@ -2,7 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "resolveJsonModule": true,
-    "target": "es2017",
+    "target": "esnext",
     "module": "esnext",
     "strict": true,
     "importHelpers": true,
@@ -14,13 +14,18 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "types": ["webpack-env", "node"],
+    "types": ["webpack-env", "node","vue","vuetify"],
     "paths": {
       "@/*": ["src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "declaration": true,
     "declarationDir": "dist/dts",
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "./lib",
+    "jsx": "preserve"
   },
   "include": [
     "src/**/*.ts",
@@ -28,5 +33,5 @@
     "tests/**/*.ts",
     "./*.ts"
 , "src/index.ts"  ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "lib"]
 }

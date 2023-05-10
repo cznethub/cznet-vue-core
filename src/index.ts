@@ -8,6 +8,7 @@ Vue.use(Vuetify);
 
 const components = {
   CzNotifications,
+  SubmissionForm,
 };
 
 Object.keys(components).forEach((name) => {

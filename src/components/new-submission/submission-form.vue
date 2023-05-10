@@ -18,7 +18,6 @@ import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue2";
 import { JsonFormsRendererRegistryEntry } from "@jsonforms/core";
 import { CzRenderers } from "@/renderers/renderer";
 import { createAjv } from "@/renderers/validate/validate";
-import { ErrorObject } from "ajv";
 
 const customAjv = createAjv();
 const renderers = [...CzRenderers];

@@ -1,22 +1,22 @@
-import vue from 'rollup-plugin-vue';
-import babel from '@rollup/plugin-babel';
-import typescript from 'rollup-plugin-typescript2';
-import resolve from '@rollup/plugin-node-resolve';
-import cleanup from 'rollup-plugin-cleanup';
-import visualizer from 'rollup-plugin-visualizer';
-import styles from 'rollup-plugin-styles';
+import vue from "rollup-plugin-vue";
+import babel from "@rollup/plugin-babel";
+import typescript from "rollup-plugin-typescript2";
+import resolve from "@rollup/plugin-node-resolve";
+import cleanup from "rollup-plugin-cleanup";
+import visualizer from "rollup-plugin-visualizer";
+import styles from "rollup-plugin-styles";
 
-import packageJson from './package.json';
+import packageJson from "./package.json";
 
 const baseConfig = {
-  input: 'src/index.ts',
+  input: "src/index.ts",
   external: [
     ...Object.keys(packageJson.dependencies),
     ...Object.keys(packageJson.peerDependencies),
-    // /^lodash\/.*/,
-    'vuetify/lib',
-    'vue',
-    // /^dayjs\/.*/,
+    /^lodash\/.*/,
+    "vuetify/lib",
+    "@mdi/font",
+    /^dayjs\/.*/,
   ],
 };
 
@@ -25,17 +25,16 @@ const buildFormats = [
     ...baseConfig,
     output: {
       file: packageJson.module,
-      format: 'esm',
+      format: "esm",
       sourcemap: true,
-      assetFileNames: '[name][extname]',
-      // exports: 'default'
+      assetFileNames: "[name][extname]",
     },
     plugins: [
       resolve({
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
+        extensions: [".js", ".jsx", ".ts", ".tsx", ".vue"],
       }),
       styles({
-        mode: ['extract'],
+        mode: ["extract"],
       }),
       vue({
         css: false,
@@ -48,14 +47,16 @@ const buildFormats = [
       }),
       typescript({
         emitDeclarationOnly: true,
-        tsconfig: 'tsconfig.compile.json',
+        tsconfig: "tsconfig.compile.json",
+        noEmitOnError: true,
+        abortOnError: false,
       }),
       babel({
-        exclude: 'node_modules/**',
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
-        babelHelpers: 'bundled',
+        exclude: "node_modules/**",
+        extensions: [".js", ".jsx", ".ts", ".tsx", ".vue"],
+        babelHelpers: "bundled",
       }),
-      cleanup({ extensions: ['js', 'ts', 'jsx', 'tsx', 'vue'] }),
+      cleanup({ extensions: ["js", "ts", "jsx", "tsx", "vue"] }),
       visualizer(),
     ],
   },
@@ -63,16 +64,16 @@ const buildFormats = [
     ...baseConfig,
     output: {
       file: packageJson.main,
-      format: 'cjs',
+      format: "cjs",
       sourcemap: true,
-      assetFileNames: '[name][extname]',
+      assetFileNames: "[name][extname]",
     },
     plugins: [
       resolve({
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
+        extensions: [".js", ".jsx", ".ts", ".tsx", ".vue"],
       }),
       styles({
-        mode: ['extract'],
+        mode: ["extract"],
       }),
       vue({
         css: false,
@@ -86,16 +87,18 @@ const buildFormats = [
       typescript({
         emitDeclarationOnly: true,
         tsconfigOverride: {
-          target: 'ES5',
+          target: "ES5",
         },
-        tsconfig: 'tsconfig.compile.json',
+        tsconfig: "tsconfig.compile.json",
+        noEmitOnError: true,
+        abortOnError: false,
       }),
       babel({
-        exclude: 'node_modules/**',
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
-        babelHelpers: 'bundled',
+        exclude: "node_modules/**",
+        extensions: [".js", ".jsx", ".ts", ".tsx", ".vue"],
+        babelHelpers: "bundled",
       }),
-      cleanup({ extensions: ['js', 'ts', 'jsx', 'tsx', 'vue'] }),
+      cleanup({ extensions: ["js", "ts", "jsx", "tsx", "vue"] }),
     ],
   },
 ];

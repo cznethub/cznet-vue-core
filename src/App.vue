@@ -13,7 +13,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import CzNotifications from "@/components/base/cz.notifications.vue";
-import Notifications from "@/models/notifications";
+// import Notifications from "@/models/notifications";
 import SubmissionForm from "@/components/new-submission/submission-form.vue";
 
 const schema = require("@/schemas/schema.json");
