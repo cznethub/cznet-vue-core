@@ -300,6 +300,7 @@ const controlRenderer = defineComponent({
     VExpansionPanelHeader,
     VExpansionPanelContent,
     VContainer,
+    VChip,
   },
   props: {
     ...rendererProps<ControlElement>(),

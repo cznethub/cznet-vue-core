@@ -170,6 +170,7 @@ import {
   VTabsItems,
   VTabItem,
   VTooltip,
+  VIcon,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
 
@@ -190,6 +191,7 @@ const controlRenderer = defineComponent({
     VTabsItems,
     VTabItem,
     VTooltip,
+    VIcon,
   },
   props: {
     ...rendererProps<ControlElement>(),
