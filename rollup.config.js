@@ -18,7 +18,6 @@ const baseConfig = {
     "vuetify/lib",
     "@mdi/font",
     /^dayjs\/.*/,
-    "vue-property-decorator",
   ],
 };
 
@@ -36,7 +35,7 @@ const buildFormats = [
         extensions: [".js", ".jsx", ".ts", ".tsx", ".vue"],
       }),
       styles({
-        mode: ["extract"],
+        mode: ["inject"],
       }),
       vue({
         css: false,
@@ -76,7 +75,7 @@ const buildFormats = [
         extensions: [".js", ".jsx", ".ts", ".tsx", ".vue"],
       }),
       styles({
-        mode: ["extract"],
+        mode: ["inject"],
       }),
       vue({
         css: false,

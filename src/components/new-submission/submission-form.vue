@@ -45,4 +45,6 @@ export default class SubmissionForm extends Vue {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+@import "../../renderers/styles/renderers.scss";
+</style>
