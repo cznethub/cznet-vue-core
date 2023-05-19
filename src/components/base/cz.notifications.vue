@@ -106,7 +106,6 @@ import {
 } from "vuetify/lib";
 import { IDialog, IToast } from "@/types";
 
-
 @Component({
   name: "cz-notifications",
   components: {
@@ -136,6 +135,7 @@ export default class CzNotifications extends Vue {
   async created() {
     this.onToast = Notifications.toast$.subscribe((toast: IToast) => {
       this.snackbar = { ...this.snackbar, ...toast };
+
       this.snackbar.isActive = true;
     });
 
@@ -153,5 +153,4 @@ export default class CzNotifications extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
