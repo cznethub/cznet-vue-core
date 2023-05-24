@@ -9,7 +9,6 @@
         'is-borderless': isFlat,
       }"
     >
-      {{ control.data === undefined ? "undefined" : control.data }}
       <template v-if="!isFlat">
         <legend
           v-if="control.schema.title"

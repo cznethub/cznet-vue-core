@@ -20,9 +20,6 @@
         ></v-card-text>
         <v-divider></v-divider>
         <v-card-text>
-          <pre>{{ JSON.stringify(data, null, 2) }}</pre>
-        </v-card-text>
-        <v-card-text>
           <cz-form
             :schema="schema"
             :uischema="undefined"
@@ -32,6 +29,10 @@
             :data.sync="data"
             ref="form"
           />
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text>
+          <pre>{{ JSON.stringify(data, null, 2) }}</pre>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
