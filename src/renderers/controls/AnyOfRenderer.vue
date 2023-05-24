@@ -2,13 +2,14 @@
   <div class="py-4">
     <fieldset
       v-if="control.visible"
-      :data-id="control.schema.title.replaceAll(` `, ``)"
+      :data-id="control.schema.title?.replaceAll(` `, ``)"
       :class="{
         ...styles.control.root,
         'cz-fieldset': !isFlat,
         'is-borderless': isFlat,
       }"
     >
+      {{ control.data === undefined ? "undefined" : control.data }}
       <template v-if="!isFlat">
         <legend
           v-if="control.schema.title"
@@ -279,7 +280,7 @@ const controlRenderer = defineComponent({
     },
   },
   watch: {
-    selectedIndex(newIndex, oldIndex) {
+    selectedIndex(_newIndex, _oldIndex) {
       this.annotateFittingSchema();
     },
   },

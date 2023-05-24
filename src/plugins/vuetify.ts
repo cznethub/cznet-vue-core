@@ -1,6 +1,7 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify/lib/framework';
-import colors from 'vuetify/lib/util/colors';
+import "@mdi/font/css/materialdesignicons.css";
+import Vue from "vue";
+import Vuetify from "vuetify/lib/framework";
+import colors from "vuetify/lib/util/colors";
 
 Vue.use(Vuetify);
 
@@ -14,7 +15,7 @@ export default new Vuetify({
         error: colors.red.accent3,
         success: colors.teal.accent4,
         info: colors.blueGrey,
-        navbar: colors.blueGrey.lighten4
+        navbar: colors.blueGrey.lighten4,
       },
       dark: {
         primary: colors.blueGrey,

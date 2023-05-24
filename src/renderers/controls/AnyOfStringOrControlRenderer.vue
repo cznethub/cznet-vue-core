@@ -18,7 +18,9 @@
         : undefined
     "
     :items="items"
-    :clearable="hover"
+    clearable
+    dense
+    outlined
     @change="onChange"
     @focus="isFocused = true"
     @blur="isFocused = false"

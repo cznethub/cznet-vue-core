@@ -49,11 +49,17 @@
         align-content-center
       >
         <v-row justify="center">
-          <v-expansion-panels focusable v-model="currentlyExpanded" multiple>
+          <v-expansion-panels
+            flat
+            focusable
+            v-model="currentlyExpanded"
+            multiple
+          >
             <v-expansion-panel
               v-for="(element, index) in control.data"
               :key="`${control.path}-${index}`"
               :class="styles.arrayList.item"
+              elevation="0"
             >
               <v-expansion-panel-header :class="styles.arrayList.itemHeader">
                 <v-container py-0>
@@ -345,7 +351,7 @@ const controlRenderer = defineComponent({
 
     // Expand existing items
     if (this.control.data) {
-      this.currentlyExpanded = this.control.data.map((item, index) => index);
+      this.currentlyExpanded = this.control.data.map((_item, index) => index);
     }
   },
   computed: {
@@ -394,10 +400,19 @@ const controlRenderer = defineComponent({
     composePaths,
     createDefaultValue,
     addButtonClick() {
-      this.addItem(
-        this.control.path,
-        createDefaultValue(this.control.schema)
-      )();
+      const combinatorSchema = this.isCombinatorSchema(this.control.schema);
+      const defaultSchema = combinatorSchema
+        ? this.control.schema[combinatorSchema][0]
+        : this.control.schema;
+
+      // for combinator schemas, only create default values for objects and arrays
+      const val =
+        !combinatorSchema || ["object", "array"].includes(defaultSchema.type)
+          ? createDefaultValue(defaultSchema)
+          : undefined;
+
+      this.addItem(this.control.path, val)();
+
       // @ts-ignore
       if (!this.appliedOptions.collapseNewItems && this.control.data?.length) {
         this.currentlyExpanded.push(this.control.data.length - 1);
@@ -449,10 +464,10 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-const useTableLayout = (uiSchema) => {
-  return false; // TODO: table layout disabled until issue with asterik is solved
-  // return uiSchema.options?.useTableLayout
-};
+// const useTableLayout = (uiSchema) => {
+//   return false; // TODO: table layout disabled until issue with asterik is solved
+//   // return uiSchema.options?.useTableLayout
+// };
 
 const useArrayLayout = (uiSchema) => {
   return uiSchema.options?.useArrayLayout;
@@ -470,5 +485,9 @@ export const entry: JsonFormsRendererRegistryEntry = {
 <style scoped>
 .notranslate {
   transform: none !important;
+}
+
+.v-expansion-panel {
+  border: thin solid rgba(0, 0, 0, 0.12);
 }
 </style>

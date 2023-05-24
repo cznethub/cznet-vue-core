@@ -27,6 +27,16 @@ export const useControlAppliedOptions = <I extends { control: any }>(
   );
 };
 
+export const isCombinatorSchema = (schema: any): string => {
+  return schema.anyOf
+    ? "anyOf"
+    : schema.allOf
+    ? "allOf"
+    : schema.oneOf
+    ? "oneOf"
+    : "";
+};
+
 export const useComputedLabel = <I extends { control: any }>(
   input: I,
   appliedOptions: ComputedRef<any>
@@ -122,6 +132,7 @@ export const useVuetifyControl = <
     vuetifyProps,
     persistentHint,
     computedLabel,
+    isCombinatorSchema,
   };
 };
 
@@ -236,6 +247,7 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     childLabelForIndex,
     computedLabel,
     vuetifyProps,
+    isCombinatorSchema,
   };
 };
 

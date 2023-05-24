@@ -211,7 +211,7 @@ const controlRenderer = defineComponent({
     };
   },
   created() {
-    if (this.control.data || true) {
+    if (this.control.data) {
       this.isAdded = true;
     }
   },
@@ -262,6 +262,7 @@ const controlRenderer = defineComponent({
         this.control.description ||
         // @ts-ignore
         this.control.schema?.options?.description ||
+        this.appliedOptions.description ||
         this.oneOfRenderInfos[this.selectedIndex].schema.description ||
         ""
       );
@@ -273,11 +274,11 @@ const controlRenderer = defineComponent({
     },
     cleanedErrors() {
       // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
+      return this.control.errors?.replaceAll(`is a required property`, ``);
     },
   },
   watch: {
-    selectedIndex(newIndex, oldIndex) {
+    selectedIndex(_newIndex, _oldIndex) {
       this.annotateFittingSchema();
     },
   },

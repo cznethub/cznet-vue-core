@@ -1,402 +1,2949 @@
 {
-  "$id": "http://czhub.org/schemas/cz_generic_dataset_v1.0.0.json",
-  "title": "Generic Dataset Schema for CZ Net Data Submission Portal v1.0.0",
-  "description": "Metadata for a dataset object submitted to a repository that is not supported by the CZ Hub Data Submission Portal",
+  "title": "DatasetSchema",
   "type": "object",
   "properties": {
+    "@context": {
+      "title": "@Context",
+      "default": "https://schema.org",
+      "minLength": 1,
+      "maxLength": 2083,
+      "format": "uri",
+      "type": "string"
+    },
+    "@type": {
+      "title": "@Type",
+      "default": "Dataset",
+      "const": "Dataset",
+      "readOnly": true,
+      "type": "string"
+    },
     "name": {
-      "title": "Name or title",
-      "type": "string",
-      "maxLength": 300,
-      "description": "Descriptive name or title for the resource."
+      "title": "Name",
+      "description": "The name or title of the record.",
+      "type": "string"
     },
     "description": {
-      "title": "Description or abstract",
-      "type": "string",
-      "description": "A string containing a description/abstract for the resource."
+      "title": "Description",
+      "description": "The description or abstract of the record.",
+      "type": "string"
     },
-    "keywords": {
-      "title": "Subject Keywords",
+    "url": {
+      "title": "Url",
+      "description": "The url of the record.",
+      "minLength": 1,
+      "maxLength": 2083,
+      "format": "uri",
+      "type": "string"
+    },
+    "identifier": {
+      "title": "Identifier",
+      "description": "Any kind of identifier for the record.",
       "type": "array",
-      "description": "A list of free text keywords related to the resource.",
-      "minItems": 2,
-      "uniqueItems": true,
       "items": {
-        "type": "string"
-      },
-      "default": [
-        "CZNet"
-      ],
-      "contains": {
-        "enum": [
-          "CZNet"
+        "options": {
+          "flat": true
+        },
+        "anyOf": [
+          {
+            "title": "Label 1",
+            "type": "string"
+          },
+          {
+            "title": "Label 2",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2083,
+            "format": "uri"
+          },
+          {
+            "title": "Property value",
+            "type": "object",
+            "properties": {
+              "@id": {
+                "title": "@Id",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri",
+                "type": "string"
+              },
+              "@type": {
+                "title": "@Type",
+                "default": "PropertyValue",
+                "const": "PropertyValue",
+                "readOnly": true,
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "propertyID": {
+                "title": "Property Id",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri",
+                "type": "string"
+              },
+              "value": {
+                "title": "Value",
+                "type": "string"
+              },
+              "url": {
+                "title": "Url",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": [
+              "@id",
+              "value",
+              "url"
+            ]
+          }
         ]
       }
     },
-    "creators": {
-      "title": "Creators",
+    "creator": {
+      "title": "Creator",
+      "description": "Person or organization that created the work.",
       "type": "array",
-      "description": "Creators of the resource in order of importance.",
-      "minItems": 1,
-      "uniqueItems": true,
       "items": {
-        "$ref": "#/definitions/Creator"
+        "options": {
+          "flat": true
+        },
+        "anyOf": [
+          {
+            "title": "Person",
+            "type": "object",
+            "properties": {
+              "@type": {
+                "title": "@Type",
+                "default": "Person",
+                "const": "Person",
+                "readOnly": true,
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "email": {
+                "title": "Email",
+                "type": "string",
+                "format": "email"
+              },
+              "identifier": {
+                "title": "Identifier",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  },
+                  {
+                    "property": {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    }
+                  }
+                ]
+              }
+            },
+            "required": [
+              "name"
+            ]
+          },
+          {
+            "title": "Organization",
+            "type": "object",
+            "properties": {
+              "@type": {
+                "title": "@Type",
+                "default": "Organization",
+                "const": "Organization",
+                "readOnly": true,
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "url": {
+                "title": "Url",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri",
+                "type": "string"
+              },
+              "identifier": {
+                "title": "Identifier",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  },
+                  {
+                    "title": "Property value",
+                    "type": "object",
+                    "properties": {
+                      "@id": {
+                        "title": "@Id",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri",
+                        "type": "string"
+                      },
+                      "@type": {
+                        "title": "@Type",
+                        "default": "PropertyValue",
+                        "const": "PropertyValue",
+                        "readOnly": true,
+                        "type": "string"
+                      },
+                      "name": {
+                        "title": "Name",
+                        "type": "string"
+                      },
+                      "propertyID": {
+                        "title": "Property Id",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri",
+                        "type": "string"
+                      },
+                      "value": {
+                        "title": "Value",
+                        "type": "string"
+                      },
+                      "url": {
+                        "title": "Url",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "@id",
+                      "value",
+                      "url"
+                    ]
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    }
+                  }
+                ]
+              },
+              "address": {
+                "title": "Address",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        ]
       }
     },
-    "contributors": {
-      "title": "Contributors",
+    "dateCreated": {
+      "title": "Date created",
+      "description": "The date on which the work was created.",
+      "anyOf": [
+        {
+          "title": "Date",
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "title": "Date-time",
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "keywords": {
+      "title": "Keywords",
+      "description": "Keywords or tags used to describe the dataset, delimited by commas.",
+      "minItems": 1,
       "type": "array",
-      "description": "Contributors to the resource in order of importance.",
-      "uniqueItems": true,
-      "default": [],
       "items": {
-        "$ref": "#/definitions/Contributor"
+        "title": "Keywords",
+        "options": {
+          "flat": true
+        },
+        "anyOf": [
+          {
+            "title": "Keyword term",
+            "type": "object",
+            "properties": {
+              "@type": {
+                "title": "@Type",
+                "default": "DefinedTerm",
+                "const": "DefinedTerm",
+                "readOnly": true,
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "description": {
+                "title": "Description",
+                "type": "string"
+              },
+              "inDefinedTermSet": {
+                "title": "Indefinedtermset",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "inDefinedTermSet"
+            ]
+          },
+          {
+            "title": "Keyword term",
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2083,
+            "format": "uri"
+          }
+        ]
       }
     },
     "license": {
       "title": "License",
-      "type": "object",
-      "description": "License under which the resource is released for access and reuse.",
-      "additionalProperties": false,
-      "properties": {
-        "name": {
-          "title": "License Name",
-          "type": "string",
-          "description": "Name of the license under which the resource is released."
+      "description": "A license document that applies to the content, typically indicated by a URL.",
+      "anyOf": [
+        {
+          "title": "License",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "CreativeWork",
+              "const": "CreativeWork",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "url": {
+              "title": "Url",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "url"
+          ]
         },
-        "description": {
-          "title": "License Description",
+        {
+          "title": "Other",
           "type": "string",
-          "description": "Text of the license or description of the license for the resource."
-        },
-        "url": {
-          "$ref": "#/definitions/UrlPattern"
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri"
         }
-      },
-      "required": [
-        "description"
       ]
     },
-    "funders": {
-      "title": "Funding agency information",
-      "type": "array",
-      "description": "Source of grants/awards that funded creation of all or part of the resource.",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
-        "$ref": "#/definitions/Award"
-      }
+    "provider": {
+      "title": "Provider",
+      "description": "The service provider, service operator, or service performer.",
+      "anyOf": [
+        {
+          "title": "Provider Organization",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "Organization",
+              "const": "Organization",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "url": {
+              "title": "Url",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            },
+            "identifier": {
+              "title": "Identifier",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri"
+                },
+                {
+                  "title": "Property value",
+                  "type": "object",
+                  "properties": {
+                    "@id": {
+                      "title": "@Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "@type": {
+                      "title": "@Type",
+                      "default": "PropertyValue",
+                      "const": "PropertyValue",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "propertyID": {
+                      "title": "Property Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Url",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "@id",
+                    "value",
+                    "url"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  }
+                }
+              ]
+            },
+            "address": {
+              "title": "Address",
+              "type": "string"
+            },
+            "parentOrganization": {
+              "title": "Organization",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Organization",
+                  "const": "Organization",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                },
+                "address": {
+                  "title": "Address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "title": "Person",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "Person",
+              "const": "Person",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "type": "string",
+              "format": "email"
+            },
+            "identifier": {
+              "title": "Identifier",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri"
+                },
+                {
+                  "title": "Property value",
+                  "type": "object",
+                  "properties": {
+                    "@id": {
+                      "title": "@Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "@type": {
+                      "title": "@Type",
+                      "default": "PropertyValue",
+                      "const": "PropertyValue",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "propertyID": {
+                      "title": "Property Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Url",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "@id",
+                    "value",
+                    "url"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "title": "Provider Id",
+          "type": "object",
+          "properties": {
+            "@id": {
+              "title": "@Id",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            }
+          },
+          "required": [
+            "@id"
+          ]
+        }
+      ]
     },
-    "relations": {
-      "title": "Related resources",
+    "publisher": {
+      "title": "Publisher",
+      "description": "The publisher of the record.",
+      "anyOf": [
+        {
+          "title": "Provider Organization",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "Organization",
+              "const": "Organization",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "url": {
+              "title": "Url",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            },
+            "identifier": {
+              "title": "Identifier",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri"
+                },
+                {
+                  "title": "Property value",
+                  "type": "object",
+                  "properties": {
+                    "@id": {
+                      "title": "@Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "@type": {
+                      "title": "@Type",
+                      "default": "PropertyValue",
+                      "const": "PropertyValue",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "propertyID": {
+                      "title": "Property Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Url",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "@id",
+                    "value",
+                    "url"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  }
+                }
+              ]
+            },
+            "address": {
+              "title": "Address",
+              "type": "string"
+            },
+            "parentOrganization": {
+              "title": "Organization",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Organization",
+                  "const": "Organization",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                },
+                "address": {
+                  "title": "Address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "title": "Person",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "Person",
+              "const": "Person",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "type": "string",
+              "format": "email"
+            },
+            "identifier": {
+              "title": "Identifier",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri"
+                },
+                {
+                  "title": "Property value",
+                  "type": "object",
+                  "properties": {
+                    "@id": {
+                      "title": "@Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "@type": {
+                      "title": "@Type",
+                      "default": "PropertyValue",
+                      "const": "PropertyValue",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "propertyID": {
+                      "title": "Property Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Url",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "@id",
+                    "value",
+                    "url"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "title": "Provider Id",
+          "type": "object",
+          "properties": {
+            "@id": {
+              "title": "@Id",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            }
+          },
+          "required": [
+            "@id"
+          ]
+        }
+      ]
+    },
+    "datePublished": {
+      "title": "Date published",
+      "description": "Date of first publication for the record.",
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "subjectOf": {
+      "title": "Subject of",
+      "description": "A CreativeWork about the record - e.g., a related metadata document describing the record.",
       "type": "array",
-      "description": "Raw textual references (e.g., a bibligraphic citation) for publications and datasets related to this resource.",
       "items": {
-        "title": "Related Resource Metadata",
-        "description": "Metadata associated with a resource related to the resource being described.",
+        "title": "Subject of",
         "type": "object",
         "properties": {
-          "type": {
-            "title": "Relation Type",
-            "description": "The type of relationship that exists between the describe resource and a related resource.",
-            "enum": [
-              "The content of this resource can be executed by",
-              "The content of this resource was created by a related App or software program",
-              "This resource is described by",
-              "This resource conforms to established standard described by",
-              "This resource has another resource in another format",
-              "This resource is a different format of",
-              "This resource is required by",
-              "This resource requires",
-              "This resource is referenced by",
-              "The content of this resource references",
-              "The content of this resource is derived from"
-            ],
+          "@type": {
+            "title": "@Type",
+            "default": "CreativeWork",
+            "const": "CreativeWork",
+            "readOnly": true,
             "type": "string"
           },
-          "value": {
-            "title": "Value",
-            "description": "String expressing the Full text citation, URL link for, or description of the related resource",
-            "maxLength": 500,
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "minLength": 1,
+            "maxLength": 2083,
+            "format": "uri",
+            "type": "string"
+          },
+          "encodingFormat": {
+            "title": "Encoding format",
             "type": "string"
           }
         },
         "required": [
-          "type",
-          "value"
+          "name",
+          "url",
+          "encodingFormat"
         ]
       }
     },
-    "notes": {
-      "title": "Additional notes",
-      "type": "string",
-      "description": "Additional notes related to the resource."
-    },
     "version": {
       "title": "Version",
-      "type": "string",
-      "description": "A version tag string for the resource - e.g., v1.0.0. Mostly relevant for software and dataset uploads. Any string will be accepted, but semantically-versioned tag is recommended."
+      "description": "The version of the record.",
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ]
     },
-    "url": {
-      "$ref": "#/definitions/UrlPattern"
+    "inLanguage": {
+      "title": "In language",
+      "description": "The language of the content of the record.",
+      "anyOf": [
+        {
+          "title": "Language enum",
+          "description": "An enumeration.",
+          "enum": [
+            "eng",
+            "esp"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ]
     },
-    "identifier": {
-      "title": "Identifier",
-      "type": "string",
-      "description": "A globally unique and persistent identifier for the submission."
+    "creativeWorkStatus": {
+      "title": "Creative work status",
+      "description": "The status of a creative work in terms of its stage in a lifecycle. Example terms include Incomplete, Draft, Published, Obsolete. Some organizations define a set of terms for the stages of their publication lifecycle.",
+      "anyOf": [
+        {
+          "title": "Defined term",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "DefinedTerm",
+              "const": "DefinedTerm",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "description"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "dateModified": {
+      "title": "Date modified",
+      "description": "The date on which the CreativeWork was most recently modified or updated.",
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        }
+      ]
+    },
+    "funding": {
+      "title": "Funding",
+      "description": "A Grant that directly or indirectly provide funding or sponsorship for creation of the dataset.",
+      "type": "array",
+      "items": {
+        "title": "Grant",
+        "type": "object",
+        "properties": {
+          "@type": {
+            "title": "@Type",
+            "default": "MonetaryGrant",
+            "const": "MonetaryGrant",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "minLength": 1,
+            "maxLength": 2083,
+            "format": "uri",
+            "type": "string"
+          },
+          "funder": {
+            "title": "Funder",
+            "anyOf": [
+              {
+                "title": "Person",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Person",
+                    "const": "Person",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              {
+                "title": "Organization",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Organization",
+                    "const": "Organization",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  },
+                  "address": {
+                    "title": "Address",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "url",
+          "funder"
+        ]
+      }
     },
     "temporalCoverage": {
       "title": "Temporal coverage",
-      "description": "The temporal coverage of the resource. The time period that it describes or applies to.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "A string containing a name for the time interval.",
-          "type": "string"
-        },
-        "start": {
-          "title": "Start",
-          "description": "A datetime object containing the instant corresponding to the commencement of the time interval (ISO8601 formatted date) - YYYY-MM-DDTHH:MM.",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          }
-        },
-        "end": {
-          "title": "End",
-          "description": "A datetime object containing the instant corresponding to the termination of the time interval (ISO8601 formatted date) - YYYY-MM-DDTHH:MM.",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          }
-        }
-      },
-      "required": [
-        "start",
-        "end"
-      ]
+      "description": "The temporalCoverage of a CreativeWork indicates the period that the content applies to, i.e. that it describes, either as a DateTime or as a textual string indicating a time period in ISO 8601 time interval format.",
+      "type": "string"
     },
     "spatialCoverage": {
       "title": "Spatial coverage",
-      "description": "The place(s) that are the focus of the resource. The geospatial area that the resource describes, the spatial topic of a resource, the spatial applicability of a resource, or jurisdiction under with a resource is relevant.",
-      "anyOf": [
+      "description": "The spatialCoverage of a CreativeWork indicates the place(s) which are the focus of the content. It is a subproperty of contentLocation intended primarily for more technical and detailed materials. For example with a Dataset, it indicates areas that the dataset describes: a dataset of New York weather would have spatialCoverage which was the place: the state of New York.",
+      "allOf": [
         {
-          "title": "Point Coverage Metadata",
-          "description": "Geographic coverage metadata for a resource or aggregation expressed as a point location",
+          "title": "Place",
           "type": "object",
-          "options": {
-            "detail": {
-              "type": "VerticalLayout",
-              "elements": [
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "Place",
+              "const": "Place",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "address": {
+              "title": "Address",
+              "type": "string"
+            },
+            "geo": {
+              "title": "Geo",
+              "anyOf": [
                 {
-                  "type": "Control",
-                  "scope": "#/properties/name"
-                },
-                {
-                  "type": "MapLayout",
-                  "options": {
-                    "map": {
-                      "type": "point",
-                      "north": "north",
-                      "east": "east"
+                  "title": "Line",
+                  "type": "object",
+                  "properties": {
+                    "@type": {
+                      "title": "@Type",
+                      "default": "GeoShape",
+                      "const": "GeoShape",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "line": {
+                      "title": "Line",
+                      "type": "string"
                     }
                   },
-                  "elements": [
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/east"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/north"
-                    }
+                  "required": [
+                    "line"
                   ]
                 },
                 {
-                  "type": "Control",
-                  "scope": "#/properties/units"
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/projection"
-                }
-              ]
-            }
-          },
-          "properties": {
-            "name": {
-              "title": "Name",
-              "description": "A string containing a name for the place associated with the geographic coverage.",
-              "type": "string"
-            },
-            "east": {
-              "title": "East",
-              "description": "The coordinate of the point location measured in the east direction (between -180 and 180)",
-              "exclusiveMinimum": -180,
-              "exclusiveMaximum": 180,
-              "type": "number"
-            },
-            "north": {
-              "title": "North",
-              "description": " The coordinate of the point location measured in the north direction (between -90 and 90)",
-              "exclusiveMinimum": -90,
-              "exclusiveMaximum": 90,
-              "type": "number"
-            },
-            "units": {
-              "title": "Units",
-              "description": "The units applying to the unlabelled numeric values of north and east.",
-              "type": "string",
-              "default": "Decimal degrees",
-              "const": "Decimal degrees",
-              "readOnly": true
-            },
-            "projection": {
-              "title": "Projection",
-              "description": "The name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
-              "type": "string",
-              "default": "WGS 84 EPSG:4326",
-              "const": "WGS 84 EPSG:4326",
-              "readOnly": true
-            }
-          },
-          "required": [
-            "east",
-            "north"
-          ]
-        },
-        {
-          "title": "Box Coverage Metadata",
-          "description": "Geographic coverage metadata for a resource expressed as a latitude-longitude bounding box.",
-          "type": "object",
-          "options": {
-            "detail": {
-              "type": "VerticalLayout",
-              "elements": [
-                {
-                  "type": "Control",
-                  "scope": "#/properties/name"
-                },
-                {
-                  "type": "MapLayout",
-                  "options": {
-                    "map": {
-                      "type": "box",
-                      "northlimit": "northlimit",
-                      "eastlimit": "eastlimit",
-                      "southlimit": "southlimit",
-                      "westlimit": "westlimit"
+                  "title": "Polygon",
+                  "type": "object",
+                  "properties": {
+                    "@type": {
+                      "title": "@Type",
+                      "default": "GeoShape",
+                      "const": "GeoShape",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "polygon": {
+                      "title": "Polygon",
+                      "type": "string"
                     }
                   },
-                  "elements": [
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/northlimit"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/eastlimit"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/southlimit"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/westlimit"
-                    }
+                  "required": [
+                    "polygon"
                   ]
                 },
                 {
-                  "type": "Control",
-                  "scope": "#/properties/units"
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/projection"
+                  "title": "Geo coordinates",
+                  "type": "object",
+                  "properties": {
+                    "@type": {
+                      "title": "@Type",
+                      "default": "GeoCoordinates",
+                      "const": "GeoCoordinates",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "title": "Latitude",
+                      "type": "number"
+                    },
+                    "longitude": {
+                      "title": "Longitude",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "latitude",
+                    "longitude"
+                  ]
                 }
               ]
             }
-          },
-          "properties": {
-            "name": {
-              "title": "Name",
-              "description": "A string containing a name for the place associated with the geographic coverage.",
-              "type": "string"
-            },
-            "northlimit": {
-              "title": "North limit",
-              "description": "A floating point value containing the constant coordinate for the northernmost face or edge of the bounding box (between -90 and 90)",
-              "exclusiveMinimum": -90,
-              "exclusiveMaximum": 90,
-              "type": "number"
-            },
-            "eastlimit": {
-              "title": "East limit",
-              "description": "A floating point value containing the constant coordinate for the easternmost face or edge of the bounding box (between -180 and 180)",
-              "exclusiveMinimum": -180,
-              "exclusiveMaximum": 180,
-              "type": "number"
-            },
-            "southlimit": {
-              "title": "South limit",
-              "description": "A floating point value containing the constant coordinate for the southernmost face or edge of the bounding box (between -90 and 90)",
-              "exclusiveMinimum": -90,
-              "exclusiveMaximum": 90,
-              "type": "number"
-            },
-            "westlimit": {
-              "title": "West limit",
-              "description": "A floating point value containing the constant coordinate for the westernmost face or edge of the bounding box (between -180 and 180)",
-              "exclusiveMinimum": -180,
-              "exclusiveMaximum": 180,
-              "type": "number"
-            },
-            "units": {
-              "title": "Units",
-              "description": "A string containing the units applying to the unlabelled numeric values of northlimit, eastlimit, southlimit, and westlimit.",
-              "type": "string",
-              "default": "Decimal degrees",
-              "const": "Decimal degrees",
-              "readOnly": true
-            },
-            "projection": {
-              "title": "Projection",
-              "description": "A string containing the name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
-              "type": "string",
-              "default": "WGS 84 EPSG:4326",
-              "const": "WGS 84 EPSG:4326",
-              "readOnly": true
-            }
-          },
-          "required": [
-            "northlimit",
-            "eastlimit",
-            "southlimit",
-            "westlimit"
-          ]
+          }
         }
-      ],
-      "errorMessage": {
-        "anyOf": "selected item is incomplete"
+      ]
+    },
+    "hasPart": {
+      "title": "Has part",
+      "description": "Indicates an record or CreativeWork that is part of this record.",
+      "type": "array",
+      "items": {
+        "title": "Has Part",
+        "type": "object",
+        "properties": {
+          "@type": {
+            "title": "@Type",
+            "default": "CreativeWork",
+            "const": "CreativeWork",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "identifier": {
+            "title": "Identifier",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri"
+              },
+              {
+                "title": "Property value",
+                "type": "object",
+                "properties": {
+                  "@id": {
+                    "title": "@Id",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "@type": {
+                    "title": "@Type",
+                    "default": "PropertyValue",
+                    "const": "PropertyValue",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "propertyID": {
+                    "title": "Property Id",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "value": {
+                    "title": "Value",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "@id",
+                  "value",
+                  "url"
+                ]
+              }
+            ]
+          },
+          "creator": {
+            "title": "Creator",
+            "anyOf": [
+              {
+                "title": "Person",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Person",
+                    "const": "Person",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              {
+                "title": "Organization",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Organization",
+                    "const": "Organization",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  },
+                  "address": {
+                    "title": "Address",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "identifier"
+        ]
       }
     },
-    "provider": {
-      "title": "Provider",
+    "isPartOf": {
+      "title": "Is part of",
+      "description": "Indicates an record or CreativeWork that this record, or CreativeWork (in some sense), is part of.",
+      "type": "array",
+      "items": {
+        "title": "Is part of",
+        "type": "object",
+        "properties": {
+          "@type": {
+            "title": "@Type",
+            "default": "CreativeWork",
+            "const": "CreativeWork",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "identifier": {
+            "title": "Identifier",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri"
+              },
+              {
+                "title": "Property value",
+                "type": "object",
+                "properties": {
+                  "@id": {
+                    "title": "@Id",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "@type": {
+                    "title": "@Type",
+                    "default": "PropertyValue",
+                    "const": "PropertyValue",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "propertyID": {
+                    "title": "Property Id",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "value": {
+                    "title": "Value",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "@id",
+                  "value",
+                  "url"
+                ]
+              }
+            ]
+          },
+          "creator": {
+            "title": "Creator",
+            "anyOf": [
+              {
+                "title": "Person",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Person",
+                    "const": "Person",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              {
+                "title": "Organization",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Organization",
+                    "const": "Organization",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  },
+                  "address": {
+                    "title": "Address",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "identifier"
+        ]
+      }
+    },
+    "associatedMedia": {
+      "title": "Associated media",
+      "description": "A media object that encodes this CreativeWork. This property is a synonym for encoding.",
+      "type": "array",
+      "items": {
+        "title": "Media object",
+        "type": "object",
+        "properties": {
+          "@type": {
+            "title": "@Type",
+            "default": "MediaObject",
+            "type": "string"
+          },
+          "contentUrl": {
+            "title": "Content url",
+            "minLength": 1,
+            "maxLength": 2083,
+            "format": "uri",
+            "type": "string"
+          },
+          "encodingFormat": {
+            "title": "Encoding format",
+            "type": "string"
+          },
+          "contentSize": {
+            "title": "Content size",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contentUrl",
+          "encodingFormat",
+          "contentSize",
+          "name"
+        ]
+      }
+    },
+    "distribution": {
+      "title": "Distribution",
+      "description": "A data distribution in the form of a dataset (see https://schema.org/Dataset for more information).",
+      "anyOf": [
+        {
+          "title": "Distribution",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "DataDownload",
+              "const": "DataDownload",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "contentUrl": {
+              "title": "Contenturl",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            },
+            "encodingFormat": {
+              "title": "Encoding format",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            },
+            "contentSize": {
+              "title": "Content size",
+              "type": "string"
+            },
+            "comment": {
+              "title": "Comment",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "title": "Distribution",
+            "type": "object",
+            "properties": {
+              "@type": {
+                "title": "@Type",
+                "default": "DataDownload",
+                "const": "DataDownload",
+                "readOnly": true,
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "contentUrl": {
+                "title": "Content url",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri",
+                "type": "string"
+              },
+              "encodingFormat": {
+                "title": "Encoding format",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "contentSize": {
+                "title": "Content size",
+                "type": "string"
+              },
+              "comment": {
+                "title": "Comment",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        }
+      ]
+    },
+    "variableMeasured": {
+      "title": "Variable measured",
+      "description": "The variableMeasured property can indicate (repeated as necessary) the variables that are measured in some dataset, either described as text or as pairs of identifier and description using PropertyValue.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "title": "Variable measured",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "PropertyValue",
+              "const": "PropertyValue",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "unitText": {
+              "title": "Unittext",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "unitText"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "title": "Variable measured",
+            "type": "object",
+            "properties": {
+              "@type": {
+                "title": "@Type",
+                "default": "PropertyValue",
+                "const": "PropertyValue",
+                "readOnly": true,
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "unitText": {
+                "title": "Unittext",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "unitText"
+            ]
+          }
+        }
+      ]
+    },
+    "includedInDataCatalog": {
+      "title": "Included in data catalog",
+      "description": "A data catalog which contains this dataset (this property was previously 'catalog', preferred name is now 'includedInDataCatalog').",
+      "type": "array",
+      "items": {
+        "title": "Included in data catalog",
+        "type": "object",
+        "properties": {
+          "@type": {
+            "title": "@Type",
+            "default": "DataCatalog",
+            "const": "DataCatalog",
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "minLength": 1,
+            "maxLength": 2083,
+            "format": "uri",
+            "type": "string"
+          },
+          "identifier": {
+            "title": "Identifier",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri"
+              },
+              {
+                "title": "Property value",
+                "type": "object",
+                "properties": {
+                  "@id": {
+                    "title": "@Id",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "@type": {
+                    "title": "@Type",
+                    "default": "PropertyValue",
+                    "const": "PropertyValue",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "propertyID": {
+                    "title": "Property Id",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "value": {
+                    "title": "Value",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "@id",
+                  "value",
+                  "url"
+                ]
+              }
+            ]
+          },
+          "creator": {
+            "title": "Creator",
+            "anyOf": [
+              {
+                "title": "Person",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Person",
+                    "const": "Person",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "email": {
+                    "title": "Email",
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              },
+              {
+                "title": "Organization",
+                "type": "object",
+                "properties": {
+                  "@type": {
+                    "title": "@Type",
+                    "default": "Organization",
+                    "const": "Organization",
+                    "readOnly": true,
+                    "type": "string"
+                  },
+                  "name": {
+                    "title": "Name",
+                    "type": "string"
+                  },
+                  "url": {
+                    "title": "Url",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri",
+                    "type": "string"
+                  },
+                  "identifier": {
+                    "title": "Identifier",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      },
+                      {
+                        "title": "Property value",
+                        "type": "object",
+                        "properties": {
+                          "@id": {
+                            "title": "@Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "@type": {
+                            "title": "@Type",
+                            "default": "PropertyValue",
+                            "const": "PropertyValue",
+                            "readOnly": true,
+                            "type": "string"
+                          },
+                          "name": {
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "propertyID": {
+                            "title": "Property Id",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          },
+                          "value": {
+                            "title": "Value",
+                            "type": "string"
+                          },
+                          "url": {
+                            "title": "Url",
+                            "minLength": 1,
+                            "maxLength": 2083,
+                            "format": "uri",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@id",
+                          "value",
+                          "url"
+                        ]
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri"
+                        }
+                      }
+                    ]
+                  },
+                  "address": {
+                    "title": "Address",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "url",
+          "identifier",
+          "creator"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "description",
+    "url",
+    "identifier",
+    "creator",
+    "dateCreated",
+    "keywords",
+    "license",
+    "provider",
+    "distribution",
+    "includedInDataCatalog"
+  ],
+  "definitions": {
+    "PropertyValue": {
+      "title": "Property value",
       "type": "object",
-      "description": "The repository or organization that provides access to the resource.",
-      "additionalProperties": false,
       "properties": {
+        "@id": {
+          "title": "@Id",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "@type": {
+          "title": "@Type",
+          "default": "PropertyValue",
+          "const": "PropertyValue",
+          "readOnly": true,
+          "type": "string"
+        },
         "name": {
-          "title": "Provider Name",
-          "type": "string",
-          "description": "The name of the repository or organization that provides access to the resource."
+          "title": "Name",
+          "type": "string"
+        },
+        "propertyID": {
+          "title": "Property Id",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
         },
         "url": {
-          "$ref": "#/definitions/UrlPattern"
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "@id",
+        "value",
+        "url"
+      ]
+    },
+    "Person": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "Person",
+          "const": "Person",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "type": "string",
+          "format": "email"
+        },
+        "identifier": {
+          "title": "Identifier",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            {
+              "title": "Property value",
+              "type": "object",
+              "properties": {
+                "@id": {
+                  "title": "@Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "@type": {
+                  "title": "@Type",
+                  "default": "PropertyValue",
+                  "const": "PropertyValue",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "propertyID": {
+                  "title": "Property Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "@id",
+                "value",
+                "url"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri"
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Organization": {
+      "title": "Organization",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "Organization",
+          "const": "Organization",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "identifier": {
+          "title": "Identifier",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            {
+              "title": "Property value",
+              "type": "object",
+              "properties": {
+                "@id": {
+                  "title": "@Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "@type": {
+                  "title": "@Type",
+                  "default": "PropertyValue",
+                  "const": "PropertyValue",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "propertyID": {
+                  "title": "Property Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "@id",
+                "value",
+                "url"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri"
+              }
+            }
+          ]
+        },
+        "address": {
+          "title": "Address",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "KeywordTerm": {
+      "title": "Keyword term",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DefinedTerm",
+          "const": "DefinedTerm",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "inDefinedTermSet": {
+          "title": "Indefinedtermset",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "inDefinedTermSet"
+      ]
+    },
+    "License": {
+      "title": "License",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "CreativeWork",
+          "const": "CreativeWork",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
         }
       },
       "required": [
@@ -404,230 +2951,1659 @@
         "url"
       ]
     },
-    "dateCreated": {
-      "title": "Date created",
-      "type": "string",
-      "format": "date-time",
-      "options": {
-        "placeholder": "YYYY-MM-DDTHH:MM"
-      },
-      "description": "The date on which the resource was originally created (ISO8601 formatted date) - YYYY-MM-DDTHH:MM."
-    },
-    "dateModified": {
-      "title": "Date modified",
-      "type": "string",
-      "format": "date-time",
-      "options": {
-        "placeholder": "YYYY-MM-DDTHH:MM"
-      },
-      "description": "The date on which the resource was last modified (ISO8601 formatted date) - YYYY-MM-DDTHH:MM."
-    },
-    "datePublished": {
-      "title": "Date published",
-      "description": "The date on which the resource was permanently published or first became available online. Where the full date is not available, provide the year.",
-      "anyOf": [
-        {
-          "title": "Year",
-          "type": "integer",
-          "options": {
-            "placeholder": "YYYY"
-          },
-          "description": "Publication year (YYYY)."
-        },
-        {
-          "title": "Date",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          },
-          "description": "ISO8601 formatted date (YYYY-MM-DDTHH:MM)."
-        }
-      ]
-    },
-    "status": {
-      "title": "Data collection is ongoing",
-      "type": "boolean",
-      "description": "Indicate whether data collection is ongoing for this dataset",
-      "default": false
-    }
-  },
-  "definitions": {
-    "Creator": {
-      "title": "Creator Metadata",
-      "description": "A class used to represent the metadata associated with a creator of a resource",
+    "ProviderOrganization": {
+      "title": "Provider Organization",
       "type": "object",
       "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "Organization",
+          "const": "Organization",
+          "readOnly": true,
+          "type": "string"
+        },
         "name": {
           "title": "Name",
-          "description": "Full name of person or organization. Personal name format: family, given.",
-          "maxLength": 100,
           "type": "string"
         },
-        "organization": {
-          "title": "Organization",
-          "description": "A string containing the name of the organization with which the creator is affiliated",
-          "maxLength": 200,
+        "url": {
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
           "type": "string"
         },
-        "email": {
-          "title": "Email",
-          "description": "A string containing an email address for the creator",
-          "type": "string",
-          "format": "email"
-        },
-        "orcid": {
-          "title": "ORCID",
-          "description": "ORCID identifier for creator.",
-          "type": "string",
-          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
-          "options": {
-            "placeholder": "e.g. '0000-0001-2345-6789'"
-          },
-          "errorMessage": {
-            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
-          }
-        }
-      },
-      "required": [
-        "name",
-        "organization"
-      ]
-    },
-    "Contributor": {
-      "title": "Contributor Metadata",
-      "description": "A class used to represent the metadata associated with a contributor to a resource.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "Full name of person or organization. Personal name format: family, given.",
-          "maxLength": 100,
-          "type": "string"
-        },
-        "organization": {
-          "title": "Organization",
-          "description": "A string containing the name of the organization with which the contributor is affiliated.",
-          "maxLength": 200,
-          "type": "string"
-        },
-        "email": {
-          "title": "Email",
-          "description": "A string containing an email address for the contributor.",
-          "type": "string",
-          "format": "email"
-        },
-        "orcid": {
-          "title": "ORCID",
-          "description": "ORCID identifier for contributor.",
-          "type": "string",
-          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
-          "options": {
-            "placeholder": "e.g. '0000-0001-2345-6789'"
-          },
-          "errorMessage": {
-            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
-          }
-        }
-      },
-      "required": [
-        "name",
-        "organization"
-      ]
-    },
-    "Award": {
-      "title": "Funding award metadata",
-      "type": "object",
-      "description": "Metadata associated with a funding award under which the resource was produced/created.",
-      "additionalProperties": false,
-      "properties": {
-        "fundingAgency": {
-          "title": "Funding agency name",
-          "type": "string",
-          "description": "Name of the agency or organization that funded the creation of the resource."
-        },
-        "awardNumber": {
-          "title": "Award number or identifier",
-          "type": "string",
-          "description": "A unique numeric or string identifer for the grant or project."
-        },
-        "awardName": {
-          "title": "Award name",
-          "type": "string",
-          "description": "The name or title of the grant or project."
-        },
-        "awardURL": {
-          "title": "Award URL",
-          "description": "A string containing a URL pointing to a website describing the award or funding agency.",
-          "$ref": "#/definitions/UrlPattern"
-        }
-      },
-      "required": [
-        "fundingAgency",
-        "awardName",
-        "awardNumber"
-      ]
-    },
-    "RelationType": {
-      "title": "Relation Type",
-      "description": "The type of relationship that exists between the describe resource and a related resource.",
-      "enum": [
-        "The content of this resource can be executed by",
-        "The content of this resource was created by a related App or software program",
-        "This resource is described by",
-        "This resource conforms to established standard described by",
-        "This resource has another resource in another format",
-        "This resource is a different format of",
-        "This resource is required by",
-        "This resource requires",
-        "This resource is referenced by",
-        "The content of this resource references",
-        "The content of this resource is derived from"
-      ],
-      "type": "string"
-    },
-    "Relation": {
-      "title": "Related Resource Metadata",
-      "description": "Metadata associated with a resource related to the resource being described.",
-      "type": "object",
-      "properties": {
-        "type": {
-          "title": "Relation type",
-          "description": "The type of relationship with the related resource",
-          "allOf": [
+        "identifier": {
+          "title": "Identifier",
+          "anyOf": [
             {
-              "$ref": "#/definitions/RelationType"
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            {
+              "title": "Property value",
+              "type": "object",
+              "properties": {
+                "@id": {
+                  "title": "@Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "@type": {
+                  "title": "@Type",
+                  "default": "PropertyValue",
+                  "const": "PropertyValue",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "propertyID": {
+                  "title": "Property Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "@id",
+                "value",
+                "url"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2083,
+                "format": "uri"
+              }
             }
           ]
         },
-        "value": {
-          "title": "Value",
-          "description": "String expressing the Full text citation, URL link for, or description of the related resource",
-          "maxLength": 500,
+        "address": {
+          "title": "Address",
+          "type": "string"
+        },
+        "parentOrganization": {
+          "title": "Organization",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "Organization",
+              "const": "Organization",
+              "readOnly": true,
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "url": {
+              "title": "Url",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri",
+              "type": "string"
+            },
+            "identifier": {
+              "title": "Identifier",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri"
+                },
+                {
+                  "title": "Property value",
+                  "type": "object",
+                  "properties": {
+                    "@id": {
+                      "title": "@Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "@type": {
+                      "title": "@Type",
+                      "default": "PropertyValue",
+                      "const": "PropertyValue",
+                      "readOnly": true,
+                      "type": "string"
+                    },
+                    "name": {
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "propertyID": {
+                      "title": "Property Id",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    },
+                    "value": {
+                      "title": "Value",
+                      "type": "string"
+                    },
+                    "url": {
+                      "title": "Url",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "@id",
+                    "value",
+                    "url"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2083,
+                    "format": "uri"
+                  }
+                }
+              ]
+            },
+            "address": {
+              "title": "Address",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "ProviderID": {
+      "title": "ProviderID",
+      "type": "object",
+      "properties": {
+        "@id": {
+          "title": "@Id",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
           "type": "string"
         }
       },
       "required": [
-        "type",
-        "value"
+        "@id"
       ]
     },
-    "UrlPattern": {
-      "type": "string",
-      "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
-      "errorMessage": {
-        "pattern": "must match format \"url\""
+    "SubjectOf": {
+      "title": "SubjectOf",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "CreativeWork",
+          "const": "CreativeWork",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "encodingFormat": {
+          "title": "Encoding format",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "url",
+        "encodingFormat"
+      ]
+    },
+    "LanguageEnum": {
+      "title": "Language enum",
+      "description": "An enumeration.",
+      "enum": [
+        "eng",
+        "esp"
+      ],
+      "type": "string"
+    },
+    "DefinedTerm": {
+      "title": "Defined term",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DefinedTerm",
+          "const": "DefinedTerm",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ]
+    },
+    "Grant": {
+      "title": "Grant",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "MonetaryGrant",
+          "const": "MonetaryGrant",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "funder": {
+          "title": "Funder",
+          "anyOf": [
+            {
+              "title": "Person",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Person",
+                  "const": "Person",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "email": {
+                  "title": "Email",
+                  "type": "string",
+                  "format": "email"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            {
+              "title": "Organization",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Organization",
+                  "const": "Organization",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                },
+                "address": {
+                  "title": "Address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "url",
+        "funder"
+      ]
+    },
+    "Line": {
+      "title": "Line",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "GeoShape",
+          "const": "GeoShape",
+          "readOnly": true,
+          "type": "string"
+        },
+        "line": {
+          "title": "Line",
+          "type": "string"
+        }
+      },
+      "required": [
+        "line"
+      ]
+    },
+    "Polygon": {
+      "title": "Polygon",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "GeoShape",
+          "const": "GeoShape",
+          "readOnly": true,
+          "type": "string"
+        },
+        "polygon": {
+          "title": "Polygon",
+          "type": "string"
+        }
+      },
+      "required": [
+        "polygon"
+      ]
+    },
+    "GeoCoordinates": {
+      "title": "Geo coordinates",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "GeoCoordinates",
+          "const": "GeoCoordinates",
+          "readOnly": true,
+          "type": "string"
+        },
+        "latitude": {
+          "title": "Latitude",
+          "type": "number"
+        },
+        "longitude": {
+          "title": "Longitude",
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ]
+    },
+    "Place": {
+      "title": "Place",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "Place",
+          "const": "Place",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "address": {
+          "title": "Address",
+          "type": "string"
+        },
+        "geo": {
+          "title": "Geo",
+          "anyOf": [
+            {
+              "title": "Line",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "GeoShape",
+                  "const": "GeoShape",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "line": {
+                  "title": "Line",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "line"
+              ]
+            },
+            {
+              "title": "Polygon",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "GeoShape",
+                  "const": "GeoShape",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "polygon": {
+                  "title": "Polygon",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "polygon"
+              ]
+            },
+            {
+              "title": "Geo coordinates",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "GeoCoordinates",
+                  "const": "GeoCoordinates",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "latitude": {
+                  "title": "Latitude",
+                  "type": "number"
+                },
+                "longitude": {
+                  "title": "Longitude",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "latitude",
+                "longitude"
+              ]
+            }
+          ]
+        }
       }
+    },
+    "HasPart": {
+      "title": "Has part",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "CreativeWork",
+          "const": "CreativeWork",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "identifier": {
+          "title": "Identifier",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            {
+              "title": "Property value",
+              "type": "object",
+              "properties": {
+                "@id": {
+                  "title": "@Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "@type": {
+                  "title": "@Type",
+                  "default": "PropertyValue",
+                  "const": "PropertyValue",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "propertyID": {
+                  "title": "Property Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "@id",
+                "value",
+                "url"
+              ]
+            }
+          ]
+        },
+        "creator": {
+          "title": "Creator",
+          "anyOf": [
+            {
+              "title": "Person",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Person",
+                  "const": "Person",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "email": {
+                  "title": "Email",
+                  "type": "string",
+                  "format": "email"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            {
+              "title": "Organization",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Organization",
+                  "const": "Organization",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                },
+                "address": {
+                  "title": "Address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "identifier"
+      ]
+    },
+    "IsPartOf": {
+      "title": "Is part of",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "CreativeWork",
+          "const": "CreativeWork",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "identifier": {
+          "title": "Identifier",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            {
+              "title": "Property value",
+              "type": "object",
+              "properties": {
+                "@id": {
+                  "title": "@Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "@type": {
+                  "title": "@Type",
+                  "default": "PropertyValue",
+                  "const": "PropertyValue",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "propertyID": {
+                  "title": "Property Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "@id",
+                "value",
+                "url"
+              ]
+            }
+          ]
+        },
+        "creator": {
+          "title": "Creator",
+          "anyOf": [
+            {
+              "title": "Person",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Person",
+                  "const": "Person",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "email": {
+                  "title": "Email",
+                  "type": "string",
+                  "format": "email"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            {
+              "title": "Organization",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Organization",
+                  "const": "Organization",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                },
+                "address": {
+                  "title": "Address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "identifier"
+      ]
+    },
+    "MediaObject": {
+      "title": "Media object",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "MediaObject",
+          "type": "string"
+        },
+        "contentUrl": {
+          "title": "Content url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "encodingFormat": {
+          "title": "Encoding format",
+          "type": "string"
+        },
+        "contentSize": {
+          "title": "Content size",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contentUrl",
+        "encodingFormat",
+        "contentSize",
+        "name"
+      ]
+    },
+    "Distribution": {
+      "title": "Distribution",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DataDownload",
+          "const": "DataDownload",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "contentUrl": {
+          "title": "Content url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "encodingFormat": {
+          "title": "Encoding format",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "contentSize": {
+          "title": "Content size",
+          "type": "string"
+        },
+        "comment": {
+          "title": "Comment",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "VariableMeasured": {
+      "title": "Variable measured",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "PropertyValue",
+          "const": "PropertyValue",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "unitText": {
+          "title": "Unit text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "unitText"
+      ]
+    },
+    "IncludedInDataCatalog": {
+      "title": "Included in data catalog",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DataCatalog",
+          "const": "DataCatalog",
+          "readOnly": true,
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "minLength": 1,
+          "maxLength": 2083,
+          "format": "uri",
+          "type": "string"
+        },
+        "identifier": {
+          "title": "Identifier",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2083,
+              "format": "uri"
+            },
+            {
+              "title": "Property value",
+              "type": "object",
+              "properties": {
+                "@id": {
+                  "title": "@Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "@type": {
+                  "title": "@Type",
+                  "default": "PropertyValue",
+                  "const": "PropertyValue",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "propertyID": {
+                  "title": "Property Id",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "@id",
+                "value",
+                "url"
+              ]
+            }
+          ]
+        },
+        "creator": {
+          "title": "Creator",
+          "anyOf": [
+            {
+              "title": "Person",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Person",
+                  "const": "Person",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "email": {
+                  "title": "Email",
+                  "type": "string",
+                  "format": "email"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            {
+              "title": "Organization",
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "title": "@Type",
+                  "default": "Organization",
+                  "const": "Organization",
+                  "readOnly": true,
+                  "type": "string"
+                },
+                "name": {
+                  "title": "Name",
+                  "type": "string"
+                },
+                "url": {
+                  "title": "Url",
+                  "minLength": 1,
+                  "maxLength": 2083,
+                  "format": "uri",
+                  "type": "string"
+                },
+                "identifier": {
+                  "title": "Identifier",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 2083,
+                      "format": "uri"
+                    },
+                    {
+                      "title": "Property value",
+                      "type": "object",
+                      "properties": {
+                        "@id": {
+                          "title": "@Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "@type": {
+                          "title": "@Type",
+                          "default": "PropertyValue",
+                          "const": "PropertyValue",
+                          "readOnly": true,
+                          "type": "string"
+                        },
+                        "name": {
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "propertyID": {
+                          "title": "Property Id",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        },
+                        "value": {
+                          "title": "Value",
+                          "type": "string"
+                        },
+                        "url": {
+                          "title": "Url",
+                          "minLength": 1,
+                          "maxLength": 2083,
+                          "format": "uri",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "@id",
+                        "value",
+                        "url"
+                      ]
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2083,
+                        "format": "uri"
+                      }
+                    }
+                  ]
+                },
+                "address": {
+                  "title": "Address",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "url",
+        "identifier",
+        "creator"
+      ]
     }
-  },
-  "required": [
-    "name",
-    "description",
-    "keywords",
-    "creators",
-    "funders",
-    "url",
-    "provider",
-    "datePublished"
-  ]
+  }
 }

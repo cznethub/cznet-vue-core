@@ -19,6 +19,7 @@ import { JsonFormsRendererRegistryEntry } from "@jsonforms/core";
 import { CzRenderers } from "@/renderers/renderer";
 import { createAjv } from "@/renderers/validate/validate";
 import { ErrorObject } from "ajv";
+import { isCombinatorSchema } from "@/renderers/util";
 
 const customAjv = createAjv();
 const renderers = [...CzRenderers];
@@ -74,9 +75,9 @@ export default class CzForm extends Vue {
       if (error.instancePath) {
         // Error is in a nested object
         // For combinator renderers we must anotate the fitting schema in the renderer itself and then use it here to get the corresponding prop title
-        const isCombinatorSchema = this._isCombinatorSchema(error.parentSchema);
+        const combinatorSchema = isCombinatorSchema(error.parentSchema);
 
-        const propTitle = isCombinatorSchema
+        const propTitle = combinatorSchema
           ? this._getCombinatorSchemaProperties(error.parentSchema)?.[
               error.params.missingProperty
             ]?.title
@@ -93,25 +94,15 @@ export default class CzForm extends Vue {
     return error.message || "";
   }
 
-  private _isCombinatorSchema(schema: any): string {
-    return schema.anyOf
-      ? "anyOf"
-      : schema.allOf
-      ? "allOf"
-      : schema.oneOf
-      ? "oneOf"
-      : "";
-  }
-
   /** Find and return the properties array inside nested combinator schemas */
   private _getCombinatorSchemaProperties(schema: any) {
-    const isCombinatorSchema = this._isCombinatorSchema(schema);
+    const combinatorSchema = isCombinatorSchema(schema);
 
-    if (!isCombinatorSchema) {
+    if (!combinatorSchema) {
       return;
     }
 
-    const fittingSchema = schema[isCombinatorSchema]?.find(
+    const fittingSchema = schema[combinatorSchema]?.find(
       (s) => s.isFittingSchema
     );
     if (fittingSchema) {

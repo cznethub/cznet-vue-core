@@ -20,10 +20,13 @@
         ></v-card-text>
         <v-divider></v-divider>
         <v-card-text>
+          <pre>{{ JSON.stringify(data, null, 2) }}</pre>
+        </v-card-text>
+        <v-card-text>
           <cz-form
             :schema="schema"
-            :uischema="uischema"
-            :schemaDefaults="schemaDefaults"
+            :uischema="undefined"
+            :schemaDefaults="undefined"
             :isReadOnly="isReadonly"
             :errors.sync="errors"
             :data.sync="data"
@@ -50,6 +53,8 @@
                 >
                   <v-btn
                     color="primary"
+                    depressed
+                    @click="submit"
                     :disabled="isReadonly || !!errors.length"
                     >Submit</v-btn
                   >
@@ -83,7 +88,7 @@ import CzNotifications from "@/components/base/cz.notifications.vue";
 import Notifications from "@/models/notifications";
 import CzForm from "@/components/cz-form.vue";
 
-const schema = require("@/schemas/schema.json");
+const schema = require("@/schemas/dataset_schema.json");
 const uischema = require("@/schemas/uischema.json");
 const schemaDefaults = require("@/schemas/defaults.json");
 
@@ -113,8 +118,13 @@ export default class App extends Vue {
       onConfirm: () => {},
     });
   }
+
   toast() {
     Notifications.toast({ message: "Some toasty message", type: "success" });
+  }
+
+  protected submit() {
+    console.log(this.data);
   }
 }
 </script>
