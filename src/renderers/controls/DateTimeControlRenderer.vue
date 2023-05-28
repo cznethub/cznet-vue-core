@@ -207,13 +207,6 @@ const controlRenderer = defineComponent({
     },
   },
   computed: {
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
     applyMask(): boolean {
       return typeof this.appliedOptions.mask == "boolean"
         ? this.appliedOptions.mask

@@ -20,19 +20,19 @@
         ></v-card-text>
         <v-divider></v-divider>
         <v-card-text>
+          <pre>{{ data }}</pre>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text>
           <cz-form
             :schema="schema"
-            :uischema="undefined"
+            :uischema="uischema"
             :schemaDefaults="undefined"
             :isReadOnly="isReadonly"
             :errors.sync="errors"
             :data.sync="data"
             ref="form"
           />
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-text>
-          <pre>{{ JSON.stringify(data, null, 2) }}</pre>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
@@ -99,6 +99,7 @@ const schemaDefaults = require("@/schemas/defaults.json");
 })
 export default class App extends Vue {
   // @Ref("form") form!: InstanceType<typeof CzForm>;
+
   protected schema;
   protected uischema;
   protected schemaDefaults;

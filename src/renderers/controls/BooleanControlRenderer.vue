@@ -66,23 +66,6 @@ const controlRenderer = defineComponent({
       this.handleChange(this.control.path, this.control.data);
     }
   },
-  computed: {
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
-    placeholder(): string {
-      return (
-        // @ts-ignore
-        this.control.schema.options?.placeholder ||
-        this.appliedOptions.placeholder ||
-        ""
-      );
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
-  },
 });
 
 export default controlRenderer;

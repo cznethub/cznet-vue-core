@@ -15,13 +15,19 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue2";
-import { JsonFormsRendererRegistryEntry } from "@jsonforms/core";
+import {
+  JsonFormsRendererRegistryEntry,
+  // JsonFormsI18nState,
+} from "@jsonforms/core";
 import { CzRenderers } from "@/renderers/renderer";
 import { createAjv } from "@/renderers/validate/validate";
 import { ErrorObject } from "ajv";
 import { isCombinatorSchema } from "@/renderers/util";
+import ajvErrors from "ajv-errors";
+// import { createTranslator } from "@/renderers/i18n";
 
 const customAjv = createAjv();
+ajvErrors(customAjv);
 const renderers = [...CzRenderers];
 
 @Component({
@@ -38,14 +44,25 @@ export default class CzForm extends Vue {
   protected data: any = {};
   protected timesChanged = 0;
   protected renderers: JsonFormsRendererRegistryEntry[] = renderers;
+  // protected i18n: JsonFormsI18nState = {
+  //   locale: "en",
+  //   translate: createTranslator("en", undefined),
+  // } as JsonFormsI18nState;
 
   protected onChange(event: JsonFormsChangeEvent) {
     this.data = event.data;
     const errors =
-      event.errors?.map((e: ErrorObject) => ({
-        title: this._getErrorTitle(e),
-        message: this._getErrorMessage(e),
-      })) || [];
+      event.errors
+        ?.filter((e: ErrorObject) => {
+          // console.log(e.message, e.parentSchema?.isSelectedSchema);
+          return !(
+            e.parentSchema && e.parentSchema?.isSelectedSchema === false
+          );
+        })
+        .map((e: ErrorObject) => ({
+          title: this._getErrorTitle(e),
+          message: this._getErrorMessage(e),
+        })) || [];
 
     this.$emit("update:errors", errors);
     this.$emit("update:data", event.data);
@@ -74,7 +91,7 @@ export default class CzForm extends Vue {
     if (error.keyword === "required") {
       if (error.instancePath) {
         // Error is in a nested object
-        // For combinator renderers we must anotate the fitting schema in the renderer itself and then use it here to get the corresponding prop title
+        // For combinator renderers we must anotate the selected schema in the control itself and then use it here to get the corresponding prop title
         const combinatorSchema = isCombinatorSchema(error.parentSchema);
 
         const propTitle = combinatorSchema
@@ -102,16 +119,14 @@ export default class CzForm extends Vue {
       return;
     }
 
-    const fittingSchema = schema[combinatorSchema]?.find(
-      (s) => s.isFittingSchema
+    const selectedSchema = schema[combinatorSchema]?.find(
+      (s) => s.isSelectedSchema
     );
-    if (fittingSchema) {
-      if (fittingSchema.properties) {
-        return fittingSchema.properties;
-      } else {
-        return this._getCombinatorSchemaProperties(fittingSchema);
-      }
-    }
+
+    return (
+      selectedSchema?.properties ||
+      this._getCombinatorSchemaProperties(selectedSchema)
+    );
   }
 }
 </script>

@@ -71,11 +71,6 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     return useVuetifyControl(useJsonFormsEnumControl(props));
   },
-  computed: {
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
-  },
 });
 
 export default controlRenderer;

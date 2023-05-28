@@ -3,7 +3,6 @@
     <fieldset
       v-if="control.visible"
       :class="{
-        ...styles.control.root,
         'cz-fieldset': !isFlat,
         'is-borderless': isFlat,
       }"
@@ -218,7 +217,7 @@ const controlRenderer = defineComponent({
   mounted() {
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
-    this.annotateFittingSchema(); // Watchers are not setup yet, so we call it manually
+    this.annotateSelectedSchema(); // Watchers are not setup yet, so we call it manually
   },
   computed: {
     oneOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -272,14 +271,10 @@ const controlRenderer = defineComponent({
         ? this.oneOfRenderInfos[this.selectedIndex].label
         : "";
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors?.replaceAll(`is a required property`, ``);
-    },
   },
   watch: {
     selectedIndex(_newIndex, _oldIndex) {
-      this.annotateFittingSchema();
+      this.annotateSelectedSchema();
     },
   },
   methods: {
@@ -305,10 +300,10 @@ const controlRenderer = defineComponent({
         }
       });
     },
-    annotateFittingSchema() {
+    annotateSelectedSchema() {
       this.oneOfRenderInfos.map((info, index) => {
         // @ts-ignore: used by error handling to figure out the used fitting schema
-        info.schema.isFittingSchema = index === this.selectedIndex;
+        info.schema.isSelectedSchema = index === this.selectedIndex;
       });
     },
     handleSelect(label: string) {

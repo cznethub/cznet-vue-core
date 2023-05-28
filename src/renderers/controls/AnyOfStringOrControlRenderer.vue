@@ -67,9 +67,6 @@ const controlRenderer = defineComponent({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return findEnumSchema(this.control.schema.anyOf!)!.enum!;
     },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
   },
 });
 

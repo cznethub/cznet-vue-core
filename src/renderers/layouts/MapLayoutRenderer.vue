@@ -113,7 +113,7 @@ const layoutRenderer = defineComponent({
     }
   },
   watch: {
-    "control.data": function (newData, oldData) {
+    "control.data": function (_newData, _oldData) {
       if (this.isEventFromMap) {
         this.isEventFromMap = false;
       } else {

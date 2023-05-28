@@ -30,18 +30,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue'
-import { VBadge, VTooltip } from 'vuetify/lib';
-import { ErrorObject } from 'ajv';
-// import findIndex from 'lodash/findIndex';
-// import {
-//   createControlElement,
-//   createLabelDescriptionFrom,
-//   JsonSchema,
-// } from '@jsonforms/core';
+import { defineComponent, PropType } from "vue";
+import { VBadge, VTooltip } from "vuetify/lib";
+import { ErrorObject } from "ajv";
+import findIndex from "lodash/findIndex";
+import {
+  createControlElement,
+  createLabelDescriptionFrom,
+  JsonSchema,
+} from "@jsonforms/core";
 
 export default defineComponent({
-  name: 'validation-badge',
+  name: "validation-badge",
   components: {
     VBadge,
     VTooltip,
@@ -57,7 +57,7 @@ export default defineComponent({
     },
     color: {
       type: String,
-      default: 'error',
+      default: "error",
     },
     inline: {
       type: Boolean,
@@ -78,39 +78,39 @@ export default defineComponent({
   },
   computed: {
     tooltipMessages(): string[] {
-      // const error: {
-      //   instancePath: string;
-      //   schemaPath: string;
-      //   labels: (string | undefined)[];
-      //   message: string;
-      // }[] = [];
+      const error: {
+        instancePath: string;
+        schemaPath: string;
+        labels: (string | undefined)[];
+        message: string;
+      }[] = [];
 
-      // for (const e of this.errors) {
-      //   const errorObject = e as ErrorObject;
-      //   const index = findIndex(error, { schemaPath: errorObject.schemaPath });
-      //   if (errorObject.message) {
-      //     if (index == -1) {
-      //       error.push({
-      //         schemaPath: errorObject.schemaPath,
-      //         instancePath: errorObject.instancePath,
-      //         labels: [
-      //           createLabelDescriptionFrom(
-      //             createControlElement(errorObject.instancePath),
-      //             errorObject.schema as JsonSchema
-      //           ).text,
-      //         ],
-      //         message: errorObject.message,
-      //       });
-      //     } else {
-      //       error[index].labels.push(
-      //         createLabelDescriptionFrom(
-      //           createControlElement(errorObject.instancePath),
-      //           errorObject.schema as JsonSchema
-      //         ).text
-      //       );
-      //     }
-      //   }
-      // }
+      for (const e of this.errors) {
+        const errorObject = e as ErrorObject;
+        const index = findIndex(error, { schemaPath: errorObject.schemaPath });
+        if (errorObject.message) {
+          if (index == -1) {
+            error.push({
+              schemaPath: errorObject.schemaPath,
+              instancePath: errorObject.instancePath,
+              labels: [
+                createLabelDescriptionFrom(
+                  createControlElement(errorObject.instancePath),
+                  errorObject.schema as JsonSchema
+                ).text,
+              ],
+              message: errorObject.message,
+            });
+          } else {
+            error[index].labels.push(
+              createLabelDescriptionFrom(
+                createControlElement(errorObject.instancePath),
+                errorObject.schema as JsonSchema
+              ).text
+            );
+          }
+        }
+      }
 
       return this.errors.map((e: any) => e.message);
     },

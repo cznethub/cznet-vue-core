@@ -100,15 +100,6 @@ const controlRenderer = defineComponent({
       ...useVuetifyBasicControl(useJsonFormsMultiEnumControl(props)),
     };
   },
-  computed: {
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
-  },
   methods: {
     dataHasEnum(value: any) {
       return !!this.control.data?.includes(value);

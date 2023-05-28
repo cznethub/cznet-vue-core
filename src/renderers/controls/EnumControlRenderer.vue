@@ -78,13 +78,6 @@ const controlRenderer = defineComponent({
       // @ts-ignore
       return this.control.schema.options && this.control.schema.options.hidden;
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
   },
 });
 

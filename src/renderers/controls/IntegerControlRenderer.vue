@@ -64,21 +64,6 @@ const controlRenderer = defineComponent({
       const options: any = this.appliedOptions;
       return options.step ?? 1;
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
-    placeholder(): string {
-      return (
-        // @ts-ignore
-        this.control.schema.options?.placeholder ||
-        this.appliedOptions.placeholder ||
-        ""
-      );
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
   },
   methods: {
     // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error

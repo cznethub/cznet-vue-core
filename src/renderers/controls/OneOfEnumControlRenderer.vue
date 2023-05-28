@@ -95,17 +95,6 @@ const controlRenderer = defineComponent({
       // @ts-ignore
       return this.control.schema.options?.hasAutoComplete;
     },
-    placeholder(): string {
-      return (
-        // @ts-ignore
-        this.control.schema.options?.placeholder ||
-        this.appliedOptions.placeholder ||
-        ""
-      );
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
     sortedOptions() {
       // @ts-ignore
       return this.control.options.sort((a: EnumOption, b: EnumOption) => {

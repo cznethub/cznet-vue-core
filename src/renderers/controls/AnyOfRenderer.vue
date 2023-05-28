@@ -2,9 +2,8 @@
   <div class="py-4">
     <fieldset
       v-if="control.visible"
-      :data-id="control.schema.title?.replaceAll(` `, ``)"
+      :data-id="computedLabel.replaceAll(` `, ``)"
       :class="{
-        ...styles.control.root,
         'cz-fieldset': !isFlat,
         'is-borderless': isFlat,
       }"
@@ -68,7 +67,7 @@
         <template v-if="!isDropDown">
           <v-tabs v-model="selectedIndex">
             <v-tab
-              @change="handleTabChange"
+              @change="handleTabChange(anyOfIndex)"
               :key="`${control.path}-${anyOfIndex}`"
               v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
             >
@@ -133,10 +132,10 @@
     <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">
       {{ description }}
     </div>
-    <div v-if="cleanedErrors" class="ml-2 mt-2 v-messages error--text">
+    <!-- <div v-if="cleanedErrors" class="ml-2 mt-2 v-messages error--text">
       <v-divider v-if="isFlat" class="mb-4"></v-divider>
       {{ cleanedErrors }}
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -149,6 +148,7 @@ import {
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
   isAnyOfControl,
+  getSubErrorsAt,
 } from "@jsonforms/core";
 import {
   DispatchRenderer,
@@ -157,7 +157,11 @@ import {
   useJsonFormsAnyOfControl,
 } from "@jsonforms/vue2";
 import { defineComponent, ref } from "vue";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import {
+  useCustomJsonFormsAnyOfControl,
+  useVuetifyControl,
+  useCombinatorChildErrors,
+} from "@/renderers/util/composition";
 import {
   VDialog,
   VCard,
@@ -174,6 +178,7 @@ import {
   VIcon,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
+import { ErrorObject } from "ajv";
 
 const controlRenderer = defineComponent({
   name: "one-of-renderer",
@@ -206,17 +211,22 @@ const controlRenderer = defineComponent({
 
     return {
       ...useVuetifyControl(input),
+      ...useCombinatorChildErrors(input, "anyOf"),
       isAdded,
       selectedIndex,
       tabData,
     };
   },
+  beforeCreate() {},
   created() {
     if (this.control.data) {
       this.isAdded = true;
     }
   },
   mounted() {
+    // TODO: errors have already been computed in CzFor's onChange before this component is intantiated
+    // indexOfFittingSchema is `undefined` there.
+
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
     this.annotateFittingSchema(); // Watchers are not setup yet, so we call it manually
@@ -273,48 +283,56 @@ const controlRenderer = defineComponent({
         ? this.anyOfRenderInfos[this.selectedIndex].label
         : "";
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
   },
   watch: {
-    selectedIndex(_newIndex, _oldIndex) {
-      this.annotateFittingSchema();
+    selectedIndex: {
+      handler(_newIndex, _oldIndex) {
+        this.annotateFittingSchema();
+      },
+      immediate: true,
     },
   },
   methods: {
-    handleTabChange(): void {
+    handleTabChange(nextIndex: number): void {
       if (!this.control.enabled) {
         return;
       }
 
-      this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
-      this.$nextTick(() => {
-        // Tab has changed
-        // If we had form data stored, restore it. Otherwise create default value.
-        if (this.tabData[this.selectedIndex]) {
-          this.handleChange(
-            this.control.path,
-            this.tabData[this.selectedIndex]
-          );
-        } else {
-          const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
-          const val =
-            schema.type === "object" || schema.type === "array"
-              ? createDefaultValue(schema)
-              : undefined;
+      // Store form state before tab change
+      this.$set(this.tabData, this.selectedIndex, this.control.data);
+      this.selectedIndex = nextIndex;
 
-          // Only create default values for objects and arrays
-          this.handleChange(this.control.path, val);
-        }
-      });
+      // If we had form data stored, restore it. Otherwise create default value.
+      if (this.tabData[nextIndex]) {
+        this.handleChange(this.control.path, this.tabData[nextIndex]);
+      } else {
+        const schema = this.anyOfRenderInfos[nextIndex].schema;
+        const val =
+          schema.type === "object" || schema.type === "array"
+            ? createDefaultValue(schema)
+            : undefined;
+
+        // Only create default values for objects and arrays
+        this.handleChange(this.control.path, val);
+      }
     },
     annotateFittingSchema() {
       this.anyOfRenderInfos.map((info, index) => {
-        // @ts-ignore: used by error handling to figure out the used fitting schema
-        info.schema.isFittingSchema = index === this.selectedIndex;
+        // @ts-ignore: used by CzForm's onChange to figure out error property title
+        info.schema.isSelectedSchema = index === this.selectedIndex;
       });
+
+      // TODO: child errors have already been passed
+      // Modifying these messages have no effect
+      this.childErrors.map((e: ErrorObject) => {
+        if (e.parentSchema && e.parentSchema.isSelectedSchema === false) {
+          this.$set(e, "message", "-");
+        }
+      });
+
+      // TODO: after calling this, children receive new unmodified error messages
+      // Trigger onChange in CzForm to re-compute errors
+      // this.handleChange(this.control.path, this.control.data);
     },
     handleSelect(label: string) {
       this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change

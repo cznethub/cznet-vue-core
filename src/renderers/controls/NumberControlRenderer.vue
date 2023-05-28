@@ -76,13 +76,6 @@ const controlRenderer = defineComponent({
       const options: any = this.appliedOptions;
       return options.step ?? 0.1;
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
   },
   methods: {
     // beforeChange(event) {

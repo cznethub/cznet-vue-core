@@ -119,17 +119,6 @@ const controlRenderer = defineComponent({
         ? undefined
         : [","];
     },
-    placeholder(): string {
-      return (
-        // @ts-ignore
-        this.control.schema.options?.placeholder ||
-        this.appliedOptions.placeholder ||
-        ""
-      );
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
   },
   methods: {
     onTagsChange() {

@@ -119,9 +119,10 @@ const controlRenderer = defineComponent({
   },
   created() {
     // If the value that was loaded is null, turn it into undefined
-    if (this.control.data === null) {
-      this.handleChange(this.control.path, undefined);
-    }
+    // TODO: check if `adaptValue` method already takes care  of this
+    // if (this.control.data === null) {
+    //   this.handleChange(this.control.path, undefined);
+    // }
 
     if (!this.control.data && this.control.schema.default) {
       this.handleChange(this.control.path, this.control.schema.default);
@@ -140,24 +141,9 @@ const controlRenderer = defineComponent({
       }
       return suggestions;
     },
-    placeholder(): string {
-      return (
-        // @ts-ignore
-        this.control.schema.options?.placeholder ||
-        this.appliedOptions.placeholder ||
-        ""
-      );
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
     isReadOnly() {
       // @ts-ignore
       return this.control.schema.options?.readonly;
-    },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
     },
   },
   methods: {

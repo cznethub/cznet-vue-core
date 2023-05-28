@@ -1,10 +1,13 @@
 import {
+  CombinatorKeyword,
+  getSubErrorsAt,
   composePaths,
   computeLabel,
   getFirstPrimitiveProp,
   isDescriptionHidden,
   JsonFormsSubStates,
   Resolve,
+  getErrorAt,
 } from "@jsonforms/core";
 import cloneDeep from "lodash/cloneDeep";
 import debounce from "lodash/debounce";
@@ -94,8 +97,31 @@ export const useVuetifyControl = <
     changeEmitter(input.control.value.path, adaptValue(value));
   };
 
+  const cleanedErrors = computed(() => {
+    return (
+      input.control.value.errors?.replaceAll(`is a required property`, ``) || ""
+    );
+  });
+
   const appliedOptions = useControlAppliedOptions(input);
   const isFocused = ref(false);
+
+  const placeholder = computed(() => {
+    return (
+      input.control.value.schema.options?.placeholder ||
+      appliedOptions.value.placeholder ||
+      ""
+    );
+  });
+
+  const description = computed(() => {
+    return (
+      input.control.description ||
+      input.control.schema?.description ||
+      appliedOptions.value.description ||
+      ""
+    );
+  });
 
   const persistentHint = (): boolean => {
     return !isDescriptionHidden(
@@ -133,6 +159,9 @@ export const useVuetifyControl = <
     persistentHint,
     computedLabel,
     isCombinatorSchema,
+    cleanedErrors,
+    placeholder,
+    description,
   };
 };
 
@@ -208,7 +237,6 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
   input: I
 ) => {
   const appliedOptions = useControlAppliedOptions(input);
-
   const computedLabel = useComputedLabel(input, appliedOptions);
 
   const vuetifyProps = (path: string) => {
@@ -216,6 +244,15 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
 
     return props && isPlainObject(props) ? props : {};
   };
+
+  const description = computed(() => {
+    return (
+      input.control.value.description ||
+      input.control.value.schema?.description ||
+      appliedOptions.value.description ||
+      ""
+    );
+  });
 
   const childLabelForIndex = (index: number | null) => {
     if (index === null) {
@@ -246,8 +283,34 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     appliedOptions,
     childLabelForIndex,
     computedLabel,
+    description,
     vuetifyProps,
     isCombinatorSchema,
+  };
+};
+
+/** Provides ajv errors to combinator schemas */
+export const useCombinatorChildErrors = <I extends { control: any }>(
+  input: I,
+  keyword: CombinatorKeyword
+) => {
+  const jsonforms = inject<JsonFormsSubStates>(
+    "jsonforms"
+  ) as JsonFormsSubStates;
+
+  const resolvedSchema = Resolve.schema(
+    input.control.value.schema,
+    keyword,
+    input.control.value.rootSchema
+  );
+
+  const childErrors = getSubErrorsAt(
+    input.control.value.path,
+    resolvedSchema
+  )({ jsonforms });
+
+  return {
+    childErrors,
   };
 };
 

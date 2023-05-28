@@ -5,13 +5,12 @@
       class="cz-fieldset"
       :class="{
         'is-invalid': control.childErrors.length,
-        ...styles.arrayList.root,
       }"
       elevation="0"
     >
       <legend
         v-if="computedLabel"
-        @click="noData && control.enabled ? addButtonClick() : null"
+        @click="noData && control.enabled ? addButtonClick($event) : null"
         class="v-label"
         :class="styles.arrayList.label + (!noData ? ' v-label--active' : '')"
       >
@@ -23,7 +22,7 @@
           <v-btn
             icon
             color="primary"
-            @click="addButtonClick()"
+            @click="addButtonClick"
             :class="styles.arrayList.addButton"
             class="btn-add"
             :aria-label="`Add to ${control.label}`"
@@ -380,10 +379,6 @@ const controlRenderer = defineComponent({
       // @ts-ignore
       return !!this.appliedOptions.hideAvatar;
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
     maxItems() {
       // @ts-ignore
       return this.control.schema.maxItems || this.arraySchema?.maxItems;
@@ -392,14 +387,11 @@ const controlRenderer = defineComponent({
       // @ts-ignore
       return this.control.schema.minItems || this.arraySchema?.minItems;
     },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
   },
   methods: {
     composePaths,
     createDefaultValue,
-    addButtonClick() {
+    addButtonClick(_event: any) {
       const combinatorSchema = this.isCombinatorSchema(this.control.schema);
       const defaultSchema = combinatorSchema
         ? this.control.schema[combinatorSchema][0]

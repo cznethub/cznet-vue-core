@@ -100,18 +100,6 @@ const controlRenderer = defineComponent({
       });
       return info;
     },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
-    },
-    description(): string {
-      return (
-        this.control.description ||
-        this.control.schema?.description ||
-        this.appliedOptions.description ||
-        ""
-      );
-    },
   },
 });
 

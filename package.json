@@ -18,7 +18,7 @@
     "access": "public"
   },
   "dependencies": {
-    "ajv": "^8.6.1",
+    "ajv-errors": "^3.0.0",
     "ajv-keywords": "^5.1.0",
     "dayjs": "^1.10.6",
     "google-maps": "^4.3.3",
@@ -42,7 +42,7 @@
     "@vue/cli-service": "^4.5.17",
     "@vue/composition-api": "^1.7.1",
     "@vuex-orm/core": "^0.36.4",
-    "ajv": "^8.6.1",
+    "ajv": "^8.12.0",
     "babel-loader": "^8.3.0",
     "cross-env": "^7.0.2",
     "html-webpack-plugin": "^5.5.0",

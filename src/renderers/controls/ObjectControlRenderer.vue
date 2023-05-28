@@ -121,7 +121,7 @@ const controlRenderer = defineComponent({
     };
   },
   watch: {
-    "control.data": function (newVal, oldVal) {
+    "control.data": function (newVal, _oldVal) {
       if (newVal) {
         const filteredObj = Object.fromEntries(
           Object.entries(newVal).filter(([_, value]) => value !== undefined) // strip out undefined properties
@@ -167,13 +167,6 @@ const controlRenderer = defineComponent({
         };
       }
       return result;
-    },
-    description(): string {
-      return this.control.description || this.appliedOptions.description || "";
-    },
-    cleanedErrors() {
-      // @ts-ignore
-      return this.control.errors.replaceAll(`is a required property`, ``);
     },
     hasToggle() {
       // @ts-ignore
