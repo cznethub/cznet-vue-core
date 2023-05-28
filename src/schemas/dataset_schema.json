@@ -50,8 +50,7 @@
       "type": "array",
       "items": {
         "options": {
-          "flat": true,
-          "dropdown": true
+          "flat": true
         },
         "anyOf": [
           {

@@ -26,7 +26,7 @@
       hide-details="auto"
       hide-no-data
       v-bind="vuetifyProps('v-combobox')"
-      @input="beforeChange"
+      @input="onChange"
       dense
       outlined
       class="py-3"
@@ -64,7 +64,7 @@
           : undefined
       "
       v-bind="vuetifyProps('v-text-field')"
-      @input="beforeChange"
+      @input="onChange"
       class="py-3"
       dense
       outlined
@@ -118,12 +118,6 @@ const controlRenderer = defineComponent({
     );
   },
   created() {
-    // If the value that was loaded is null, turn it into undefined
-    // TODO: check if `adaptValue` method already takes care  of this
-    // if (this.control.data === null) {
-    //   this.handleChange(this.control.path, undefined);
-    // }
-
     if (!this.control.data && this.control.schema.default) {
       this.handleChange(this.control.path, this.control.schema.default);
     }
@@ -144,16 +138,6 @@ const controlRenderer = defineComponent({
     isReadOnly() {
       // @ts-ignore
       return this.control.schema.options?.readonly;
-    },
-  },
-  methods: {
-    // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error
-    beforeChange(input: string) {
-      if (!input?.trim()) {
-        this.handleChange(this.control.path, undefined);
-      } else {
-        this.onChange(input);
-      }
     },
   },
 });
