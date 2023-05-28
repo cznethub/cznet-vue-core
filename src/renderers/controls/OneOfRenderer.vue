@@ -305,12 +305,6 @@ const controlRenderer = defineComponent({
         this.handleChange(this.control.path, val);
       }
     },
-    // annotateSelectedSchema() {
-    //   this.oneOfRenderInfos.map((info, index) => {
-    //     // @ts-ignore: used by error handling to figure out the used fitting schema
-    //     info.schema.isSelectedSchema = index === this.selectedIndex;
-    //   });
-    // },
     handleSelect(label: string) {
       this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
       this.selectedIndex = this.oneOfRenderInfos.findIndex(
@@ -322,10 +316,14 @@ const controlRenderer = defineComponent({
       } else if (this.tabData[this.selectedIndex]) {
         this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
       } else {
-        this.handleChange(
-          this.control.path,
-          createDefaultValue(this.oneOfRenderInfos[this.selectedIndex].schema)
-        );
+        const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
+        const val =
+          schema.type === "object" || schema.type === "array"
+            ? createDefaultValue(schema)
+            : undefined;
+
+        // Only create default values for objects and arrays
+        this.handleChange(this.control.path, val);
       }
     },
     showForm() {

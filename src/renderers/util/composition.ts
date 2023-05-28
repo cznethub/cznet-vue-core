@@ -14,15 +14,7 @@ import merge from "lodash/merge";
 import get from "lodash/get";
 import isPlainObject from "lodash/isPlainObject";
 import { useStyles } from "../styles";
-import {
-  computed,
-  ComputedRef,
-  inject,
-  ref,
-  provide,
-  watch,
-  watchEffect,
-} from "vue";
+import { computed, ComputedRef, inject, ref, provide } from "vue";
 import Ajv, { ErrorObject } from "ajv";
 
 export const useControlAppliedOptions = <I extends { control: any }>(
@@ -322,7 +314,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
         renderer.$set(e, "_selectedSchemaIndex", errorSchemaIndex);
         if (errorSchemaIndex !== renderer.selectedIndex) {
           // Indicate that the error should be ignored
-          renderer.$set(e, "_keyword", "anyOf"); // used to filter out error in CzForm's onChange method
+          renderer.$set(e, "_keyword", keyword); // used to filter out error in CzForm's onChange method
           renderer.$set(e, "message", ""); // removes the error from props of child components
         }
       }

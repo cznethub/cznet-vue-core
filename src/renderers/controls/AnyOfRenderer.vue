@@ -293,10 +293,10 @@ const controlRenderer = defineComponent({
       this.selectedIndex = nextIndex;
 
       // If we had form data stored, restore it. Otherwise create default value.
-      if (this.tabData[nextIndex]) {
-        this.handleChange(this.control.path, this.tabData[nextIndex]);
+      if (this.tabData[this.selectedIndex]) {
+        this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
       } else {
-        const schema = this.anyOfRenderInfos[nextIndex].schema;
+        const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
         const val =
           schema.type === "object" || schema.type === "array"
             ? createDefaultValue(schema)
@@ -317,10 +317,14 @@ const controlRenderer = defineComponent({
       } else if (this.tabData[this.selectedIndex]) {
         this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
       } else {
-        this.handleChange(
-          this.control.path,
-          createDefaultValue(this.anyOfRenderInfos[this.selectedIndex].schema)
-        );
+        const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
+        const val =
+          schema.type === "object" || schema.type === "array"
+            ? createDefaultValue(schema)
+            : undefined;
+
+        // Only create default values for objects and arrays
+        this.handleChange(this.control.path, val);
       }
     },
     showForm() {
