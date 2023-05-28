@@ -315,7 +315,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
 
   const annotateChildErrors = (renderer) => {
     renderer.childErrors.map((e: ErrorObject) => {
-      if (e.parentSchema) {
+      if (e.instancePath && e.parentSchema) {
         const errorSchemaIndex = renderer.schema[keyword]?.indexOf(
           e.parentSchema
         );
