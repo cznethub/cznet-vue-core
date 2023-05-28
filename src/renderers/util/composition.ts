@@ -1,13 +1,12 @@
 import {
   CombinatorKeyword,
-  getSubErrorsAt,
   composePaths,
   computeLabel,
   getFirstPrimitiveProp,
   isDescriptionHidden,
   JsonFormsSubStates,
   Resolve,
-  getErrorAt,
+  getControlPath,
 } from "@jsonforms/core";
 import cloneDeep from "lodash/cloneDeep";
 import debounce from "lodash/debounce";
@@ -15,8 +14,16 @@ import merge from "lodash/merge";
 import get from "lodash/get";
 import isPlainObject from "lodash/isPlainObject";
 import { useStyles } from "../styles";
-import { computed, ComputedRef, inject, ref, provide } from "vue";
-import Ajv from "ajv";
+import {
+  computed,
+  ComputedRef,
+  inject,
+  ref,
+  provide,
+  watch,
+  watchEffect,
+} from "vue";
+import Ajv, { ErrorObject } from "ajv";
 
 export const useControlAppliedOptions = <I extends { control: any }>(
   input: I
@@ -298,19 +305,33 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
     "jsonforms"
   ) as JsonFormsSubStates;
 
-  const resolvedSchema = Resolve.schema(
-    input.control.value.schema,
-    keyword,
-    input.control.value.rootSchema
-  );
+  const childErrors: ComputedRef<ErrorObject[]> = computed(() => {
+    return (
+      jsonforms.core?.errors?.filter(
+        (e) => getControlPath(e) === input.control.value.path
+      ) || []
+    );
+  });
 
-  const childErrors = getSubErrorsAt(
-    input.control.value.path,
-    resolvedSchema
-  )({ jsonforms });
+  const annotateChildErrors = (renderer) => {
+    renderer.childErrors.map((e: ErrorObject) => {
+      if (e.parentSchema) {
+        const errorSchemaIndex = renderer.schema[keyword]?.indexOf(
+          e.parentSchema
+        );
+        renderer.$set(e, "_selectedSchemaIndex", errorSchemaIndex);
+        if (errorSchemaIndex !== renderer.selectedIndex) {
+          // Indicate that the error should be ignored
+          renderer.$set(e, "_keyword", "anyOf"); // used to filter out error in CzForm's onChange method
+          renderer.$set(e, "message", ""); // removes the error from props of child components
+        }
+      }
+    });
+  };
 
   return {
     childErrors,
+    annotateChildErrors,
   };
 };
 

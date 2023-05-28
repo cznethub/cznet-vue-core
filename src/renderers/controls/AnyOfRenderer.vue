@@ -105,7 +105,7 @@
             :error-messages="control.errors"
             :placeholder="appliedOptions.placeholder"
             :disabled="!control.enabled"
-            :readonly="control.schema.readOnly"
+            :readonly="control.schema['readOnly']"
             :hint="description"
             class="py-4"
             hide-details="auto"
@@ -148,7 +148,6 @@ import {
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
   isAnyOfControl,
-  getSubErrorsAt,
 } from "@jsonforms/core";
 import {
   DispatchRenderer,
@@ -158,7 +157,6 @@ import {
 } from "@jsonforms/vue2";
 import { defineComponent, ref } from "vue";
 import {
-  useCustomJsonFormsAnyOfControl,
   useVuetifyControl,
   useCombinatorChildErrors,
 } from "@/renderers/util/composition";
@@ -178,7 +176,6 @@ import {
   VIcon,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
-import { ErrorObject } from "ajv";
 
 const controlRenderer = defineComponent({
   name: "one-of-renderer",
@@ -217,19 +214,14 @@ const controlRenderer = defineComponent({
       tabData,
     };
   },
-  beforeCreate() {},
   created() {
     if (this.control.data) {
       this.isAdded = true;
     }
   },
   mounted() {
-    // TODO: errors have already been computed in CzFor's onChange before this component is intantiated
-    // indexOfFittingSchema is `undefined` there.
-
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
-    this.annotateFittingSchema(); // Watchers are not setup yet, so we call it manually
   },
   computed: {
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -245,8 +237,7 @@ const controlRenderer = defineComponent({
       // JsonSchema does not pass the required attribute, so we do it ourselves
       info.map((i) => {
         i.schema.required = this.control.schema.required;
-        // @ts-ignore: use detail uischema if specified
-        i.uischema = i.schema.options?.detail || i.uischema;
+        i.uischema = i.schema["options"]?.detail || i.uischema;
       });
       return info;
     },
@@ -285,11 +276,10 @@ const controlRenderer = defineComponent({
     },
   },
   watch: {
-    selectedIndex: {
-      handler(_newIndex, _oldIndex) {
-        this.annotateFittingSchema();
+    childErrors: {
+      handler(_newErrors, _oldErrors) {
+        this.annotateChildErrors(this);
       },
-      immediate: true,
     },
   },
   methods: {
@@ -315,24 +305,6 @@ const controlRenderer = defineComponent({
         // Only create default values for objects and arrays
         this.handleChange(this.control.path, val);
       }
-    },
-    annotateFittingSchema() {
-      this.anyOfRenderInfos.map((info, index) => {
-        // @ts-ignore: used by CzForm's onChange to figure out error property title
-        info.schema.isSelectedSchema = index === this.selectedIndex;
-      });
-
-      // TODO: child errors have already been passed
-      // Modifying these messages have no effect
-      this.childErrors.map((e: ErrorObject) => {
-        if (e.parentSchema && e.parentSchema.isSelectedSchema === false) {
-          this.$set(e, "message", "-");
-        }
-      });
-
-      // TODO: after calling this, children receive new unmodified error messages
-      // Trigger onChange in CzForm to re-compute errors
-      // this.handleChange(this.control.path, this.control.data);
     },
     handleSelect(label: string) {
       this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change

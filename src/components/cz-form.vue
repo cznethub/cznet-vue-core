@@ -30,6 +30,24 @@ const customAjv = createAjv();
 ajvErrors(customAjv);
 const renderers = [...CzRenderers];
 
+/**
+ * The error-type of an AJV error is defined by its `keyword` property.
+ * Certain errors are filtered because they don't fit to any rendered control.
+ * All of them have in common that we don't want to show them in the UI
+ * because controls will show the actual reason why they don't match their correponding sub schema.
+ * - additionalProperties: Indicates that a property is present that is not defined in the schema.
+ *      Jsonforms only allows to edit defined properties. These errors occur if an oneOf doesn't match.
+ * - allOf: Indicates that not all of the allOf definitions match as a whole.
+ * - anyOf: Indicates that an anyOf definition itself is not valid because none of its subschemas matches.
+ * - oneOf: Indicates that an oneOf definition itself is not valid because not exactly one of its subschemas matches.
+ */
+const filteredErrorKeywords = [
+  "additionalProperties",
+  "allOf",
+  "anyOf",
+  "oneOf",
+];
+
 @Component({
   name: "cz-form",
   components: { JsonForms },
@@ -54,9 +72,9 @@ export default class CzForm extends Vue {
     const errors =
       event.errors
         ?.filter((e: ErrorObject) => {
-          // console.log(e.message, e.parentSchema?.isSelectedSchema);
-          return !(
-            e.parentSchema && e.parentSchema?.isSelectedSchema === false
+          return (
+            !filteredErrorKeywords.includes(e.keyword) &&
+            !filteredErrorKeywords.includes(e["_keyword"])
           );
         })
         .map((e: ErrorObject) => ({
@@ -95,7 +113,7 @@ export default class CzForm extends Vue {
         const combinatorSchema = isCombinatorSchema(error.parentSchema);
 
         const propTitle = combinatorSchema
-          ? this._getCombinatorSchemaProperties(error.parentSchema)?.[
+          ? error.parentSchema?.anyOf[error["_selectedSchemaIndex"]]?.[
               error.params.missingProperty
             ]?.title
           : error.parentSchema?.properties?.[error.params.missingProperty]
@@ -119,6 +137,7 @@ export default class CzForm extends Vue {
       return;
     }
 
+    // TODO: Cannot use isSelectedSchema reliably because array items share the same schema object annotations
     const selectedSchema = schema[combinatorSchema]?.find(
       (s) => s.isSelectedSchema
     );

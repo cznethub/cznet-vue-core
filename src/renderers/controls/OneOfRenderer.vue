@@ -66,7 +66,7 @@
         <template v-if="!isDropDown">
           <v-tabs v-model="selectedIndex">
             <v-tab
-              @change="handleTabChange"
+              @change="handleTabChange(oneOfIndex)"
               :key="`${control.path}-${oneOfIndex}`"
               v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
             >
@@ -155,7 +155,10 @@ import {
   useJsonFormsOneOfControl,
 } from "@jsonforms/vue2";
 import { defineComponent, ref } from "vue";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import {
+  useCombinatorChildErrors,
+  useVuetifyControl,
+} from "@/renderers/util/composition";
 import {
   VDialog,
   VCard,
@@ -204,6 +207,7 @@ const controlRenderer = defineComponent({
 
     return {
       ...useVuetifyControl(input),
+      ...useCombinatorChildErrors(input, "oneOf"),
       isAdded,
       selectedIndex,
       tabData,
@@ -217,7 +221,6 @@ const controlRenderer = defineComponent({
   mounted() {
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
-    this.annotateSelectedSchema(); // Watchers are not setup yet, so we call it manually
   },
   computed: {
     oneOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -233,8 +236,7 @@ const controlRenderer = defineComponent({
       // JsonSchema does not pass the required attribute, so we do it ourselves
       info.map((i) => {
         i.schema.required = this.control.schema.required;
-        // @ts-ignore: use detail uischema if specified
-        i.uischema = i.schema.options?.detail || i.uischema;
+        i.uischema = i.schema["options"]?.detail || i.uischema;
       });
       return info;
     },
@@ -273,39 +275,42 @@ const controlRenderer = defineComponent({
     },
   },
   watch: {
-    selectedIndex(_newIndex, _oldIndex) {
-      this.annotateSelectedSchema();
+    childErrors: {
+      handler(_newErrors, _oldErrors) {
+        this.annotateChildErrors(this);
+      },
     },
   },
   methods: {
-    handleTabChange(): void {
+    handleTabChange(nextIndex: number): void {
       if (!this.control.enabled) {
         return;
       }
 
-      this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
-      this.$nextTick(() => {
-        // Tab has changed
-        // If we had form data stored, restore it. Otherwise create default value.
-        if (this.tabData[this.selectedIndex]) {
-          this.handleChange(
-            this.control.path,
-            this.tabData[this.selectedIndex]
-          );
-        } else {
-          this.handleChange(
-            this.path,
-            createDefaultValue(this.oneOfRenderInfos[this.selectedIndex].schema)
-          );
-        }
-      });
+      // Store form state before tab change
+      this.$set(this.tabData, this.selectedIndex, this.control.data);
+      this.selectedIndex = nextIndex;
+
+      // If we had form data stored, restore it. Otherwise create default value.
+      if (this.tabData[nextIndex]) {
+        this.handleChange(this.control.path, this.tabData[nextIndex]);
+      } else {
+        const schema = this.oneOfRenderInfos[nextIndex].schema;
+        const val =
+          schema.type === "object" || schema.type === "array"
+            ? createDefaultValue(schema)
+            : undefined;
+
+        // Only create default values for objects and arrays
+        this.handleChange(this.control.path, val);
+      }
     },
-    annotateSelectedSchema() {
-      this.oneOfRenderInfos.map((info, index) => {
-        // @ts-ignore: used by error handling to figure out the used fitting schema
-        info.schema.isSelectedSchema = index === this.selectedIndex;
-      });
-    },
+    // annotateSelectedSchema() {
+    //   this.oneOfRenderInfos.map((info, index) => {
+    //     // @ts-ignore: used by error handling to figure out the used fitting schema
+    //     info.schema.isSelectedSchema = index === this.selectedIndex;
+    //   });
+    // },
     handleSelect(label: string) {
       this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
       this.selectedIndex = this.oneOfRenderInfos.findIndex(
@@ -314,11 +319,7 @@ const controlRenderer = defineComponent({
 
       if (this.selectedIndex === -1) {
         this.handleChange(this.control.path, undefined);
-
-        return;
-      }
-
-      if (this.tabData[this.selectedIndex]) {
+      } else if (this.tabData[this.selectedIndex]) {
         this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
       } else {
         this.handleChange(
