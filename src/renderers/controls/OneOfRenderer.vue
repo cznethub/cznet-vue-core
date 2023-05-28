@@ -95,7 +95,7 @@
 
         <template v-else>
           <v-select
-            @change="handleSelect"
+            @change="handleTabChange"
             :items="oneOfRenderInfos"
             :label="title"
             :value="oneOfRenderInfos[selectedIndex]"
@@ -105,7 +105,7 @@
             :error-messages="control.errors"
             :placeholder="appliedOptions.placeholder"
             :disabled="!control.enabled"
-            :readonly="control.schema.readOnly"
+            :readonly="control.schema['readOnly']"
             class="py-4"
             hide-details="auto"
             item-text="label"
@@ -282,38 +282,26 @@ const controlRenderer = defineComponent({
     },
   },
   methods: {
-    handleTabChange(nextIndex: number): void {
+    handleTabChange(nextIndexOrLabel: number | string): void {
       if (!this.control.enabled) {
         return;
       }
 
       // Store form state before tab change
       this.$set(this.tabData, this.selectedIndex, this.control.data);
-      this.selectedIndex = nextIndex;
+      this.selectedIndex = -1;
+
+      if (typeof nextIndexOrLabel === "number") {
+        this.selectedIndex = nextIndexOrLabel;
+      } else if (typeof nextIndexOrLabel === "string") {
+        this.selectedIndex = this.oneOfRenderInfos.findIndex(
+          (info: CombinatorSubSchemaRenderInfo) =>
+            info.label === nextIndexOrLabel
+        );
+      }
 
       // If we had form data stored, restore it. Otherwise create default value.
-      if (this.tabData[nextIndex]) {
-        this.handleChange(this.control.path, this.tabData[nextIndex]);
-      } else {
-        const schema = this.oneOfRenderInfos[nextIndex].schema;
-        const val =
-          schema.type === "object" || schema.type === "array"
-            ? createDefaultValue(schema)
-            : undefined;
-
-        // Only create default values for objects and arrays
-        this.handleChange(this.control.path, val);
-      }
-    },
-    handleSelect(label: string) {
-      this.$set(this.tabData, this.selectedIndex, this.control.data); // Store form state before tab change
-      this.selectedIndex = this.oneOfRenderInfos.findIndex(
-        (info: CombinatorSubSchemaRenderInfo) => info.label === label
-      );
-
-      if (this.selectedIndex === -1) {
-        this.handleChange(this.control.path, undefined);
-      } else if (this.tabData[this.selectedIndex]) {
+      if (this.tabData[this.selectedIndex]) {
         this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
       } else {
         const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
