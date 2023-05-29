@@ -82,15 +82,15 @@ const controlRenderer = defineComponent({
     };
   },
   created() {
-    // If no initial value, load default
+    // If no initial value, load default. Otherwise, load the data
     if (!this.control.data) {
-      this.onChange(undefined);
-    }
-
-    if (!this.control.data && this.control.schema.default) {
-      this.tags = this.control.schema.default;
-      this.onChange(this.tags);
-    } else if (this.control.data) {
+      if (this.control.schema.default) {
+        this.tags = this.control.schema.default;
+        this.onChange(this.tags);
+      } else {
+        this.onChange(undefined);
+      }
+    } else {
       this.tags = this.control.data;
       this.onChange(this.tags);
     }

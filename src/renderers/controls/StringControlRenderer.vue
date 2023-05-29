@@ -94,7 +94,7 @@ import {
   useJsonFormsControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
 import isArray from "lodash/isArray";
 import every from "lodash/every";
 import isString from "lodash/isString";
@@ -111,15 +111,15 @@ const controlRenderer = defineComponent({
     VCombobox,
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(
-      useJsonFormsControl(props),
-      (value) => value || undefined,
-      300
-    );
+    const control = useJsonFormsControl(props);
+    useDefaults(control);
+
+    return useVuetifyControl(control, (value) => value || undefined, 300);
   },
   created() {
-    if (!this.control.data && this.control.schema.default) {
-      this.handleChange(this.control.path, this.control.schema.default);
+    if (this.control.data && typeof this.control.data !== "string") {
+      // Unsupported data type
+      this.handleChange(this.control.path, undefined);
     }
   },
   computed: {

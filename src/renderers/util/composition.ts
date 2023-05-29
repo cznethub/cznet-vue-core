@@ -46,6 +46,7 @@ export const useComputedLabel = <I extends { control: any }>(
   return computed((): string => {
     return computeLabel(
       input.control.value.label,
+      // TODO: a lot of schemas do not have their `required` property populated for some reason
       input.control.value.required,
       !!appliedOptions.value?.hideRequiredAsterisk
     );
@@ -75,6 +76,24 @@ export const useVuetifyLabel = <I extends { label: any }>(input: I) => {
     vuetifyProps,
     styles,
   };
+};
+
+/**
+ * Loads default data defined in control schema if the `control.data` is empty.
+ */
+export const useDefaults = <I extends { control: any; handleChange: any }>(
+  input: I
+) => {
+  if (!input.control.value.data) {
+    if (input.control.value.schema.default) {
+      input.handleChange(
+        input.control.value.path,
+        input.control.value.schema.default
+      );
+    } else {
+      input.handleChange(input.control.value.path, undefined);
+    }
+  }
 };
 
 /**
@@ -308,10 +327,12 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
   const annotateChildErrors = (renderer) => {
     renderer.childErrors.map((e: ErrorObject) => {
       if (e.instancePath && e.parentSchema) {
-        const errorSchemaIndex = renderer.schema[keyword]?.indexOf(
+        const errorSchemaIndex = renderer.control.schema[keyword]?.indexOf(
           e.parentSchema
         );
-        renderer.$set(e, "_selectedSchemaIndex", errorSchemaIndex);
+        if (errorSchemaIndex >= 0) {
+          renderer.$set(e, "_selectedSchemaIndex", errorSchemaIndex);
+        }
         if (errorSchemaIndex !== renderer.selectedIndex) {
           // Indicate that the error should be ignored
           renderer.$set(e, "_keyword", keyword); // used to filter out error in CzForm's onChange method

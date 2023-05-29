@@ -2,7 +2,7 @@
   <v-textarea
     :id="control.id + '-input'"
     :data-id="computedLabel.replaceAll(` `, ``)"
-    @input.native="beforeChange"
+    @input="onChange"
     :maxlength="appliedOptions.restrict ? control.schema.maxLength : undefined"
     :counter="
       control.schema.maxLength !== undefined
@@ -11,7 +11,6 @@
     "
     :error-messages="control.errors"
     :required="control.required"
-    :class="styles.control.textarea"
     :hint="description"
     :value="control.data"
     :disabled="!control.enabled"
@@ -49,7 +48,7 @@ import {
   useJsonFormsControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
 import { VTextarea } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
@@ -59,24 +58,11 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(
-      useJsonFormsControl(props),
-      (value) => value || undefined,
-      300
-    );
+    const control = useJsonFormsControl(props);
+    useDefaults(control);
+    return useVuetifyControl(control, (value) => value || undefined, 300);
   },
   created() {
-    // If the value that was loaded is null, turn it into undefined
-    if (this.control.data === null) {
-      this.handleChange(this.control.path, undefined);
-    }
-
-    // If no value loaded but there is a default, populate it
-    if (!this.control.data && this.control.schema.default) {
-      this.control.data = this.control.schema.default;
-      this.handleChange(this.control.path, this.control.data);
-    }
-
     // If a value was loaded, check if HTML needs to be stripped
     if (this.control.data && this.stripHTML) {
       this.handleChange(this.control.path, this.strip(this.control.data));
@@ -89,14 +75,6 @@ const controlRenderer = defineComponent({
     },
   },
   methods: {
-    // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error
-    beforeChange(event) {
-      if (event.target.value.trim() === "") {
-        this.handleChange(this.control.path, undefined);
-      } else {
-        this.onChange(event.target.value);
-      }
-    },
     strip(html: string) {
       const doc = new DOMParser().parseFromString(html, "text/html");
       return doc.body.textContent || "";

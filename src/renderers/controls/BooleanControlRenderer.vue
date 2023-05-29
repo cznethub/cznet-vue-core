@@ -43,7 +43,7 @@ import {
   useJsonFormsControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
 import { VCheckbox } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
@@ -55,16 +55,9 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(
-      useJsonFormsControl(props),
-      (newValue) => newValue || false
-    );
-  },
-  created() {
-    if (!this.control.data && this.control.schema.default !== undefined) {
-      this.control.data = this.control.schema.default;
-      this.handleChange(this.control.path, this.control.data);
-    }
+    const control = useJsonFormsControl(props);
+    useDefaults(control);
+    return useVuetifyControl(control, (newValue) => newValue || false);
   },
 });
 

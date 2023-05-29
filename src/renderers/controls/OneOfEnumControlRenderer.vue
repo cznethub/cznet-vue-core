@@ -65,7 +65,7 @@ import {
   useJsonFormsOneOfEnumControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
 import { VSelect, VHover, VAutocomplete } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
@@ -80,15 +80,9 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(
-      useJsonFormsOneOfEnumControl(props),
-      (value) => value || undefined
-    );
-  },
-  created() {
-    if (!this.control.data && this.control.schema.default) {
-      this.handleChange(this.control.path, this.control.schema.default);
-    }
+    const control = useJsonFormsOneOfEnumControl(props);
+    useDefaults(control);
+    return useVuetifyControl(control, (value) => value || undefined);
   },
   computed: {
     hasAutoComplete() {

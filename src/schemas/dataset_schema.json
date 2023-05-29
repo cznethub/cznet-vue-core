@@ -148,6 +148,7 @@
               },
               "name": {
                 "title": "Name",
+                "default": "Mauriel",
                 "type": "string"
               },
               "email": {
@@ -245,7 +246,7 @@
                 "default": "Organization",
                 "const": "Organization",
                 "type": "string",
-                "readonly": true,
+                "readnly": true,
                 "option": {
                   "hidden": true
                 }
@@ -2832,9 +2833,7 @@
       }
     }
   },
-  "required": [
-    "identifier"
-  ],
+  "required": [],
   "definitions": {
     "PropertyValue": {
       "title": "PropertyValue",

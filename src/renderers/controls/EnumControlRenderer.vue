@@ -50,7 +50,7 @@ import {
   useJsonFormsEnumControl,
   RendererProps,
 } from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
+import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
 import { VSelect, VHover } from "vuetify/lib";
 
 const controlRenderer = defineComponent({
@@ -62,16 +62,10 @@ const controlRenderer = defineComponent({
   props: {
     ...rendererProps<ControlElement>(),
   },
-  created() {
-    if (this.control && !this.control.data) {
-      this.handleChange(this.control.path, this.control.schema.default);
-    }
-  },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(
-      useJsonFormsEnumControl(props),
-      (value) => value || undefined
-    );
+    const control = useJsonFormsEnumControl(props);
+    useDefaults(control);
+    return useVuetifyControl(control, (value) => value || undefined);
   },
   computed: {
     isHidden(): boolean {
