@@ -106,7 +106,7 @@
             :placeholder="appliedOptions.placeholder"
             :disabled="!control.enabled"
             :readonly="control.schema['readOnly']"
-            :hint="description"
+            :hint="desc"
             class="py-4"
             hide-details="auto"
             item-text="label"
@@ -129,13 +129,10 @@
         </template>
       </template>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">
-      {{ description }}
+
+    <div v-if="desc" class="text--secondary text-body-1 mt-2 ml-2">
+      {{ desc }}
     </div>
-    <!-- <div v-if="cleanedErrors" class="ml-2 mt-2 v-messages error--text">
-      <v-divider v-if="isFlat" class="mb-4"></v-divider>
-      {{ cleanedErrors }}
-    </div> -->
   </div>
 </template>
 
@@ -264,7 +261,7 @@ const controlRenderer = defineComponent({
         this.control.schema?.options?.title || this.control.schema.title || ""
       );
     },
-    description(): string {
+    desc(): string {
       return (
         this.control.description ||
         // @ts-ignore

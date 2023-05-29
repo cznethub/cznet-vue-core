@@ -397,7 +397,10 @@ const controlRenderer = defineComponent({
         ? this.control.schema[combinatorSchema][0]
         : this.control.schema;
 
-      // for combinator schemas, only create default values for objects and arrays
+      /**
+       * For combinator schemas, only create default values for objects and arrays.
+       * For primitive types we use `undefined` which will correctly trigger validation
+       */
       const val =
         !combinatorSchema || ["object", "array"].includes(defaultSchema.type)
           ? createDefaultValue(defaultSchema)

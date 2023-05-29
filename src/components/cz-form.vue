@@ -109,7 +109,7 @@ export default class CzForm extends Vue {
     if (error.keyword === "required") {
       if (error.instancePath) {
         // Error is in a nested object
-        // For combinator renderers we must anotate the selected schema in the control itself and then use it here to get the corresponding prop title
+        // For combinator renderers we must anotate `_selectedSchemaIndex` in the control itself and then use it here to get the corresponding prop title
         const combinatorSchema = isCombinatorSchema(error.parentSchema);
 
         const propTitle = combinatorSchema
@@ -127,25 +127,6 @@ export default class CzForm extends Vue {
       }
     }
     return error.message || "";
-  }
-
-  /** Find and return the properties array inside nested combinator schemas */
-  private _getCombinatorSchemaProperties(schema: any) {
-    const combinatorSchema = isCombinatorSchema(schema);
-
-    if (!combinatorSchema) {
-      return;
-    }
-
-    // TODO: Cannot use isSelectedSchema reliably because array items share the same schema object annotations
-    const selectedSchema = schema[combinatorSchema]?.find(
-      (s) => s.isSelectedSchema
-    );
-
-    return (
-      selectedSchema?.properties ||
-      this._getCombinatorSchemaProperties(selectedSchema)
-    );
   }
 }
 </script>

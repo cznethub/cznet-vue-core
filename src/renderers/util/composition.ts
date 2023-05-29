@@ -318,9 +318,18 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
 
   const childErrors: ComputedRef<ErrorObject[]> = computed(() => {
     return (
-      jsonforms.core?.errors?.filter(
-        (e) => getControlPath(e) === input.control.value.path
-      ) || []
+      jsonforms.core?.errors?.filter((e) => {
+        const controlPath = getControlPath(e) as string;
+
+        const isChildProp = controlPath.startsWith(
+          `${input.control.value.path}.`
+        )
+          ? !controlPath
+              .replace(`${input.control.value.path}.`, "")
+              .includes(".")
+          : false;
+        return controlPath === input.control.value.path || isChildProp;
+      }) || []
     );
   });
 

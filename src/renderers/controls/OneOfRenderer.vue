@@ -1,7 +1,8 @@
 <template>
-  <div class="my-4">
+  <div class="py-4">
     <fieldset
       v-if="control.visible"
+      :data-id="computedLabel.replaceAll(` `, ``)"
       :class="{
         'cz-fieldset': !isFlat,
         'is-borderless': isFlat,
@@ -42,8 +43,8 @@
                 icon
                 color="error"
                 @click="removeForm()"
-                :disabled="!control.enabled"
                 :class="styles.arrayList.addButton"
+                :disabled="!control.enabled"
                 class="btn-add"
                 aria-label="Remove"
                 v-on="onTooltip"
@@ -100,12 +101,12 @@
             :label="title"
             :value="oneOfRenderInfos[selectedIndex]"
             :data-id="computedLabel.replaceAll(` `, ``)"
-            :hint="description"
             :required="control.required"
             :error-messages="control.errors"
             :placeholder="appliedOptions.placeholder"
             :disabled="!control.enabled"
             :readonly="control.schema['readOnly']"
+            :hint="desc"
             class="py-4"
             hide-details="auto"
             item-text="label"
@@ -128,12 +129,9 @@
         </template>
       </template>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">
-      {{ description }}
-    </div>
-    <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
-      <v-divider v-if="isFlat" class="mb-4"></v-divider>
-      {{ cleanedErrors }}
+
+    <div v-if="desc" class="text--secondary text-body-1 mt-2 ml-2">
+      {{ desc }}
     </div>
   </div>
 </template>
@@ -142,11 +140,11 @@
 import {
   ControlElement,
   createCombinatorRenderInfos,
-  isOneOfControl,
   JsonFormsRendererRegistryEntry,
   rankWith,
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
+  isOneOfControl,
 } from "@jsonforms/core";
 import {
   DispatchRenderer,
@@ -156,8 +154,8 @@ import {
 } from "@jsonforms/vue2";
 import { defineComponent, ref } from "vue";
 import {
-  useCombinatorChildErrors,
   useVuetifyControl,
+  useCombinatorChildErrors,
 } from "@/renderers/util/composition";
 import {
   VDialog,
@@ -200,9 +198,9 @@ const controlRenderer = defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const input = useJsonFormsOneOfControl(props);
-    const control = (input.control as any).value as typeof input.control;
     const tabData: { [key: number]: any } = {}; // Dictionary to store form state between tab changes
-    const selectedIndex = ref(control.indexOfFittingSchema || 0);
+    const selectedIndex = ref(0);
+
     const isAdded = ref(false);
 
     return {
@@ -219,6 +217,11 @@ const controlRenderer = defineComponent({
     }
   },
   mounted() {
+    // TODO: find most fit schema if indexOfFittingSchema is undefined and data is not undefined
+    // if (this.control.data && this.control.indexOfFittingSchema === undefined) {
+    //   // ...
+    // }
+
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
   },
@@ -258,7 +261,7 @@ const controlRenderer = defineComponent({
         this.control.schema?.options?.title || this.control.schema.title || ""
       );
     },
-    description(): string {
+    desc(): string {
       return (
         this.control.description ||
         // @ts-ignore
@@ -287,7 +290,7 @@ const controlRenderer = defineComponent({
         return;
       }
 
-      // Store form state before tab change
+      // Store form state before tab change.
       this.$set(this.tabData, this.selectedIndex, this.control.data);
       this.selectedIndex = -1;
 
@@ -306,11 +309,12 @@ const controlRenderer = defineComponent({
       } else {
         const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
         const val =
-          schema.type === "object" || schema.type === "array"
-            ? createDefaultValue(schema)
+          schema.type === "array" || schema.type === "object"
+            ? createDefaultValue(schema) // TODO: won't add defaults
             : undefined;
 
-        // Only create default values for objects and arrays
+        // Only create default values for objects and arrays.
+        // TODO: handle change seems to merge this value with current data
         this.handleChange(this.control.path, val);
       }
     },

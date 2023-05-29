@@ -710,10 +710,7 @@
               "default": "Person",
               "const": "Person",
               "type": "string",
-              "readonly": true,
-              "option": {
-                "hidden": true
-              }
+              "readonly": true
             },
             "name": {
               "title": "Name",
@@ -2833,7 +2830,9 @@
       }
     }
   },
-  "required": [],
+  "required": [
+    "identifier"
+  ],
   "definitions": {
     "PropertyValue": {
       "title": "PropertyValue",
