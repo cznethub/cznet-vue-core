@@ -2831,7 +2831,17 @@
     }
   },
   "required": [
-    "identifier"
+    "name",
+    "description",
+    "url",
+    "identifier",
+    "creator",
+    "dateCreated",
+    "keywords",
+    "license",
+    "provider",
+    "distribution",
+    "includedInDataCatalog"
   ],
   "definitions": {
     "PropertyValue": {

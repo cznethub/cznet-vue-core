@@ -93,6 +93,10 @@ const schema = require("@/schemas/dataset_schema.json");
 const uischema = require("@/schemas/uischema.json");
 const schemaDefaults = require("@/schemas/defaults.json");
 
+const initialData = {
+  name: "Test dataset",
+};
+
 @Component({
   name: "app",
   components: { CzNotifications, CzForm },
@@ -105,7 +109,7 @@ export default class App extends Vue {
   protected schemaDefaults;
   protected isReadonly = false;
   protected errors = [];
-  protected data = {};
+  protected data = initialData;
 
   beforeCreate() {
     this.schema = schema;

@@ -58,8 +58,8 @@ export default class CzForm extends Vue {
   @Prop() uischema!: any;
   @Prop() schemaDefaults!: any;
   @Prop() isReadOnly!: boolean;
+  @Prop() data!: any;
 
-  protected data: any = {};
   protected timesChanged = 0;
   protected renderers: JsonFormsRendererRegistryEntry[] = renderers;
   // protected i18n: JsonFormsI18nState = {
@@ -68,7 +68,6 @@ export default class CzForm extends Vue {
   // } as JsonFormsI18nState;
 
   protected onChange(event: JsonFormsChangeEvent) {
-    this.data = event.data;
     const errors =
       event.errors
         ?.filter((e: ErrorObject) => {
