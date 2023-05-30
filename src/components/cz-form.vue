@@ -3,11 +3,11 @@
     @change="onChange"
     :ajv="ajv"
     :data="data"
-    :readonly="isReadOnly"
+    :readonly="isReadOnly || isViewMode"
     :renderers="Object.freeze(renderers)"
     :schema="schema"
     :uischema="uischema"
-    validationMode="ValidateAndShow"
+    :validationMode="isViewMode ? 'NoValidation' : 'ValidateAndShow'"
     ref="form"
   />
 </template>
@@ -58,7 +58,10 @@ export default class CzForm extends Vue {
   @Prop() uischema!: any;
   @Prop() schemaDefaults!: any;
   @Prop() isReadOnly!: boolean;
+  /** The initial data. Can bind to it using `.sync` modifier */
   @Prop() data!: any;
+  /** When `true`, sets the form to view mode. Validation is disabled, fields are readonly and empty fields are not rendered. */
+  @Prop({ default: false }) isViewMode!: boolean;
 
   protected timesChanged = 0;
   protected renderers: JsonFormsRendererRegistryEntry[] = renderers;
@@ -83,14 +86,6 @@ export default class CzForm extends Vue {
 
     this.$emit("update:errors", errors);
     this.$emit("update:data", event.data);
-  }
-
-  onCreate() {
-    this.init();
-  }
-
-  protected init() {
-    this.data = this.schemaDefaults || {};
   }
 
   private _getErrorTitle(error: ErrorObject): string {

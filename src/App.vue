@@ -31,6 +31,7 @@
             :isReadOnly="isReadonly"
             :errors.sync="errors"
             :data.sync="data"
+            :isViewMode="true"
             ref="form"
           />
         </v-card-text>
