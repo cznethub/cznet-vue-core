@@ -6,6 +6,7 @@ import cleanup from "rollup-plugin-cleanup";
 import visualizer from "rollup-plugin-visualizer";
 import styles from "rollup-plugin-styles";
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
 
 import packageJson from "./package.json";
 
@@ -60,6 +61,7 @@ const buildFormats = [
       cleanup({ extensions: ["js", "ts", "jsx", "tsx", "vue"] }),
       visualizer(),
       commonjs(),
+      json(),
     ],
   },
   {
@@ -102,6 +104,7 @@ const buildFormats = [
       }),
       cleanup({ extensions: ["js", "ts", "jsx", "tsx", "vue"] }),
       commonjs(),
+      json(),
     ],
   },
 ];
