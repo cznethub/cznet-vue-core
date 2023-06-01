@@ -22,13 +22,12 @@
         persistent-hint
         :required="control.required"
         :error-messages="control.errors"
-        v-bind="attrs"
+        v-bind="{ ...vuetifyProps(`v-select`), ...attrs }"
         :prepend-inner-icon="pickerIcon"
         v-mask="mask"
         :value="inputValue"
         @input="onInputChange"
         v-on="on"
-        outlined
         class="py-3"
       >
         <template v-slot:message>

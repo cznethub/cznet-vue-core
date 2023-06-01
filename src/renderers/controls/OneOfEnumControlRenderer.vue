@@ -16,13 +16,12 @@
       :clearable="hover"
       :value="control.data"
       :items="sortedOptions"
+      v-bind="vuetifyProps('v-autocomplete')"
       item-text="label"
       item-value="value"
       persistent-hint
       class="py-3"
       hide-details="auto"
-      outlined
-      dense
     />
 
     <v-select
@@ -40,13 +39,12 @@
       :clearable="hover"
       :value="control.data"
       :items="customOptions"
+      v-bind="vuetifyProps('v-select')"
       item-text="label"
       item-value="value"
       persistent-hint
       class="py-3"
       hide-details="auto"
-      outlined
-      dense
     />
   </v-hover>
 </template>

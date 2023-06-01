@@ -170,7 +170,10 @@ const controlRenderer = defineComponent({
     },
     hasToggle() {
       // @ts-ignore
-      return !this.control.required;
+      return !this.control.required && !this.isFlat;
+    },
+    isFlat() {
+      return this.control.uischema.options?.flat;
     },
   },
 });

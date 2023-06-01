@@ -161,7 +161,10 @@ export const useVuetifyControl = <
   const styles = useStyles(input.control.value.uischema);
 
   const vuetifyProps = (path: string) => {
-    const props = get(appliedOptions.value?.vuetify, path);
+    const props = {
+      ...appliedOptions.value?.vuetify.commonAttrs,
+      ...get(appliedOptions.value?.vuetify, path),
+    };
 
     return props && isPlainObject(props) ? props : {};
   };

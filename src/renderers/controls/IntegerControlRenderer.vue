@@ -1,6 +1,5 @@
 <template>
   <v-text-field
-    outlined
     type="number"
     @change.native="beforeChange($event)"
     :step="step"
@@ -14,8 +13,8 @@
     :required="control.required"
     :error-messages="control.errors"
     :value="control.data"
+    v-bind="vuetifyProps('v-text-field')"
     persistent-hint
-    dense
     class="py-3"
   >
     <template v-slot:message>

@@ -37,7 +37,7 @@ import {
 import { useVuetifyLayout } from "@/renderers/util/composition";
 
 const layoutRenderer = defineComponent({
-  name: "group-renderer",
+  name: "object-renderer",
   components: {
     DispatchRenderer,
   },

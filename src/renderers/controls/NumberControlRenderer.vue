@@ -15,10 +15,9 @@
     :min="control.schema.exclusiveMinumum"
     :error-messages="control.errors"
     @input="onInputChange"
+    v-bind="vuetifyProps('v-text-field')"
     class="py-3"
     persistent-hint
-    dense
-    outlined
   >
     <template v-slot:message>
       <div v-if="description" class="text-subtitle-1 text--secondary">

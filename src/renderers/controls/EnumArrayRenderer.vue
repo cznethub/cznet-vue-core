@@ -16,8 +16,8 @@
       :value="control.data"
       :items="control.options"
       :readonly="control.schema.readOnly"
+      v-bind="vuetifyProps(`v-select`)"
       hide-details="auto"
-      dense
       chips
       small-chips
       deletable-chips
@@ -25,7 +25,6 @@
       class="py-3"
       item-text="label"
       item-value="value"
-      outlined
       multiple
     >
       <template v-slot:message>

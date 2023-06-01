@@ -26,9 +26,8 @@
         v-mask="mask"
         :value="inputValue"
         @input="onInputChange"
-        outlined
         class="py-3"
-        v-bind="attrs"
+        v-bind="{ ...vuetifyProps('v-text-field'), ...attrs }"
         v-on="on"
       >
         <template v-slot:message>

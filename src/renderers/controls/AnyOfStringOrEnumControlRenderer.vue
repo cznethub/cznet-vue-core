@@ -7,6 +7,7 @@
     :placeholder="appliedOptions.placeholder"
     :label="computedLabel"
     :hint="description"
+    class="py-4"
     persistent-hint
     :required="control.required"
     :error-messages="control.errors"
@@ -17,10 +18,9 @@
         ? control.schema.maxLength
         : undefined
     "
+    v-bind="vuetifyProps('v-combobox')"
     :items="items"
     clearable
-    dense
-    outlined
     @change="onChange"
     @focus="isFocused = true"
     @blur="isFocused = false"

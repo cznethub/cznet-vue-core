@@ -14,8 +14,6 @@
       small-chips
       multiple
       no-filter
-      outlined
-      dense
       :id="control.id + '-input'"
       :class="styles.control.input"
       :disabled="!control.enabled"
@@ -26,6 +24,7 @@
       :clearable="hover"
       :value="control.data"
       :items="control.options"
+      v-bind="vuetifyProps('v-combobox')"
       item-text="label"
       item-value="value"
       @focus="isFocused = true"

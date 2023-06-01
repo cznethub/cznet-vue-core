@@ -1,51 +1,28 @@
 <template>
-  <div v-if="visible" :id="id" :data-id="computedLabel.replaceAll(` `, ``)">
-    <div>
-      <slot></slot>
-    </div>
+  <div v-if="visible" :class="styles.control.root" :id="id">
+    <slot></slot>
   </div>
 </template>
 
 <script lang="ts">
-import { isDescriptionHidden } from "@jsonforms/core";
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
+import { Styles } from "../styles";
 
 export default defineComponent({
   name: "control-wrapper",
   props: {
     id: {
-      required: true as true,
+      required: true as const,
       type: String,
-    },
-    description: {
-      required: false as false,
-      type: String,
-      default: undefined,
-    },
-    appliedOptions: {
-      required: false as false,
-      type: Object,
-      default: undefined,
     },
     visible: {
-      required: false as false,
+      required: false as const,
       type: Boolean,
       default: true,
     },
-    isFocused: {
-      required: false as false,
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    showDescription(): boolean {
-      return !isDescriptionHidden(
-        this.visible,
-        this.description,
-        this.isFocused,
-        !!this.appliedOptions?.showUnfocusedDescription
-      );
+    styles: {
+      required: true,
+      type: Object as PropType<Styles>,
     },
   },
 });

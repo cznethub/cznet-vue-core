@@ -1,7 +1,6 @@
 <template>
-  <div class="py-4">
+  <div v-if="control.visible" class="py-4">
     <fieldset
-      v-if="control.visible"
       :data-id="computedLabel.replaceAll(` `, ``)"
       :class="{
         'cz-fieldset': !isFlat,
@@ -107,11 +106,10 @@
             :disabled="!control.enabled"
             :readonly="control.schema['readOnly']"
             :hint="desc"
+            v-bind="vuetifyProps('v-select')"
             class="py-4"
             hide-details="auto"
             item-text="label"
-            outlined
-            dense
             persistent-hint
             >{{ currentLabel }}</v-select
           >
@@ -227,7 +225,7 @@ const controlRenderer = defineComponent({
   },
   computed: {
     oneOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
-      const info = createCombinatorRenderInfos(
+      const result = createCombinatorRenderInfos(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.oneOf!,
         this.control.rootSchema,
@@ -236,20 +234,15 @@ const controlRenderer = defineComponent({
         this.control.path,
         this.control.uischemas
       );
-      // JsonSchema does not pass the required attribute, so we do it ourselves
-      info.map((i) => {
-        i.schema.required = this.control.schema.required;
-        i.uischema = i.schema["options"]?.detail || i.uischema;
-      });
-      return info;
+
+      return result.filter((info) => info.uischema);
     },
     hasToggle() {
       // @ts-ignore
-      return !this.control.required && !this.control.schema.options?.flat;
+      return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      // @ts-ignore
-      return this.control.schema.options?.flat;
+      return this.control.uischema.options?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore

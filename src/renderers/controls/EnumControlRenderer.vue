@@ -17,13 +17,12 @@
       :value="control.data"
       :items="control.options"
       :readonly="control.schema.readOnly"
+      v-bind="vuetifyProps('v-select')"
       persistent-hint
       hide-details="auto"
       class="py-3"
       item-text="label"
       item-value="value"
-      outlined
-      dense
     >
       <template v-slot:message>
         <div v-if="description" class="text-subtitle-1 text--secondary">

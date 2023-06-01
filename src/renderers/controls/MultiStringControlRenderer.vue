@@ -17,9 +17,8 @@
     :autofocus="appliedOptions.focus"
     :placeholder="placeholder"
     :label="computedLabel"
+    v-bind="vuetifyProps('v-textarea')"
     persistent-hint
-    outlined
-    dense
     class="py-3"
   >
     <template v-slot:message>

@@ -1,7 +1,6 @@
 <template>
-  <div class="py-3">
+  <div v-if="control.visible" class="py-3">
     <fieldset
-      v-if="control.visible"
       class="cz-fieldset"
       :data-id="control.schema.title.replaceAll(` `, ``)"
     >
@@ -83,7 +82,8 @@ const controlRenderer = defineComponent({
       );
     },
     allOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
-      const info = createCombinatorRenderInfos(
+      const result = createCombinatorRenderInfos(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.allOf!,
         this.control.rootSchema,
         "allOf",
@@ -92,13 +92,10 @@ const controlRenderer = defineComponent({
         this.control.uischemas
       );
 
-      // JsonSchema does not pass the required attribute, so we do it ourselves
-      info.map((i) => {
-        i.schema.required = this.control.schema.required;
-        // @ts-ignore: use detail uischema if specified
-        i.uischema = i.schema.options?.detail || i.uischema;
-      });
-      return info;
+      return result.filter((info) => info.uischema);
+    },
+    isFlat() {
+      return this.control.uischema.options?.flat;
     },
   },
 });

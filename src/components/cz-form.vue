@@ -5,6 +5,8 @@
     :data="data"
     :readonly="isReadOnly || isViewMode"
     :renderers="Object.freeze(renderers)"
+    :cells="cells"
+    :config="config"
     :schema="schema"
     :uischema="uischema"
     :validationMode="isViewMode ? 'NoValidation' : 'ValidateAndShow'"
@@ -19,16 +21,19 @@ import {
   JsonFormsRendererRegistryEntry,
   // JsonFormsI18nState,
 } from "@jsonforms/core";
-import { CzRenderers } from "@/renderers/renderer";
-import { createAjv } from "@/renderers/validate/validate";
 import { ErrorObject } from "ajv";
 import { isCombinatorSchema } from "@/renderers/util";
-import ajvErrors from "ajv-errors";
-// import { createTranslator } from "@/renderers/i18n";
 
-const customAjv = createAjv();
-ajvErrors(customAjv);
+// import { createTranslator } from "@/renderers/i18n";
+import { CzRenderers, extendedCzRenderers } from "@/renderers/renderer";
+
 const renderers = [...CzRenderers];
+
+import { createAjv } from "@/validate/validate";
+import ajvErrors from "ajv-errors";
+
+const ajv = createAjv();
+ajvErrors(ajv);
 
 /**
  * The error-type of an AJV error is defined by its `keyword` property.
@@ -53,7 +58,6 @@ const filteredErrorKeywords = [
   components: { JsonForms },
 })
 export default class CzForm extends Vue {
-  protected ajv = customAjv;
   @Prop() schema!: any;
   @Prop() uischema!: any;
   @Prop() schemaDefaults!: any;
@@ -64,13 +68,41 @@ export default class CzForm extends Vue {
   @Prop({ default: false }) isViewMode!: boolean;
 
   protected timesChanged = 0;
-  protected renderers: JsonFormsRendererRegistryEntry[] = renderers;
+  renderers: JsonFormsRendererRegistryEntry[] = renderers;
   // protected i18n: JsonFormsI18nState = {
   //   locale: "en",
   //   translate: createTranslator("en", undefined),
   // } as JsonFormsI18nState;
 
-  protected onChange(event: JsonFormsChangeEvent) {
+  get cells() {
+    return extendedCzRenderers;
+  }
+
+  get config() {
+    return {
+      restrict: true,
+      trim: false,
+      showUnfocusedDescription: false,
+      hideRequiredAsterisk: false,
+      collapseNewItems: false,
+      breakHorizontal: false,
+      initCollapsed: false,
+      hideAvatar: false,
+      hideArraySummaryValidation: false,
+      vuetify: {
+        commonAttrs: {
+          dense: true,
+          outlined: true,
+        },
+      },
+    };
+  }
+
+  get ajv() {
+    return ajv;
+  }
+
+  onChange(event: JsonFormsChangeEvent) {
     const errors =
       event.errors
         ?.filter((e: ErrorObject) => {

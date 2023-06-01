@@ -31,7 +31,6 @@
             :isReadOnly="isReadonly"
             :errors.sync="errors"
             :data.sync="data"
-            :isViewMode="true"
             ref="form"
           />
         </v-card-text>
@@ -90,13 +89,11 @@ import CzNotifications from "@/components/base/cz.notifications.vue";
 import Notifications from "@/models/notifications";
 import CzForm from "@/components/cz-form.vue";
 
-const schema = require("@/schemas/dataset_schema.json");
+const schema = require("@/schemas/schema.json");
 const uischema = require("@/schemas/uischema.json");
 const schemaDefaults = require("@/schemas/defaults.json");
 
-const initialData = {
-  name: "Test dataset",
-};
+const initialData = {};
 
 @Component({
   name: "app",

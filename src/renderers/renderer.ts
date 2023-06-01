@@ -15,14 +15,14 @@ import { entry as radioGroupControlRenderer } from "./controls/RadioGroupControl
 import { entry as verticalLayoutRenderer } from "./layouts/VerticalLayoutRenderer.vue";
 import { entry as horizontalLayoutRenderer } from "./layouts/HorizontalLayoutRenderer.vue";
 import { entry as integerControlRenderer } from "./controls/IntegerControlRenderer.vue";
-import { entry as anyOfStringOrControlRenderer } from "./controls/AnyOfStringOrControlRenderer.vue";
+import { entry as anyOfStringOrEnumControlRenderer } from "./controls/AnyOfStringOrEnumControlRenderer.vue";
 import { entry as enumArrayRenderer } from "./controls/EnumArrayRenderer.vue";
 import { entry as oneOfRenderer } from "./controls/OneOfRenderer.vue";
 import { entry as oneOfEnumControlRenderer } from "./controls/OneOfEnumControlRenderer.vue";
 import { entry as arrayLayoutRenderer } from "./layouts/ArrayLayoutRenderer.vue";
 import { entry as booleanControlRenderer } from "./controls/BooleanControlRenderer.vue";
 import { entry as mapLayoutRenderer } from "./layouts/MapLayoutRenderer.vue";
-import { entry as objectRenderer } from "./layouts/ObjectLayoutRenderer.vue";
+import { entry as objectLayoutRenderer } from "./layouts/ObjectLayoutRenderer.vue";
 
 export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
   enumControlRenderer,
@@ -45,7 +45,9 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
   mapLayoutRenderer,
   arrayLayoutRenderer,
   integerControlRenderer,
-  anyOfStringOrControlRenderer,
+  anyOfStringOrEnumControlRenderer,
   booleanControlRenderer,
-  objectRenderer,
+  objectLayoutRenderer,
 ];
+
+export const extendedCzRenderers = [...CzRenderers] as any[];

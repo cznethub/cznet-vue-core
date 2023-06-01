@@ -18,12 +18,14 @@
         hide-details="auto"
         persistent-hint
         row
+        v-bind="vuetifyProps('v-radio-group')"
         @change="onChange"
         @focus="isFocused = true"
         @blur="isFocused = false"
       >
         <v-radio
           v-for="o in control.options"
+          v-bind="vuetifyProps(`v-radio[${o.value}]`)"
           :key="o.value"
           :label="o.label"
           :value="o.value"
