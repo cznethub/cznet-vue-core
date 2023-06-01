@@ -11,21 +11,19 @@
     "
     :error-messages="control.errors"
     :required="control.required"
-    :hint="description"
+    :hint="control.description"
     :value="control.data"
     :disabled="!control.enabled"
     :autofocus="appliedOptions.focus"
     :placeholder="placeholder"
     :label="computedLabel"
     v-bind="vuetifyProps('v-textarea')"
-    persistent-hint
-    class="py-3"
   >
     <template v-slot:message>
-      <div v-if="description" class="text-subtitle-1 text--secondary">
-        {{ description }}
+      <div v-if="control.description" class="text-subtitle-1 text--secondary">
+        {{ control.description }}
       </div>
-      <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+      <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
         {{ cleanedErrors }}
       </div>
     </template>

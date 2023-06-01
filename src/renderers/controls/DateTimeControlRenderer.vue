@@ -19,7 +19,6 @@
         :placeholder="appliedOptions.placeholder"
         :label="computedLabel"
         :hint="control.description"
-        persistent-hint
         :required="control.required"
         :error-messages="control.errors"
         v-bind="{ ...vuetifyProps(`v-select`), ...attrs }"
@@ -28,13 +27,15 @@
         :value="inputValue"
         @input="onInputChange"
         v-on="on"
-        class="py-3"
       >
         <template v-slot:message>
-          <div v-if="description" class="text-subtitle-1 text--secondary">
-            {{ description }}
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
           </div>
-          <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+          <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
             {{ cleanedErrors }}
           </div>
         </template>

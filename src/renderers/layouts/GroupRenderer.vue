@@ -1,13 +1,11 @@
 <template>
-  <fieldset
+  <cz-fieldset
     v-if="layout.visible"
-    :class="`cz-fieldset my-4 ${styles.group.root}`"
     :data-id="generateId"
+    :enabled="layout.enabled"
+    :title="layout.label"
+    :computedLabel="computedLabel"
   >
-    <legend v-if="layout.label" class="v-label v-label--active">
-      {{ layout.label }}
-    </legend>
-
     <div
       v-if="layout.uischema.description"
       class="text-subtitle-1 text--secondary mb-6"
@@ -30,7 +28,7 @@
         :cells="layout.cells"
       />
     </div>
-  </fieldset>
+  </cz-fieldset>
 </template>
 
 <script lang="ts">
@@ -50,11 +48,13 @@ import {
   useJsonFormsLayout,
 } from "@jsonforms/vue2";
 import { useVuetifyLayout } from "@/renderers/util/composition";
+import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
 
 const layoutRenderer = defineComponent({
   name: "group-renderer",
   components: {
     DispatchRenderer,
+    CzFieldset,
   },
   props: {
     ...rendererProps<Layout>(),

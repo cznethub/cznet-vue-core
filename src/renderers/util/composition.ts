@@ -117,7 +117,9 @@ export const useVuetifyControl = <
 
   const cleanedErrors = computed(() => {
     return (
-      input.control.value.errors?.replaceAll(`is a required property`, ``) || ""
+      input.control.value.errors
+        ?.replaceAll(`is a required property`, ``)
+        .trim() || ""
     );
   });
 
@@ -128,15 +130,6 @@ export const useVuetifyControl = <
     return (
       input.control.value.schema.options?.placeholder ||
       appliedOptions.value.placeholder ||
-      ""
-    );
-  });
-
-  const description = computed(() => {
-    return (
-      input.control.description ||
-      input.control.schema?.description ||
-      appliedOptions.value.description ||
       ""
     );
   });
@@ -182,7 +175,6 @@ export const useVuetifyControl = <
     isCombinatorSchema,
     cleanedErrors,
     placeholder,
-    description,
   };
 };
 

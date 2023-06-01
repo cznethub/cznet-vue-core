@@ -53,6 +53,37 @@ const filteredErrorKeywords = [
   "oneOf",
 ];
 
+const defaultConfigs: Config = {
+  restrict: true,
+  trim: false,
+  showUnfocusedDescription: false,
+  hideRequiredAsterisk: false,
+  collapseNewItems: false,
+  breakHorizontal: false,
+  initCollapsed: false,
+  hideAvatar: false,
+  hideArraySummaryValidation: false,
+  vuetify: {
+    commonAttrs: {
+      dense: true,
+      outlined: true,
+    },
+  },
+};
+
+interface Config {
+  restrict: boolean;
+  trim: boolean;
+  showUnfocusedDescription: boolean;
+  hideRequiredAsterisk: boolean;
+  collapseNewItems: boolean;
+  initCollapsed: boolean;
+  breakHorizontal: false | string;
+  hideAvatar: boolean;
+  hideArraySummaryValidation: boolean;
+  vuetify?: Record<string, any>;
+}
+
 @Component({
   name: "cz-form",
   components: { JsonForms },
@@ -60,12 +91,12 @@ const filteredErrorKeywords = [
 export default class CzForm extends Vue {
   @Prop() schema!: any;
   @Prop() uischema!: any;
-  @Prop() schemaDefaults!: any;
   @Prop() isReadOnly!: boolean;
   /** The initial data. Can bind to it using `.sync` modifier */
   @Prop() data!: any;
   /** When `true`, sets the form to view mode. Validation is disabled, fields are readonly and empty fields are not rendered. */
   @Prop({ default: false }) isViewMode!: boolean;
+  @Prop({ default: () => defaultConfigs }) config!: Config;
 
   protected timesChanged = 0;
   renderers: JsonFormsRendererRegistryEntry[] = renderers;
@@ -76,26 +107,6 @@ export default class CzForm extends Vue {
 
   get cells() {
     return extendedCzRenderers;
-  }
-
-  get config() {
-    return {
-      restrict: true,
-      trim: false,
-      showUnfocusedDescription: false,
-      hideRequiredAsterisk: false,
-      collapseNewItems: false,
-      breakHorizontal: false,
-      initCollapsed: false,
-      hideAvatar: false,
-      hideArraySummaryValidation: false,
-      vuetify: {
-        commonAttrs: {
-          dense: true,
-          outlined: true,
-        },
-      },
-    };
   }
 
   get ajv() {

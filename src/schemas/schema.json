@@ -57,7 +57,7 @@
         "options": {
           "flat": true
         },
-        "oneOf": [
+        "anyOf": [
           {
             "type": "string",
             "minLength": 1,
@@ -3180,7 +3180,17 @@
     }
   },
   "required": [
-    "identifier"
+    "name",
+    "description",
+    "url",
+    "identifier",
+    "creator",
+    "dateCreated",
+    "keywords",
+    "license",
+    "provider",
+    "distribution",
+    "includedInDataCatalog"
   ],
   "definitions": {
     "PropertyValue": {

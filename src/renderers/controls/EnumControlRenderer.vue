@@ -10,7 +10,7 @@
       :autofocus="appliedOptions.focus"
       :placeholder="appliedOptions.placeholder"
       :label="computedLabel"
-      :hint="description"
+      :hint="control.description"
       :required="control.required"
       :error-messages="control.errors"
       :clearable="hover && !control.schema.readOnly"
@@ -18,17 +18,14 @@
       :items="control.options"
       :readonly="control.schema.readOnly"
       v-bind="vuetifyProps('v-select')"
-      persistent-hint
-      hide-details="auto"
-      class="py-3"
       item-text="label"
       item-value="value"
     >
       <template v-slot:message>
-        <div v-if="description" class="text-subtitle-1 text--secondary">
-          {{ description }}
+        <div v-if="control.description" class="text-subtitle-1 text--secondary">
+          {{ control.description }}
         </div>
-        <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+        <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
           {{ cleanedErrors }}
         </div>
       </template>

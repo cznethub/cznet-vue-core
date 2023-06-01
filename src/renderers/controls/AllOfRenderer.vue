@@ -1,5 +1,5 @@
 <template>
-  <div v-if="control.visible" class="py-3">
+  <div v-if="control.visible">
     <fieldset
       class="cz-fieldset"
       :data-id="control.schema.title.replaceAll(` `, ``)"
@@ -30,10 +30,13 @@
         />
       </template>
     </fieldset>
-    <div v-if="description" class="text--secondary text-body-1 mt-2 ml-2">
-      {{ description }}
+    <div
+      v-if="control.description"
+      class="text--secondary text-body-1 mt-2 pa-2"
+    >
+      {{ control.description }}
     </div>
-    <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+    <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
       <v-divider v-if="isFlat" class="mb-4"></v-divider>
       {{ cleanedErrors }}
     </div>
@@ -60,12 +63,14 @@ import {
 import { defineComponent } from "vue";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { VDivider } from "vuetify/lib";
+import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "all-of-renderer",
   components: {
     DispatchRenderer,
     VDivider,
+    CzFieldset,
   },
   props: {
     ...rendererProps<ControlElement>(),

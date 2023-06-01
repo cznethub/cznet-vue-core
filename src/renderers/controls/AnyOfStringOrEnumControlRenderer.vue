@@ -1,30 +1,39 @@
 <template>
-  <v-combobox
-    :id="control.id + '-input'"
-    :class="styles.control.input"
-    :disabled="!control.enabled"
-    :autofocus="appliedOptions.focus"
-    :placeholder="appliedOptions.placeholder"
-    :label="computedLabel"
-    :hint="description"
-    class="py-4"
-    persistent-hint
-    :required="control.required"
-    :error-messages="control.errors"
-    :value="control.data"
-    :maxlength="appliedOptions.restrict ? control.schema.maxLength : undefined"
-    :counter="
-      control.schema.maxLength !== undefined
-        ? control.schema.maxLength
-        : undefined
-    "
-    v-bind="vuetifyProps('v-combobox')"
-    :items="items"
-    clearable
-    @change="onChange"
-    @focus="isFocused = true"
-    @blur="isFocused = false"
-  />
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
+  >
+    <v-hover v-slot="{ hover }">
+      <v-combobox
+        :id="control.id + '-input'"
+        :class="styles.control.input"
+        :disabled="!control.enabled"
+        :autofocus="appliedOptions.focus"
+        :placeholder="appliedOptions.placeholder"
+        :label="computedLabel"
+        :hint="control.description"
+        :required="control.required"
+        :error-messages="control.errors"
+        :value="control.data"
+        :maxlength="
+          appliedOptions.restrict ? control.schema.maxLength : undefined
+        "
+        :counter="
+          control.schema.maxLength !== undefined
+            ? control.schema.maxLength
+            : undefined
+        "
+        v-bind="vuetifyProps('v-combobox')"
+        :items="items"
+        :clearable="hover"
+        @change="onChange"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+      />
+    </v-hover>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -44,12 +53,14 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useVuetifyControl } from "@/renderers/util/composition";
-import { VCombobox } from "vuetify/lib";
+import { VCombobox, VHover } from "vuetify/lib";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 const controlRenderer = defineComponent({
   name: "anyof-string-or-enum-control-renderer",
   components: {
     VCombobox,
+    ControlWrapper,
   },
   directives: {},
   props: {

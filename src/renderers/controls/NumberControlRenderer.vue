@@ -10,20 +10,18 @@
     :disabled="!control.enabled"
     :autofocus="appliedOptions.focus"
     :placeholder="appliedOptions.placeholder"
-    :hint="description"
+    :hint="control.description"
     :max="control.schema.exclusiveMaximum"
     :min="control.schema.exclusiveMinumum"
     :error-messages="control.errors"
     @input="onInputChange"
     v-bind="vuetifyProps('v-text-field')"
-    class="py-3"
-    persistent-hint
   >
     <template v-slot:message>
-      <div v-if="description" class="text-subtitle-1 text--secondary">
-        {{ description }}
+      <div v-if="control.description" class="text-subtitle-1 text--secondary">
+        {{ control.description }}
       </div>
-      <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+      <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
         {{ cleanedErrors }}
       </div>
     </template>

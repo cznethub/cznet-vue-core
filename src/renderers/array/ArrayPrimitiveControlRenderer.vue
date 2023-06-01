@@ -3,14 +3,12 @@
     <v-combobox
       v-model="tags"
       @input="onTagsChange"
-      hide-no-data
       :label="computedLabel"
       :data-id="computedLabel.replaceAll(` `, ``)"
-      :hint="description"
+      :hint="control.description"
       :delimiters="delimeters"
       :error-messages="control.errors"
       :menu-props="{ openOnClick: false }"
-      class="py-3 mb-0"
       small-chips
       multiple
       no-filter
@@ -19,7 +17,6 @@
       :disabled="!control.enabled"
       :autofocus="appliedOptions.focus"
       :placeholder="placeholder"
-      persistent-hint
       :required="control.required"
       :clearable="hover"
       :value="control.data"

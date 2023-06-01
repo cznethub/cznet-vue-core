@@ -10,7 +10,7 @@
       :autofocus="appliedOptions.focus"
       :placeholder="placeholder"
       :label="computedLabel"
-      :hint="description"
+      :hint="control.description"
       :required="control.required"
       :error-messages="control.errors"
       :clearable="hover"
@@ -19,9 +19,6 @@
       v-bind="vuetifyProps('v-autocomplete')"
       item-text="label"
       item-value="value"
-      persistent-hint
-      class="py-3"
-      hide-details="auto"
     />
 
     <v-select
@@ -33,7 +30,7 @@
       :autofocus="appliedOptions.focus"
       :placeholder="placeholder"
       :label="computedLabel"
-      :hint="description"
+      :hint="control.description"
       :required="control.required"
       :error-messages="control.errors"
       :clearable="hover"
@@ -42,9 +39,6 @@
       v-bind="vuetifyProps('v-select')"
       item-text="label"
       item-value="value"
-      persistent-hint
-      class="py-3"
-      hide-details="auto"
     />
   </v-hover>
 </template>

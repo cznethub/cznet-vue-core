@@ -27,10 +27,10 @@
           <cz-form
             :schema="schema"
             :uischema="uischema"
-            :schemaDefaults="undefined"
             :isReadOnly="isReadonly"
             :errors.sync="errors"
             :data.sync="data"
+            :config="config"
             ref="form"
           />
         </v-card-text>
@@ -91,7 +91,6 @@ import CzForm from "@/components/cz-form.vue";
 
 const schema = require("@/schemas/schema.json");
 const uischema = require("@/schemas/uischema.json");
-const schemaDefaults = require("@/schemas/defaults.json");
 
 const initialData = {};
 
@@ -104,15 +103,32 @@ export default class App extends Vue {
 
   protected schema;
   protected uischema;
-  protected schemaDefaults;
   protected isReadonly = false;
   protected errors = [];
   protected data = initialData;
+  protected config = {
+    restrict: true,
+    trim: false,
+    showUnfocusedDescription: false,
+    hideRequiredAsterisk: false,
+    collapseNewItems: false,
+    breakHorizontal: false,
+    initCollapsed: false,
+    hideAvatar: false,
+    hideArraySummaryValidation: false,
+    vuetify: {
+      commonAttrs: {
+        dense: true,
+        outlined: true,
+        "persistent-hint": true,
+        "hide-details": false,
+      },
+    },
+  };
 
   beforeCreate() {
     this.schema = schema;
     this.uischema = uischema;
-    this.schemaDefaults = schemaDefaults;
   }
 
   openDialog() {

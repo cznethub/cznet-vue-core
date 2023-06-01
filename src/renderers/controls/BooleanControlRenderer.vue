@@ -6,8 +6,7 @@
     :autofocus="appliedOptions.focus"
     :placeholder="placeholder"
     :label="computedLabel"
-    :hint="description"
-    persistent-hint
+    :hint="control.description"
     :required="control.required"
     :error-messages="control.errors"
     :indeterminate="control.data === undefined"
@@ -17,13 +16,12 @@
     @change="onChange"
     @focus="isFocused = true"
     @blur="isFocused = false"
-    class="py-3"
   >
     <template v-slot:message>
-      <div v-if="description" class="text-subtitle-1 text--secondary">
-        {{ description }}
+      <div v-if="control.description" class="text-subtitle-1 text--secondary">
+        {{ control.description }}
       </div>
-      <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+      <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
         {{ cleanedErrors }}
       </div>
     </template>

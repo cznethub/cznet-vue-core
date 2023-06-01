@@ -1,137 +1,82 @@
 <template>
-  <div v-if="control.visible" class="py-4">
-    <fieldset
-      :data-id="computedLabel.replaceAll(` `, ``)"
-      :class="{
-        'cz-fieldset': !isFlat,
-        'is-borderless': isFlat,
-      }"
-    >
-      <template v-if="!isFlat">
-        <legend
-          v-if="control.schema.title"
-          @click="showForm()"
-          :class="{ 'v-label--active': isAdded || !hasToggle }"
-          class="v-label"
+  <cz-fieldset
+    v-if="control.visible"
+    :data-id="computedLabel.replaceAll(` `, ``)"
+    :description="desc"
+    :hasToggle="hasToggle"
+    :enabled="control.enabled"
+    :errors="control.errors"
+    :title="control.schema.title"
+    :computedLabel="computedLabel"
+    :isFlat="isFlat"
+    @hide="onHide"
+  >
+    <combinator-properties
+      :schema="control.schema"
+      :path="path"
+      combinatorKeyword="oneOf"
+    />
+
+    <template v-if="!isDropDown">
+      <v-tabs v-model="selectedIndex">
+        <v-tab
+          @change="handleTabChange(oneOfIndex)"
+          :key="`${control.path}-${oneOfIndex}`"
+          v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
         >
-          {{ computedLabel }}
-        </legend>
+          {{ oneOfRenderInfo.label }}
+        </v-tab>
+      </v-tabs>
 
-        <div v-if="hasToggle">
-          <v-tooltip v-if="!isAdded" bottom transition="fade">
-            <template v-slot:activator="{ on: onTooltip }">
-              <v-btn
-                icon
-                color="primary"
-                @click="showForm()"
-                :disabled="!control.enabled"
-                :class="styles.arrayList.addButton"
-                class="btn-add"
-                :aria-label="`Add to ${control.schema.title}`"
-                v-on="onTooltip"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
-            </template>
-            {{ `Add ${control.schema.title}` }}
-          </v-tooltip>
-
-          <v-tooltip v-else bottom transition="fade">
-            <template v-slot:activator="{ on: onTooltip }">
-              <v-btn
-                icon
-                color="error"
-                @click="removeForm()"
-                :class="styles.arrayList.addButton"
-                :disabled="!control.enabled"
-                class="btn-add"
-                aria-label="Remove"
-                v-on="onTooltip"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-btn>
-            </template>
-            Remove
-          </v-tooltip>
-        </div>
-      </template>
-
-      <template v-if="isAdded || !hasToggle">
-        <combinator-properties
-          :schema="control.schema"
-          :path="path"
-          combinatorKeyword="oneOf"
-        />
-
-        <template v-if="!isDropDown">
-          <v-tabs v-model="selectedIndex">
-            <v-tab
-              @change="handleTabChange(oneOfIndex)"
-              :key="`${control.path}-${oneOfIndex}`"
-              v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
-            >
-              {{ oneOfRenderInfo.label }}
-            </v-tab>
-          </v-tabs>
-
-          <v-tabs-items v-model="selectedIndex">
-            <v-tab-item
-              v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
-              :key="`${control.path}-${oneOfIndex}`"
-              class="pt-8"
-            >
-              <dispatch-renderer
-                v-if="selectedIndex === oneOfIndex"
-                :schema="oneOfRenderInfo.schema"
-                :uischema="oneOfRenderInfo.uischema"
-                :path="control.path"
-                :renderers="control.renderers"
-                :cells="control.cells"
-                :enabled="control.enabled"
-              />
-            </v-tab-item>
-          </v-tabs-items>
-        </template>
-
-        <template v-else>
-          <v-select
-            @change="handleTabChange"
-            :items="oneOfRenderInfos"
-            :label="title"
-            :value="oneOfRenderInfos[selectedIndex]"
-            :data-id="computedLabel.replaceAll(` `, ``)"
-            :required="control.required"
-            :error-messages="control.errors"
-            :placeholder="appliedOptions.placeholder"
-            :disabled="!control.enabled"
-            :readonly="control.schema['readOnly']"
-            :hint="desc"
-            v-bind="vuetifyProps('v-select')"
-            class="py-4"
-            hide-details="auto"
-            item-text="label"
-            persistent-hint
-            >{{ currentLabel }}</v-select
-          >
-
+      <v-tabs-items v-model="selectedIndex">
+        <v-tab-item
+          v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
+          :key="`${control.path}-${oneOfIndex}`"
+          class="pt-8"
+        >
           <dispatch-renderer
-            v-if="selectedIndex >= 0 && oneOfRenderInfos[selectedIndex]"
-            :key="selectedIndex"
-            :schema="oneOfRenderInfos[selectedIndex].schema"
-            :uischema="oneOfRenderInfos[selectedIndex].uischema"
+            v-if="selectedIndex === oneOfIndex"
+            :schema="oneOfRenderInfo.schema"
+            :uischema="oneOfRenderInfo.uischema"
             :path="control.path"
             :renderers="control.renderers"
             :cells="control.cells"
             :enabled="control.enabled"
           />
-        </template>
-      </template>
-    </fieldset>
+        </v-tab-item>
+      </v-tabs-items>
+    </template>
 
-    <div v-if="desc" class="text--secondary text-body-1 mt-2 ml-2">
-      {{ desc }}
-    </div>
-  </div>
+    <template v-else>
+      <v-select
+        @change="handleTabChange"
+        :items="oneOfRenderInfos"
+        :label="title"
+        :value="oneOfRenderInfos[selectedIndex]"
+        :data-id="computedLabel.replaceAll(` `, ``)"
+        :required="control.required"
+        :error-messages="control.errors"
+        :placeholder="appliedOptions.placeholder"
+        :disabled="!control.enabled"
+        :readonly="control.schema['readOnly']"
+        :hint="desc"
+        v-bind="vuetifyProps('v-select')"
+        item-text="label"
+        >{{ currentLabel }}</v-select
+      >
+
+      <dispatch-renderer
+        v-if="selectedIndex >= 0 && oneOfRenderInfos[selectedIndex]"
+        :key="selectedIndex"
+        :schema="oneOfRenderInfos[selectedIndex].schema"
+        :uischema="oneOfRenderInfos[selectedIndex].uischema"
+        :path="control.path"
+        :renderers="control.renderers"
+        :cells="control.cells"
+        :enabled="control.enabled"
+      />
+    </template>
+  </cz-fieldset>
 </template>
 
 <script lang="ts">
@@ -171,6 +116,7 @@ import {
   VIcon,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
+import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "one-of-renderer",
@@ -190,6 +136,7 @@ const controlRenderer = defineComponent({
     VTabItem,
     VTooltip,
     VIcon,
+    CzFieldset,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -234,7 +181,6 @@ const controlRenderer = defineComponent({
         this.control.path,
         this.control.uischemas
       );
-
       return result.filter((info) => info.uischema);
     },
     hasToggle() {
@@ -316,8 +262,7 @@ const controlRenderer = defineComponent({
         this.isAdded = true;
       }
     },
-    removeForm() {
-      this.isAdded = false;
+    onHide() {
       this.handleChange(this.control.path, undefined);
     },
   },

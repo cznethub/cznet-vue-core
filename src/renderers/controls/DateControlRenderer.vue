@@ -18,23 +18,24 @@
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :label="computedLabel"
-        :hint="description"
-        persistent-hint
+        :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
         prepend-inner-icon="mdi-calendar"
         v-mask="mask"
         :value="inputValue"
         @input="onInputChange"
-        class="py-3"
         v-bind="{ ...vuetifyProps('v-text-field'), ...attrs }"
         v-on="on"
       >
         <template v-slot:message>
-          <div v-if="description" class="text-subtitle-1 text--secondary">
-            {{ description }}
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
           </div>
-          <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+          <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
             {{ cleanedErrors }}
           </div>
         </template>

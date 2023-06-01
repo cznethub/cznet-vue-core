@@ -15,8 +15,7 @@
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :label="computedLabel"
-        :hint="description"
-        persistent-hint
+        :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
         :clearable="hover"
@@ -30,17 +29,17 @@
         "
         :value="control.data"
         :items="suggestions"
-        hide-details="auto"
-        hide-no-data
         v-bind="vuetifyProps('v-combobox')"
         @input="onChange"
-        class="py-3"
       >
         <template v-slot:message>
-          <div v-if="description" class="text-subtitle-1 text--secondary">
-            {{ description }}
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
           </div>
-          <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+          <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
             {{ cleanedErrors }}
           </div>
         </template>
@@ -55,8 +54,7 @@
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :label="computedLabel"
-        :hint="description"
-        persistent-hint
+        :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
         :value="control.data"
@@ -71,13 +69,15 @@
         :clearable="hover"
         v-bind="vuetifyProps('v-text-field')"
         @input="onChange"
-        class="py-3"
       >
         <template v-slot:message>
-          <div v-if="description" class="text-subtitle-1 text--secondary">
-            {{ description }}
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
           </div>
-          <div v-if="cleanedErrors" class="ml-2 v-messages error--text">
+          <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
             {{ cleanedErrors }}
           </div>
         </template>

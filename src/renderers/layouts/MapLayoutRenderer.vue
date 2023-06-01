@@ -1,5 +1,5 @@
 <template>
-  <div class="my-4" v-if="control.visible" v-bind="vuetifyProps('v-container')">
+  <div v-if="control.visible" v-bind="vuetifyProps('v-container')">
     <v-container>
       <v-row>
         <v-col sm="12" md="5">
