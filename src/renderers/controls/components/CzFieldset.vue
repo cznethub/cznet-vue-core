@@ -1,5 +1,5 @@
 <template>
-  <div class="my-4">
+  <div class="my-5">
     <fieldset
       :class="{
         'cz-fieldset': !isFlat,
@@ -61,11 +61,11 @@
       </template>
     </fieldset>
 
-    <div v-if="description" class="text--secondary text-body-1 my-2 pa-2">
+    <div v-if="description" class="text--secondary text-body-1 my-2 px-2">
       {{ description }}
     </div>
 
-    <div v-if="cleanedErrors" class="my-2 pa-2 v-messages error--text">
+    <div v-if="cleanedErrors" class="my-2 px-2 v-messages error--text">
       {{ cleanedErrors }}
     </div>
   </div>

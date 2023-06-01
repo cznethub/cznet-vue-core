@@ -21,7 +21,7 @@
       <div v-if="control.description" class="text-subtitle-1 text--secondary">
         {{ control.description }}
       </div>
-      <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
+      <div v-if="cleanedErrors" class="px-2 v-messages error--text">
         {{ cleanedErrors }}
       </div>
     </template>

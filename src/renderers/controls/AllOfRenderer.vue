@@ -32,11 +32,11 @@
     </fieldset>
     <div
       v-if="control.description"
-      class="text--secondary text-body-1 mt-2 pa-2"
+      class="text--secondary text-body-1 mt-2 px-2"
     >
       {{ control.description }}
     </div>
-    <div v-if="cleanedErrors" class="pa-2 v-messages error--text">
+    <div v-if="cleanedErrors" class="px-2 v-messages error--text">
       <v-divider v-if="isFlat" class="mb-4"></v-divider>
       {{ cleanedErrors }}
     </div>
