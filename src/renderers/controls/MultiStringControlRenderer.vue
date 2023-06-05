@@ -1,33 +1,48 @@
 <template>
-  <v-textarea
-    :id="control.id + '-input'"
-    :data-id="computedLabel.replaceAll(` `, ``)"
-    @input="onChange"
-    :maxlength="appliedOptions.restrict ? control.schema.maxLength : undefined"
-    :counter="
-      control.schema.maxLength !== undefined
-        ? control.schema.maxLength
-        : undefined
-    "
-    :error-messages="control.errors"
-    :required="control.required"
-    :hint="control.description"
-    :value="control.data"
-    :disabled="!control.enabled"
-    :autofocus="appliedOptions.focus"
-    :placeholder="placeholder"
-    :label="computedLabel"
-    v-bind="vuetifyProps('v-textarea')"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
   >
-    <template v-slot:message>
-      <div v-if="control.description" class="text-subtitle-1 text--secondary">
-        {{ control.description }}
-      </div>
-      <div v-if="cleanedErrors" class="px-2 v-messages error--text">
-        {{ cleanedErrors }}
-      </div>
-    </template>
-  </v-textarea>
+    <v-hover v-slot="{ hover }">
+      <v-textarea
+        :id="control.id + '-input'"
+        :data-id="computedLabel.replaceAll(` `, ``)"
+        @input="onChange"
+        :maxlength="
+          appliedOptions.restrict ? control.schema.maxLength : undefined
+        "
+        :counter="
+          control.schema.maxLength !== undefined
+            ? control.schema.maxLength
+            : undefined
+        "
+        :error-messages="control.errors"
+        :required="control.required"
+        :hint="control.description"
+        :value="control.data"
+        :disabled="!control.enabled"
+        :autofocus="appliedOptions.focus"
+        :placeholder="placeholder"
+        :label="computedLabel"
+        :clearable="hover"
+        v-bind="vuetifyProps('v-textarea')"
+      >
+        <template v-slot:message>
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
+          </div>
+          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+            {{ cleanedErrors }}
+          </div>
+        </template>
+      </v-textarea>
+    </v-hover>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -46,11 +61,12 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import { VTextarea } from "vuetify/lib";
+import { VTextarea, VHover } from "vuetify/lib";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 const controlRenderer = defineComponent({
   name: "multi-string-control-renderer",
-  components: { VTextarea },
+  components: { VTextarea, VHover, ControlWrapper },
   props: {
     ...rendererProps<ControlElement>(),
   },

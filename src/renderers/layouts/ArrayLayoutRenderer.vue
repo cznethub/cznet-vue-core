@@ -267,7 +267,7 @@ import {
 import { ErrorObject } from "ajv";
 import { ref } from "vue";
 import { isEqual } from "lodash";
-import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
+import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "array-layout-renderer",

@@ -61,6 +61,7 @@ const controlRenderer = defineComponent({
   components: {
     VCombobox,
     ControlWrapper,
+    VHover,
   },
   directives: {},
   props: {

@@ -116,7 +116,7 @@ import {
   VIcon,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
-import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
+import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "one-of-renderer",

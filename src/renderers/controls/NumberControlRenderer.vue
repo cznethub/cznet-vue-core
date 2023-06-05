@@ -1,31 +1,44 @@
 <template>
-  <v-text-field
-    type="number"
-    :label="computedLabel"
-    :step="step"
-    :id="control.id + '-input'"
-    :data-id="computedLabel.replaceAll(` `, ``)"
-    :class="styles.control.input"
-    :value="control.data"
-    :disabled="!control.enabled"
-    :autofocus="appliedOptions.focus"
-    :placeholder="appliedOptions.placeholder"
-    :hint="control.description"
-    :max="control.schema.exclusiveMaximum"
-    :min="control.schema.exclusiveMinumum"
-    :error-messages="control.errors"
-    @input="onInputChange"
-    v-bind="vuetifyProps('v-text-field')"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
   >
-    <template v-slot:message>
-      <div v-if="control.description" class="text-subtitle-1 text--secondary">
-        {{ control.description }}
-      </div>
-      <div v-if="cleanedErrors" class="px-2 v-messages error--text">
-        {{ cleanedErrors }}
-      </div>
-    </template>
-  </v-text-field>
+    <v-hover v-slot="{ hover }">
+      <v-text-field
+        type="number"
+        :label="computedLabel"
+        :step="step"
+        :id="control.id + '-input'"
+        :data-id="computedLabel.replaceAll(` `, ``)"
+        :class="styles.control.input"
+        :value="control.data"
+        :disabled="!control.enabled"
+        :autofocus="appliedOptions.focus"
+        :placeholder="appliedOptions.placeholder"
+        :hint="control.description"
+        :max="control.schema.exclusiveMaximum"
+        :min="control.schema.exclusiveMinumum"
+        :error-messages="control.errors"
+        :clearable="hover"
+        @input="onInputChange"
+        v-bind="vuetifyProps('v-text-field')"
+      >
+        <template v-slot:message>
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
+          </div>
+          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+            {{ cleanedErrors }}
+          </div>
+        </template>
+      </v-text-field>
+    </v-hover>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -42,13 +55,14 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useVuetifyControl } from "@/renderers/util/composition";
-import { VTextField } from "vuetify/lib";
+import { VTextField, VHover } from "vuetify/lib";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
 const controlRenderer = defineComponent({
   name: "number-control-renderer",
-  components: { VTextField },
+  components: { VTextField, ControlWrapper, VHover },
   props: {
     ...rendererProps<ControlElement>(),
   },

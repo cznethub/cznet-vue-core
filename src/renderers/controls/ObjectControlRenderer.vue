@@ -41,10 +41,10 @@ import {
 } from "@jsonforms/vue2";
 import cloneDeep from "lodash/cloneDeep";
 import { useNested, useVuetifyControl } from "@/renderers/util/composition";
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import { isEqual } from "lodash";
 import { VBtn, VIcon, VTooltip } from "vuetify/lib";
-import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
+import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "object-renderer",

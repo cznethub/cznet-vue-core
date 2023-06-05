@@ -63,7 +63,7 @@ import {
 import { defineComponent } from "vue";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { VDivider } from "vuetify/lib";
-import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
+import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "all-of-renderer",

@@ -48,7 +48,7 @@ import {
   useJsonFormsLayout,
 } from "@jsonforms/vue2";
 import { useVuetifyLayout } from "@/renderers/util/composition";
-import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
+import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const layoutRenderer = defineComponent({
   name: "group-renderer",

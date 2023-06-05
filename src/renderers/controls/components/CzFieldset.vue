@@ -73,10 +73,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
+import { VBtn, VTooltip, VIcon } from "vuetify/lib";
 
 export default defineComponent({
   name: "cz-fieldset",
-  components: {},
+  components: { VTooltip, VBtn, VIcon },
   setup() {
     const isAdded = ref(false);
 

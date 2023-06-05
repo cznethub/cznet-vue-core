@@ -55,7 +55,7 @@ import { VRadioGroup, VRadio, VLabel } from "vuetify/lib";
 
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { defineComponent } from "vue";
-import CzFieldset from "@/renderers/controls/components/CzFieldset.vue";
+import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
   name: "radio-group-control-renderer",
