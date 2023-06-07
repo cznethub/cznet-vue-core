@@ -29,6 +29,7 @@
             :uischema="uischema"
             :isReadOnly="isReadonly"
             :errors.sync="errors"
+            :isValid.sync="isValid"
             :data.sync="data"
             :config="config"
             ref="form"
@@ -38,7 +39,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-menu :disabled="!errors.length" open-on-hover bottom left offset-y>
+          <v-menu :disabled="isValid" open-on-hover bottom left offset-y>
             <template v-slot:activator="{ on, attrs }">
               <div
                 v-bind="attrs"
@@ -46,7 +47,6 @@
                 class="d-flex form-controls flex-column flex-sm-row"
               >
                 <v-badge
-                  :value="!!errors.length"
                   bordered
                   color="error"
                   icon="mdi-exclamation-thick"
@@ -56,7 +56,7 @@
                     color="primary"
                     depressed
                     @click="submit"
-                    :disabled="isReadonly || !!errors.length"
+                    :disabled="isReadonly || !isValid"
                     >Submit</v-btn
                   >
                 </v-badge>
@@ -104,6 +104,7 @@ export default class App extends Vue {
   protected schema;
   protected uischema;
   protected isReadonly = false;
+  protected isValid = false;
   protected errors = [];
   protected data = initialData;
   protected config = {

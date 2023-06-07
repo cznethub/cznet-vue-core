@@ -1,45 +1,52 @@
 <template>
-  <v-hover v-slot="{ hover }">
-    <v-combobox
-      v-model="tags"
-      @input="onTagsChange"
-      :label="computedLabel"
-      :data-id="computedLabel.replaceAll(` `, ``)"
-      :hint="control.description"
-      :delimiters="delimeters"
-      :error-messages="control.errors"
-      :menu-props="{ openOnClick: false }"
-      small-chips
-      multiple
-      no-filter
-      :id="control.id + '-input'"
-      :class="styles.control.input"
-      :disabled="!control.enabled"
-      :autofocus="appliedOptions.focus"
-      :placeholder="placeholder"
-      :required="control.required"
-      :clearable="hover"
-      :value="control.data"
-      :items="control.options"
-      v-bind="vuetifyProps('v-combobox')"
-      item-text="label"
-      item-value="value"
-      @focus="isFocused = true"
-      @blur="isFocused = false"
-    >
-      <template v-slot:selection="{ attrs, item }">
-        <v-chip
-          v-bind="attrs"
-          :disabled="!control.enabled"
-          :close="!isRequired(item)"
-          small
-          @click:close="remove(item)"
-        >
-          {{ item }}
-        </v-chip>
-      </template>
-    </v-combobox>
-  </v-hover>
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
+  >
+    <v-hover v-slot="{ hover }">
+      <v-combobox
+        v-model="tags"
+        @input="onTagsChange"
+        :label="computedLabel"
+        :data-id="computedLabel.replaceAll(` `, ``)"
+        :hint="control.description"
+        :delimiters="delimeters"
+        :error-messages="control.errors"
+        :menu-props="{ openOnClick: false }"
+        small-chips
+        multiple
+        no-filter
+        :id="control.id + '-input'"
+        :class="styles.control.input"
+        :disabled="!control.enabled"
+        :autofocus="appliedOptions.focus"
+        :placeholder="placeholder"
+        :required="control.required"
+        :clearable="hover"
+        :value="control.data"
+        :items="control.options"
+        v-bind="vuetifyProps('v-combobox')"
+        item-text="label"
+        item-value="value"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+      >
+        <template v-slot:selection="{ attrs, item }">
+          <v-chip
+            v-bind="attrs"
+            :disabled="!control.enabled"
+            :close="!isRequired(item)"
+            small
+            @click:close="remove(item)"
+          >
+            {{ item }}
+          </v-chip>
+        </template>
+      </v-combobox>
+    </v-hover>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -55,13 +62,15 @@ import { defineComponent } from "vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
 import { VHover, VCombobox, VChip } from "vuetify/lib";
 import { useVuetifyControl } from "@/renderers/util/composition";
+import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
 
 const controlRenderer = defineComponent({
-  name: "control-renderer",
+  name: "array-primitive-control-renderer",
   components: {
     VHover,
     VCombobox,
     VChip,
+    ControlWrapper,
   },
   props: {
     ...rendererProps<ControlElement>(),

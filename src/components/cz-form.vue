@@ -114,21 +114,25 @@ export default class CzForm extends Vue {
   }
 
   onChange(event: JsonFormsChangeEvent) {
-    const errors =
-      event.errors
-        ?.filter((e: ErrorObject) => {
-          return (
-            !filteredErrorKeywords.includes(e.keyword) &&
-            !filteredErrorKeywords.includes(e["_keyword"])
-          );
-        })
-        .map((e: ErrorObject) => ({
-          title: this._getErrorTitle(e),
-          message: this._getErrorMessage(e),
-        })) || [];
+    // Run on next tick to allow annotations to complete
+    this.$nextTick(() => {
+      const errors =
+        event.errors
+          ?.filter((e: ErrorObject) => {
+            return (
+              !filteredErrorKeywords.includes(e.keyword) &&
+              !filteredErrorKeywords.includes(e["_keyword"])
+            );
+          })
+          .map((e: ErrorObject) => ({
+            title: this._getErrorTitle(e),
+            message: this._getErrorMessage(e),
+          })) || [];
 
-    this.$emit("update:errors", errors);
-    this.$emit("update:data", event.data);
+      this.$emit("update:is-valid", !event.errors?.length);
+      this.$emit("update:errors", errors);
+      this.$emit("update:data", event.data);
+    });
   }
 
   private _getErrorTitle(error: ErrorObject): string {

@@ -144,15 +144,12 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const input = useJsonFormsOneOfControl(props);
     const tabData: { [key: number]: any } = {}; // Dictionary to store form state between tab changes
-    const selectedIndex = ref(0);
-
     const isAdded = ref(false);
 
     return {
       ...useVuetifyControl(input),
       ...useCombinatorChildErrors(input, "oneOf"),
       isAdded,
-      selectedIndex,
       tabData,
     };
   },
@@ -162,11 +159,6 @@ const controlRenderer = defineComponent({
     }
   },
   mounted() {
-    // TODO: find most fit schema if indexOfFittingSchema is undefined and data is not undefined
-    // if (this.control.data && this.control.indexOfFittingSchema === undefined) {
-    //   // ...
-    // }
-
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
   },
@@ -216,13 +208,6 @@ const controlRenderer = defineComponent({
         : "";
     },
   },
-  watch: {
-    childErrors: {
-      handler(_newErrors, _oldErrors) {
-        this.annotateChildErrors(this);
-      },
-    },
-  },
   methods: {
     handleTabChange(nextIndexOrLabel: number | string): void {
       if (!this.control.enabled) {
@@ -249,11 +234,10 @@ const controlRenderer = defineComponent({
         const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
         const val =
           schema.type === "array" || schema.type === "object"
-            ? createDefaultValue(schema) // TODO: won't add defaults
+            ? createDefaultValue(schema)
             : undefined;
 
         // Only create default values for objects and arrays.
-        // TODO: handle change seems to merge this value with current data
         this.handleChange(this.control.path, val);
       }
     },

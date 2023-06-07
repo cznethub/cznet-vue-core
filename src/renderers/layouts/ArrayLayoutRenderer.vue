@@ -170,7 +170,7 @@
                 :schema="control.schema"
                 :uischema="foundUISchema"
                 :path="composePaths(control.path, `${index}`)"
-                :enabled="control.enabled && !isRequired(element)"
+                :enabled="control.enabled"
                 :renderers="control.renderers"
                 :cells="control.cells"
               />

@@ -14,7 +14,7 @@ import merge from "lodash/merge";
 import get from "lodash/get";
 import isPlainObject from "lodash/isPlainObject";
 import { useStyles } from "../styles";
-import { computed, ComputedRef, inject, ref, provide } from "vue";
+import { computed, ComputedRef, inject, ref, provide, watchEffect } from "vue";
 import Ajv, { ErrorObject } from "ajv";
 
 export const useControlAppliedOptions = <I extends { control: any }>(
@@ -311,11 +311,13 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
     "jsonforms"
   ) as JsonFormsSubStates;
 
-  const childErrors: ComputedRef<ErrorObject[]> = computed(() => {
-    return (
-      jsonforms.core?.errors?.filter((e) => {
-        const controlPath = getControlPath(e) as string;
+  const selectedIndex = ref(0);
 
+  watchEffect(() => {
+    // Get child errors at this path and annotate them
+    jsonforms.core?.errors
+      ?.filter((e) => {
+        const controlPath = getControlPath(e) as string;
         const isChildProp = controlPath.startsWith(
           `${input.control.value.path}.`
         )
@@ -324,31 +326,26 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
               .includes(".")
           : false;
         return controlPath === input.control.value.path || isChildProp;
-      }) || []
-    );
+      })
+      .map((e: ErrorObject) => {
+        if (e.instancePath && e.parentSchema) {
+          const errorSchemaIndex = input.control.value.schema[keyword]?.indexOf(
+            e.parentSchema
+          );
+          if (errorSchemaIndex >= 0) {
+            e["_selectedSchemaIndex"] = errorSchemaIndex;
+          }
+          if (errorSchemaIndex !== selectedIndex.value) {
+            // Indicate that the error should be ignored
+            e["_keyword"] = keyword; // used to filter out error in CzForm's onChange method
+            e["message"] = ""; // removes the error from props of child components
+          }
+        }
+      });
   });
 
-  const annotateChildErrors = (renderer) => {
-    renderer.childErrors.map((e: ErrorObject) => {
-      if (e.instancePath && e.parentSchema) {
-        const errorSchemaIndex = renderer.control.schema[keyword]?.indexOf(
-          e.parentSchema
-        );
-        if (errorSchemaIndex >= 0) {
-          renderer.$set(e, "_selectedSchemaIndex", errorSchemaIndex);
-        }
-        if (errorSchemaIndex !== renderer.selectedIndex) {
-          // Indicate that the error should be ignored
-          renderer.$set(e, "_keyword", keyword); // used to filter out error in CzForm's onChange method
-          renderer.$set(e, "message", ""); // removes the error from props of child components
-        }
-      }
-    });
-  };
-
   return {
-    childErrors,
-    annotateChildErrors,
+    selectedIndex,
   };
 };
 
