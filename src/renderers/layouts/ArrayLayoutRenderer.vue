@@ -241,7 +241,6 @@ import {
 import {
   useNested,
   useVuetifyArrayControl,
-  useVuetifyControl,
 } from "@/renderers/util/composition";
 import {
   VCard,
@@ -305,12 +304,12 @@ const controlRenderer = defineComponent({
       handleChange,
       ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
     };
-
+    const fieldset = ref<InstanceType<typeof CzFieldset>>();
     const currentlyExpanded: number[] = [];
     const suggestToDelete = ref<null | number>(null);
     // indicate to our child renderers that we are increasing the "nested" level
     useNested("array");
-    return { ...control, currentlyExpanded, suggestToDelete };
+    return { ...control, currentlyExpanded, suggestToDelete, fieldset };
   },
   created() {
     // @ts-ignore
@@ -412,10 +411,8 @@ const controlRenderer = defineComponent({
       this.removeItems?.(this.control.path, toDelete)();
       if (this.control.data.length === 0) {
         this.handleChange(this.control.path, undefined);
-        const czFieldset = this.$refs["fieldset"] as InstanceType<
-          typeof CzFieldset
-        >;
-        czFieldset?.hide();
+        // @ts-ignore
+        this.fieldset?.hide();
       }
     },
     childErrors(index: number): ErrorObject[] {
@@ -425,13 +422,6 @@ const controlRenderer = defineComponent({
           this.composePaths(this.control.path, `${index}`)
         );
       });
-    },
-    // TODO: currently no way to propagate this to array elements.
-    isRequired(item) {
-      // @ts-ignore
-      return this.control.schema.contains?.enum?.some((requiredItem) =>
-        isEqual(item, requiredItem)
-      );
     },
     getItemLabel(element) {
       // @ts-ignore
