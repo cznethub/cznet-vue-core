@@ -9,6 +9,7 @@
     :title="control.schema.title"
     :computedLabel="computedLabel"
     @show="noData && control.enabled ? addButtonClick() : null"
+    ref="fieldset"
   >
     <template v-slot:actions="{ show }">
       <v-tooltip bottom transition="fade">
@@ -299,11 +300,9 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
+    const { handleChange } = useJsonFormsControl(props);
     const control = {
-      ...useVuetifyControl(
-        useJsonFormsControl(props),
-        (value) => value || undefined
-      ), // Needed for handleChange function
+      handleChange,
       ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
     };
 
@@ -413,6 +412,10 @@ const controlRenderer = defineComponent({
       this.removeItems?.(this.control.path, toDelete)();
       if (this.control.data.length === 0) {
         this.handleChange(this.control.path, undefined);
+        const czFieldset = this.$refs["fieldset"] as InstanceType<
+          typeof CzFieldset
+        >;
+        czFieldset?.hide();
       }
     },
     childErrors(index: number): ErrorObject[] {

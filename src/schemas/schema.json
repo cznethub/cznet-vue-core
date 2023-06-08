@@ -54,6 +54,9 @@
       "description": "Any kind of identifier for the record.",
       "type": "array",
       "items": {
+        "options": {
+          "title": "Identifier"
+        },
         "anyOf": [
           {
             "type": "string",

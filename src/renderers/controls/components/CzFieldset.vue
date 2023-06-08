@@ -17,7 +17,7 @@
           {{ computedLabel || title }}
         </legend>
 
-        <slot name="actions" :show="show">
+        <slot name="actions" :show="show" :hide="hide">
           <div v-if="hasToggle">
             <v-tooltip v-if="!isAdded" bottom transition="fade">
               <template v-slot:activator="{ on: onTooltip }">
