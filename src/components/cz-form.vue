@@ -166,6 +166,8 @@ export default class CzForm extends Vue {
       } else {
         return "is a required property";
       }
+    } else if (error.keyword === "type" && error.data === undefined) {
+      error.message = "is a required property";
     }
     return error.message || "";
   }

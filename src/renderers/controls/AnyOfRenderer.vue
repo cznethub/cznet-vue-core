@@ -6,7 +6,7 @@
     :hasToggle="hasToggle"
     :enabled="control.enabled"
     :errors="control.errors"
-    :title="control.schema.title"
+    :title="title"
     :computedLabel="computedLabel"
     :isFlat="isFlat"
     @hide="onHide"
@@ -119,7 +119,7 @@ import CombinatorProperties from "../components/CombinatorProperties.vue";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 
 const controlRenderer = defineComponent({
-  name: "one-of-renderer",
+  name: "any-of-renderer",
   components: {
     DispatchRenderer,
     CombinatorProperties,

@@ -6,7 +6,7 @@
     :hasToggle="hasToggle"
     :enabled="control.enabled"
     :errors="control.errors"
-    :title="control.schema.title"
+    :title="title"
     :computedLabel="computedLabel"
     :isFlat="isFlat"
     @hide="onHide"
