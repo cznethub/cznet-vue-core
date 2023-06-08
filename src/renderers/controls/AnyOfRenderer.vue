@@ -176,11 +176,10 @@ const controlRenderer = defineComponent({
       return result.filter((info) => info.uischema);
     },
     hasToggle() {
-      // @ts-ignore
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.uischema.options?.flat;
+      return this.control.schema["options"]?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore

@@ -100,7 +100,7 @@ const controlRenderer = defineComponent({
       return result.filter((info) => info.uischema);
     },
     isFlat() {
-      return this.control.uischema.options?.flat;
+      return this.control.schema["options"]?.flat;
     },
   },
 });

@@ -112,11 +112,10 @@ const controlRenderer = defineComponent({
       return result;
     },
     hasToggle() {
-      // @ts-ignore
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.uischema.options?.flat;
+      return this.control.schema["options"]?.flat;
     },
   },
 });

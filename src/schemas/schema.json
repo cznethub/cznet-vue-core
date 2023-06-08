@@ -55,7 +55,8 @@
       "type": "array",
       "items": {
         "options": {
-          "title": "Identifier"
+          "title": "Identifier",
+          "flat": true
         },
         "anyOf": [
           {
