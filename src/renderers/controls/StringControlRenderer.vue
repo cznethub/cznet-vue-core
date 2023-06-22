@@ -103,9 +103,7 @@ import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
 import isArray from "lodash/isArray";
 import every from "lodash/every";
 import isString from "lodash/isString";
-
 import { default as ControlWrapper } from "./ControlWrapper.vue";
-
 import { VTextField, VCombobox, VHover } from "vuetify/lib";
 
 const controlRenderer = defineComponent({

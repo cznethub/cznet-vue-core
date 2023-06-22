@@ -5,14 +5,8 @@
     :enabled="layout.enabled"
     :title="layout.label"
     :computedLabel="computedLabel"
+    :description="layout.uischema.description"
   >
-    <div
-      v-if="layout.uischema.description"
-      class="text-subtitle-1 text--secondary mb-6"
-    >
-      {{ layout.uischema.description }}
-    </div>
-
     <div
       v-for="(element, index) in layout.uischema.elements"
       :data-id="`group-${index}`"

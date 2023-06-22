@@ -1,46 +1,39 @@
 <template>
-  <div v-if="control.visible">
-    <fieldset
-      class="cz-fieldset"
-      :data-id="control.schema.title.replaceAll(` `, ``)"
-    >
-      <legend v-if="control.schema.title" class="v-label--active">
-        {{ control.schema.title }}
-      </legend>
-      <template v-if="delegateUISchema">
-        <dispatch-renderer
-          :schema="subSchema"
-          :uischema="delegateUISchema"
-          :path="control.path"
-          :enabled="control.enabled"
-          :renderers="control.renderers"
-          :cells="control.cells"
-        />
-      </template>
-      <template v-else-if="allOfRenderInfos">
-        <dispatch-renderer
-          v-for="(allOfRenderInfo, allOfIndex) in allOfRenderInfos"
-          :key="`${control.path}-${allOfIndex}`"
-          :schema="allOfRenderInfo.schema"
-          :uischema="allOfRenderInfo.uischema"
-          :path="control.path"
-          :enabled="control.enabled"
-          :renderers="control.renderers"
-          :cells="control.cells"
-        />
-      </template>
-    </fieldset>
-    <div
-      v-if="control.description"
-      class="text--secondary text-body-1 mt-2 px-2"
-    >
-      {{ control.description }}
-    </div>
-    <div v-if="cleanedErrors" class="px-2 v-messages error--text">
-      <v-divider v-if="isFlat" class="mb-4"></v-divider>
-      {{ cleanedErrors }}
-    </div>
-  </div>
+  <cz-fieldset
+    v-if="control.visible"
+    :data-id="computedLabel.replaceAll(` `, ``)"
+    :description="control.description"
+    :hasToggle="hasToggle"
+    :enabled="control.enabled"
+    :errors="control.errors"
+    :title="title"
+    :computedLabel="computedLabel"
+    :isFlat="isFlat"
+    @hide="onHide"
+  >
+    <template v-if="delegateUISchema">
+      <dispatch-renderer
+        :schema="subSchema"
+        :uischema="delegateUISchema"
+        :path="control.path"
+        :enabled="control.enabled"
+        :renderers="control.renderers"
+        :cells="control.cells"
+      />
+    </template>
+    <template v-else-if="allOfRenderInfos">
+      <dispatch-renderer
+        v-for="(allOfRenderInfo, allOfIndex) in allOfRenderInfos"
+        :key="`${control.path}-${allOfIndex}`"
+        :schema="allOfRenderInfo.schema"
+        :uischema="allOfRenderInfo.uischema"
+        :path="control.path"
+        :enabled="control.enabled"
+        :renderers="control.renderers"
+        :cells="control.cells"
+      />
+    </template>
+  </cz-fieldset>
 </template>
 
 <script lang="ts">
@@ -78,6 +71,11 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     return useVuetifyControl(useJsonFormsAllOfControl(props));
   },
+  methods: {
+    onHide() {
+      this.handleChange(this.control.path, undefined);
+    },
+  },
   computed: {
     delegateUISchema(): UISchemaElement {
       return findMatchingUISchema(this.control.uischemas)(
@@ -101,6 +99,15 @@ const controlRenderer = defineComponent({
     },
     isFlat() {
       return this.control.schema["options"]?.flat;
+    },
+    hasToggle() {
+      return !this.control.required && !this.isFlat;
+    },
+    title(): string {
+      return (
+        // @ts-ignore
+        this.control.schema?.options?.title || this.control.schema.title || ""
+      );
     },
   },
 });

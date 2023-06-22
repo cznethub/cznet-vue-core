@@ -44,6 +44,17 @@
             {{ item }}
           </v-chip>
         </template>
+        <template v-slot:message>
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
+          </div>
+          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+            {{ cleanedErrors }}
+          </div>
+        </template>
       </v-combobox>
     </v-hover>
   </control-wrapper>

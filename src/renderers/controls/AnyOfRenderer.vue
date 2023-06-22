@@ -173,6 +173,12 @@ const controlRenderer = defineComponent({
         this.control.path,
         this.control.uischemas
       );
+
+      result.map((i) => {
+        // @ts-ignore: use detail uischema if specified
+        i.uischema = i.schema.options?.detail || i.uischema;
+      });
+
       return result.filter((info) => info.uischema);
     },
     hasToggle() {

@@ -92,7 +92,7 @@ const controlRenderer = defineComponent({
       ...useVuetifyControl(
         useJsonFormsControl(props),
         (value) => value || undefined
-      ), // Needed for handleChange function
+      ), // Needed for handleChange and onChange function
       ...useVuetifyBasicControl(useJsonFormsMultiEnumControl(props)),
     };
   },
