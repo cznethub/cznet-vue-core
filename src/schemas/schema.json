@@ -6,10 +6,6 @@
       "title": "@Context",
       "description": "Specifies the vocabulary employed for understanding the structured data markup.",
       "default": "https://schema.org",
-      "const": "https://schema.org",
-      "options": {
-        "hidden": true
-      },
       "minLength": 1,
       "maxLength": 2083,
       "type": "string",
@@ -597,7 +593,6 @@
                   "title": "@Type",
                   "description": "A structured representation that describes the coordinates of a geographic feature (line or polygon).",
                   "default": "GeoShape",
-                  "const": "GeoShape",
                   "options": {
                     "hidden": true
                   },

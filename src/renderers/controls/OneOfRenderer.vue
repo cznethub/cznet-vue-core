@@ -174,9 +174,12 @@ const controlRenderer = defineComponent({
         this.control.uischemas
       );
 
-      result.map((i) => {
-        // @ts-ignore: use detail uischema if specified
-        i.uischema = i.schema.options?.detail || i.uischema;
+      result.map((i, index) => {
+        i.uischema =
+          // @ts-ignore: use detail uischema if specified
+          i.schema.options?.detail || // Check schema
+          this.control.uischema.options?.detail[index] || // Check ui-schema
+          i.uischema;
       });
 
       return result.filter((info) => info.uischema);

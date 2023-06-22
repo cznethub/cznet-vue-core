@@ -141,6 +141,10 @@ const layoutRenderer = defineComponent({
           };
     },
     hasData(): boolean {
+      if (!this.control.data) {
+        return false;
+      }
+
       return (
         (this.mapType === "point" &&
           !isNaN(this.control.data.north) &&
