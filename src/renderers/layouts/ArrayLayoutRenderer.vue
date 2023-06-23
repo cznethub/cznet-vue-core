@@ -229,6 +229,8 @@ import {
   getControlPath,
   or,
   isObjectArrayControl,
+  not,
+  and,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import {
@@ -440,10 +442,10 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-// const useTableLayout = (uiSchema) => {
-//   return false; // TODO: table layout disabled until issue with asterik is solved
-//   // return uiSchema.options?.useTableLayout
-// };
+const useTableLayout = (uiSchema) => {
+  // return false; // TODO: table layout disabled until issue with asterik is solved
+  return uiSchema.options?.useTableLayout;
+};
 
 const useArrayLayout = (uiSchema) => {
   return uiSchema.options?.useArrayLayout;
@@ -453,7 +455,11 @@ export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(
     4,
-    or(isObjectArrayControl, isObjectArrayWithNesting, useArrayLayout)
+    or(
+      isObjectArrayControl,
+      isObjectArrayWithNesting,
+      and(useArrayLayout, not(useTableLayout))
+    )
   ),
 };
 </script>

@@ -71,3 +71,5 @@ export const entry: JsonFormsRendererRegistryEntry = {
   tester: rankWith(3, and(isLayout, uiTypeIs("Group"))),
 };
 </script>
+
+<style lang="scss" scoped></style>

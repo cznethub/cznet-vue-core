@@ -159,7 +159,9 @@
       "minItems": 1,
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "title": "Keyword",
+        "description": "Some description"
       }
     },
     "license": {

@@ -143,7 +143,7 @@ export const useVuetifyControl = <
     );
   };
 
-  const computedLabel = useComputedLabel(input, appliedOptions);
+  const computedLabel = useComputedLabel(input, appliedOptions.value);
 
   const controlWrapper = computed(() => {
     const { id, description, errors, label, visible, required } =
