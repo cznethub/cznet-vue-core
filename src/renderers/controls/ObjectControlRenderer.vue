@@ -10,6 +10,7 @@
     :computedLabel="computedLabel"
     :isFlat="isFlat"
     @hide="onHide"
+    class="pb-5"
   >
     <dispatch-renderer
       :visible="control.visible"
