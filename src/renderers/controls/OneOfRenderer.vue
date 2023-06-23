@@ -188,11 +188,11 @@ const controlRenderer = defineComponent({
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.schema["options"]?.flat;
+      return this.control.uischema["options"]?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore
-      return this.control.schema.options?.dropdown;
+      return this.control.uischema.options?.dropdown;
     },
     title(): string {
       return (

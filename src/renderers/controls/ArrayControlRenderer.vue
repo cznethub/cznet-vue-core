@@ -337,7 +337,9 @@ const controlRenderer = defineComponent({
       return {
         scope,
         type: "Control",
-        label: `${this.control.schema.title}*` || false,
+        label: this.control.schema.title
+          ? `${this.control.schema.title}*`
+          : false,
         // @ts-ignore
         description: this.control.schema.description || false,
       };
