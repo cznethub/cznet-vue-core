@@ -3,10 +3,10 @@
     @change="onChange"
     :ajv="ajv"
     :data="data"
-    :readonly="isReadOnly || isViewMode"
+    :readonly="isReadOnly || isViewMode || isDisabled"
     :renderers="Object.freeze(renderers)"
     :cells="cells"
-    :config="config"
+    :config="configuration"
     :schema="schema"
     :uischema="uischema"
     :validationMode="isViewMode ? 'NoValidation' : 'ValidateAndShow'"
@@ -99,12 +99,29 @@ export default class CzForm extends Vue {
     return ajv;
   }
 
+  get configuration() {
+    return {
+      ...this.config,
+      vuetify: {
+        ...this.config.vuetify,
+        commonAttrs: {
+          ...this.config.vuetify?.commonAttrs,
+          filled: this.config.isViewMode,
+        },
+      },
+    };
+  }
+
   protected get isViewMode() {
     return !!this.config.isViewMode;
   }
 
   protected get isReadOnly() {
     return !!this.config.isReadOnly;
+  }
+
+  protected get isDisabled() {
+    return !!this.config.isDisabled;
   }
 
   onChange(event: JsonFormsChangeEvent) {

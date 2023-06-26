@@ -2,7 +2,8 @@
   <cz-fieldset
     v-if="layout.visible"
     :data-id="generateId"
-    :enabled="layout.enabled"
+    :enabled="!appliedOptions.isDisabled"
+    :readonly="layout.enabled"
     :title="layout.label"
     :computedLabel="computedLabel"
     :description="layout.uischema.description"

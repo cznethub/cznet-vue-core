@@ -5,6 +5,8 @@
         'cz-fieldset': !isFlat,
         'is-borderless': isFlat,
         'is-invalid': !!errors,
+        'is-readonly': readonly,
+        'is-disabled': !enabled,
       }"
     >
       <template v-if="!isFlat">
@@ -25,7 +27,7 @@
                   icon
                   color="primary"
                   @click="show()"
-                  :disabled="!enabled"
+                  :disabled="!enabled || readonly"
                   class="btn-add"
                   :aria-label="`Add to ${title}`"
                   v-on="onTooltip"
@@ -104,13 +106,16 @@ export default defineComponent({
     enabled: {
       type: Boolean,
     },
+    readonly: {
+      type: Boolean,
+    },
     errors: {
       type: String,
     },
   },
   methods: {
     show() {
-      if (this.enabled && !this.isAdded) {
+      if (this.enabled && !this.readonly && !this.isAdded) {
         this.isAdded = true;
         this.$emit("show");
       }
@@ -127,3 +132,68 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped lang="scss">
+// https://stackoverflow.com/a/27660473/3288102
+fieldset,
+.cz-fieldset {
+  min-width: 0;
+}
+
+.cz-fieldset {
+  background-color: #fff;
+  color: rgba(0, 0, 0, 0.87);
+  border: thin solid rgba(0, 0, 0, 0.12);
+  border-color: rgb(158, 158, 158);
+  border-radius: 4px;
+  padding: 1rem;
+  position: relative;
+  min-height: 2rem;
+
+  &.is-invalid {
+    & > legend,
+    & > fieldset > legend {
+      color: #ff5252;
+    }
+  }
+
+  &.is-disabled legend {
+    color: rgba(0, 0, 0, 0.38) !important;
+  }
+
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.6);
+  }
+
+  & > legend {
+    font-size: 16px;
+    letter-spacing: 0.0125em;
+    word-break: break-all;
+    color: rgba(0, 0, 0, 0.6);
+    background: #fff;
+    font-weight: normal;
+    padding: 0 0.25rem;
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+
+    &.v-label--active {
+      position: absolute;
+      cursor: default;
+      transform: translateY(-1.4rem) scale(1) !important;
+    }
+
+    &:not(.v-label--active) {
+      width: calc(100% - 5rem);
+      cursor: text;
+    }
+  }
+
+  ::v-deep .btn-add {
+    position: absolute;
+    top: -0.2rem;
+    right: 0;
+    z-index: 1;
+  }
+}
+</style>

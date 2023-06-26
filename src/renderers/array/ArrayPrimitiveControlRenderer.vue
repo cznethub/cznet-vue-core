@@ -20,11 +20,12 @@
         no-filter
         :id="control.id + '-input'"
         :class="styles.control.input"
-        :disabled="!control.enabled"
+        :readonly="!control.enabled || control.schema['readOnly']"
+        :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :required="control.required"
-        :clearable="hover"
+        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
         :value="control.data"
         :items="control.options"
         v-bind="vuetifyProps('v-combobox')"
@@ -36,8 +37,15 @@
         <template v-slot:selection="{ attrs, item }">
           <v-chip
             v-bind="attrs"
-            :disabled="!control.enabled"
-            :close="!isRequired(item)"
+            :readonly="!control.enabled || control.schema['readOnly']"
+            :disabled="appliedOptions.isDisabled"
+            :close="
+              !(
+                isRequired(item) ||
+                !control.enabled ||
+                control.schema['readOnly']
+              )
+            "
             small
             @click:close="remove(item)"
           >

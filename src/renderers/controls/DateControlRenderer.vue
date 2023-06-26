@@ -1,71 +1,79 @@
 <template>
-  <v-menu
-    ref="menu"
-    v-model="showMenu"
-    :close-on-content-click="false"
-    :return-value.sync="pickerValue"
-    transition="scale-transition"
-    offset-y
-    min-width="290px"
-    v-bind="vuetifyProps('v-menu')"
-    :disabled="!control.enabled"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
   >
-    <template v-slot:activator="{ on, attrs }">
-      <v-text-field
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :disabled="!control.enabled"
-        :autofocus="appliedOptions.focus"
-        :placeholder="placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        prepend-inner-icon="mdi-calendar"
-        v-mask="mask"
-        :value="inputValue"
-        @input="onInputChange"
-        v-bind="{ ...vuetifyProps('v-text-field'), ...attrs }"
-        v-on="on"
-      >
-        <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
-        </template>
-        <template slot="append">
-          <v-icon v-if="control.enabled" tabindex="-1" @click="clear"
-            >$clear</v-icon
-          >
-        </template>
-      </v-text-field>
-    </template>
-
-    <v-date-picker
-      v-if="showMenu"
-      v-model="pickerValue"
-      ref="picker"
-      v-bind="vuetifyProps('v-date-picker')"
-      :min="minDate"
-      :max="maxDate"
-      :type="pickerType"
-      @click:year="onYear"
+    <v-menu
+      ref="menu"
+      v-model="showMenu"
+      :close-on-content-click="false"
+      :return-value.sync="pickerValue"
+      transition="scale-transition"
+      offset-y
+      min-width="290px"
+      v-bind="vuetifyProps('v-menu')"
+      :disabled="!control.enabled || control.schema['readOnly']"
     >
-      <v-spacer></v-spacer>
-      <v-btn text @click="showMenu = false">
-        {{ cancelLabel }}
-      </v-btn>
-      <v-btn :disabled="!pickerValue" color="primary" @click="okHandler">
-        {{ okLabel }}
-      </v-btn>
-    </v-date-picker>
-  </v-menu>
+      <template v-slot:activator="{ on, attrs }">
+        <v-text-field
+          :id="control.id + '-input'"
+          :class="styles.control.input"
+          :readonly="!control.enabled || control.schema['readOnly']"
+          :disabled="appliedOptions.isDisabled"
+          :autofocus="appliedOptions.focus"
+          :placeholder="placeholder"
+          :label="computedLabel"
+          :hint="control.description"
+          :required="control.required"
+          :error-messages="control.errors"
+          prepend-inner-icon="mdi-calendar"
+          v-mask="mask"
+          :value="inputValue"
+          @input="onInputChange"
+          v-bind="{ ...vuetifyProps('v-text-field'), ...attrs }"
+          v-on="on"
+        >
+          <template v-slot:message>
+            <div
+              v-if="control.description"
+              class="text-subtitle-1 text--secondary"
+            >
+              {{ control.description }}
+            </div>
+            <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+              {{ cleanedErrors }}
+            </div>
+          </template>
+          <template slot="append">
+            <v-icon v-if="control.enabled" tabindex="-1" @click="clear"
+              >$clear</v-icon
+            >
+          </template>
+        </v-text-field>
+      </template>
+
+      <v-date-picker
+        v-if="showMenu"
+        v-model="pickerValue"
+        ref="picker"
+        v-bind="vuetifyProps('v-date-picker')"
+        :min="minDate"
+        :max="maxDate"
+        :type="pickerType"
+        @click:year="onYear"
+      >
+        <v-spacer></v-spacer>
+        <v-btn text @click="showMenu = false">
+          {{ cancelLabel }}
+        </v-btn>
+        <v-btn :disabled="!pickerValue" color="primary" @click="okHandler">
+          {{ okLabel }}
+        </v-btn>
+      </v-date-picker>
+    </v-menu>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -102,6 +110,7 @@ import {
 
 const JSON_SCHEMA_DATE_FORMATS = ["YYYY-MM-DD"];
 import { VueMaskDirective as Mask } from "v-mask";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 type MinMaxFormat =
   | {
@@ -124,6 +133,7 @@ const controlRenderer = defineComponent({
     VIcon,
     VSpacer,
     VBtn,
+    ControlWrapper,
   },
   setup(props: RendererProps<ControlElement>) {
     const t = useTranslator();

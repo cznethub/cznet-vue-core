@@ -22,11 +22,12 @@
         :required="control.required"
         :hint="control.description"
         :value="control.data"
-        :disabled="!control.enabled"
+        :readonly="!control.enabled || control.schema['readOnly']"
+        :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :label="computedLabel"
-        :clearable="hover"
+        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
         v-bind="vuetifyProps('v-textarea')"
       >
         <template v-slot:message>

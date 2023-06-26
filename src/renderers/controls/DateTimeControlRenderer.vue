@@ -14,13 +14,14 @@
       offset-y
       :min-width="useTabLayout ? '290px' : '580px'"
       v-bind="vuetifyProps('v-menu')"
-      :disabled="!control.enabled"
+      :disabled="!control.enabled || control.schema['readOnly']"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-text-field
           :id="control.id + '-input'"
           :class="styles.control.input"
-          :disabled="!control.enabled"
+          :readonly="!control.enabled || control.schema['readOnly']"
+          :disabled="appliedOptions.isDisabled"
           :autofocus="appliedOptions.focus"
           :placeholder="appliedOptions.placeholder"
           :label="computedLabel"

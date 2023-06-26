@@ -9,7 +9,8 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="control.description"
       :hasToggle="true"
-      :enabled="control.enabled"
+      :enabled="!appliedOptions.isDisabled"
+      :readonly="!control.enabled"
       :errors="control.errors"
       :title="control.schema.title"
       :computedLabel="computedLabel"
@@ -32,6 +33,7 @@
               v-on="onTooltip"
               :disabled="
                 !control.enabled ||
+                appliedOptions.isDisabled ||
                 (appliedOptions.restrict &&
                   maxItems !== undefined &&
                   control.data &&

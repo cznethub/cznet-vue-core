@@ -12,9 +12,12 @@
             :class="styles.control.input"
             :error-messages="newPropertyErrors"
             v-model="newPropertyName"
-            :clearable="hover"
+            :clearable="
+              hover && !(!control.enabled || control.schema['readOnly'])
+            "
             :placeholder="placeholder"
-            :disabled="!control.enabled"
+            :readonly="!control.enabled || control.schema['readOnly']"
+            :disabled="appliedOptions.isDisabled"
             v-bind="vuetifyProps('v-text-field')"
           >
           </v-text-field>

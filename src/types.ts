@@ -31,4 +31,5 @@ export interface Config {
   vuetify?: Record<string, any>;
   isViewMode?: boolean;
   isReadOnly?: boolean;
+  isDisabled?: boolean;
 }

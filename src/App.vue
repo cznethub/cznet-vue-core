@@ -21,8 +21,17 @@
             v-model="config.isReadOnly"
             class="mr-4"
           ></v-checkbox>
-          <v-checkbox label="View mode" v-model="config.isViewMode"></v-checkbox
-        ></v-card-text>
+          <v-checkbox
+            label="View mode"
+            v-model="config.isViewMode"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            label="Disabled"
+            v-model="config.isDisabled"
+            class="mr-4"
+          ></v-checkbox>
+        </v-card-text>
         <v-divider></v-divider>
         <v-card-text>
           <pre>{{ data }}</pre>
@@ -113,6 +122,7 @@ export default class App extends Vue {
   protected isValid = false;
   protected errors = [];
   protected data = initialData;
+
   protected config: Config = {
     restrict: true,
     trim: false,
@@ -131,8 +141,9 @@ export default class App extends Vue {
         "hide-details": false,
       },
     },
-    isViewMode: true,
+    isViewMode: false,
     isReadOnly: false,
+    isDisabled: false,
   };
 
   beforeCreate() {

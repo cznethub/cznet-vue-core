@@ -11,14 +11,15 @@
         :id="control.id + '-input'"
         :data-id="computedLabel.replaceAll(` `, ``)"
         :class="styles.control.input"
-        :disabled="!control.enabled"
+        :readonly="!control.enabled"
+        :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :label="computedLabel"
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover"
+        :clearable="hover && control.enabled"
         :maxlength="
           appliedOptions.restrict ? control.schema.maxLength : undefined
         "
@@ -50,7 +51,8 @@
         :id="control.id + '-input'"
         :data-id="computedLabel.replaceAll(` `, ``)"
         :class="styles.control.input"
-        :disabled="!control.enabled"
+        :readonly="!control.enabled"
+        :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
         :label="computedLabel"
@@ -66,7 +68,7 @@
             ? control.schema.maxLength
             : undefined
         "
-        :clearable="hover"
+        :clearable="hover && control.enabled"
         v-bind="vuetifyProps('v-text-field')"
         @input="onChange"
       >
@@ -140,10 +142,6 @@ const controlRenderer = defineComponent({
         return undefined;
       }
       return suggestions;
-    },
-    isReadOnly() {
-      // @ts-ignore
-      return this.control.schema.options?.readonly;
     },
   },
 });

@@ -9,7 +9,8 @@
       <v-combobox
         :id="control.id + '-input'"
         :class="styles.control.input"
-        :disabled="!control.enabled"
+        :readonly="!control.enabled || control.schema['readOnly']"
+        :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="appliedOptions.placeholder"
         :label="computedLabel"
@@ -27,7 +28,7 @@
         "
         v-bind="vuetifyProps('v-combobox')"
         :items="items"
-        :clearable="hover"
+        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
         @change="onChange"
         @focus="isFocused = true"
         @blur="isFocused = false"

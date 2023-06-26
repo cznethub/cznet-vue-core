@@ -2,7 +2,8 @@
   <v-checkbox
     :id="control.id + '-input'"
     :class="styles.control.input"
-    :disabled="!control.enabled"
+    :readonly="!control.enabled || control.schema['readOnly']"
+    :disabled="appliedOptions.isDisabled"
     :autofocus="appliedOptions.focus"
     :placeholder="placeholder"
     :label="computedLabel"
