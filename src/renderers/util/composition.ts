@@ -149,7 +149,7 @@ export const useVuetifyControl = <
     const { id, description, errors, label, visible, required } =
       input.control.value;
     const isVisible = appliedOptions.value.isViewMode
-      ? !!input.control.value.data
+      ? visible && !!input.control.value.data
       : visible;
     return { id, description, errors, label, visible: isVisible, required };
   });
