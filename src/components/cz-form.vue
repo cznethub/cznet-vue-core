@@ -6,7 +6,7 @@
     :readonly="isReadOnly || isViewMode || isDisabled"
     :renderers="Object.freeze(renderers)"
     :cells="cells"
-    :config="configuration"
+    :config="config"
     :schema="schema"
     :uischema="uischema"
     :validationMode="isViewMode ? 'NoValidation' : 'ValidateAndShow'"
@@ -97,19 +97,6 @@ export default class CzForm extends Vue {
 
   get ajv() {
     return ajv;
-  }
-
-  get configuration() {
-    return {
-      ...this.config,
-      vuetify: {
-        ...this.config.vuetify,
-        commonAttrs: {
-          ...this.config.vuetify?.commonAttrs,
-          filled: this.config.isViewMode,
-        },
-      },
-    };
   }
 
   protected get isViewMode() {
