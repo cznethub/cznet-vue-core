@@ -298,7 +298,9 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     const { id, visible } = input.control.value;
 
     const isVisible = appliedOptions.value.isViewMode
-      ? !!input.control.value.data && input.control.value.data.length > 1
+      ? visible &&
+        !!input.control.value.data &&
+        input.control.value.data.length > 1
       : visible;
     return { id, visible: isVisible };
   });
