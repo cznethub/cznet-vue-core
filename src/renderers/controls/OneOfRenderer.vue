@@ -1,82 +1,89 @@
 <template>
-  <cz-fieldset
-    v-if="control.visible"
-    :data-id="computedLabel.replaceAll(` `, ``)"
-    :description="desc"
-    :hasToggle="hasToggle"
-    :enabled="control.enabled"
-    :errors="control.errors"
-    :title="title"
-    :computedLabel="computedLabel"
-    :isFlat="isFlat"
-    @hide="onHide"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
   >
-    <combinator-properties
-      :schema="control.schema"
-      :path="path"
-      combinatorKeyword="oneOf"
-    />
-
-    <template v-if="!isDropDown">
-      <v-tabs v-model="selectedIndex">
-        <v-tab
-          @change="handleTabChange(oneOfIndex)"
-          :key="`${control.path}-${oneOfIndex}`"
-          v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
-        >
-          {{ oneOfRenderInfo.label }}
-        </v-tab>
-      </v-tabs>
-
-      <v-tabs-items v-model="selectedIndex">
-        <v-tab-item
-          v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
-          :key="`${control.path}-${oneOfIndex}`"
-          class="pt-8"
-        >
-          <dispatch-renderer
-            v-if="selectedIndex === oneOfIndex"
-            :schema="oneOfRenderInfo.schema"
-            :uischema="oneOfRenderInfo.uischema"
-            :path="control.path"
-            :renderers="control.renderers"
-            :cells="control.cells"
-            :enabled="control.enabled"
-          />
-        </v-tab-item>
-      </v-tabs-items>
-    </template>
-
-    <template v-else>
-      <v-select
-        @change="handleTabChange"
-        :items="oneOfRenderInfos"
-        :label="title"
-        :value="oneOfRenderInfos[selectedIndex]"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :required="control.required"
-        :error-messages="control.errors"
-        :placeholder="appliedOptions.placeholder"
-        :disabled="!control.enabled"
-        :readonly="control.schema['readOnly']"
-        :hint="desc"
-        v-bind="vuetifyProps('v-select')"
-        item-text="label"
-        >{{ currentLabel }}</v-select
-      >
-
-      <dispatch-renderer
-        v-if="selectedIndex >= 0 && oneOfRenderInfos[selectedIndex]"
-        :key="selectedIndex"
-        :schema="oneOfRenderInfos[selectedIndex].schema"
-        :uischema="oneOfRenderInfos[selectedIndex].uischema"
-        :path="control.path"
-        :renderers="control.renderers"
-        :cells="control.cells"
-        :enabled="control.enabled"
+    <cz-fieldset
+      v-if="control.visible"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :description="desc"
+      :hasToggle="hasToggle"
+      :enabled="control.enabled"
+      :errors="control.errors"
+      :title="title"
+      :computedLabel="computedLabel"
+      :isFlat="isFlat"
+      @hide="onHide"
+    >
+      <combinator-properties
+        :schema="control.schema"
+        :path="path"
+        combinatorKeyword="oneOf"
       />
-    </template>
-  </cz-fieldset>
+
+      <template v-if="!isDropDown">
+        <v-tabs v-model="selectedIndex">
+          <v-tab
+            @change="handleTabChange(oneOfIndex)"
+            :key="`${control.path}-${oneOfIndex}`"
+            v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
+          >
+            {{ oneOfRenderInfo.label }}
+          </v-tab>
+        </v-tabs>
+
+        <v-tabs-items v-model="selectedIndex">
+          <v-tab-item
+            v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
+            :key="`${control.path}-${oneOfIndex}`"
+            class="pt-8"
+          >
+            <dispatch-renderer
+              v-if="selectedIndex === oneOfIndex"
+              :schema="oneOfRenderInfo.schema"
+              :uischema="oneOfRenderInfo.uischema"
+              :path="control.path"
+              :renderers="control.renderers"
+              :cells="control.cells"
+              :enabled="control.enabled"
+            />
+          </v-tab-item>
+        </v-tabs-items>
+      </template>
+
+      <template v-else>
+        <v-select
+          @change="handleTabChange"
+          :items="oneOfRenderInfos"
+          :label="title"
+          :value="oneOfRenderInfos[selectedIndex]"
+          :data-id="computedLabel.replaceAll(` `, ``)"
+          :required="control.required"
+          :error-messages="control.errors"
+          :placeholder="appliedOptions.placeholder"
+          :disabled="!control.enabled"
+          :readonly="control.schema['readOnly']"
+          :hint="desc"
+          v-bind="vuetifyProps('v-select')"
+          item-text="label"
+          >{{ currentLabel }}</v-select
+        >
+
+        <dispatch-renderer
+          v-if="selectedIndex >= 0 && oneOfRenderInfos[selectedIndex]"
+          :key="selectedIndex"
+          :schema="oneOfRenderInfos[selectedIndex].schema"
+          :uischema="oneOfRenderInfos[selectedIndex].uischema"
+          :path="control.path"
+          :renderers="control.renderers"
+          :cells="control.cells"
+          :enabled="control.enabled"
+        />
+      </template>
+    </cz-fieldset>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -117,6 +124,7 @@ import {
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 const controlRenderer = defineComponent({
   name: "one-of-renderer",
@@ -137,6 +145,7 @@ const controlRenderer = defineComponent({
     VTooltip,
     VIcon,
     CzFieldset,
+    ControlWrapper,
   },
   props: {
     ...rendererProps<ControlElement>(),

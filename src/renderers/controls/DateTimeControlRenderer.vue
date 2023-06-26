@@ -1,117 +1,124 @@
 <template>
-  <v-menu
-    ref="menu"
-    v-model="showMenu"
-    :close-on-content-click="false"
-    :return-value.sync="pickerValue"
-    transition="scale-transition"
-    offset-y
-    :min-width="useTabLayout ? '290px' : '580px'"
-    v-bind="vuetifyProps('v-menu')"
-    :disabled="!control.enabled"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
   >
-    <template v-slot:activator="{ on, attrs }">
-      <v-text-field
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :disabled="!control.enabled"
-        :autofocus="appliedOptions.focus"
-        :placeholder="appliedOptions.placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        v-bind="{ ...vuetifyProps(`v-select`), ...attrs }"
-        :prepend-inner-icon="pickerIcon"
-        v-mask="mask"
-        :value="inputValue"
-        @input="onInputChange"
-        v-on="on"
-      >
-        <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
-        </template>
-        <template slot="append">
-          <v-icon v-if="control.enabled" tabindex="-1" @click="clear"
-            >$clear</v-icon
-          >
-        </template>
-      </v-text-field>
-    </template>
-
-    <v-card v-if="showMenu">
-      <v-tabs v-if="useTabLayout" v-model="activeTab">
-        <v-tab key="date" href="#date" class="primary--text">
-          <v-icon>mdi-calendar</v-icon>
-        </v-tab>
-        <v-spacer></v-spacer>
-        <v-tab key="time" href="#time" class="primary--text">
-          <v-icon>mdi-clock-outline</v-icon>
-        </v-tab>
-
-        <v-tab-item value="date"
-          ><v-date-picker
-            v-if="showMenu"
-            v-model="datePickerValue"
-            ref="datePicker"
-            v-bind="vuetifyProps('v-date-picker')"
-            @input="activeTab = 'time'"
-          >
-          </v-date-picker>
-        </v-tab-item>
-        <v-tab-item value="time"
-          ><v-time-picker
-            v-model="timePickerValue"
-            ref="timePicker"
-            v-bind="vuetifyProps('v-time-picker')"
-            :use-seconds="useSeconds"
-            format="ampm"
-          ></v-time-picker>
-        </v-tab-item>
-      </v-tabs>
-      <v-row no-gutters v-else>
-        <v-col min-width="290px" cols="auto">
-          <v-date-picker
-            v-if="showMenu"
-            v-model="datePickerValue"
-            ref="datePicker"
-            v-bind="vuetifyProps('v-date-picker')"
-          >
-          </v-date-picker>
-        </v-col>
-        <v-col min-width="290px" cols="auto">
-          <v-time-picker
-            v-model="timePickerValue"
-            ref="timePicker"
-            v-bind="vuetifyProps('v-time-picker')"
-            :use-seconds="useSeconds"
-            format="ampm"
-          ></v-time-picker>
-        </v-col>
-      </v-row>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn text @click="showMenu = false">
-          {{ cancelLabel }}
-        </v-btn>
-        <v-btn
-          :disabled="!datePickerValue || !timePickerValue"
-          color="primary"
-          @click="okHandler"
+    <v-menu
+      ref="menu"
+      v-model="showMenu"
+      :close-on-content-click="false"
+      :return-value.sync="pickerValue"
+      transition="scale-transition"
+      offset-y
+      :min-width="useTabLayout ? '290px' : '580px'"
+      v-bind="vuetifyProps('v-menu')"
+      :disabled="!control.enabled"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-text-field
+          :id="control.id + '-input'"
+          :class="styles.control.input"
+          :disabled="!control.enabled"
+          :autofocus="appliedOptions.focus"
+          :placeholder="appliedOptions.placeholder"
+          :label="computedLabel"
+          :hint="control.description"
+          :required="control.required"
+          :error-messages="control.errors"
+          v-bind="{ ...vuetifyProps(`v-select`), ...attrs }"
+          :prepend-inner-icon="pickerIcon"
+          v-mask="mask"
+          :value="inputValue"
+          @input="onInputChange"
+          v-on="on"
         >
-          {{ okLabel }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-menu>
+          <template v-slot:message>
+            <div
+              v-if="control.description"
+              class="text-subtitle-1 text--secondary"
+            >
+              {{ control.description }}
+            </div>
+            <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+              {{ cleanedErrors }}
+            </div>
+          </template>
+          <template slot="append">
+            <v-icon v-if="control.enabled" tabindex="-1" @click="clear"
+              >$clear</v-icon
+            >
+          </template>
+        </v-text-field>
+      </template>
+
+      <v-card v-if="showMenu">
+        <v-tabs v-if="useTabLayout" v-model="activeTab">
+          <v-tab key="date" href="#date" class="primary--text">
+            <v-icon>mdi-calendar</v-icon>
+          </v-tab>
+          <v-spacer></v-spacer>
+          <v-tab key="time" href="#time" class="primary--text">
+            <v-icon>mdi-clock-outline</v-icon>
+          </v-tab>
+
+          <v-tab-item value="date"
+            ><v-date-picker
+              v-if="showMenu"
+              v-model="datePickerValue"
+              ref="datePicker"
+              v-bind="vuetifyProps('v-date-picker')"
+              @input="activeTab = 'time'"
+            >
+            </v-date-picker>
+          </v-tab-item>
+          <v-tab-item value="time"
+            ><v-time-picker
+              v-model="timePickerValue"
+              ref="timePicker"
+              v-bind="vuetifyProps('v-time-picker')"
+              :use-seconds="useSeconds"
+              format="ampm"
+            ></v-time-picker>
+          </v-tab-item>
+        </v-tabs>
+        <v-row no-gutters v-else>
+          <v-col min-width="290px" cols="auto">
+            <v-date-picker
+              v-if="showMenu"
+              v-model="datePickerValue"
+              ref="datePicker"
+              v-bind="vuetifyProps('v-date-picker')"
+            >
+            </v-date-picker>
+          </v-col>
+          <v-col min-width="290px" cols="auto">
+            <v-time-picker
+              v-model="timePickerValue"
+              ref="timePicker"
+              v-bind="vuetifyProps('v-time-picker')"
+              :use-seconds="useSeconds"
+              format="ampm"
+            ></v-time-picker>
+          </v-col>
+        </v-row>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="showMenu = false">
+            {{ cancelLabel }}
+          </v-btn>
+          <v-btn
+            :disabled="!datePickerValue || !timePickerValue"
+            color="primary"
+            @click="okHandler"
+          >
+            {{ okLabel }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-menu>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -150,6 +157,8 @@ import {
   VRow,
   VCol,
 } from "vuetify/lib";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
+
 const JSON_SCHEMA_DATE_TIME_FORMATS = [
   "YYYY-MM-DDTHH:mm:ss.SSSZ",
   // 'YYYY-MM-DDTHH:mm:ss.SSS',
@@ -175,6 +184,7 @@ const controlRenderer = defineComponent({
     VRow,
     VCol,
     VTimePicker,
+    ControlWrapper,
   },
   props: {
     ...rendererProps<ControlElement>(),

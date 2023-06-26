@@ -148,7 +148,10 @@ export const useVuetifyControl = <
   const controlWrapper = computed(() => {
     const { id, description, errors, label, visible, required } =
       input.control.value;
-    return { id, description, errors, label, visible, required };
+    const isVisible = appliedOptions.value.isViewMode
+      ? !!input.control.value.data
+      : visible;
+    return { id, description, errors, label, visible: isVisible, required };
   });
 
   const styles = useStyles(input.control.value.uischema);
@@ -290,12 +293,23 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     }
     return `${labelValue}`;
   };
+
+  const controlWrapper = computed(() => {
+    const { id, visible } = input.control.value;
+
+    const isVisible = appliedOptions.value.isViewMode
+      ? !!input.control.value.data && input.control.value.data.length > 1
+      : visible;
+    return { id, visible: isVisible };
+  });
+
   return {
     ...input,
     styles: useStyles(input.control.value.uischema),
     appliedOptions,
     childLabelForIndex,
     computedLabel,
+    controlWrapper,
     description,
     vuetifyProps,
     isCombinatorSchema,

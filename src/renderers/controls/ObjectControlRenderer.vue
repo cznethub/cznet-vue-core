@@ -1,27 +1,33 @@
 <template>
-  <cz-fieldset
-    v-if="control.visible"
-    :data-id="computedLabel.replaceAll(` `, ``)"
-    :description="control.description"
-    :hasToggle="hasToggle"
-    :enabled="control.enabled"
-    :errors="control.errors"
-    :title="control.schema.title"
-    :computedLabel="computedLabel"
-    :isFlat="isFlat"
-    @hide="onHide"
-    class="pb-5"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :appliedOptions="appliedOptions"
   >
-    <dispatch-renderer
-      :visible="control.visible"
+    <cz-fieldset
+      v-if="control.visible"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :description="control.description"
+      :hasToggle="hasToggle"
       :enabled="control.enabled"
-      :schema="control.schema"
-      :uischema="detailUiSchema"
-      :path="control.path"
-      :renderers="control.renderers"
-      :cells="control.cells"
-    />
-  </cz-fieldset>
+      :errors="control.errors"
+      :title="control.schema.title"
+      :computedLabel="computedLabel"
+      :isFlat="isFlat"
+      @hide="onHide"
+      class="pb-5"
+    >
+      <dispatch-renderer
+        :visible="control.visible"
+        :enabled="control.enabled"
+        :schema="control.schema"
+        :uischema="detailUiSchema"
+        :path="control.path"
+        :renderers="control.renderers"
+        :cells="control.cells"
+      />
+    </cz-fieldset>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -46,6 +52,7 @@ import { defineComponent } from "vue";
 import { isEqual } from "lodash";
 import { VBtn, VIcon, VTooltip } from "vuetify/lib";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 const controlRenderer = defineComponent({
   name: "object-renderer",
@@ -55,6 +62,7 @@ const controlRenderer = defineComponent({
     VIcon,
     VTooltip,
     CzFieldset,
+    ControlWrapper,
   },
   props: {
     ...rendererProps<ControlElement>(),

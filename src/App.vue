@@ -15,8 +15,13 @@
       <v-card class="my-5">
         <v-card-title>CzForm</v-card-title>
         <v-divider></v-divider>
-        <v-card-text
-          ><v-checkbox label="Readonly" v-model="isReadonly"></v-checkbox
+        <v-card-text class="d-flex"
+          ><v-checkbox
+            label="ReadOnly"
+            v-model="config.isReadOnly"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox label="View mode" v-model="config.isViewMode"></v-checkbox
         ></v-card-text>
         <v-divider></v-divider>
         <v-card-text>
@@ -27,7 +32,6 @@
           <cz-form
             :schema="schema"
             :uischema="uischema"
-            :isReadOnly="isReadonly"
             :errors.sync="errors"
             :isValid.sync="isValid"
             :data.sync="data"
@@ -56,7 +60,9 @@
                     color="primary"
                     depressed
                     @click="submit"
-                    :disabled="isReadonly || !isValid"
+                    :disabled="
+                      config.isReadonly || config.isViewMode || !isValid
+                    "
                     >Submit</v-btn
                   >
                 </v-badge>
@@ -85,6 +91,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import { Config } from "@/types";
 import CzNotifications from "@/components/base/cz.notifications.vue";
 import Notifications from "@/models/notifications";
 import CzForm from "@/components/cz-form.vue";
@@ -103,11 +110,10 @@ export default class App extends Vue {
 
   protected schema;
   protected uischema;
-  protected isReadonly = false;
   protected isValid = false;
   protected errors = [];
   protected data = initialData;
-  protected config = {
+  protected config: Config = {
     restrict: true,
     trim: false,
     showUnfocusedDescription: false,
@@ -125,6 +131,8 @@ export default class App extends Vue {
         "hide-details": false,
       },
     },
+    isViewMode: true,
+    isReadOnly: false,
   };
 
   beforeCreate() {

@@ -17,6 +17,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue2";
+import { Config } from "@/types";
 import {
   JsonFormsRendererRegistryEntry,
   // JsonFormsI18nState,
@@ -71,19 +72,6 @@ const defaultConfigs: Config = {
   },
 };
 
-interface Config {
-  restrict: boolean;
-  trim: boolean;
-  showUnfocusedDescription: boolean;
-  hideRequiredAsterisk: boolean;
-  collapseNewItems: boolean;
-  initCollapsed: boolean;
-  breakHorizontal: false | string;
-  hideAvatar: boolean;
-  hideArraySummaryValidation: boolean;
-  vuetify?: Record<string, any>;
-}
-
 @Component({
   name: "cz-form",
   components: { JsonForms },
@@ -91,11 +79,9 @@ interface Config {
 export default class CzForm extends Vue {
   @Prop() schema!: any;
   @Prop() uischema!: any;
-  @Prop() isReadOnly!: boolean;
   /** The initial data. Can bind to it using `.sync` modifier */
   @Prop() data!: any;
   /** When `true`, sets the form to view mode. Validation is disabled, fields are readonly and empty fields are not rendered. */
-  @Prop({ default: false }) isViewMode!: boolean;
   @Prop({ default: () => defaultConfigs }) config!: Config;
 
   protected timesChanged = 0;
@@ -111,6 +97,14 @@ export default class CzForm extends Vue {
 
   get ajv() {
     return ajv;
+  }
+
+  protected get isViewMode() {
+    return !!this.config.isViewMode;
+  }
+
+  protected get isReadOnly() {
+    return !!this.config.isReadOnly;
   }
 
   onChange(event: JsonFormsChangeEvent) {

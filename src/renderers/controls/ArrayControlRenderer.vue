@@ -1,190 +1,200 @@
 <template>
-  <cz-fieldset
-    v-if="control.visible"
-    :data-id="computedLabel.replaceAll(` `, ``)"
-    :description="control.description"
-    :hasToggle="true"
-    :enabled="control.enabled"
-    :errors="control.errors"
-    :title="control.schema.title"
-    :computedLabel="computedLabel"
-    @show="noData && control.enabled ? addButtonClick() : null"
-    ref="fieldset"
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :appliedOptions="appliedOptions"
   >
-    <template v-slot:actions="{ show }">
-      <v-tooltip bottom transition="fade">
-        <template v-slot:activator="{ on: onTooltip }">
-          <v-btn
-            icon
-            color="primary"
-            @click="
-              addButtonClick();
-              show();
-            "
-            :class="styles.arrayList.addButton"
-            class="btn-add"
-            :aria-label="`Add to ${control.label}`"
-            v-on="onTooltip"
-            :disabled="
-              !control.enabled ||
-              (appliedOptions.restrict &&
-                maxItems !== undefined &&
-                control.data &&
-                control.data.length >= maxItems)
-            "
-          >
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </template>
-        {{ `Add to ${control.label}` }}
-      </v-tooltip>
-    </template>
-
-    <v-card
+    <cz-fieldset
       v-if="control.visible"
-      :class="styles.arrayList.root"
-      class="mt-5"
-      elevation="0"
-      v-bind="vuetifyProps('v-card')"
-      outlined
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :description="control.description"
+      :hasToggle="true"
+      :enabled="control.enabled"
+      :errors="control.errors"
+      :title="control.schema.title"
+      :computedLabel="computedLabel"
+      @show="noData && control.enabled ? addButtonClick() : null"
+      ref="fieldset"
     >
-      <v-card-text class="pa-0">
-        <v-container justify-space-around align-content-center>
-          <v-row justify="center">
-            <v-simple-table
-              class="array-container flex"
-              v-bind="vuetifyProps('v-simple-table')"
+      <template v-slot:actions="{ show }">
+        <v-tooltip bottom transition="fade">
+          <template v-slot:activator="{ on: onTooltip }">
+            <v-btn
+              icon
+              color="primary"
+              @click="
+                addButtonClick();
+                show();
+              "
+              :class="styles.arrayList.addButton"
+              class="btn-add"
+              :aria-label="`Add to ${control.label}`"
+              v-on="onTooltip"
+              :disabled="
+                !control.enabled ||
+                (appliedOptions.restrict &&
+                  maxItems !== undefined &&
+                  control.data &&
+                  control.data.length >= maxItems)
+              "
             >
-              <thead v-if="control.schema.type === 'object'">
-                <tr>
-                  <th
-                    v-for="(prop, index) in getValidColumnProps(control.schema)"
-                    :key="`${control.path}-header-${index}`"
-                    scope="col"
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </template>
+          {{ `Add to ${control.label}` }}
+        </v-tooltip>
+      </template>
+
+      <v-card
+        v-if="control.visible"
+        :class="styles.arrayList.root"
+        class="mt-5"
+        elevation="0"
+        v-bind="vuetifyProps('v-card')"
+        outlined
+      >
+        <v-card-text class="pa-0">
+          <v-container justify-space-around align-content-center>
+            <v-row justify="center">
+              <v-simple-table
+                class="array-container flex"
+                v-bind="vuetifyProps('v-simple-table')"
+              >
+                <thead v-if="control.schema.type === 'object'">
+                  <tr>
+                    <th
+                      v-for="(prop, index) in getValidColumnProps(
+                        control.schema
+                      )"
+                      :key="`${control.path}-header-${index}`"
+                      scope="col"
+                    >
+                      {{ title(prop) }}
+                    </th>
+                    <th
+                      v-if="control.enabled"
+                      :class="
+                        appliedOptions.showSortButtons
+                          ? 'fixed-cell'
+                          : 'fixed-cell-small'
+                      "
+                      scope="col"
+                    ></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(_element, index) in control.data"
+                    :key="`${control.path}-${index}`"
+                    :class="styles.arrayList.item"
                   >
-                    {{ title(prop) }}
-                  </th>
-                  <th
-                    v-if="control.enabled"
-                    :class="
-                      appliedOptions.showSortButtons
-                        ? 'fixed-cell'
-                        : 'fixed-cell-small'
-                    "
-                    scope="col"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(_element, index) in control.data"
-                  :key="`${control.path}-${index}`"
-                  :class="styles.arrayList.item"
-                >
-                  <td
-                    v-for="propName in getValidColumnProps(control.schema)"
-                    :key="
-                      composePaths(
-                        composePaths(control.path, `${index}`),
-                        propName
-                      )
-                    "
-                  >
-                    <dispatch-renderer
-                      :schema="control.schema"
-                      :uischema="resolveUiSchema(propName)"
-                      :path="composePaths(control.path, `${index}`)"
-                      :enabled="control.enabled"
-                      :renderers="control.renderers"
-                      :cells="control.cells"
-                    />
-                  </td>
-                  <td
-                    v-if="control.enabled"
-                    :class="
-                      appliedOptions.showSortButtons
-                        ? 'fixed-cell'
-                        : 'fixed-cell-small'
-                    "
-                  >
-                    <div class="pt-5 fill-height">
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on: onTooltip }">
-                          <v-btn
-                            v-on="onTooltip"
-                            v-if="appliedOptions.showSortButtons"
-                            fab
-                            text
-                            elevation="0"
-                            small
-                            aria-label="Up"
-                            :disabled="index <= 0 || !control.enabled"
-                            :class="styles.arrayList.itemMoveUp"
-                            @click.native="moveUpClick($event, index)"
-                          >
-                            <v-icon class="notranslate">mdi-arrow-up</v-icon>
-                          </v-btn>
-                        </template>
-                        Move Up
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on: onTooltip }">
-                          <v-btn
-                            v-on="onTooltip"
-                            v-if="appliedOptions.showSortButtons"
-                            fab
-                            text
-                            elevation="0"
-                            small
-                            aria-label="Down"
-                            :disabled="
-                              index >= dataLength - 1 || !control.enabled
-                            "
-                            :class="styles.arrayList.itemMoveDown"
-                            @click.native="moveDownClick($event, index)"
-                          >
-                            <v-icon class="notranslate">mdi-arrow-down</v-icon>
-                          </v-btn>
-                        </template>
-                        Move Down
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on: onTooltip }">
-                          <v-btn
-                            v-on="onTooltip"
-                            fab
-                            text
-                            elevation="0"
-                            small
-                            aria-label="Remove"
-                            :class="styles.arrayList.itemDelete"
-                            :disabled="
-                              !control.enabled ||
-                              (appliedOptions.restrict &&
-                                arraySchema !== undefined &&
-                                arraySchema.minItems !== undefined &&
-                                dataLength <= arraySchema.minItems)
-                            "
-                            @click.native="removeItemsClick($event, [index])"
-                          >
-                            <v-icon class="notranslate">mdi-delete</v-icon>
-                          </v-btn>
-                        </template>
-                        Remove
-                      </v-tooltip>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </v-simple-table>
-          </v-row>
-        </v-container>
-        <v-container v-if="dataLength === 0" :class="styles.arrayList.noData">
-          No data
-        </v-container>
-      </v-card-text>
-    </v-card>
-  </cz-fieldset>
+                    <td
+                      v-for="propName in getValidColumnProps(control.schema)"
+                      :key="
+                        composePaths(
+                          composePaths(control.path, `${index}`),
+                          propName
+                        )
+                      "
+                    >
+                      <dispatch-renderer
+                        :schema="control.schema"
+                        :uischema="resolveUiSchema(propName)"
+                        :path="composePaths(control.path, `${index}`)"
+                        :enabled="control.enabled"
+                        :renderers="control.renderers"
+                        :cells="control.cells"
+                      />
+                    </td>
+                    <td
+                      v-if="control.enabled"
+                      :class="
+                        appliedOptions.showSortButtons
+                          ? 'fixed-cell'
+                          : 'fixed-cell-small'
+                      "
+                    >
+                      <div class="pt-5 fill-height">
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: onTooltip }">
+                            <v-btn
+                              v-on="onTooltip"
+                              v-if="appliedOptions.showSortButtons"
+                              fab
+                              text
+                              elevation="0"
+                              small
+                              aria-label="Up"
+                              :disabled="index <= 0 || !control.enabled"
+                              :class="styles.arrayList.itemMoveUp"
+                              @click.native="moveUpClick($event, index)"
+                            >
+                              <v-icon class="notranslate">mdi-arrow-up</v-icon>
+                            </v-btn>
+                          </template>
+                          Move Up
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: onTooltip }">
+                            <v-btn
+                              v-on="onTooltip"
+                              v-if="appliedOptions.showSortButtons"
+                              fab
+                              text
+                              elevation="0"
+                              small
+                              aria-label="Down"
+                              :disabled="
+                                index >= dataLength - 1 || !control.enabled
+                              "
+                              :class="styles.arrayList.itemMoveDown"
+                              @click.native="moveDownClick($event, index)"
+                            >
+                              <v-icon class="notranslate"
+                                >mdi-arrow-down</v-icon
+                              >
+                            </v-btn>
+                          </template>
+                          Move Down
+                        </v-tooltip>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on: onTooltip }">
+                            <v-btn
+                              v-on="onTooltip"
+                              fab
+                              text
+                              elevation="0"
+                              small
+                              aria-label="Remove"
+                              :class="styles.arrayList.itemDelete"
+                              :disabled="
+                                !control.enabled ||
+                                (appliedOptions.restrict &&
+                                  arraySchema !== undefined &&
+                                  arraySchema.minItems !== undefined &&
+                                  dataLength <= arraySchema.minItems)
+                              "
+                              @click.native="removeItemsClick($event, [index])"
+                            >
+                              <v-icon class="notranslate">mdi-delete</v-icon>
+                            </v-btn>
+                          </template>
+                          Remove
+                        </v-tooltip>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+            </v-row>
+          </v-container>
+          <v-container v-if="dataLength === 0" :class="styles.arrayList.noData">
+            No data
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </cz-fieldset>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -229,6 +239,7 @@ import {
   VSimpleTable,
 } from "vuetify/lib";
 import { default as CzFieldset } from "./components/CzFieldset.vue";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 const controlRenderer = defineComponent({
   name: "array-control-renderer",
@@ -250,6 +261,7 @@ const controlRenderer = defineComponent({
     VContainer,
     VSimpleTable,
     CzFieldset,
+    ControlWrapper,
   },
   props: {
     ...rendererProps<ControlElement>(),
