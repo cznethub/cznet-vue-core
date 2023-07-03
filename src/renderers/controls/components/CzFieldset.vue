@@ -1,5 +1,5 @@
 <template>
-  <div class="my-5">
+  <div class="py-2">
     <fieldset
       :class="{
         'cz-fieldset': !isFlat,
@@ -59,7 +59,9 @@
       </template>
 
       <template v-if="isAdded || !hasToggle">
-        <slot></slot>
+        <div class="pt-4">
+          <slot></slot>
+        </div>
       </template>
     </fieldset>
 

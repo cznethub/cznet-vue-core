@@ -3,7 +3,7 @@
     <v-container>
       <div class="text-h5 text-center">CZNet vue core components</div>
 
-      <v-card class="my-5">
+      <v-card class="py-2">
         <v-card-title>Notifications</v-card-title>
         <v-divider></v-divider>
         <v-card-text>

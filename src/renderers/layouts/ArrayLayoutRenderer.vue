@@ -47,12 +47,7 @@
         </v-tooltip>
       </template>
 
-      <v-container
-        v-if="!noData"
-        class="pt-8"
-        justify-space-around
-        align-content-center
-      >
+      <v-container v-if="!noData" justify-space-around align-content-center>
         <v-row justify="center">
           <v-expansion-panels
             flat

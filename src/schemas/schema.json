@@ -18,6 +18,11 @@
       "title": "Submission Type",
       "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
       "default": "Dataset",
+      "enum": [
+        "Dataset",
+        "Notebook",
+        "Software Source Code"
+      ],
       "type": "string"
     },
     "name": {
@@ -101,7 +106,7 @@
               },
               "name": {
                 "title": "Name",
-                "description": "A string containing the name of the organization.",
+                "description": "Name of the provider organization or repository.",
                 "type": "string"
               },
               "url": {
@@ -137,8 +142,8 @@
       }
     },
     "dateCreated": {
-      "title": "Datecreated",
-      "description": "The date on which the work was created.",
+      "title": "Date Created",
+      "description": "The date on which the resource was created.",
       "type": "string",
       "format": "date-time"
     },
@@ -189,48 +194,87 @@
       ]
     },
     "provider": {
-      "title": "Organization",
+      "title": "Provider",
       "description": "The repository, service provider, organization, person, or service performer that provides access to the resource.",
-      "type": "object",
-      "properties": {
-        "@type": {
-          "title": "@Type",
-          "description": "DELETEME",
-          "default": "Organization",
-          "type": "string"
+      "anyOf": [
+        {
+          "title": "Organization",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "description": "DELETEME",
+              "default": "Organization",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "description": "Name of the provider organization or repository.",
+              "type": "string"
+            },
+            "url": {
+              "title": "URL",
+              "description": "A URL to the homepage for the organization.",
+              "minLength": 1,
+              "maxLength": 2083,
+              "type": "string",
+              "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
+              "errorMessage": {
+                "pattern": "must match format \"url\""
+              }
+            },
+            "identifier": {
+              "title": "Identifier",
+              "description": "Unique identifiers for the person or organization. Where identifiers can be encoded as URLs, enter URLs here.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "address": {
+              "title": "Address",
+              "description": "Full address for the organization - e.g., \u201c8200 Old Main Hill, Logan, UT 84322-8200\u201d.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ]
         },
-        "name": {
-          "title": "Name",
-          "description": "A string containing the name of the organization.",
-          "type": "string"
-        },
-        "url": {
-          "title": "URL",
-          "description": "A URL to the homepage for the organization.",
-          "minLength": 1,
-          "maxLength": 2083,
-          "type": "string",
-          "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
-          "errorMessage": {
-            "pattern": "must match format \"url\""
-          }
-        },
-        "identifier": {
-          "title": "Identifier",
-          "description": "Unique identifiers for the person or organization. Where identifiers can be encoded as URLs, enter URLs here.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "address": {
-          "title": "Address",
-          "description": "Full address for the organization - e.g., \u201c8200 Old Main Hill, Logan, UT 84322-8200\u201d.",
-          "type": "string"
+        {
+          "title": "Person",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "description": "DELETEME",
+              "default": "Person",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "description": "A string containing the full name of the person. Personal name format: Family Name, Given Name",
+              "type": "string"
+            },
+            "email": {
+              "title": "Email",
+              "description": "A string containing an email address for the person",
+              "type": "string",
+              "format": "email"
+            },
+            "identifier": {
+              "title": "Identifier",
+              "description": "Unique identifiers for the person. Where identifiers can be encoded as URLs, enter URLs here.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
         }
-      },
-      "required": [
-        "name"
       ]
     },
     "publisher": {
@@ -246,7 +290,7 @@
         },
         "name": {
           "title": "Name",
-          "description": "A string containing the name of the organization.",
+          "description": "Name of the publishing organization.",
           "type": "string"
         },
         "url": {
@@ -279,8 +323,8 @@
       ]
     },
     "datePublished": {
-      "title": "Datepublished",
-      "description": "Date of first publication for the record.",
+      "title": "Date Published",
+      "description": "Date of first publication for the resource.",
       "type": "string",
       "format": "date-time"
     },
@@ -331,7 +375,7 @@
       "type": "string"
     },
     "inLanguage": {
-      "title": "Inlanguage",
+      "title": "Language",
       "description": "The language of the content of the resource.",
       "anyOf": [
         {
@@ -351,10 +395,12 @@
     "creativeWorkStatus": {
       "title": "Resource Status",
       "description": "The status of this resource in terms of its stage in a lifecycle. Example terms include Incomplete, Draft, Published, and Obsolete.",
+      "type": "object",
       "anyOf": [
         {
-          "title": "DefinedTerm",
           "type": "object",
+          "title": "Incomplete",
+          "description": "test",
           "properties": {
             "@type": {
               "title": "@Type",
@@ -365,27 +411,52 @@
             "name": {
               "title": "Name",
               "description": "The name of the term or item being defined.",
+              "default": "Incomplete",
               "type": "string"
             },
             "description": {
               "title": "Description",
               "description": "The description of the item being defined.",
-              "type": "string"
+              "type": "string",
+              "default": "Data collection is ongoing or the resource is not completed",
+              "readOnly": true
             }
-          },
-          "required": [
-            "name",
-            "description"
-          ]
+          }
         },
         {
-          "type": "string"
+          "type": "object",
+          "title": "Draft",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "description": "A formal definition of a word, name, acronym, phrase, or similar. Often used in the context of category or subject classification, glossaries or dictionaries, product or creative work types, etc.",
+              "default": "DefinedTerm",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "description": "The name of the term or item being defined.",
+              "default": "Draft",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "description": "The resource is in draft state and should not be considered final. Content and metadata may change.",
+              "default": "The resource has been replaced by a newer version, or the resource is no longer considered applicable",
+              "type": "string",
+              "readOnly": true
+            }
+          }
         }
+      ],
+      "required": [
+        "name",
+        "description"
       ]
     },
     "dateModified": {
-      "title": "Datemodified",
-      "description": "The date on which the CreativeWork was most recently modified or updated.",
+      "title": "Date Modified",
+      "description": "The date on which the resource was most recently modified or updated.",
       "type": "string",
       "format": "date-time"
     },
@@ -468,7 +539,7 @@
                   },
                   "name": {
                     "title": "Name",
-                    "description": "A string containing the name of the organization.",
+                    "description": "Name of the provider organization or repository.",
                     "type": "string"
                   },
                   "url": {
@@ -794,7 +865,7 @@
       }
     },
     "variableMeasured": {
-      "title": "Variablemeasured",
+      "title": "Variable Measured",
       "description": "The variableMeasured property can indicate (repeated as necessary) the variables that are measured in some dataset, either described as text or as pairs of identifier and description using PropertyValue.",
       "type": "array",
       "items": {
@@ -891,7 +962,7 @@
                   },
                   "name": {
                     "title": "Name",
-                    "description": "A string containing the name of the organization.",
+                    "description": "Name of the provider organization or repository.",
                     "type": "string"
                   },
                   "url": {
@@ -995,7 +1066,7 @@
         },
         "name": {
           "title": "Name",
-          "description": "A string containing the name of the organization.",
+          "description": "Name of the provider organization or repository.",
           "type": "string"
         },
         "url": {
@@ -1075,7 +1146,7 @@
         },
         "name": {
           "title": "Name",
-          "description": "A string containing the name of the organization.",
+          "description": "Name of the publishing organization.",
           "type": "string"
         },
         "url": {
@@ -1253,7 +1324,7 @@
                 },
                 "name": {
                   "title": "Name",
-                  "description": "A string containing the name of the organization.",
+                  "description": "Name of the provider organization or repository.",
                   "type": "string"
                 },
                 "url": {
@@ -1703,7 +1774,7 @@
                 },
                 "name": {
                   "title": "Name",
-                  "description": "A string containing the name of the organization.",
+                  "description": "Name of the provider organization or repository.",
                   "type": "string"
                 },
                 "url": {

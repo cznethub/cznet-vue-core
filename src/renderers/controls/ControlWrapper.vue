@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="my-5" :class="styles.control.root" :id="id">
+  <div v-if="visible" class="py-2" :class="styles.control.root" :id="id">
     <slot></slot>
   </div>
 </template>

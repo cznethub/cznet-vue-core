@@ -39,7 +39,6 @@
           <v-tab-item
             v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
             :key="`${control.path}-${oneOfIndex}`"
-            class="pt-8"
           >
             <dispatch-renderer
               v-if="selectedIndex === oneOfIndex"
@@ -59,6 +58,7 @@
           @change="handleTabChange"
           :items="oneOfRenderInfos"
           :label="title"
+          :hint="control.uischema?.options?.description"
           :value="oneOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
@@ -66,7 +66,6 @@
           :placeholder="appliedOptions.placeholder"
           :readonly="!control.enabled || control.schema['readOnly']"
           :disabled="appliedOptions.isDisabled"
-          :hint="desc"
           v-bind="vuetifyProps('v-select')"
           item-text="label"
           >{{ currentLabel }}</v-select
@@ -122,6 +121,7 @@ import {
   VTabItem,
   VTooltip,
   VIcon,
+  VSelect,
 } from "vuetify/lib";
 import CombinatorProperties from "../components/CombinatorProperties.vue";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
@@ -147,6 +147,7 @@ const controlRenderer = defineComponent({
     VIcon,
     CzFieldset,
     ControlWrapper,
+    VSelect,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -207,14 +208,14 @@ const controlRenderer = defineComponent({
     title(): string {
       return (
         // @ts-ignore
-        this.control.schema?.options?.title || this.control.schema.title || ""
+        this.control.uischema?.options?.title || this.control.schema.title || ""
       );
     },
     desc(): string {
       return (
         this.control.description ||
         // @ts-ignore
-        this.control.schema?.options?.description ||
+        this.control.uischema?.options?.description ||
         this.appliedOptions.description ||
         this.oneOfRenderInfos[this.selectedIndex].schema.description ||
         ""

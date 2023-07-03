@@ -10,6 +10,14 @@
       }
     },
     {
+      "type": "Control",
+      "scope": "#/properties/@type",
+      "rule": {
+        "effect": "HIDE",
+        "condition": {}
+      }
+    },
+    {
       "type": "Group",
       "label": "Basic Information",
       "elements": [
@@ -18,17 +26,8 @@
           "scope": "#/properties/name"
         },
         {
-          "type": "HorizontalLayout",
-          "elements": [
-            {
-              "type": "Control",
-              "scope": "#/properties/url"
-            },
-            {
-              "type": "Control",
-              "scope": "#/properties/@type"
-            }
-          ]
+          "type": "Control",
+          "scope": "#/properties/url"
         },
         {
           "type": "Control",
@@ -77,7 +76,66 @@
         },
         {
           "type": "Control",
-          "scope": "#/properties/creativeWorkStatus"
+          "scope": "#/properties/creativeWorkStatus",
+          "options": {
+            "dropdown": true,
+            "title": "Name",
+            "description": "The name of the term or item being defined.",
+            "detail": {
+              "0": {
+                "label": "Defined Term",
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/@type",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/name",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/description"
+                  }
+                ]
+              },
+              "1": {
+                "label": "Defined Term",
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/@type",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/name",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/description"
+                  }
+                ]
+              }
+            }
+          }
         }
       ]
     },
@@ -557,48 +615,81 @@
     {
       "type": "Group",
       "label": "Provider and Publisher Information",
-      "description": "Where the resource is permanently published, indicate the organization that published the resource - e.g., CUAHSI HydroShare",
+      "description": "Where the resource is permanently published, indicate the organization that published the resource - e.g., CUAHSI HydroShare.",
       "elements": [
         {
           "type": "Control",
           "scope": "#/properties/provider",
           "options": {
             "detail": {
-              "type": "VerticalLayout",
-              "elements": [
-                {
-                  "type": "HorizontalLayout",
-                  "elements": [
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/name"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/url"
+              "0": {
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/name"
+                      },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/url"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/identifier"
+                      },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/address"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "1": {
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/@type",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
                     }
-                  ]
-                },
-                {
-                  "type": "HorizontalLayout",
-                  "elements": [
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/identifier"
-                    },
-                    {
-                      "type": "Control",
-                      "scope": "#/properties/address"
-                    }
-                  ]
-                }
-              ]
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/name"
+                  },
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/email"
+                      },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/identifier"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           }
         },
         {
           "type": "Control",
           "scope": "#/properties/publisher",
+          "label": "Publisher",
           "options": {
             "detail": {
               "type": "VerticalLayout",
@@ -667,7 +758,80 @@
             },
             {
               "type": "Control",
-              "scope": "#/properties/funder"
+              "scope": "#/properties/funder",
+              "options": {
+                "detail": {
+                  "0": {
+                    "type": "VerticalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/@type",
+                        "rule": {
+                          "effect": "HIDE",
+                          "condition": {}
+                        }
+                      },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/name"
+                      },
+                      {
+                        "type": "HorizontalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/email"
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/identifier"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "1": {
+                    "type": "VerticalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/@type",
+                        "rule": {
+                          "effect": "HIDE",
+                          "condition": {}
+                        }
+                      },
+                      {
+                        "type": "HorizontalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/name"
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/url"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "HorizontalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/address"
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/identifier"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
             }
           ]
         }
