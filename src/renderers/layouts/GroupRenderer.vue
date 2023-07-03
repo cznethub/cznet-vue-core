@@ -1,29 +1,40 @@
 <template>
-  <cz-fieldset
+  <v-card
+    elevation="0"
+    outlined
+    class="my-5"
     v-if="layout.visible"
     :data-id="generateId"
-    :enabled="!appliedOptions.isDisabled"
-    :readonly="layout.enabled"
-    :title="layout.label"
-    :computedLabel="computedLabel"
-    :description="layout.uischema.description"
   >
-    <div
-      v-for="(element, index) in layout.uischema.elements"
-      :data-id="`group-${index}`"
-      :key="`${layout.path}-${index}`"
-      :class="styles.group.item"
-    >
-      <dispatch-renderer
-        :schema="layout.schema"
-        :uischema="element"
-        :path="layout.path"
-        :enabled="layout.enabled"
-        :renderers="layout.renderers"
-        :cells="layout.cells"
-      />
-    </div>
-  </cz-fieldset>
+    <v-card-title class="grey lighten-4">
+      <div class="text-overline secondary--text">
+        {{ computedLabel }}
+      </div>
+      <div class="text-subtitle-1 text--secondary">
+        {{ layout.uischema.description }}
+      </div>
+    </v-card-title>
+
+    <v-divider></v-divider>
+
+    <v-card-text>
+      <div
+        v-for="(element, index) in layout.uischema.elements"
+        :data-id="`group-${index}`"
+        :key="`${layout.path}-${index}`"
+        :class="styles.group.item"
+      >
+        <dispatch-renderer
+          :schema="layout.schema"
+          :uischema="element"
+          :path="layout.path"
+          :enabled="layout.enabled"
+          :renderers="layout.renderers"
+          :cells="layout.cells"
+        />
+      </div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts">
