@@ -54,13 +54,16 @@ import {
   useJsonFormsLayout,
 } from "@jsonforms/vue2";
 import { useVuetifyLayout } from "@/renderers/util/composition";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
+import { VCard, VCardText, VCardTitle, VDivider } from "vuetify/lib";
 
 const layoutRenderer = defineComponent({
   name: "group-renderer",
   components: {
     DispatchRenderer,
-    CzFieldset,
+    VCard,
+    VCardText,
+    VCardTitle,
+    VDivider,
   },
   props: {
     ...rendererProps<Layout>(),
