@@ -58,7 +58,7 @@
           @change="handleTabChange"
           :items="anyOfRenderInfos"
           :label="title"
-          :hint="control.uischema?.options?.description"
+          :hint="selectHint"
           :value="anyOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
@@ -220,6 +220,9 @@ const controlRenderer = defineComponent({
         this.anyOfRenderInfos[this.selectedIndex].schema.description ||
         ""
       );
+    },
+    selectHint(): string {
+      return this.control.uischema?.options?.description;
     },
     currentLabel(): string {
       return this.selectedIndex >= 0
