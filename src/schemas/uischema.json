@@ -83,7 +83,6 @@
             "description": "The name of the term or item being defined.",
             "detail": {
               "0": {
-                "label": "Defined Term",
                 "type": "VerticalLayout",
                 "elements": [
                   {
@@ -109,7 +108,56 @@
                 ]
               },
               "1": {
-                "label": "Defined Term",
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/@type",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/name",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/description"
+                  }
+                ]
+              },
+              "2": {
+                "type": "VerticalLayout",
+                "elements": [
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/@type",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/name",
+                    "rule": {
+                      "effect": "HIDE",
+                      "condition": {}
+                    }
+                  },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/description"
+                  }
+                ]
+              },
+              "3": {
                 "type": "VerticalLayout",
                 "elements": [
                   {
@@ -151,6 +199,7 @@
             "detail": {
               "0": {
                 "type": "VerticalLayout",
+                "label": "Creator",
                 "elements": [
                   {
                     "type": "Control",
@@ -174,8 +223,21 @@
                     ]
                   },
                   {
-                    "type": "Control",
-                    "scope": "#/properties/identifier"
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/identifier",
+                        "options": {
+                          "useTableLayout": true,
+                          "showSortButtons": true
+                        }
+                      },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/organization"
+                      }
+                    ]
                   }
                 ]
               },
@@ -208,7 +270,12 @@
                     "elements": [
                       {
                         "type": "Control",
-                        "scope": "#/properties/identifier"
+                        "scope": "#/properties/identifier",
+                        "label": "ORCID",
+                        "options": {
+                          "useTableLayout": true,
+                          "showSortButtons": true
+                        }
                       },
                       {
                         "type": "Control",

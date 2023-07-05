@@ -1,5 +1,5 @@
 <template>
-  <div class="py-2">
+  <div class="my-5">
     <fieldset
       :class="{
         'cz-fieldset': !isFlat,

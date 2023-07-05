@@ -56,12 +56,12 @@
     },
     "creator": {
       "title": "Creator",
-      "description": "Person or organization that created the work.",
+      "description": "Person or Organization that created the resource.",
       "type": "array",
       "items": {
         "anyOf": [
           {
-            "title": "Person",
+            "title": "Creator_Person",
             "type": "object",
             "properties": {
               "@type": {
@@ -88,10 +88,16 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "organization": {
+                "title": "Organization",
+                "description": "The organization that the creator is associated with.",
+                "type": "string"
               }
             },
             "required": [
-              "name"
+              "name",
+              "organization"
             ]
           },
           {
@@ -395,63 +401,97 @@
     "creativeWorkStatus": {
       "title": "Resource Status",
       "description": "The status of this resource in terms of its stage in a lifecycle. Example terms include Incomplete, Draft, Published, and Obsolete.",
-      "type": "object",
       "anyOf": [
         {
+          "title": "Draft",
           "type": "object",
-          "title": "Incomplete",
-          "description": "test",
           "properties": {
             "@type": {
               "title": "@Type",
-              "description": "A formal definition of a word, name, acronym, phrase, or similar. Often used in the context of category or subject classification, glossaries or dictionaries, product or creative work types, etc.",
               "default": "DefinedTerm",
               "type": "string"
             },
             "name": {
               "title": "Name",
-              "description": "The name of the term or item being defined.",
+              "default": "Draft",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "description": "The description of the item being defined.",
+              "default": "The resource is in draft state and should not be considered final. Content and metadata may change",
+              "readOnly": true,
+              "type": "string"
+            }
+          }
+        },
+        {
+          "title": "Incomplete",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "DefinedTerm",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
               "default": "Incomplete",
               "type": "string"
             },
             "description": {
               "title": "Description",
               "description": "The description of the item being defined.",
-              "type": "string",
               "default": "Data collection is ongoing or the resource is not completed",
-              "readOnly": true
+              "readOnly": true,
+              "type": "string"
             }
           }
         },
         {
+          "title": "Obsolete",
           "type": "object",
-          "title": "Draft",
           "properties": {
             "@type": {
               "title": "@Type",
-              "description": "A formal definition of a word, name, acronym, phrase, or similar. Often used in the context of category or subject classification, glossaries or dictionaries, product or creative work types, etc.",
               "default": "DefinedTerm",
               "type": "string"
             },
             "name": {
               "title": "Name",
-              "description": "The name of the term or item being defined.",
-              "default": "Draft",
+              "default": "Obsolete",
               "type": "string"
             },
             "description": {
               "title": "Description",
-              "description": "The resource is in draft state and should not be considered final. Content and metadata may change.",
+              "description": "The description of the item being defined.",
               "default": "The resource has been replaced by a newer version, or the resource is no longer considered applicable",
-              "type": "string",
-              "readOnly": true
+              "type": "string"
+            }
+          }
+        },
+        {
+          "title": "Published",
+          "type": "object",
+          "properties": {
+            "@type": {
+              "title": "@Type",
+              "default": "DefinedTerm",
+              "type": "string"
+            },
+            "name": {
+              "title": "Name",
+              "default": "Published",
+              "type": "string"
+            },
+            "description": {
+              "title": "Description",
+              "description": "The description of the item being defined.",
+              "default": "The resource has been permanently published and should be considered final and complete",
+              "type": "string"
             }
           }
         }
-      ],
-      "required": [
-        "name",
-        "description"
       ]
     },
     "dateModified": {
@@ -1020,8 +1060,8 @@
     "distribution"
   ],
   "definitions": {
-    "Person": {
-      "title": "Person",
+    "Creator_Person": {
+      "title": "Creator_Person",
       "type": "object",
       "properties": {
         "@type": {
@@ -1048,10 +1088,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "organization": {
+          "title": "Organization",
+          "description": "The organization that the creator is associated with.",
+          "type": "string"
         }
       },
       "required": [
-        "name"
+        "name",
+        "organization"
       ]
     },
     "Organization": {
@@ -1128,6 +1174,40 @@
           "title": "Description",
           "description": "A text string describing the license or containing the text of the license itself.",
           "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Person": {
+      "title": "Person",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "description": "DELETEME",
+          "default": "Person",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "description": "A string containing the full name of the person. Personal name format: Family Name, Given Name",
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "description": "A string containing an email address for the person",
+          "type": "string",
+          "format": "email"
+        },
+        "identifier": {
+          "title": "Identifier",
+          "description": "Unique identifiers for the person. Where identifiers can be encoded as URLs, enter URLs here.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -1223,31 +1303,95 @@
       ],
       "type": "string"
     },
-    "DefinedTerm": {
-      "title": "DefinedTerm",
+    "Draft": {
+      "title": "Draft",
       "type": "object",
       "properties": {
         "@type": {
           "title": "@Type",
-          "description": "A formal definition of a word, name, acronym, phrase, or similar. Often used in the context of category or subject classification, glossaries or dictionaries, product or creative work types, etc.",
           "default": "DefinedTerm",
           "type": "string"
         },
         "name": {
           "title": "Name",
-          "description": "The name of the term or item being defined.",
+          "default": "Draft",
           "type": "string"
         },
         "description": {
           "title": "Description",
           "description": "The description of the item being defined.",
+          "default": "The resource is in draft state and should not be considered final. Content and metadata may change",
+          "readOnly": true,
           "type": "string"
         }
-      },
-      "required": [
-        "name",
-        "description"
-      ]
+      }
+    },
+    "Incomplete": {
+      "title": "Incomplete",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DefinedTerm",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "default": "Incomplete",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "The description of the item being defined.",
+          "default": "Data collection is ongoing or the resource is not completed",
+          "readOnly": true,
+          "type": "string"
+        }
+      }
+    },
+    "Obsolete": {
+      "title": "Obsolete",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DefinedTerm",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "default": "Obsolete",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "The description of the item being defined.",
+          "default": "The resource has been replaced by a newer version, or the resource is no longer considered applicable",
+          "type": "string"
+        }
+      }
+    },
+    "Published": {
+      "title": "Published",
+      "type": "object",
+      "properties": {
+        "@type": {
+          "title": "@Type",
+          "default": "DefinedTerm",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "default": "Published",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "description": "The description of the item being defined.",
+          "default": "The resource has been permanently published and should be considered final and complete",
+          "type": "string"
+        }
+      }
     },
     "Grant": {
       "title": "Grant",

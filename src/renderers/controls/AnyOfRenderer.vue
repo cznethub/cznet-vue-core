@@ -31,7 +31,7 @@
             :key="`${control.path}-${anyOfIndex}`"
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
           >
-            {{ anyOfRenderInfo.label }}
+            {{ anyOfRenderInfo.uischema["label"] || anyOfRenderInfo.label }}
           </v-tab>
         </v-tabs>
 
