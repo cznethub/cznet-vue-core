@@ -11,7 +11,7 @@
         {{ computedLabel }}
       </div>
       <div class="text-subtitle-1 text--secondary">
-        {{ layout.uischema.description }}
+        {{ layout.uischema["description"] }}
       </div>
     </v-card-title>
 
@@ -19,7 +19,7 @@
 
     <v-card-text>
       <div
-        v-for="(element, index) in layout.uischema.elements"
+        v-for="(element, index) in layout.uischema['elements']"
         :data-id="`group-${index}`"
         :key="`${layout.path}-${index}`"
         :class="styles.group.item"

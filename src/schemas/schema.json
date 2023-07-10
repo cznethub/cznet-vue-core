@@ -96,8 +96,7 @@
               }
             },
             "required": [
-              "name",
-              "organization"
+              "name"
             ]
           },
           {
@@ -394,6 +393,8 @@
           "type": "string"
         },
         {
+          "title": "Other",
+          "description": "Specify another language",
           "type": "string"
         }
       ]
@@ -1096,8 +1097,7 @@
         }
       },
       "required": [
-        "name",
-        "organization"
+        "name"
       ]
     },
     "Organization": {

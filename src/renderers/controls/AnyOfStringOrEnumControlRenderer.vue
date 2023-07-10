@@ -111,6 +111,6 @@ const simpleAnyOf = and(
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(6, simpleAnyOf),
+  tester: rankWith(2, simpleAnyOf),
 };
 </script>
