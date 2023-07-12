@@ -40,7 +40,7 @@
           >
             {{ control.description }}
           </div>
-          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+          <div v-if="cleanedErrors" class="v-messages error--text">
             {{ cleanedErrors }}
           </div>
         </template>
@@ -79,7 +79,7 @@
           >
             {{ control.description }}
           </div>
-          <div v-if="cleanedErrors" class="px-2 v-messages error--text">
+          <div v-if="cleanedErrors" class="v-messages error--text">
             {{ cleanedErrors }}
           </div>
         </template>

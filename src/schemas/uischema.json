@@ -227,11 +227,7 @@
                     "elements": [
                       {
                         "type": "Control",
-                        "scope": "#/properties/identifier",
-                        "options": {
-                          "useTableLayout": true,
-                          "showSortButtons": true
-                        }
+                        "scope": "#/properties/identifier"
                       },
                       {
                         "type": "Control",

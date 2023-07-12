@@ -331,6 +331,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
 
   watchEffect(() => {
     // Get child errors at this path and annotate them
+    // TODO: find a more reliable way to get errors at a path
     jsonforms.core?.errors
       ?.filter((e) => {
         const controlPath = getControlPath(e) as string;
@@ -344,6 +345,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
         return controlPath === input.control.value.path || isChildProp;
       })
       .map((e: ErrorObject) => {
+        // TODO: find a better way to detect errors we want to ignore
         if (e.instancePath && e.parentSchema) {
           const errorSchemaIndex = input.control.value.schema[keyword]?.indexOf(
             e.parentSchema
@@ -351,7 +353,10 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
           if (errorSchemaIndex >= 0) {
             e["_selectedSchemaIndex"] = errorSchemaIndex;
           }
-          if (errorSchemaIndex !== selectedIndex.value) {
+          if (
+            errorSchemaIndex !== selectedIndex.value &&
+            e.keyword !== "errorMessage"
+          ) {
             // Indicate that the error should be ignored
             e["_keyword"] = keyword; // used to filter out error in CzForm's onChange method
             e["message"] = ""; // removes the error from props of child components
