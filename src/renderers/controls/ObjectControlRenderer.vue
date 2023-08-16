@@ -9,6 +9,7 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="control.description"
       :hasToggle="hasToggle && !appliedOptions.isViewMode"
+      :hasData="!noData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
@@ -126,6 +127,9 @@ const controlRenderer = defineComponent({
     },
     isFlat() {
       return this.control.schema["options"]?.flat;
+    },
+    noData(): boolean {
+      return !this.control.data;
     },
   },
 });

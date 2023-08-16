@@ -105,8 +105,8 @@ const layoutRenderer = defineComponent({
         } else {
           // Recenter at marker
           (this.map as google.maps.Map).setCenter({
-            lat: this.control.data.north,
-            lng: this.control.data.east,
+            lat: this.control.data[this.inputFields.north],
+            lng: this.control.data[this.inputFields.east],
           });
         }
       }
@@ -128,11 +128,19 @@ const layoutRenderer = defineComponent({
     mapType(): "point" | "box" {
       return this.control.uischema.options?.map.type || "point";
     },
+    isBoxSchemaOrgFormat() {
+      return (
+        this.mapType === "box" &&
+        this.control.uischema.options?.map.format === "GeoShape"
+      );
+    },
     inputFields(): { [key: string]: string } {
       const options = this.control.uischema.options?.map;
 
       return this.mapType === "point"
         ? { east: options.east, north: options.north }
+        : this.isBoxSchemaOrgFormat
+        ? { box: options.box }
         : {
             northlimit: options.northlimit,
             eastlimit: options.eastlimit,
@@ -145,16 +153,29 @@ const layoutRenderer = defineComponent({
         return false;
       }
 
-      return (
-        (this.mapType === "point" &&
-          !isNaN(this.control.data.north) &&
-          !isNaN(this.control.data.east)) ||
-        (this.mapType === "box" &&
-          !isNaN(this.control.data.northlimit) &&
-          !isNaN(this.control.data.eastlimit) &&
-          !isNaN(this.control.data.southlimit) &&
-          !isNaN(this.control.data.westlimit))
-      );
+      if (this.mapType === "point") {
+        return (
+          !isNaN(this.control.data[this.inputFields.north]) &&
+          !isNaN(this.control.data[this.inputFields.east])
+        );
+      } else {
+        // box
+        if (this.isBoxSchemaOrgFormat) {
+          const boxStr = this.control.data[this.inputFields.box];
+          if (!boxStr) {
+            return false;
+          }
+          const segments = boxStr.trim().split(" ");
+          return segments.length === 4 && segments.some((s) => !isNaN(s));
+        } else {
+          return (
+            !isNaN(this.control.data[this.inputFields.northlimit]) &&
+            !isNaN(this.control.data[this.inputFields.eastlimit]) &&
+            !isNaN(this.control.data[this.inputFields.southlimit]) &&
+            !isNaN(this.control.data[this.inputFields.westlimit])
+          );
+        }
+      }
     },
   },
   methods: {
@@ -245,18 +266,26 @@ const layoutRenderer = defineComponent({
         const northEast = bounds.getNorthEast();
         const southWeast = bounds.getSouthWest();
 
-        this.control.data[this.inputFields.northlimit] = +northEast
-          .lat()
-          .toFixed(4);
-        this.control.data[this.inputFields.eastlimit] = +northEast
-          .lng()
-          .toFixed(4);
-        this.control.data[this.inputFields.southlimit] = +southWeast
-          .lat()
-          .toFixed(4);
-        this.control.data[this.inputFields.westlimit] = +southWeast
-          .lng()
-          .toFixed(4);
+        if (this.isBoxSchemaOrgFormat) {
+          this.control.data[this.inputFields.box] = `${+northEast
+            .lat()
+            .toFixed(4)} ${+northEast.lng().toFixed(4)} ${+southWeast
+            .lat()
+            .toFixed(4)} ${+southWeast.lng().toFixed(4)}`;
+        } else {
+          this.control.data[this.inputFields.northlimit] = +northEast
+            .lat()
+            .toFixed(4);
+          this.control.data[this.inputFields.eastlimit] = +northEast
+            .lng()
+            .toFixed(4);
+          this.control.data[this.inputFields.southlimit] = +southWeast
+            .lat()
+            .toFixed(4);
+          this.control.data[this.inputFields.westlimit] = +southWeast
+            .lng()
+            .toFixed(4);
+        }
 
         if (this.isEventFromMap) {
           // Debounced to prevent stuttering while draging the rectangle around
@@ -301,14 +330,32 @@ const layoutRenderer = defineComponent({
         this.clearRectangles();
 
         if (this.hasData) {
+          let bounds;
+          if (this.isBoxSchemaOrgFormat) {
+            // Schema.org format
+            const segments = this.control.data[this.inputFields.box]
+              .trim()
+              .split(" ")
+              .map((s) => +s);
+            bounds = {
+              north: segments[0],
+              east: segments[1],
+              south: segments[2],
+              west: segments[3],
+            };
+          } else {
+            // Default format
+            bounds = {
+              north: this.control.data[this.inputFields.northlimit],
+              south: this.control.data[this.inputFields.southlimit],
+              east: this.control.data[this.inputFields.eastlimit],
+              west: this.control.data[this.inputFields.westlimit],
+            };
+          }
+
           this.rectangle = new google.maps.Rectangle({
             ...this.rectangleOptions,
-            bounds: {
-              north: this.control.data.northlimit,
-              south: this.control.data.southlimit,
-              east: this.control.data.eastlimit,
-              west: this.control.data.westlimit,
-            },
+            bounds,
             map: this.map,
           });
 
@@ -327,8 +374,8 @@ const layoutRenderer = defineComponent({
           const marker = new google.maps.Marker({
             ...this.markerOptions,
             position: {
-              lat: this.control.data.north,
-              lng: this.control.data.east,
+              lat: this.control.data[this.inputFields.north],
+              lng: this.control.data[this.inputFields.east],
             },
             map: this.map,
           });
