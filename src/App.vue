@@ -107,8 +107,7 @@ import CzForm from "@/components/cz-form.vue";
 
 const schema = require("@/schemas/schema.json");
 const uischema = require("@/schemas/uischema.json");
-
-const initialData = {};
+const initialData = require("@/schemas/test-dataset.json");
 
 @Component({
   name: "app",

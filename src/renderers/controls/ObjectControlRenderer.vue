@@ -8,7 +8,7 @@
       v-if="control.visible"
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="control.description"
-      :hasToggle="hasToggle"
+      :hasToggle="hasToggle && !appliedOptions.isViewMode"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"

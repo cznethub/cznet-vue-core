@@ -8,7 +8,7 @@
       v-if="control.visible"
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="control.description"
-      :hasToggle="true"
+      :hasToggle="noData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
@@ -91,7 +91,10 @@
                     <v-col
                       align-self="center"
                       class="flex-grow-0"
-                      v-if="appliedOptions.showSortButtons"
+                      v-if="
+                        appliedOptions.showSortButtons &&
+                        !appliedOptions.isViewMode
+                      "
                     >
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on: onTooltip }">
@@ -114,9 +117,12 @@
                       </v-tooltip>
                     </v-col>
                     <v-col
+                      v-if="
+                        appliedOptions.showSortButtons &&
+                        !appliedOptions.isViewMode
+                      "
                       align-self="center"
                       class="flex-grow-0"
-                      v-if="appliedOptions.showSortButtons"
                     >
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on: onTooltip }">
@@ -141,7 +147,11 @@
                         Move Down
                       </v-tooltip>
                     </v-col>
-                    <v-col align-self="center" class="flex-grow-0">
+                    <v-col
+                      v-if="!appliedOptions.isViewMode"
+                      align-self="center"
+                      class="flex-grow-0"
+                    >
                       <v-tooltip bottom>
                         <template v-slot:activator="{ on: onTooltip }">
                           <v-btn
@@ -190,6 +200,7 @@
       </v-container>
 
       <v-dialog
+        v-if="!appliedOptions.isViewMode"
         :value="suggestToDelete !== null"
         max-width="600"
         @keydown.esc="suggestToDelete = null"

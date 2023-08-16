@@ -27,9 +27,12 @@
       <template v-if="!isDropDown">
         <v-tabs v-model="selectedIndex">
           <v-tab
-            @change="handleTabChange(oneOfIndex)"
-            :key="`${control.path}-${oneOfIndex}`"
             v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
+            :key="`${control.path}-${oneOfIndex}`"
+            @change="handleTabChange(oneOfIndex)"
+            :disabled="
+              appliedOptions.isViewMode && selectedIndex !== oneOfIndex
+            "
           >
             {{ oneOfRenderInfo.uischema["label"] || oneOfRenderInfo.label }}
           </v-tab>

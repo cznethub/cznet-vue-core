@@ -1,0 +1,46 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "A Hydroinformatics poem for Jerad Bales",
+  "description": "Hydroinformatics is numbers \r\n   slowly dripping\r\n   down a pipeline\r\n             of vintage equations\r\n             explosive datasets\r\n             and exhaustive agendas,\r\n   wet with the sweat of \r\n   dedicated scientists\r\n   transient moments of clarity\r\n   and flowcharts.\r\n\r\nHydroinformatics is water converted\r\n   by our creativity and innovation\r\n   into a reservoir of 0's and 1's\r\n   assimilated into a pillow\r\n   that soften our edges with collaboration\r\n  and smooths our future consequences\r\n  with heroic feats of  knowledge building\r\n          on where the water has been\r\n          and where the water is going.",
+  "url": "http://www.hydroshare.org/resource/473ae31864444c8aba35b31970863158",
+  "identifier": [
+    "http://www.hydroshare.org/resource/473ae31864444c8aba35b31970863158"
+  ],
+  "creator": [
+    {
+      "@type": "Person",
+      "name": "Christina Bandaragoda",
+      "email": "cband@uw.edu",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "University of Washington"
+      }
+    }
+  ],
+  "dateCreated": "2017-07-26T02:01:57",
+  "keywords": [
+    "HydroPoetry"
+  ],
+  "license": {
+    "@type": "CreativeWork",
+    "name": "This resource is shared under the Creative Commons Attribution CC BY.",
+    "url": "http://creativecommons.org/licenses/by/4.0/"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "HYDROSHARE",
+    "url": "https://www.hydroshare.org/"
+  },
+  "inLanguage": "eng",
+  "dateModified": "2017-09-16T01:03:20",
+  "funding": [],
+  "hasPart": [],
+  "isPartOf": [],
+  "associatedMedia": [],
+  "citation": [
+    "Bandaragoda, C. (2017). A Hydroinformatics poem for Jerad Bales, HydroShare, http://www.hydroshare.org/resource/473ae31864444c8aba35b31970863158"
+  ],
+  "_id": "64dbb6e5ece5823293782845",
+  "repository_identifier": "473ae31864444c8aba35b31970863158"
+}
