@@ -93,6 +93,9 @@ export default defineComponent({
     isFlat: {
       type: Boolean,
     },
+    hasData: {
+      type: Boolean,
+    },
     title: {
       type: String,
     },
@@ -114,6 +117,11 @@ export default defineComponent({
     errors: {
       type: String,
     },
+  },
+  created() {
+    if (this.hasData) {
+      this.isAdded = true;
+    }
   },
   methods: {
     show() {

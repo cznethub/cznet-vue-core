@@ -10,6 +10,7 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="desc"
       :hasToggle="hasToggle"
+      :hasData="!noData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
@@ -231,6 +232,9 @@ const controlRenderer = defineComponent({
       return this.selectedIndex >= 0
         ? this.oneOfRenderInfos[this.selectedIndex].label
         : "";
+    },
+    noData(): boolean {
+      return !this.control.data;
     },
   },
   methods: {
