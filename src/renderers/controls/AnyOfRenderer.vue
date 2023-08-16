@@ -32,7 +32,10 @@
             :key="`${control.path}-${anyOfIndex}`"
             @change="handleTabChange(anyOfIndex)"
             :disabled="
-              appliedOptions.isViewMode && selectedIndex !== anyOfIndex
+              (appliedOptions.isViewMode ||
+                appliedOptions.isReadOnly ||
+                appliedOptions.isDisabled) &&
+              selectedIndex !== anyOfIndex
             "
           >
             {{ anyOfRenderInfo.uischema["label"] || anyOfRenderInfo.label }}

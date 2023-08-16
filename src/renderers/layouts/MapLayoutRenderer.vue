@@ -74,9 +74,15 @@ const layoutRenderer = defineComponent({
       fillOpacity: 0.25,
       strokeWeight: 2,
       strokeColor: "#1976d2",
-      editable: true,
       zIndex: 1,
-      draggable: true,
+      editable:
+        !props.config.isViewMode &&
+        !props.config.isReadOnly &&
+        !props.config.isDisabled,
+      draggable:
+        !props.config.isViewMode &&
+        !props.config.isReadOnly &&
+        !props.config.isDisabled,
     };
 
     const markerOptions: google.maps.MarkerOptions = {};
@@ -211,45 +217,51 @@ const layoutRenderer = defineComponent({
         },
       };
 
-      // add drawing menu
-      const drawingManager = new google.maps.drawing.DrawingManager({
-        drawingMode: drawwingMode,
-        drawingControl: true,
-        drawingControlOptions: {
-          position: google.maps.ControlPosition.TOP_CENTER,
-          drawingModes: [drawwingMode],
-        },
-        rectangleOptions: this.rectangleOptions,
-        markerOptions: this.markerOptions,
-      });
+      if (
+        !this.appliedOptions.isViewMode &&
+        !this.appliedOptions.isReadOnly &&
+        !this.appliedOptions.isDisabled
+      ) {
+        // add drawing menu
+        const drawingManager = new google.maps.drawing.DrawingManager({
+          drawingMode: drawwingMode,
+          drawingControl: true,
+          drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: [drawwingMode],
+          },
+          rectangleOptions: this.rectangleOptions,
+          markerOptions: this.markerOptions,
+        });
 
-      drawingManager.setMap(this.map);
+        drawingManager.setMap(this.map);
 
-      google.maps.event.addListener(
-        drawingManager,
-        "markercomplete",
-        (marker: google.maps.Marker) => {
-          this.clearMarkers();
-          this.marker = marker;
-          this.isEventFromMap = true;
-          this.handleDrawing();
-        }
-      );
-
-      google.maps.event.addListener(
-        drawingManager,
-        "rectanglecomplete",
-        (rectangle: google.maps.Rectangle) => {
-          this.clearRectangles();
-          this.rectangle = rectangle;
-          rectangle.addListener("bounds_changed", () => {
+        google.maps.event.addListener(
+          drawingManager,
+          "markercomplete",
+          (marker: google.maps.Marker) => {
+            this.clearMarkers();
+            this.marker = marker;
             this.isEventFromMap = true;
             this.handleDrawing();
-          });
-          this.isEventFromMap = true;
-          this.handleDrawing();
-        }
-      );
+          }
+        );
+
+        google.maps.event.addListener(
+          drawingManager,
+          "rectanglecomplete",
+          (rectangle: google.maps.Rectangle) => {
+            this.clearRectangles();
+            this.rectangle = rectangle;
+            rectangle.addListener("bounds_changed", () => {
+              this.isEventFromMap = true;
+              this.handleDrawing();
+            });
+            this.isEventFromMap = true;
+            this.handleDrawing();
+          }
+        );
+      }
 
       this.initialized = true;
     },

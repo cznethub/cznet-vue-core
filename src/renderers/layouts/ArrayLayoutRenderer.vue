@@ -93,7 +93,9 @@
                       class="flex-grow-0"
                       v-if="
                         appliedOptions.showSortButtons &&
-                        !appliedOptions.isViewMode
+                        !appliedOptions.isViewMode &&
+                        !appliedOptions.isReadOnly &&
+                        !appliedOptions.isDisabled
                       "
                     >
                       <v-tooltip bottom>
@@ -119,7 +121,9 @@
                     <v-col
                       v-if="
                         appliedOptions.showSortButtons &&
-                        !appliedOptions.isViewMode
+                        !appliedOptions.isViewMode &&
+                        !appliedOptions.isReadOnly &&
+                        !appliedOptions.isDisabled
                       "
                       align-self="center"
                       class="flex-grow-0"
@@ -148,7 +152,9 @@
                       </v-tooltip>
                     </v-col>
                     <v-col
-                      v-if="!appliedOptions.isViewMode"
+                      v-if="
+                        !appliedOptions.isViewMode && !appliedOptions.isReadOnly
+                      "
                       align-self="center"
                       class="flex-grow-0"
                     >
@@ -200,7 +206,11 @@
       </v-container>
 
       <v-dialog
-        v-if="!appliedOptions.isViewMode"
+        v-if="
+          !appliedOptions.isViewMode &&
+          !appliedOptions.isReadOnly &&
+          !appliedOptions.isDisabled
+        "
         :value="suggestToDelete !== null"
         max-width="600"
         @keydown.esc="suggestToDelete = null"

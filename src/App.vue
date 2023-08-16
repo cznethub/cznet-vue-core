@@ -141,7 +141,7 @@ export default class App extends Vue {
         "hide-details": false,
       },
     },
-    isViewMode: false,
+    isViewMode: true,
     isReadOnly: false,
     isDisabled: false,
   };
