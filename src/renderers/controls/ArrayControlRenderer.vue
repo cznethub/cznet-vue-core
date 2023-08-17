@@ -369,13 +369,17 @@ export default controlRenderer;
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(
-    4,
+    5,
     and(useTableLayout, or(isPrimitiveArrayControl, isObjectArrayControl))
   ),
 };
 </script>
 
 <style lang="scss" scoped>
+::v-deep table {
+  table-layout: fixed;
+}
+
 .fixed-cell {
   width: 150px;
   height: 50px;

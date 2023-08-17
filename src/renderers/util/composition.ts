@@ -65,8 +65,13 @@ export const useVuetifyLabel = <I extends { label: any }>(input: I) => {
       cloneDeep(input.label.value.uischema.options)
     )
   );
+
+  // TODO: put into util function and reuse
   const vuetifyProps = (path: string) => {
-    const props = get(appliedOptions.value?.vuetify, path);
+    const props = {
+      ...appliedOptions.value?.vuetify.commonAttrs,
+      ...get(appliedOptions.value?.vuetify, path),
+    };
 
     return props && isPlainObject(props) ? props : {};
   };
@@ -231,7 +236,10 @@ export const useVuetifyLayout = <I extends { layout: any }>(input: I) => {
   });
 
   const vuetifyProps = (path: string) => {
-    const props = get(appliedOptions.value?.vuetify, path);
+    const props = {
+      ...appliedOptions.value?.vuetify.commonAttrs,
+      ...get(appliedOptions.value?.vuetify, path),
+    };
 
     return props && isPlainObject(props) ? props : {};
   };
@@ -256,7 +264,10 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
   const computedLabel = useComputedLabel(input, appliedOptions);
 
   const vuetifyProps = (path: string) => {
-    const props = get(appliedOptions.value?.vuetify, path);
+    const props = {
+      ...appliedOptions.value?.vuetify.commonAttrs,
+      ...get(appliedOptions.value?.vuetify, path),
+    };
 
     return props && isPlainObject(props) ? props : {};
   };
@@ -379,7 +390,10 @@ export const useVuetifyBasicControl = <I extends { control: any }>(
   const appliedOptions = useControlAppliedOptions(input);
 
   const vuetifyProps = (path: string) => {
-    const props = get(appliedOptions.value?.vuetify, path);
+    const props = {
+      ...appliedOptions.value?.vuetify.commonAttrs,
+      ...get(appliedOptions.value?.vuetify, path),
+    };
 
     return props && isPlainObject(props) ? props : {};
   };

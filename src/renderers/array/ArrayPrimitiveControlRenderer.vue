@@ -173,16 +173,9 @@ const useArrayLayout = (uiSchema) => {
   return uiSchema.options?.useArrayLayout;
 };
 
-const useTableLayout = (uiSchema) => {
-  return uiSchema.options?.useTableLayout;
-};
-
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(
-    4,
-    and(not(useArrayLayout), isPrimitiveArrayControl, not(useTableLayout))
-  ),
+  tester: rankWith(4, and(not(useArrayLayout), isPrimitiveArrayControl)),
 };
 </script>
 

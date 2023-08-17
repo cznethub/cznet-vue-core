@@ -1,39 +1,49 @@
 <template>
-  <v-hover v-slot="{ hover }">
-    <v-select
-      @change="beforeChange"
-      :id="control.id + '-input'"
-      :data-id="computedLabel.replaceAll(` `, ``)"
-      :class="styles.control.input"
-      :disabled="!control.enabled || control.schema.readOnly"
-      :autofocus="appliedOptions.focus"
-      :placeholder="appliedOptions.placeholder"
-      :label="computedLabel"
-      :hint="control.description"
-      :required="control.required"
-      :error-messages="control.errors"
-      :clearable="hover && !control.schema.readOnly"
-      :value="control.data"
-      :items="control.options"
-      :readonly="control.schema.readOnly"
-      v-bind="vuetifyProps(`v-select`)"
-      chips
-      small-chips
-      deletable-chips
-      item-text="label"
-      item-value="value"
-      multiple
-    >
-      <template v-slot:message>
-        <div v-if="control.description" class="text-subtitle-1 text--secondary">
-          {{ control.description }}
-        </div>
-        <div v-if="cleanedErrors" class="v-messages error--text">
-          {{ cleanedErrors }}
-        </div>
-      </template>
-    </v-select>
-  </v-hover>
+  <control-wrapper
+    v-bind="controlWrapper"
+    :styles="styles"
+    :isFocused="isFocused"
+    :appliedOptions="appliedOptions"
+  >
+    <v-hover v-slot="{ hover }">
+      <v-select
+        @change="beforeChange"
+        :id="control.id + '-input'"
+        :data-id="computedLabel.replaceAll(` `, ``)"
+        :class="styles.control.input"
+        :disabled="!control.enabled || control.schema.readOnly"
+        :autofocus="appliedOptions.focus"
+        :placeholder="appliedOptions.placeholder"
+        :label="computedLabel"
+        :hint="control.description"
+        :required="control.required"
+        :error-messages="control.errors"
+        :clearable="hover && !control.schema.readOnly"
+        :value="control.data"
+        :items="control.options"
+        :readonly="control.schema.readOnly"
+        v-bind="vuetifyProps(`v-select`)"
+        chips
+        small-chips
+        deletable-chips
+        item-text="label"
+        item-value="value"
+        multiple
+      >
+        <template v-slot:message>
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
+          </div>
+          <div v-if="cleanedErrors" class="v-messages error--text">
+            {{ cleanedErrors }}
+          </div>
+        </template>
+      </v-select>
+    </v-hover>
+  </control-wrapper>
 </template>
 
 <script lang="ts">
@@ -62,6 +72,7 @@ import {
 } from "@jsonforms/vue2";
 import { defineComponent } from "vue";
 import { useVuetifyBasicControl } from "@/renderers/util/composition";
+import { default as ControlWrapper } from "./ControlWrapper.vue";
 
 //TODO: move into JsonForm Vue project under src/components/jsonFormsCompositions.ts
 const useJsonFormsMultiEnumControl = (props: ControlProps) => {
@@ -83,6 +94,7 @@ const controlRenderer = defineComponent({
     VCol,
     VSelect,
     VHover,
+    ControlWrapper,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -95,6 +107,9 @@ const controlRenderer = defineComponent({
       ), // Needed for handleChange and onChange function
       ...useVuetifyBasicControl(useJsonFormsMultiEnumControl(props)),
     };
+  },
+  created() {
+    console.log(this.vuetifyProps("v-select"));
   },
   methods: {
     dataHasEnum(value: any) {
