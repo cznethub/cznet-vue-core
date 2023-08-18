@@ -108,9 +108,6 @@ const controlRenderer = defineComponent({
       ...useVuetifyBasicControl(useJsonFormsMultiEnumControl(props)),
     };
   },
-  created() {
-    console.log(this.vuetifyProps("v-select"));
-  },
   methods: {
     dataHasEnum(value: any) {
       return !!this.control.data?.includes(value);

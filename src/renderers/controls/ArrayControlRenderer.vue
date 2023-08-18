@@ -63,6 +63,7 @@
               >
                 <thead v-if="control.schema.type === 'object'">
                   <tr>
+                    <!-- FIELDS TITLES -->
                     <th
                       v-for="(prop, index) in getValidColumnProps(
                         control.schema
@@ -72,6 +73,8 @@
                     >
                       {{ title(prop) }}
                     </th>
+
+                    <!-- CONTROLS -->
                     <th
                       v-if="control.enabled"
                       :class="
@@ -89,6 +92,7 @@
                     :key="`${control.path}-${index}`"
                     :class="styles.arrayList.item"
                   >
+                    <!-- FIELDS RENDERERS -->
                     <td
                       v-for="propName in getValidColumnProps(control.schema)"
                       :key="
@@ -107,6 +111,8 @@
                         :cells="control.cells"
                       />
                     </td>
+
+                    <!-- CONTROLS -->
                     <td
                       v-if="control.enabled"
                       :class="
@@ -203,14 +209,17 @@ import {
   isObjectArrayControl,
   isPrimitiveArrayControl,
   JsonFormsRendererRegistryEntry,
-  or,
+  // UISchemaElement,
+  findUISchema,
   rankWith,
   composePaths,
   createDefaultValue,
   ControlElement,
   JsonSchema,
   Resolve,
+  or,
   and,
+  VerticalLayout,
 } from "@jsonforms/core";
 import startCase from "lodash/startCase";
 import { defineComponent, ref } from "vue";
@@ -329,7 +338,9 @@ const controlRenderer = defineComponent({
         typeof scopedSchema.properties === "object"
       ) {
         return Object.keys(scopedSchema.properties).filter(
-          (prop) => scopedSchema.properties![prop].type !== "array"
+          (prop) =>
+            scopedSchema.properties![prop].type !== "array" &&
+            this.resolveUiSchema(prop).rule?.effect !== "HIDE" // TODO: actually evaluate the rule
         );
       }
       // primitives
@@ -339,6 +350,30 @@ const controlRenderer = defineComponent({
       return this.control.schema.properties?.[prop]?.title ?? startCase(prop);
     },
     resolveUiSchema(propName: string) {
+      // We expect controls using `useTableLayout` option to be primitive types or non-nested object type.
+      // Non-nested objects are expected to have a simple VerticalLayout uischema.
+      if (this.control.schema.type === "object") {
+        const foundUISchema = findUISchema(
+          this.control.uischemas,
+          this.control.schema,
+          this.control.uischema.scope,
+          this.control.path,
+          undefined,
+          this.control.uischema,
+          this.control.rootSchema
+        ) as VerticalLayout;
+
+        const detailUISchema = foundUISchema.elements.find(
+          // @ts-ignore
+          (el) => el.scope === `#/properties/${propName}`
+        );
+
+        if (detailUISchema) {
+          return detailUISchema;
+        }
+      }
+
+      // Create the schema
       return this.control.schema.properties
         ? this.controlWithoutLabel(`#/properties/${propName}`)
         : this.controlWithLabel("#");
