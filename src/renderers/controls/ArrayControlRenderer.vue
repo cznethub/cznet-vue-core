@@ -337,11 +337,21 @@ const controlRenderer = defineComponent({
         scopedSchema.type === "object" &&
         typeof scopedSchema.properties === "object"
       ) {
-        return Object.keys(scopedSchema.properties).filter(
-          (prop) =>
-            scopedSchema.properties![prop].type !== "array" &&
-            this.resolveUiSchema(prop).rule?.effect !== "HIDE" // TODO: actually evaluate the rule
-        );
+        return Object.keys(scopedSchema.properties).filter((prop) => {
+          const resolvedUiSchema = this.resolveUiSchema(prop);
+          const rule = resolvedUiSchema.rule?.effect;
+          const condition = resolvedUiSchema.rule?.condition;
+
+          if (condition) {
+            // Detect if empty object
+            const isEmptyCondition =
+              Object.keys(condition).length === 0 &&
+              condition.constructor === Object;
+
+            return !(isEmptyCondition && rule === "HIDE");
+          }
+          return true;
+        });
       }
       // primitives
       return [""];

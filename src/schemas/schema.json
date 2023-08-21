@@ -861,10 +861,6 @@
           "type": "array",
           "items": {
             "title": "Related Information",
-            "options": {
-              "flat": true,
-              "dropdown": true
-            },
             "maxItems": 1,
             "required": [
               "identifier"
@@ -878,11 +874,7 @@
                   "scheme": {
                     "type": "string",
                     "default": "DOI",
-                    "const": "DOI",
-                    "readOnly": true,
-                    "options": {
-                      "hidden": true
-                    }
+                    "const": "DOI"
                   },
                   "identifier": {
                     "type": "string",

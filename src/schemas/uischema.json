@@ -168,7 +168,35 @@
               "type": "Control",
               "scope": "#/properties/identifiers",
               "options": {
-                "useTableLayout": true
+                "flat": true,
+                "useTableLayout": true,
+                "showSortButtons": true,
+                "elementLabelProp": "identifier",
+                "detail": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/identifier"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/schemeURI",
+                      "rule": {
+                        "effect": "HIDE",
+                        "condition": {}
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/scheme",
+                      "rule": {
+                        "effect": "HIDE",
+                        "condition": {}
+                      }
+                    }
+                  ]
+                }
               }
             }
           ]
@@ -177,7 +205,8 @@
     },
     {
       "type": "Control",
-      "scope": "#/properties/spatialCoverage"
+      "scope": "#/properties/spatialCoverage",
+      "label": "Spatial Coverage"
     },
     {
       "type": "Control",
@@ -188,10 +217,92 @@
         "detail": {
           "type": "Control",
           "scope": "#/properties/identifiers",
+          "label": "WTF",
           "options": {
-            "restrict": true,
-            "elementLabelProp": "scheme",
-            "childLabelProp": "scheme"
+            "detail": {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#",
+                  "label": "Hello!",
+                  "options": {
+                    "dropdown": true,
+                    "flat": true,
+                    "detail": {
+                      "0": {
+                        "type": "VerticalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/scheme",
+                            "rule": {
+                              "effect": "HIDE",
+                              "condition": {}
+                            }
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/identifier"
+                          }
+                        ]
+                      },
+                      "1": {
+                        "type": "VerticalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/scheme",
+                            "rule": {
+                              "effect": "HIDE",
+                              "condition": {}
+                            }
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/identifier"
+                          }
+                        ]
+                      },
+                      "2": {
+                        "type": "VerticalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/scheme",
+                            "rule": {
+                              "effect": "HIDE",
+                              "condition": {}
+                            }
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/identifier"
+                          }
+                        ]
+                      },
+                      "3": {
+                        "type": "VerticalLayout",
+                        "elements": [
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/scheme",
+                            "rule": {
+                              "effect": "HIDE",
+                              "condition": {}
+                            }
+                          },
+                          {
+                            "type": "Control",
+                            "scope": "#/properties/identifier"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       }
