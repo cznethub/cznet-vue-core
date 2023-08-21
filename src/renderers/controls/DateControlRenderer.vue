@@ -14,14 +14,18 @@
       offset-y
       min-width="290px"
       v-bind="vuetifyProps('v-menu')"
-      :disabled="!control.enabled || control.schema['readOnly']"
+      :disabled="
+        appliedOptions.isDisabled ||
+        !control.enabled ||
+        control.schema['readOnly']
+      "
     >
       <template v-slot:activator="{ on, attrs }">
         <v-text-field
           :id="control.id + '-input'"
           :class="styles.control.input"
           :readonly="!control.enabled || control.schema['readOnly']"
-          :disabled="appliedOptions.isDisabled"
+          :disabled="appliedOptions.isDisabled || !control.enabled"
           :autofocus="appliedOptions.focus"
           :placeholder="placeholder"
           :label="computedLabel"

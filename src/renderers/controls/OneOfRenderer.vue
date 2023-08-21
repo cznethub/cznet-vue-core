@@ -11,7 +11,7 @@
       :description="!!isDropDown ? '' : desc"
       :hasToggle="hasToggle"
       :hasData="!noData"
-      :enabled="!appliedOptions.isDisabled"
+      :enabled="!appliedOptions.isDisabled && control.enabled"
       :readonly="!control.enabled"
       :errors="control.errors"
       :title="title"
@@ -72,7 +72,7 @@
           :error-messages="control.errors"
           :placeholder="appliedOptions.placeholder"
           :readonly="!control.enabled || control.schema['readOnly']"
-          :disabled="appliedOptions.isDisabled"
+          :disabled="appliedOptions.isDisabled || !control.enabled"
           v-bind="vuetifyProps('v-select')"
           item-text="label"
           >{{ currentLabel }}</v-select

@@ -15,7 +15,7 @@
         !appliedOptions.isDisabled
       "
       :hasData="!noData"
-      :enabled="!appliedOptions.isDisabled"
+      :enabled="!appliedOptions.isDisabled && control.enabled"
       :readonly="!control.enabled"
       :errors="control.errors"
       :title="control.schema.title"

@@ -15,7 +15,7 @@
         :class="styles.control.input"
         :value="control.data"
         :readonly="!control.enabled || control.schema['readOnly']"
-        :disabled="appliedOptions.isDisabled"
+        :disabled="appliedOptions.isDisabled || !control.enabled"
         :autofocus="appliedOptions.focus"
         :placeholder="appliedOptions.placeholder"
         :hint="control.description"

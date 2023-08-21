@@ -21,7 +21,7 @@
           :id="control.id + '-input'"
           :class="styles.control.input"
           :readonly="!control.enabled || control.schema['readOnly']"
-          :disabled="appliedOptions.isDisabled"
+          :disabled="appliedOptions.isDisabled || !control.enabled"
           :autofocus="appliedOptions.focus"
           :placeholder="appliedOptions.placeholder"
           :label="computedLabel"

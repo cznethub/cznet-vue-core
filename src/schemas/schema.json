@@ -1,986 +1,1122 @@
 {
-  "title": "Record",
+  "title": "Zenodo Datasets Schema for CZ Net v1.0.0",
   "type": "object",
   "properties": {
-    "title": {
-      "title": "Dataset Title",
-      "description": "A descriptive title of the dataset",
-      "type": "string"
-    },
-    "datePublished": {
-      "title": "Release Date",
-      "description": "The date of the files contained in the resource to be allowed for downloading",
+    "access_conditions": {
+      "title": "Access conditions",
       "type": "string",
-      "format": "date",
-      "options": {
-        "placeholder": "YYYY-MM-DD",
-        "max": {
-          "amount": 2,
-          "unit": "year"
+      "description": "Conditions under which access is given if record is restricted."
+    },
+    "access_right": {
+      "title": "Access right",
+      "type": "string",
+      "description": "Access right for record",
+      "default": "open",
+      "enum": [
+        "open",
+        "embargoed"
+      ]
+    },
+    "communities": {
+      "title": "Communities",
+      "type": "array",
+      "description": "List of community identifiers.",
+      "uniqueItems": true,
+      "items": {
+        "title": "Community identifier",
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "title": "Identifier",
+            "type": "string",
+            "description": "The community identifier"
+          }
         },
-        "min": "today",
-        "default": {
-          "amount": 3,
-          "unit": "day"
+        "required": [
+          "identifier"
+        ],
+        "default": [
+          {
+            "identifier": "czdata"
+          }
+        ],
+        "contains": {
+          "enum": [
+            {
+              "identifier": "czdata"
+            }
+          ]
         }
+      }
+    },
+    "contributors": {
+      "title": "Contributors",
+      "type": "array",
+      "description": "Contributors in order of importance.",
+      "items": {
+        "title": "Contributor",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "affiliation": {
+            "title": "Affiliation",
+            "type": "string",
+            "description": "Affiliation for the purpose of this specific record."
+          },
+          "name": {
+            "title": "Full name",
+            "type": "string",
+            "description": "Full name of person or organisation. Personal name format: family, given.",
+            "options": {
+              "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
+            }
+          },
+          "orcid": {
+            "title": "ORCID",
+            "description": "ORCID identifier for contributor.",
+            "type": "string",
+            "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
+            "options": {
+              "placeholder": "e.g. '0000-0001-2345-6789'"
+            },
+            "errorMessage": {
+              "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
+            }
+          },
+          "type": {
+            "title": "Contribution type",
+            "type": "string",
+            "enum": [
+              "ContactPerson",
+              "DataCollector",
+              "DataCurator",
+              "DataManager",
+              "Distributor",
+              "Editor",
+              "HostingInstitution",
+              "Other",
+              "Producer",
+              "ProjectLeader",
+              "ProjectManager",
+              "ProjectMember",
+              "RegistrationAgency",
+              "RegistrationAuthority",
+              "RelatedPerson",
+              "Researcher",
+              "ResearchGroup",
+              "RightsHolder",
+              "Sponsor",
+              "Supervisor",
+              "WorkPackageLeader"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "affiliation",
+          "type"
+        ]
+      }
+    },
+    "creators": {
+      "title": "Creators",
+      "type": "array",
+      "description": "Creators of record in order of importance.",
+      "items": {
+        "title": "Creator",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "affiliation": {
+            "title": "Affiliation",
+            "type": "string",
+            "description": "Affiliation for the purpose of this specific record."
+          },
+          "name": {
+            "title": "Full name",
+            "type": "string",
+            "description": "Full name of person or organisation. Personal name format: family, given.",
+            "options": {
+              "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
+            }
+          },
+          "orcid": {
+            "title": "ORCID",
+            "description": "ORCID identifier for creator.",
+            "type": "string",
+            "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
+            "options": {
+              "placeholder": "e.g. '0000-0001-2345-6789'"
+            },
+            "errorMessage": {
+              "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
+            }
+          }
+        },
+        "required": [
+          "affiliation",
+          "name"
+        ]
       }
     },
     "description": {
-      "title": "Abstract or Description",
+      "title": "Description/Abstract",
       "type": "string",
-      "description": "Describe measurements, location, and purpose of the dataset",
-      "maxLength": 250
-    },
-    "community": {
-      "title": "Community",
-      "type": "string",
-      "default": "CZNet",
-      "const": "CZNet",
-      "readOnly": true
-    },
-    "leadAuthor": {
-      "type": "object",
-      "title": "Lead Author",
-      "properties": {
-        "givenName": {
-          "title": "First Name",
-          "type": "string"
-        },
-        "additionalName": {
-          "title": "Middle Name",
-          "type": "string"
-        },
-        "familyName": {
-          "title": "Last Name",
-          "type": "string"
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
-        },
-        "identifiers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AuthorIdentifier"
-          },
-          "default": []
-        }
-      },
-      "required": [
-        "familyName",
-        "givenName",
-        "email"
-      ]
-    },
-    "contributors": {
-      "title": "Co-Authors",
-      "type": "array",
-      "maxItems": 3,
-      "items": {
-        "$ref": "#/definitions/Contributor"
+      "description": "Description/abstract for record.",
+      "options": {
+        "stripHTML": true
       }
     },
-    "type": {
-      "title": "Dataset Type",
-      "description": "The nature or genre of the resource",
+    "embargo_date": {
+      "title": "Embargo date",
       "type": "string",
-      "default": "Dataset",
-      "enum": [
-        "Collection",
-        "Dataset",
-        "Image",
-        "InteractiveResource",
-        "MovingImage",
-        "PhysicalObject",
-        "Service",
-        "Software",
-        "Sound",
-        "StillImage",
-        "Text"
-      ]
-    },
-    "status": {
-      "title": "Submission status",
-      "type": "string",
-      "description": "Indication of the progress status of the resource.",
-      "default": "incomplete",
-      "enum": [
-        "incomplete",
-        "submitted"
-      ]
-    },
-    "additionalTypes": {
-      "title": "Data Types",
-      "description": "The science domain of the content",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": [
-          "Chemistry",
-          "Chemistry:ClumpedIsotope",
-          "Chemistry:Fluid",
-          "Chemistry:Gas",
-          "Chemistry:Rock",
-          "Chemistry:Sediment",
-          "Geochronology",
-          "Kinetics",
-          "ModelData",
-          "Petrography",
-          "Petrology",
-          "Petrology:Experimental",
-          "Petrology:Mineral",
-          "SampleInfo",
-          "SocialScience",
-          "Other"
-        ]
+      "format": "date",
+      "description": "Embargo date of record (ISO8601 formatted date)",
+      "options": {
+        "placeholder": "YYYY-MM-DD",
+        "min": {
+          "amount": 1,
+          "unit": "day"
+        }
       },
-      "default": [],
-      "uniqueItems": true
+      "if": {
+        "properties": {
+          "access_right": {
+            "const": "embargoed"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "embargo_date"
+        ]
+      }
+    },
+    "notes": {
+      "title": "Funding Agency Metadata",
+      "description": "Add metadata associated with funding agency credits for a resource in the format provided. Please separate multiple entries with an empty line.",
+      "type": "string",
+      "default": "Funding Agency Name: \nAward Title: \nAward Number: \nFunding Agency URL: ",
+      "options": {
+        "placeholder": "Funding Agency Name: \nAward Title: \nAward Number: \nFunding Agency URL: \n\nFunding Agency Name: \nAward Title: \nAward Number: \nFunding Agency URL: "
+      }
     },
     "keywords": {
       "title": "Keywords",
       "type": "array",
-      "description": "A list of non-geographic keywords. (e.g. volatiles, ultra-slow spreading ridges, mantle melting, CO2 fluxes)",
+      "description": "Free text keywords.",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "title": "Keyword",
+        "type": "string"
+      },
       "default": [
         "CZNet"
       ],
-      "minItems": 2,
       "contains": {
         "enum": [
           "CZNet"
         ]
-      },
-      "items": {
-        "type": "string"
-      }
-    },
-    "language": {
-      "type": "string"
-    },
-    "spatialCoverage": {
-      "title": "Spatial Coverage Information",
-      "type": "object",
-      "properties": {
-        "coverage": {
-          "title": "Spatial Coverage",
-          "type": "string",
-          "enum": [
-            "Global",
-            "Regional (Continents, Oceans)",
-            "Space/Planetary"
-          ]
-        },
-        "keywords": {
-          "title": "Geographic Keywords",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Provide appropriate geographic keywords for searches. (e.g. Pacific Ocean, Aleutian Islands)"
-        }
-      },
-      "required": [
-        "coverage"
-      ]
-    },
-    "relatedResources": {
-      "title": "Related Resources",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/RelatedResource"
-      }
-    },
-    "fundings": {
-      "title": "Funding Source",
-      "description": "Source of grants/awards which have funded the resource",
-      "type": "array",
-      "items": {
-        "title": "Funding Source",
-        "anyOf": [
-          {
-            "title": "Select one",
-            "anyOf": [
-              {
-                "type": "object",
-                "title": "National Science Foundation",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "const": {
-                      "alternateName": "NSF"
-                    },
-                    "default": {
-                      "alternateName": "NSF"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/021nxhr62",
-                    "const": "https://ror.org/021nxhr62"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "Alfred P. Sloan Foundation",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "SLOAN"
-                    },
-                    "const": {
-                      "alternateName": "SLOAN"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/052csg198",
-                    "const": "https://ror.org/052csg198"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "U.S. Department of Energy",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "DOE"
-                    },
-                    "const": {
-                      "alternateName": "DOE"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/01bj3aw27",
-                    "const": "https://ror.org/01bj3aw27"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "National Aeronautics and Space Administration",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "NASA"
-                    },
-                    "const": {
-                      "alternateName": "NASA"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/027ka1x80",
-                    "const": "https://ror.org/027ka1x80"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "European Research Council",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "ERC"
-                    },
-                    "const": {
-                      "alternateName": "ERC"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/0472cxd90",
-                    "const": "https://ror.org/0472cxd90"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "Deutsche Forschungsgemeinschaft",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "DFG"
-                    },
-                    "const": {
-                      "alternateName": "DFG"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/018mejw64",
-                    "const": "https://ror.org/018mejw64"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "National Natural Science Foundation of China",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "NSFC"
-                    },
-                    "const": {
-                      "alternateName": "NSFC"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/01h0zpd94",
-                    "const": "https://ror.org/01h0zpd94"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "Australian Research Council",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "ARC"
-                    },
-                    "const": {
-                      "alternateName": "ARC"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/05mmh0f86",
-                    "const": "https://ror.org/05mmh0f86"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "Russian Science Foundation",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "RSCF"
-                    },
-                    "const": {
-                      "alternateName": "RSCF"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/03y2gwe85",
-                    "const": "https://ror.org/03y2gwe85"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              },
-              {
-                "type": "object",
-                "title": "Natural Environment Research Council",
-                "properties": {
-                  "identifier": {
-                    "type": "string",
-                    "title": "Award Number"
-                  },
-                  "funder": {
-                    "type": "object",
-                    "default": {
-                      "alternateName": "NERC"
-                    },
-                    "const": {
-                      "alternateName": "NERC"
-                    },
-                    "properties": {
-                      "alternateName": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "url": {
-                    "type": "string",
-                    "default": "https://ror.org/02b5d8509",
-                    "const": "https://ror.org/02b5d8509"
-                  }
-                },
-                "required": [
-                  "identifier",
-                  "funder",
-                  "url"
-                ]
-              }
-            ]
-          },
-          {
-            "type": "object",
-            "title": "Other",
-            "required": [
-              "identifier",
-              "funder"
-            ],
-            "properties": {
-              "identifier": {
-                "type": "string",
-                "title": "Funding Source",
-                "description": "Please enter other funding sources in the format of: Funding Source Name (012345)"
-              },
-              "funder": {
-                "title": "Funder",
-                "description": "A person or organization that provides money for a particular purpose",
-                "type": "object",
-                "default": {
-                  "alternateName": "Other"
-                },
-                "const": {
-                  "alternateName": "Other"
-                },
-                "properties": {
-                  "alternateName": {
-                    "type": "string",
-                    "default": "Other"
-                  }
-                }
-              }
-            }
-          }
-        ],
-        "errorMessage": {
-          "anyOf": "is a required property"
-        }
       }
     },
     "license": {
-      "$ref": "#/definitions/License"
-    }
-  },
-  "required": [
-    "datePublished",
-    "title",
-    "description",
-    "keywords",
-    "leadAuthor",
-    "spatialCoverage",
-    "additionalTypes",
-    "community",
-    "type",
-    "status"
-  ],
-  "definitions": {
-    "Affiliation": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "identifiers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Identifier"
-          }
-        }
-      },
-      "title": "Affiliation"
-    },
-    "Contributor": {
-      "type": "object",
-      "title": "Co-Author",
-      "properties": {
-        "givenName": {
-          "title": "First Name",
-          "type": "string"
-        },
-        "additionalName": {
-          "title": "Middle Name",
-          "type": "string"
-        },
-        "familyName": {
-          "title": "Last Name",
-          "type": "string"
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
-        },
-        "identifiers": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/AuthorIdentifier"
-          }
-        }
-      },
-      "required": [
-        "familyName",
-        "givenName"
-      ]
-    },
-    "Cordinate": {
-      "type": "object",
-      "properties": {
-        "lat": {
-          "type": "number"
-        },
-        "lon": {
-          "type": "number"
-        },
-        "alt": {
-          "type": "number"
-        }
-      },
-      "title": "Cordinate"
-    },
-    "Feature": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string"
-        },
-        "geometry": {
-          "$ref": "#/definitions/Geometry"
-        }
-      },
-      "title": "Feature"
-    },
-    "FileResponse": {
-      "type": "object",
-      "properties": {
-        "fileName": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
-        }
-      },
-      "title": "FileResponse"
-    },
-    "Geometry": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "Point",
-            "LineString",
-            "Polygon"
-          ]
-        },
-        "cordinates": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Cordinate"
-          }
-        }
-      },
-      "title": "Geometry"
-    },
-    "Identifier": {
-      "type": "object",
-      "properties": {
-        "scheme": {
-          "type": "string"
-        },
-        "identifier": {
-          "type": "string"
-        }
-      },
-      "title": "Identifier"
-    },
-    "AuthorIdentifier": {
-      "title": "Identifier",
-      "type": "object",
-      "required": [
-        "identifier"
-      ],
-      "properties": {
-        "scheme": {
-          "type": "string",
-          "default": "ORCID",
-          "const": "ORCID"
-        },
-        "schemeURI": {
-          "type": "string",
-          "default": "https://orcid.org/",
-          "const": "https://orcid.org/"
-        },
-        "identifier": {
-          "title": "ORCID",
-          "type": "string",
-          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
-          "options": {
-            "placeholder": "e.g. '0000-0001-2345-6789'"
-          },
-          "errorMessage": {
-            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
-          }
-        }
-      }
-    },
-    "License": {
       "title": "License",
-      "type": "object",
-      "anyOf": [
+      "type": "string",
+      "description": "License for embargoed/open access content.",
+      "options": {
+        "hasAutoComplete": true,
+        "placeholder": "Start typing a license name..."
+      },
+      "oneOf": [
         {
-          "title": "(CC-BY-NC-SA-3.0) - Creative Commons Attribution-NonCommercial-Share Alike 3.0 United States",
-          "properties": {
-            "alternateName": {
-              "type": "string",
-              "default": "CC-BY-NC-SA-3.0",
-              "const": "CC-BY-NC-SA-3.0",
-              "options": {
-                "hidden": true
-              }
-            }
-          }
+          "const": "AAL",
+          "title": "Attribution Assurance Licenses"
         },
         {
-          "title": "(CC-BY-4.0) - Creative Commons Attribution 4.0 International",
-          "properties": {
-            "alternateName": {
-              "type": "string",
-              "default": "CC-BY-4.0",
-              "const": "CC-BY-4.0",
-              "options": {
-                "hidden": true
-              }
-            }
-          }
+          "const": "AFL-3.0",
+          "title": "Academic Free License 3.0"
         },
         {
-          "title": "(CC-BY-SA-4.0) - Creative Commons Attribution-ShareAlike 4.0 International",
-          "properties": {
-            "alternateName": {
-              "type": "string",
-              "default": "CC-BY-SA-4.0",
-              "const": "CC-BY-SA-4.0",
-              "options": {
-                "hidden": true
-              }
-            }
-          }
+          "const": "AGPL-3.0",
+          "title": "GNU Affero General Public License v3"
         },
         {
-          "title": "(CC-BY-NC-SA-4.0) - Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
-          "properties": {
-            "alternateName": {
-              "type": "string",
-              "default": "CC-BY-NC-SA-4.0",
-              "const": "CC-BY-NC-SA-4.0",
-              "options": {
-                "hidden": true
-              }
-            }
-          }
+          "const": "APL-1.0",
+          "title": "Adaptive Public License 1.0"
         },
         {
-          "title": "(CC0-1.0) - Creative Commons No Rights Reserved",
-          "properties": {
-            "alternateName": {
-              "type": "string",
-              "default": "CC0-1.0",
-              "const": "CC0-1.0",
-              "options": {
-                "hidden": true
-              }
-            }
-          }
+          "const": "APSL-2.0",
+          "title": "Apple Public Source License 2.0"
+        },
+        {
+          "const": "Against-DRM",
+          "title": "Against DRM"
+        },
+        {
+          "const": "Apache-1.1",
+          "title": "Apache Foundation"
+        },
+        {
+          "const": "Apache-2.0",
+          "title": "Apache Software License 2.0"
+        },
+        {
+          "const": "Artistic-2.0",
+          "title": "Artistic License 2.0"
+        },
+        {
+          "const": "BSD-2-Clause",
+          "title": "BSD 2-Clause \"Simplified\" or \"FreeBSD\" License (BSD-2-Clause)"
+        },
+        {
+          "const": "BSD-3-Clause",
+          "title": "BSD 3-Clause \"New\" or \"Revised\" License (BSD-3-Clause)"
+        },
+        {
+          "const": "BSL-1.0",
+          "title": "Boost Software License 1.0"
+        },
+        {
+          "const": "BitTorrent-1.1",
+          "title": "BitTorrent Open Source License 1.1"
+        },
+        {
+          "const": "CATOSL-1.1",
+          "title": "Computer Associates Trusted Open Source License 1.1 (CATOSL-1.1)"
+        },
+        {
+          "const": "CC-BY-4.0",
+          "title": "Creative Commons Attribution 4.0"
+        },
+        {
+          "const": "CC-BY-NC-4.0",
+          "title": "Creative Commons Attribution-NonCommercial 4.0"
+        },
+        {
+          "const": "CC-BY-NC-ND-4.0",
+          "title": "Attribution-NonCommercial-NoDerivatives 4.0 International"
+        },
+        {
+          "const": "CC-BY-NC-SA-4.0",
+          "title": "Attribution-NonCommercial-ShareAlike 4.0 International"
+        },
+        {
+          "const": "CC-BY-ND-4.0",
+          "title": "Attribution-NoDerivatives 4.0 International"
+        },
+        {
+          "const": "CC-BY-SA-4.0",
+          "title": "Creative Commons Attribution Share-Alike 4.0"
+        },
+        {
+          "const": "CC0-1.0",
+          "title": "CC0 1.0"
+        },
+        {
+          "const": "CDDL-1.0",
+          "title": "Common Development and Distribution License 1.0"
+        },
+        {
+          "const": "CECILL-2.1",
+          "title": "CeCILL License 2.1"
+        },
+        {
+          "const": "CNRI-Python",
+          "title": "CNRI Python License"
+        },
+        {
+          "const": "CPAL-1.0",
+          "title": "Common Public Attribution License 1.0"
+        },
+        {
+          "const": "CUA-OPL-1.0",
+          "title": "CUA Office Public License 1.0"
+        },
+        {
+          "const": "DSL",
+          "title": "Design Science License"
+        },
+        {
+          "const": "ECL-2.0",
+          "title": "Educational Community License 2.0"
+        },
+        {
+          "const": "EFL-2.0",
+          "title": "Eiffel Forum License 2.0"
+        },
+        {
+          "const": "EPL-1.0",
+          "title": "Eclipse Public License 1.0"
+        },
+        {
+          "const": "EPL-2.0",
+          "title": "Eclipse Public License 2.0"
+        },
+        {
+          "const": "EUDatagrid",
+          "title": "EU DataGrid Software License"
+        },
+        {
+          "const": "EUPL-1.1",
+          "title": "European Union Public License 1.1"
+        },
+        {
+          "const": "Entessa",
+          "title": "Entessa Public License"
+        },
+        {
+          "const": "FAL-1.3",
+          "title": "Free Art License 1.3"
+        },
+        {
+          "const": "Fair",
+          "title": "Fair License"
+        },
+        {
+          "const": "Frameworx-1.0",
+          "title": "Frameworx License 1.0"
+        },
+        {
+          "const": "GFDL-1.3-no-cover-texts-no-invariant-sections",
+          "title": "GNU Free Documentation License 1.3 with no cover texts and no invariant sections"
+        },
+        {
+          "const": "GPL-2.0",
+          "title": "GNU General Public License 2.0"
+        },
+        {
+          "const": "GPL-3.0",
+          "title": "GNU General Public License 3.0"
+        },
+        {
+          "const": "HPND",
+          "title": "Historical Permission Notice and Disclaimer"
+        },
+        {
+          "const": "IPA",
+          "title": "IPA Font License"
+        },
+        {
+          "const": "IPL-1.0",
+          "title": "IBM Public License 1.0"
+        },
+        {
+          "const": "ISC",
+          "title": "ISC License"
+        },
+        {
+          "const": "Intel",
+          "title": "Intel Open Source License"
+        },
+        {
+          "const": "LGPL-2.1",
+          "title": "GNU Lesser General Public License 2.1"
+        },
+        {
+          "const": "LGPL-3.0",
+          "title": "GNU Lesser General Public License 3.0"
+        },
+        {
+          "const": "LO-FR-2.0",
+          "title": "Open License 2.0"
+        },
+        {
+          "const": "LPL-1.0",
+          "title": "Lucent Public License (\"Plan9\") 1.0"
+        },
+        {
+          "const": "LPL-1.02",
+          "title": "Lucent Public License 1.02"
+        },
+        {
+          "const": "LPPL-1.3c",
+          "title": "LaTeX Project Public License 1.3c"
+        },
+        {
+          "const": "MIT",
+          "title": "MIT License"
+        },
+        {
+          "const": "MPL-1.0",
+          "title": "Mozilla Public License 1.0"
+        },
+        {
+          "const": "MPL-1.1",
+          "title": "Mozilla Public License 1.1"
+        },
+        {
+          "const": "MPL-2.0",
+          "title": "Mozilla Public License 2.0"
+        },
+        {
+          "const": "MS-PL",
+          "title": "Microsoft Public License"
+        },
+        {
+          "const": "MS-RL",
+          "title": "Microsoft Reciprocal License"
+        },
+        {
+          "const": "MirOS",
+          "title": "MirOS Licence"
+        },
+        {
+          "const": "Motosoto",
+          "title": "Motosoto License"
+        },
+        {
+          "const": "Multics",
+          "title": "Multics License"
+        },
+        {
+          "const": "NASA-1.3",
+          "title": "NASA Open Source Agreement 1.3"
+        },
+        {
+          "const": "NCSA",
+          "title": "University of Illinois/NCSA Open Source License"
+        },
+        {
+          "const": "NGPL",
+          "title": "Nethack General Public License"
+        },
+        {
+          "const": "NPOSL-3.0",
+          "title": "Non-Profit Open Software License 3.0"
+        },
+        {
+          "const": "NTP",
+          "title": "NTP License"
+        },
+        {
+          "const": "Naumen",
+          "title": "Naumen Public License"
+        },
+        {
+          "const": "Nokia",
+          "title": "Nokia Open Source License"
+        },
+        {
+          "const": "OCLC-2.0",
+          "title": "OCLC Research Public License 2.0"
+        },
+        {
+          "const": "ODC-BY-1.0",
+          "title": "Open Data Commons Attribution License 1.0"
+        },
+        {
+          "const": "ODbL-1.0",
+          "title": "Open Data Commons Open Database License 1.0"
+        },
+        {
+          "const": "OFL-1.1",
+          "title": "Open Font License 1.1"
+        },
+        {
+          "const": "OGL-Canada-2.0",
+          "title": "Open Government License 2.0 (Canada)"
+        },
+        {
+          "const": "OGL-UK-1.0",
+          "title": "Open Government Licence 1.0 (United Kingdom)"
+        },
+        {
+          "const": "OGL-UK-2.0",
+          "title": "Open Government Licence 2.0 (United Kingdom)"
+        },
+        {
+          "const": "OGL-UK-3.0",
+          "title": "Open Government Licence 3.0 (United Kingdom)"
+        },
+        {
+          "const": "OGTSL",
+          "title": "Open Group Test Suite License"
+        },
+        {
+          "const": "OSL-3.0",
+          "title": "Open Software License 3.0"
+        },
+        {
+          "const": "PDDL-1.0",
+          "title": "Open Data Commons Public Domain Dedication and Licence 1.0"
+        },
+        {
+          "const": "PHP-3.0",
+          "title": "PHP License 3.0"
+        },
+        {
+          "const": "PostgreSQL",
+          "title": "PostgreSQL License"
+        },
+        {
+          "const": "Python-2.0",
+          "title": "Python License 2.0"
+        },
+        {
+          "const": "QPL-1.0",
+          "title": "Q Public License 1.0"
+        },
+        {
+          "const": "RPL-1.5",
+          "title": "Reciprocal Public License 1.5"
+        },
+        {
+          "const": "RPSL-1.0",
+          "title": "RealNetworks Public Source License 1.0"
+        },
+        {
+          "const": "RSCPL",
+          "title": "Ricoh Source Code Public License"
+        },
+        {
+          "const": "SISSL",
+          "title": "Sun Industry Standards Source License 1.1"
+        },
+        {
+          "const": "SPL-1.0",
+          "title": "Sun Public License 1.0"
+        },
+        {
+          "const": "SimPL-2.0",
+          "title": "Simple Public License 2.0"
+        },
+        {
+          "const": "Sleepycat",
+          "title": "Sleepycat License"
+        },
+        {
+          "const": "Talis",
+          "title": "Talis Community License"
+        },
+        {
+          "const": "Unlicense",
+          "title": "Unlicense"
+        },
+        {
+          "const": "VSL-1.0",
+          "title": "Vovida Software License 1.0"
+        },
+        {
+          "const": "W3C",
+          "title": "W3C License"
+        },
+        {
+          "const": "WXwindows",
+          "title": "wxWindows Library License"
+        },
+        {
+          "const": "Watcom-1.0",
+          "title": "Sybase Open Watcom Public License 1.0"
+        },
+        {
+          "const": "Xnet",
+          "title": "X.Net License"
+        },
+        {
+          "const": "ZPL-2.0",
+          "title": "Zope Public License 2.0"
+        },
+        {
+          "const": "Zlib",
+          "title": "zlib/libpng license"
+        },
+        {
+          "const": "dli-model-use",
+          "title": "Statistics Canada: Data Liberation Initiative (DLI) - Model Data Use Licence"
+        },
+        {
+          "const": "geogratis",
+          "title": "Geogratis"
+        },
+        {
+          "const": "hesa-withrights",
+          "title": "Higher Education Statistics Agency Copyright with data.gov.uk rights"
+        },
+        {
+          "const": "localauth-withrights",
+          "title": "Local Authority Copyright with data.gov.uk rights"
+        },
+        {
+          "const": "met-office-cp",
+          "title": "Met Office UK Climate Projections Licence Agreement"
+        },
+        {
+          "const": "mitre",
+          "title": "MITRE Collaborative Virtual Workspace License (CVW License)"
+        },
+        {
+          "const": "notspecified",
+          "title": "License Not Specified"
+        },
+        {
+          "const": "other-at",
+          "title": "Other (Attribution)"
+        },
+        {
+          "const": "other-closed",
+          "title": "Other (Not Open)"
+        },
+        {
+          "const": "other-nc",
+          "title": "Other (Non-Commercial)"
+        },
+        {
+          "const": "other-open",
+          "title": "Other (Open)"
+        },
+        {
+          "const": "other-pd",
+          "title": "Other (Public Domain)"
+        },
+        {
+          "const": "ukclickusepsi",
+          "title": "UK Click Use PSI"
+        },
+        {
+          "const": "ukcrown",
+          "title": "UK Crown Copyright"
+        },
+        {
+          "const": "ukcrown-withrights",
+          "title": "UK Crown Copyright with data.gov.uk rights"
+        },
+        {
+          "const": "ukpsi",
+          "title": "UK PSI Public Sector Information"
         }
       ],
-      "errorMessage": {
-        "anyOf": "is a required property"
+      "default": "CC-BY-4.0"
+    },
+    "publication_date": {
+      "title": "Publication date",
+      "type": "string",
+      "description": "",
+      "format": "date"
+    },
+    "references": {
+      "title": "References",
+      "type": "array",
+      "options": {
+        "delimeter": false,
+        "placeholder": "e.g. 'Cranmer, Kyle et al. (2014). Decouple software associated to arXiv:1401.0080.'"
+      },
+      "description": "Raw textual references for related publications and datasets when identifier is not known.",
+      "items": {
+        "title": "Reference string",
+        "type": "string",
+        "description": "A string providing the full reference for the related item."
       }
     },
-    "RecordFile": {
-      "type": "object",
-      "properties": {
-        "checkum": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "format": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "position": {
-          "type": "integer"
-        },
-        "serverName": {
-          "type": "string"
-        },
-        "size": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "uploadDate": {
-          "type": "string"
-        }
-      },
-      "title": "RecordFile"
-    },
-    "RelatedResource": {
-      "title": "Related Resource",
-      "type": "object",
-      "required": [
-        "identifiers"
-      ],
-      "properties": {
-        "identifiers": {
-          "title": "Related Information",
-          "type": "array",
-          "items": {
-            "title": "Related Information",
-            "maxItems": 1,
-            "anyOf": [
+    "related_identifiers": {
+      "title": "Related identifiers",
+      "type": "array",
+      "description": "Identifiers of related publications and datasets.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "title": "Identifier",
+            "type": "string",
+            "description": "Identifier of the related publication or dataset.",
+            "options": {
+              "placeholder": "e.g. '10.1234/foobar.567890'"
+            }
+          },
+          "relation": {
+            "title": "Relationship type",
+            "type": "string",
+            "description": "The type of relationship between this item and the related item.",
+            "options": {
+              "hasAutoComplete": true,
+              "placeholder": "Start typing to autocomplete..."
+            },
+            "oneOf": [
               {
-                "type": "object",
-                "title": "(DOI) - Publication DOI",
-                "description": "Select a related identifier from the dropdown",
-                "required": [
-                  "identifier",
-                  "scheme"
-                ],
-                "properties": {
-                  "scheme": {
-                    "type": "string",
-                    "default": "DOI",
-                    "const": "DOI"
-                  },
-                  "identifier": {
-                    "type": "string",
-                    "title": "Publication DOI",
-                    "description": "Enter most relevant publication DOI(s). e.g. '10.016/j.epsl.2009.11.018'",
-                    "options": {
-                      "placeholder": "e.g. '10.016/j.epsl.2009.11.018'"
-                    }
-                  }
-                }
+                "const": "isCitedBy",
+                "title": "cites this upload"
               },
               {
-                "type": "object",
-                "title": "(IGSN) - International Geo Sample Number",
-                "description": "Select a related identifier from the dropdown",
-                "properties": {
-                  "scheme": {
-                    "type": "string",
-                    "default": "IGSN",
-                    "const": "IGSN",
-                    "readOnly": true,
-                    "options": {
-                      "hidden": true
-                    }
-                  },
-                  "identifier": {
-                    "type": "string",
-                    "title": "IGSN",
-                    "description": "Provide IGSNs for your samples separated by commas."
-                  }
-                }
+                "const": "cites",
+                "title": "is cited by this upload"
               },
               {
-                "type": "object",
-                "title": "(R2R) - Cruise DOI",
-                "description": "Select a related identifier from the dropdown",
-                "properties": {
-                  "scheme": {
-                    "type": "string",
-                    "default": "OCDOI",
-                    "const": "OCDOI",
-                    "readOnly": true,
-                    "options": {
-                      "hidden": true
-                    }
-                  },
-                  "identifier": {
-                    "type": "string",
-                    "title": "Cruise DOI",
-                    "description": "Provide Cruise DOIs corresponding to your samples."
-                  }
-                }
+                "const": "isSupplementTo",
+                "title": "is supplemented by this upload"
               },
               {
-                "type": "object",
-                "title": "(SVN) - Smithsonian Volcano Number",
-                "description": "Select a related identifier from the dropdown",
-                "properties": {
-                  "scheme": {
-                    "type": "string",
-                    "default": "VNum",
-                    "const": "VNum",
-                    "readOnly": true,
-                    "options": {
-                      "hidden": true
-                    }
-                  },
-                  "identifier": {
-                    "type": "string",
-                    "title": "Smithsonian Volcano Number",
-                    "description": "Provide volcano numbers corresponding to your sample collection site."
-                  }
-                }
+                "const": "isSupplementedBy",
+                "title": "is a supplement to this upload"
+              },
+              {
+                "const": "isContinuedBy",
+                "title": "continues this upload"
+              },
+              {
+                "const": "continues",
+                "title": "is continued by this upload"
+              },
+              {
+                "const": "isDescribedBy",
+                "title": "describes this upload"
+              },
+              {
+                "const": "describes",
+                "title": "is described by this upload"
+              },
+              {
+                "const": "hasMetadata",
+                "title": "has additional metadata from this upload"
+              },
+              {
+                "const": "isMetadataFor",
+                "title": "is additional metadata for this upload"
+              },
+              {
+                "const": "isNewVersionOf",
+                "title": "is previous version of this upload"
+              },
+              {
+                "const": "isPreviousVersionOf",
+                "title": "is new version of this upload"
+              },
+              {
+                "const": "isPartOf",
+                "title": "has this upload as part"
+              },
+              {
+                "const": "hasPart",
+                "title": "is part of this upload"
+              },
+              {
+                "const": "isReferencedBy",
+                "title": "references this upload"
+              },
+              {
+                "const": "references",
+                "title": "is referenced by this upload"
+              },
+              {
+                "const": "isDocumentedBy",
+                "title": "documents this upload"
+              },
+              {
+                "const": "documents",
+                "title": "is documented by this upload"
+              },
+              {
+                "const": "isCompiledBy",
+                "title": "compiled/created this upload"
+              },
+              {
+                "const": "compiles",
+                "title": "is compiled/created by this upload"
+              },
+              {
+                "const": "isVariantFormOf",
+                "title": "is a variant or different form of this upload"
+              },
+              {
+                "const": "isOrignialFormOf",
+                "title": "is an original form of this upload"
+              },
+              {
+                "const": "isIdenticalTo",
+                "title": "is identical to this upload"
+              },
+              {
+                "const": "isReviewedBy",
+                "title": "reviews this upload"
+              },
+              {
+                "const": "reviews",
+                "title": "is reviewed by this upload"
+              },
+              {
+                "const": "isDerivedFrom",
+                "title": "is the source this upload is derived from"
+              },
+              {
+                "const": "isSourceOf",
+                "title": "has this upload as its source"
+              },
+              {
+                "const": "requires",
+                "title": "is required by this upload"
+              },
+              {
+                "const": "isRequiredBy",
+                "title": "requires this upload"
+              },
+              {
+                "const": "isObsoletedBy",
+                "title": "replaces this upload"
+              },
+              {
+                "const": "obsoletes",
+                "title": "is replaced by this upload"
+              },
+              {
+                "const": "isPublishedIn",
+                "title": "published this upload"
+              }
+            ]
+          },
+          "resource_type": {
+            "title": "Resource type",
+            "type": "string",
+            "description": "Resource type of the related identifier.",
+            "options": {},
+            "oneOf": [
+              {
+                "const": "undefined",
+                "title": "N/A"
+              },
+              {
+                "const": "",
+                "title": "",
+                "divider": true
+              },
+              {
+                "const": "",
+                "title": "",
+                "header": "Publication"
+              },
+              {
+                "const": "publication-annotationcollection",
+                "title": "Annotation collection"
+              },
+              {
+                "const": "publication-book",
+                "title": "Book"
+              },
+              {
+                "const": "publication-section",
+                "title": "Book section"
+              },
+              {
+                "const": "publication-conferencepaper",
+                "title": "Conference paper"
+              },
+              {
+                "const": "publication-datamanagementplan",
+                "title": "Data management plan"
+              },
+              {
+                "const": "publication-article",
+                "title": "Journal article"
+              },
+              {
+                "const": "publication-other",
+                "title": "Other"
+              },
+              {
+                "const": "publication-patent",
+                "title": "Patent"
+              },
+              {
+                "const": "publication-preprint",
+                "title": "Preprint"
+              },
+              {
+                "const": "publication-deliverable",
+                "title": "Project deliverable"
+              },
+              {
+                "const": "publication-milestone",
+                "title": "Project milestone"
+              },
+              {
+                "const": "publication-proposal",
+                "title": "Proposal"
+              },
+              {
+                "const": "publication-report",
+                "title": "Report"
+              },
+              {
+                "const": "publication-softwaredocumentation",
+                "title": "Software documentation"
+              },
+              {
+                "const": "publication-taxonomictreatment",
+                "title": "Taxonomic treatment"
+              },
+              {
+                "const": "publication-technicalnote",
+                "title": "Technical note"
+              },
+              {
+                "const": "publication-thesis",
+                "title": "Thesis"
+              },
+              {
+                "const": "publication-workingpaper",
+                "title": "Working paper"
+              },
+              {
+                "const": "",
+                "title": "",
+                "divider": true
+              },
+              {
+                "const": "",
+                "title": "",
+                "header": "Image"
+              },
+              {
+                "const": "image-diagram",
+                "title": "Diagram"
+              },
+              {
+                "const": "image-drawing",
+                "title": "Drawing"
+              },
+              {
+                "const": "image-figure",
+                "title": "Figure"
+              },
+              {
+                "const": "image-other",
+                "title": "Other"
+              },
+              {
+                "const": "image-photo",
+                "title": "Photo"
+              },
+              {
+                "const": "image-plot",
+                "title": "Plot"
+              },
+              {
+                "const": "",
+                "title": "",
+                "divider": true
+              },
+              {
+                "const": "lesson",
+                "title": "Lesson"
+              },
+              {
+                "const": "other",
+                "title": "Other"
+              },
+              {
+                "const": "physicalobject",
+                "title": "Physical object"
+              },
+              {
+                "const": "poster",
+                "title": "Poster"
+              },
+              {
+                "const": "presentation",
+                "title": "Presentation"
+              },
+              {
+                "const": "software",
+                "title": "Software"
+              },
+              {
+                "const": "video",
+                "title": "Video/Audio"
+              },
+              {
+                "const": "workflow",
+                "title": "Workflow"
               }
             ]
           }
-        }
+        },
+        "required": [
+          "identifier",
+          "relation"
+        ]
       }
     },
-    "SpatialCoverage": {
-      "title": "Spatial Coverage Information",
+    "resource_type": {
+      "title": "Resource type",
       "type": "object",
+      "description": "Record resource type.",
+      "additionalProperties": false,
       "properties": {
-        "coverage": {
-          "title": "Spatial Coverage",
+        "openaire_subtype": {
+          "title": "OpenAIRE subtype",
           "type": "string",
-          "enum": [
-            "Global",
-            "Regional (Continents, Oceans)",
-            "Space/Planetary"
-          ]
+          "description": "OpenAIRE-specific resource type."
         },
-        "keywords": {
-          "title": "Geographic Keywords",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Provide appropriate geographic keywords for searches. (e.g. Pacific Ocean, Aleutian Islands)"
+        "subtype": {
+          "title": "Subtype",
+          "type": "string",
+          "description": "Specific resource type."
+        },
+        "type": {
+          "title": "General resource type",
+          "type": "string",
+          "description": "General resource type.",
+          "default": "publication"
         }
       },
       "required": [
-        "coverage"
+        "type"
       ]
+    },
+    "subjects": {
+      "title": "Subjects from specific vocabularies",
+      "type": "array",
+      "description": "Subjects from a taxonomy or controlled vocabulary.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "identifier": {
+            "title": "Term identifier",
+            "type": "string",
+            "description": "Subjects term identifier (e.g., a URL)."
+          },
+          "term": {
+            "title": "Subject term",
+            "type": "string",
+            "description": "Subject term value."
+          }
+        }
+      }
+    },
+    "title": {
+      "title": "Title",
+      "type": "string",
+      "description": "Descriptive title for the record."
+    },
+    "version": {
+      "title": "Version",
+      "type": "string",
+      "description": "Record version tag. Mostly relevant for software and dataset uploads. Any string will be accepted, but semantically-versioned tag is recommended."
+    },
+    "upload_type": {
+      "additionalProperties": false,
+      "default": "dataset",
+      "description": "Record upload type.",
+      "enum": [
+        "publication",
+        "poster",
+        "presentation",
+        "dataset",
+        "image",
+        "video",
+        "software",
+        "lesson",
+        "physicalobject",
+        "other"
+      ],
+      "type": "string"
     }
-  }
+  },
+  "required": [
+    "title",
+    "description",
+    "keywords",
+    "notes",
+    "access_right",
+    "license"
+  ]
 }

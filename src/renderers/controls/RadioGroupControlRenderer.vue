@@ -4,12 +4,11 @@
     :data-id="computedLabel.replaceAll(` `, ``)"
     :description="control.description"
     :hasToggle="false"
-    :enabled="!appliedOptions.isDisabled"
+    :enabled="!appliedOptions.isDisabled && control.enabled"
     :readonly="!control.enabled"
     :errors="control.errors"
     :title="control.schema.title"
     :computedLabel="computedLabel"
-    :isFlat="true"
   >
     <v-radio-group
       class="mt-0"
@@ -17,7 +16,7 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :class="styles.control.input"
       :readonly="!control.enabled || control.schema['readOnly']"
-      :disabled="appliedOptions.isDisabled"
+      :disabled="appliedOptions.isDisabled || !control.enabled"
       :autofocus="appliedOptions.focus"
       :placeholder="appliedOptions.placeholder"
       :required="control.required"
