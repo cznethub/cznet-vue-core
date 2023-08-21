@@ -88,7 +88,7 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(_element, index) in control.data"
+                    v-for="(element, index) in control.data"
                     :key="`${control.path}-${index}`"
                     :class="styles.arrayList.item"
                   >
@@ -106,7 +106,7 @@
                         :schema="control.schema"
                         :uischema="resolveUiSchema(propName)"
                         :path="composePaths(control.path, `${index}`)"
-                        :enabled="control.enabled"
+                        :enabled="control.enabled && !isRequired(element)"
                         :renderers="control.renderers"
                         :cells="control.cells"
                       />
@@ -176,6 +176,7 @@
                               :class="styles.arrayList.itemDelete"
                               :disabled="
                                 !control.enabled ||
+                                isRequired(element) ||
                                 (appliedOptions.restrict &&
                                   arraySchema !== undefined &&
                                   arraySchema.minItems !== undefined &&
@@ -248,6 +249,7 @@ import {
   VSpacer,
   VSimpleTable,
 } from "vuetify/lib";
+import { isEqual } from "lodash";
 import { default as CzFieldset } from "./components/CzFieldset.vue";
 import { default as ControlWrapper } from "./ControlWrapper.vue";
 
@@ -305,6 +307,29 @@ const controlRenderer = defineComponent({
       // @ts-ignore
       return this.control.schema.maxItems || this.arraySchema?.maxItems;
     },
+  },
+  created() {
+    // @ts-ignore
+    const requiredItems = this.control.schema.contains?.enum || [];
+
+    requiredItems.map((item) => {
+      if (!this.control.data) {
+        this.control.data = [];
+      }
+      // We must use isEqual to compare objects instead of Arra.includes
+      const isIncluded = this.control.data.some((existingItem) =>
+        isEqual(item, existingItem)
+      );
+      if (!isIncluded) {
+        this.addItem(this.control.path, item)();
+      }
+    });
+
+    if (this.control.schema.default && !this.control.data) {
+      this.control.schema.default.map((item) => {
+        this.addItem(this.control.path, item)();
+      });
+    }
   },
   methods: {
     composePaths,
@@ -401,6 +426,20 @@ const controlRenderer = defineComponent({
         // @ts-ignore
         description: this.control.schema.description || false,
       };
+    },
+    isRequired(item) {
+      const count = this.control.data.filter((i) => {
+        return isEqual(i, item);
+      }).length;
+
+      if (count > 1) {
+        return false;
+      }
+
+      // @ts-ignore
+      return this.control.schema.contains?.enum?.some((requiredItem) =>
+        isEqual(item, requiredItem)
+      );
     },
   },
 });
