@@ -456,6 +456,9 @@ const controlRenderer = defineComponent({
       });
     },
     getItemLabel(element) {
+      if (!element) {
+        return "";
+      }
       // @ts-ignore
       if (Array.isArray(this.appliedOptions.elementLabelProp)) {
         // @ts-ignore

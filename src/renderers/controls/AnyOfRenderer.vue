@@ -8,7 +8,7 @@
     <cz-fieldset
       v-if="control.visible"
       :data-id="computedLabel.replaceAll(` `, ``)"
-      :description="desc"
+      :description="!!isDropDown ? '' : desc"
       :hasToggle="hasToggle"
       :hasData="!noData"
       :enabled="!appliedOptions.isDisabled"
