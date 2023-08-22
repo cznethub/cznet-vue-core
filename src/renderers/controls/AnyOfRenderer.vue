@@ -72,7 +72,7 @@
           :error-messages="control.errors"
           :placeholder="appliedOptions.placeholder"
           :readonly="!control.enabled || control.schema['readOnly']"
-          :disabled="appliedOptions.isDisabled || !control.enabled"
+          :disabled="appliedOptions.isDisabled"
           v-bind="vuetifyProps('v-select')"
           item-text="label"
           >{{ currentLabel }}</v-select

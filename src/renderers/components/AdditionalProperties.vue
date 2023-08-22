@@ -17,7 +17,7 @@
             "
             :placeholder="placeholder"
             :readonly="!control.enabled || control.schema['readOnly']"
-            :disabled="appliedOptions.isDisabled || !control.enabled"
+            :disabled="appliedOptions.isDisabled"
             v-bind="vuetifyProps('v-text-field')"
           >
           </v-text-field>

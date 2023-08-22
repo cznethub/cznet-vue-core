@@ -1,1122 +1,677 @@
 {
-  "title": "Zenodo Datasets Schema for CZ Net v1.0.0",
+  "title": "Resource Metadata",
+  "description": "A class used to represent the metadata for a resource",
   "type": "object",
   "properties": {
-    "access_conditions": {
-      "title": "Access conditions",
-      "type": "string",
-      "description": "Conditions under which access is given if record is restricted."
+    "title": {
+      "title": "Title",
+      "description": "A string containing the name given to a resource",
+      "maxLength": 300,
+      "type": "string"
     },
-    "access_right": {
-      "title": "Access right",
-      "type": "string",
-      "description": "Access right for record",
-      "default": "open",
-      "enum": [
-        "open",
-        "embargoed"
-      ]
+    "abstract": {
+      "title": "Abstract",
+      "description": "A string containing a summary of a resource",
+      "type": "string"
     },
-    "communities": {
-      "title": "Communities",
-      "type": "array",
-      "description": "List of community identifiers.",
-      "uniqueItems": true,
-      "items": {
-        "title": "Community identifier",
-        "type": "object",
-        "properties": {
-          "identifier": {
-            "title": "Identifier",
-            "type": "string",
-            "description": "The community identifier"
-          }
-        },
-        "required": [
-          "identifier"
-        ],
-        "default": [
-          {
-            "identifier": "czdata"
-          }
-        ],
-        "contains": {
-          "enum": [
-            {
-              "identifier": "czdata"
-            }
-          ]
-        }
-      }
-    },
-    "contributors": {
-      "title": "Contributors",
-      "type": "array",
-      "description": "Contributors in order of importance.",
-      "items": {
-        "title": "Contributor",
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "affiliation": {
-            "title": "Affiliation",
-            "type": "string",
-            "description": "Affiliation for the purpose of this specific record."
-          },
-          "name": {
-            "title": "Full name",
-            "type": "string",
-            "description": "Full name of person or organisation. Personal name format: family, given.",
-            "options": {
-              "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
-            }
-          },
-          "orcid": {
-            "title": "ORCID",
-            "description": "ORCID identifier for contributor.",
-            "type": "string",
-            "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
-            "options": {
-              "placeholder": "e.g. '0000-0001-2345-6789'"
-            },
-            "errorMessage": {
-              "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
-            }
-          },
-          "type": {
-            "title": "Contribution type",
-            "type": "string",
-            "enum": [
-              "ContactPerson",
-              "DataCollector",
-              "DataCurator",
-              "DataManager",
-              "Distributor",
-              "Editor",
-              "HostingInstitution",
-              "Other",
-              "Producer",
-              "ProjectLeader",
-              "ProjectManager",
-              "ProjectMember",
-              "RegistrationAgency",
-              "RegistrationAuthority",
-              "RelatedPerson",
-              "Researcher",
-              "ResearchGroup",
-              "RightsHolder",
-              "Sponsor",
-              "Supervisor",
-              "WorkPackageLeader"
-            ]
-          }
-        },
-        "required": [
-          "name",
-          "affiliation",
-          "type"
-        ]
-      }
-    },
-    "creators": {
-      "title": "Creators",
-      "type": "array",
-      "description": "Creators of record in order of importance.",
-      "items": {
-        "title": "Creator",
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "affiliation": {
-            "title": "Affiliation",
-            "type": "string",
-            "description": "Affiliation for the purpose of this specific record."
-          },
-          "name": {
-            "title": "Full name",
-            "type": "string",
-            "description": "Full name of person or organisation. Personal name format: family, given.",
-            "options": {
-              "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
-            }
-          },
-          "orcid": {
-            "title": "ORCID",
-            "description": "ORCID identifier for creator.",
-            "type": "string",
-            "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
-            "options": {
-              "placeholder": "e.g. '0000-0001-2345-6789'"
-            },
-            "errorMessage": {
-              "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
-            }
-          }
-        },
-        "required": [
-          "affiliation",
-          "name"
-        ]
-      }
-    },
-    "description": {
-      "title": "Description/Abstract",
-      "type": "string",
-      "description": "Description/abstract for record.",
-      "options": {
-        "stripHTML": true
-      }
-    },
-    "embargo_date": {
-      "title": "Embargo date",
-      "type": "string",
-      "format": "date",
-      "description": "Embargo date of record (ISO8601 formatted date)",
-      "options": {
-        "placeholder": "YYYY-MM-DD",
-        "min": {
-          "amount": 1,
-          "unit": "day"
-        }
-      },
-      "if": {
-        "properties": {
-          "access_right": {
-            "const": "embargoed"
-          }
-        }
-      },
-      "then": {
-        "required": [
-          "embargo_date"
-        ]
-      }
-    },
-    "notes": {
-      "title": "Funding Agency Metadata",
-      "description": "Add metadata associated with funding agency credits for a resource in the format provided. Please separate multiple entries with an empty line.",
-      "type": "string",
-      "default": "Funding Agency Name: \nAward Title: \nAward Number: \nFunding Agency URL: ",
-      "options": {
-        "placeholder": "Funding Agency Name: \nAward Title: \nAward Number: \nFunding Agency URL: \n\nFunding Agency Name: \nAward Title: \nAward Number: \nFunding Agency URL: "
-      }
-    },
-    "keywords": {
-      "title": "Keywords",
-      "type": "array",
-      "description": "Free text keywords.",
-      "minItems": 2,
-      "uniqueItems": true,
-      "items": {
-        "title": "Keyword",
-        "type": "string"
-      },
+    "subjects": {
+      "title": "Subject keywords",
+      "description": "A list of keyword strings expressing the topic of a resource",
       "default": [
         "CZNet"
       ],
+      "minItems": 2,
       "contains": {
         "enum": [
           "CZNet"
         ]
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     },
-    "license": {
-      "title": "License",
-      "type": "string",
-      "description": "License for embargoed/open access content.",
-      "options": {
-        "hasAutoComplete": true,
-        "placeholder": "Start typing a license name..."
-      },
-      "oneOf": [
-        {
-          "const": "AAL",
-          "title": "Attribution Assurance Licenses"
-        },
-        {
-          "const": "AFL-3.0",
-          "title": "Academic Free License 3.0"
-        },
-        {
-          "const": "AGPL-3.0",
-          "title": "GNU Affero General Public License v3"
-        },
-        {
-          "const": "APL-1.0",
-          "title": "Adaptive Public License 1.0"
-        },
-        {
-          "const": "APSL-2.0",
-          "title": "Apple Public Source License 2.0"
-        },
-        {
-          "const": "Against-DRM",
-          "title": "Against DRM"
-        },
-        {
-          "const": "Apache-1.1",
-          "title": "Apache Foundation"
-        },
-        {
-          "const": "Apache-2.0",
-          "title": "Apache Software License 2.0"
-        },
-        {
-          "const": "Artistic-2.0",
-          "title": "Artistic License 2.0"
-        },
-        {
-          "const": "BSD-2-Clause",
-          "title": "BSD 2-Clause \"Simplified\" or \"FreeBSD\" License (BSD-2-Clause)"
-        },
-        {
-          "const": "BSD-3-Clause",
-          "title": "BSD 3-Clause \"New\" or \"Revised\" License (BSD-3-Clause)"
-        },
-        {
-          "const": "BSL-1.0",
-          "title": "Boost Software License 1.0"
-        },
-        {
-          "const": "BitTorrent-1.1",
-          "title": "BitTorrent Open Source License 1.1"
-        },
-        {
-          "const": "CATOSL-1.1",
-          "title": "Computer Associates Trusted Open Source License 1.1 (CATOSL-1.1)"
-        },
-        {
-          "const": "CC-BY-4.0",
-          "title": "Creative Commons Attribution 4.0"
-        },
-        {
-          "const": "CC-BY-NC-4.0",
-          "title": "Creative Commons Attribution-NonCommercial 4.0"
-        },
-        {
-          "const": "CC-BY-NC-ND-4.0",
-          "title": "Attribution-NonCommercial-NoDerivatives 4.0 International"
-        },
-        {
-          "const": "CC-BY-NC-SA-4.0",
-          "title": "Attribution-NonCommercial-ShareAlike 4.0 International"
-        },
-        {
-          "const": "CC-BY-ND-4.0",
-          "title": "Attribution-NoDerivatives 4.0 International"
-        },
-        {
-          "const": "CC-BY-SA-4.0",
-          "title": "Creative Commons Attribution Share-Alike 4.0"
-        },
-        {
-          "const": "CC0-1.0",
-          "title": "CC0 1.0"
-        },
-        {
-          "const": "CDDL-1.0",
-          "title": "Common Development and Distribution License 1.0"
-        },
-        {
-          "const": "CECILL-2.1",
-          "title": "CeCILL License 2.1"
-        },
-        {
-          "const": "CNRI-Python",
-          "title": "CNRI Python License"
-        },
-        {
-          "const": "CPAL-1.0",
-          "title": "Common Public Attribution License 1.0"
-        },
-        {
-          "const": "CUA-OPL-1.0",
-          "title": "CUA Office Public License 1.0"
-        },
-        {
-          "const": "DSL",
-          "title": "Design Science License"
-        },
-        {
-          "const": "ECL-2.0",
-          "title": "Educational Community License 2.0"
-        },
-        {
-          "const": "EFL-2.0",
-          "title": "Eiffel Forum License 2.0"
-        },
-        {
-          "const": "EPL-1.0",
-          "title": "Eclipse Public License 1.0"
-        },
-        {
-          "const": "EPL-2.0",
-          "title": "Eclipse Public License 2.0"
-        },
-        {
-          "const": "EUDatagrid",
-          "title": "EU DataGrid Software License"
-        },
-        {
-          "const": "EUPL-1.1",
-          "title": "European Union Public License 1.1"
-        },
-        {
-          "const": "Entessa",
-          "title": "Entessa Public License"
-        },
-        {
-          "const": "FAL-1.3",
-          "title": "Free Art License 1.3"
-        },
-        {
-          "const": "Fair",
-          "title": "Fair License"
-        },
-        {
-          "const": "Frameworx-1.0",
-          "title": "Frameworx License 1.0"
-        },
-        {
-          "const": "GFDL-1.3-no-cover-texts-no-invariant-sections",
-          "title": "GNU Free Documentation License 1.3 with no cover texts and no invariant sections"
-        },
-        {
-          "const": "GPL-2.0",
-          "title": "GNU General Public License 2.0"
-        },
-        {
-          "const": "GPL-3.0",
-          "title": "GNU General Public License 3.0"
-        },
-        {
-          "const": "HPND",
-          "title": "Historical Permission Notice and Disclaimer"
-        },
-        {
-          "const": "IPA",
-          "title": "IPA Font License"
-        },
-        {
-          "const": "IPL-1.0",
-          "title": "IBM Public License 1.0"
-        },
-        {
-          "const": "ISC",
-          "title": "ISC License"
-        },
-        {
-          "const": "Intel",
-          "title": "Intel Open Source License"
-        },
-        {
-          "const": "LGPL-2.1",
-          "title": "GNU Lesser General Public License 2.1"
-        },
-        {
-          "const": "LGPL-3.0",
-          "title": "GNU Lesser General Public License 3.0"
-        },
-        {
-          "const": "LO-FR-2.0",
-          "title": "Open License 2.0"
-        },
-        {
-          "const": "LPL-1.0",
-          "title": "Lucent Public License (\"Plan9\") 1.0"
-        },
-        {
-          "const": "LPL-1.02",
-          "title": "Lucent Public License 1.02"
-        },
-        {
-          "const": "LPPL-1.3c",
-          "title": "LaTeX Project Public License 1.3c"
-        },
-        {
-          "const": "MIT",
-          "title": "MIT License"
-        },
-        {
-          "const": "MPL-1.0",
-          "title": "Mozilla Public License 1.0"
-        },
-        {
-          "const": "MPL-1.1",
-          "title": "Mozilla Public License 1.1"
-        },
-        {
-          "const": "MPL-2.0",
-          "title": "Mozilla Public License 2.0"
-        },
-        {
-          "const": "MS-PL",
-          "title": "Microsoft Public License"
-        },
-        {
-          "const": "MS-RL",
-          "title": "Microsoft Reciprocal License"
-        },
-        {
-          "const": "MirOS",
-          "title": "MirOS Licence"
-        },
-        {
-          "const": "Motosoto",
-          "title": "Motosoto License"
-        },
-        {
-          "const": "Multics",
-          "title": "Multics License"
-        },
-        {
-          "const": "NASA-1.3",
-          "title": "NASA Open Source Agreement 1.3"
-        },
-        {
-          "const": "NCSA",
-          "title": "University of Illinois/NCSA Open Source License"
-        },
-        {
-          "const": "NGPL",
-          "title": "Nethack General Public License"
-        },
-        {
-          "const": "NPOSL-3.0",
-          "title": "Non-Profit Open Software License 3.0"
-        },
-        {
-          "const": "NTP",
-          "title": "NTP License"
-        },
-        {
-          "const": "Naumen",
-          "title": "Naumen Public License"
-        },
-        {
-          "const": "Nokia",
-          "title": "Nokia Open Source License"
-        },
-        {
-          "const": "OCLC-2.0",
-          "title": "OCLC Research Public License 2.0"
-        },
-        {
-          "const": "ODC-BY-1.0",
-          "title": "Open Data Commons Attribution License 1.0"
-        },
-        {
-          "const": "ODbL-1.0",
-          "title": "Open Data Commons Open Database License 1.0"
-        },
-        {
-          "const": "OFL-1.1",
-          "title": "Open Font License 1.1"
-        },
-        {
-          "const": "OGL-Canada-2.0",
-          "title": "Open Government License 2.0 (Canada)"
-        },
-        {
-          "const": "OGL-UK-1.0",
-          "title": "Open Government Licence 1.0 (United Kingdom)"
-        },
-        {
-          "const": "OGL-UK-2.0",
-          "title": "Open Government Licence 2.0 (United Kingdom)"
-        },
-        {
-          "const": "OGL-UK-3.0",
-          "title": "Open Government Licence 3.0 (United Kingdom)"
-        },
-        {
-          "const": "OGTSL",
-          "title": "Open Group Test Suite License"
-        },
-        {
-          "const": "OSL-3.0",
-          "title": "Open Software License 3.0"
-        },
-        {
-          "const": "PDDL-1.0",
-          "title": "Open Data Commons Public Domain Dedication and Licence 1.0"
-        },
-        {
-          "const": "PHP-3.0",
-          "title": "PHP License 3.0"
-        },
-        {
-          "const": "PostgreSQL",
-          "title": "PostgreSQL License"
-        },
-        {
-          "const": "Python-2.0",
-          "title": "Python License 2.0"
-        },
-        {
-          "const": "QPL-1.0",
-          "title": "Q Public License 1.0"
-        },
-        {
-          "const": "RPL-1.5",
-          "title": "Reciprocal Public License 1.5"
-        },
-        {
-          "const": "RPSL-1.0",
-          "title": "RealNetworks Public Source License 1.0"
-        },
-        {
-          "const": "RSCPL",
-          "title": "Ricoh Source Code Public License"
-        },
-        {
-          "const": "SISSL",
-          "title": "Sun Industry Standards Source License 1.1"
-        },
-        {
-          "const": "SPL-1.0",
-          "title": "Sun Public License 1.0"
-        },
-        {
-          "const": "SimPL-2.0",
-          "title": "Simple Public License 2.0"
-        },
-        {
-          "const": "Sleepycat",
-          "title": "Sleepycat License"
-        },
-        {
-          "const": "Talis",
-          "title": "Talis Community License"
-        },
-        {
-          "const": "Unlicense",
-          "title": "Unlicense"
-        },
-        {
-          "const": "VSL-1.0",
-          "title": "Vovida Software License 1.0"
-        },
-        {
-          "const": "W3C",
-          "title": "W3C License"
-        },
-        {
-          "const": "WXwindows",
-          "title": "wxWindows Library License"
-        },
-        {
-          "const": "Watcom-1.0",
-          "title": "Sybase Open Watcom Public License 1.0"
-        },
-        {
-          "const": "Xnet",
-          "title": "X.Net License"
-        },
-        {
-          "const": "ZPL-2.0",
-          "title": "Zope Public License 2.0"
-        },
-        {
-          "const": "Zlib",
-          "title": "zlib/libpng license"
-        },
-        {
-          "const": "dli-model-use",
-          "title": "Statistics Canada: Data Liberation Initiative (DLI) - Model Data Use Licence"
-        },
-        {
-          "const": "geogratis",
-          "title": "Geogratis"
-        },
-        {
-          "const": "hesa-withrights",
-          "title": "Higher Education Statistics Agency Copyright with data.gov.uk rights"
-        },
-        {
-          "const": "localauth-withrights",
-          "title": "Local Authority Copyright with data.gov.uk rights"
-        },
-        {
-          "const": "met-office-cp",
-          "title": "Met Office UK Climate Projections Licence Agreement"
-        },
-        {
-          "const": "mitre",
-          "title": "MITRE Collaborative Virtual Workspace License (CVW License)"
-        },
-        {
-          "const": "notspecified",
-          "title": "License Not Specified"
-        },
-        {
-          "const": "other-at",
-          "title": "Other (Attribution)"
-        },
-        {
-          "const": "other-closed",
-          "title": "Other (Not Open)"
-        },
-        {
-          "const": "other-nc",
-          "title": "Other (Non-Commercial)"
-        },
-        {
-          "const": "other-open",
-          "title": "Other (Open)"
-        },
-        {
-          "const": "other-pd",
-          "title": "Other (Public Domain)"
-        },
-        {
-          "const": "ukclickusepsi",
-          "title": "UK Click Use PSI"
-        },
-        {
-          "const": "ukcrown",
-          "title": "UK Crown Copyright"
-        },
-        {
-          "const": "ukcrown-withrights",
-          "title": "UK Crown Copyright with data.gov.uk rights"
-        },
-        {
-          "const": "ukpsi",
-          "title": "UK PSI Public Sector Information"
+    "creators": {
+      "title": "Creators",
+      "description": "A list of Creator objects indicating the entities responsible for creating a resource",
+      "default": [],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Creator"
+      }
+    },
+    "contributors": {
+      "title": "Contributors",
+      "description": "A list of Contributor objects indicating the entities that contributed to a resource",
+      "default": [],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Contributor"
+      }
+    },
+    "relations": {
+      "title": "Related resources",
+      "description": "A list of Relation objects representing resources related to a described resource",
+      "default": [],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Relation"
+      }
+    },
+    "additional_metadata": {
+      "title": "Additional metadata",
+      "description": "A dictionary containing key-value pair metadata associated with a resource",
+      "default": [],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AdditionalMetadata"
+      }
+    },
+    "rights": {
+      "title": "Rights",
+      "description": "An object containing information about rights held in and over a resource",
+      "required": [
+        "statement",
+        "url"
+      ],
+      "anyOf": [
+        {
+          "title": "Choose a License",
+          "required": [
+            "license"
+          ],
+          "default": {
+            "license": "Creative Commons Attribution CC BY",
+            "statement": "This resource is shared under the Creative Commons Attribution CC BY.",
+            "url": "http://creativecommons.org/licenses/by/4.0/"
+          },
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "Creative Commons Attribution CC BY",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "default": "Creative Commons Attribution CC BY"
+                },
+                "statement": {
+                  "type": "string",
+                  "default": "This resource is shared under the Creative Commons Attribution CC BY.",
+                  "readOnly": true
+                },
+                "url": {
+                  "type": "string",
+                  "default": "http://creativecommons.org/licenses/by/4.0/",
+                  "readOnly": true
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Creative Commons Attribution-ShareAlike CC BY-SA",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "default": "Creative Commons Attribution-ShareAlike CC BY-SA"
+                },
+                "statement": {
+                  "type": "string",
+                  "default": "This resource is shared under the Creative Commons Attribution-ShareAlike CC BY-SA.",
+                  "readOnly": true
+                },
+                "url": {
+                  "type": "string",
+                  "default": "http://creativecommons.org/licenses/by-sa/4.0/",
+                  "readOnly": true
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Creative Commons Attribution-NoDerivs CC BY-ND",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "default": "Creative Commons Attribution-NoDerivs CC BY-ND"
+                },
+                "statement": {
+                  "type": "string",
+                  "default": "This resource is shared under the Creative Commons Attribution-NoDerivs CC BY-ND.",
+                  "readOnly": true
+                },
+                "url": {
+                  "type": "string",
+                  "default": "http://creativecommons.org/licenses/by-nd/4.0/",
+                  "readOnly": true
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "default": "Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA"
+                },
+                "statement": {
+                  "type": "string",
+                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA.",
+                  "readOnly": true
+                },
+                "url": {
+                  "type": "string",
+                  "default": "http://creativecommons.org/licenses/by-nc-sa/4.0/",
+                  "readOnly": true
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Creative Commons Attribution-NoCommercial CC BY-NC",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "default": "Creative Commons Attribution-NoCommercial CC BY-NC"
+                },
+                "statement": {
+                  "type": "string",
+                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial CC BY-NC.",
+                  "readOnly": true
+                },
+                "url": {
+                  "type": "string",
+                  "default": "http://creativecommons.org/licenses/by-nc/4.0/",
+                  "readOnly": true
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "default": "Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND"
+                },
+                "statement": {
+                  "type": "string",
+                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND.",
+                  "readOnly": true
+                },
+                "url": {
+                  "type": "string",
+                  "default": "http://creativecommons.org/licenses/by-nc/4.0/",
+                  "readOnly": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "Custom License",
+          "description": "An object containing information about rights held in an over a resource",
+          "type": "object",
+          "properties": {
+            "statement": {
+              "title": "Statement",
+              "description": "A string containing the text of the license or rights statement",
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "title": "URL",
+              "description": "URL pointing to a description of the license or rights statement",
+              "minLength": 1,
+              "maxLength": 2047,
+              "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
+              "errorMessage": {
+                "pattern": "must match format \"url\""
+              }
+            }
+          }
         }
       ],
-      "default": "CC-BY-4.0"
-    },
-    "publication_date": {
-      "title": "Publication date",
-      "type": "string",
-      "description": "",
-      "format": "date"
-    },
-    "references": {
-      "title": "References",
-      "type": "array",
-      "options": {
-        "delimeter": false,
-        "placeholder": "e.g. 'Cranmer, Kyle et al. (2014). Decouple software associated to arXiv:1401.0080.'"
-      },
-      "description": "Raw textual references for related publications and datasets when identifier is not known.",
-      "items": {
-        "title": "Reference string",
-        "type": "string",
-        "description": "A string providing the full reference for the related item."
+      "errorMessage": {
+        "anyOf": "selected item is incomplete"
       }
     },
-    "related_identifiers": {
-      "title": "Related identifiers",
+    "awards": {
+      "title": "Funding agency information",
+      "description": "A list of objects containing information about the funding agencies and awards associated with a resource",
+      "default": [],
       "type": "array",
-      "description": "Identifiers of related publications and datasets.",
       "items": {
-        "type": "object",
-        "properties": {
-          "identifier": {
-            "title": "Identifier",
-            "type": "string",
-            "description": "Identifier of the related publication or dataset.",
-            "options": {
-              "placeholder": "e.g. '10.1234/foobar.567890'"
+        "$ref": "#/definitions/AwardInfo"
+      }
+    },
+    "spatial_coverage": {
+      "title": "Spatial coverage",
+      "description": "An object containing information about the spatial topic of a resource, the spatial applicability of a resource, or jurisdiction under with a resource is relevant",
+      "anyOf": [
+        {
+          "title": "Point Coverage Metadata",
+          "description": "A class used to represent geographic coverage metadata for a resource or aggregation expressed as a\npoint location",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "description": "A string containing a name for the place associated with the geographic coverage",
+              "type": "string"
+            },
+            "east": {
+              "title": "East",
+              "description": "The coordinate of the point location measured in the east direction (between -180 and 180)",
+              "exclusiveMinimum": -180,
+              "exclusiveMaximum": 180,
+              "type": "number"
+            },
+            "north": {
+              "title": "North",
+              "description": " The coordinate of the point location measured in the north direction (between -90 and 90)",
+              "exclusiveMinimum": -90,
+              "exclusiveMaximum": 90,
+              "type": "number"
+            },
+            "units": {
+              "title": "Units",
+              "description": "The units applying to the unlabelled numeric values of north and east",
+              "type": "string",
+              "default": "Decimal degrees",
+              "readOnly": true
+            },
+            "projection": {
+              "title": "Projection",
+              "description": "The name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
+              "type": "string",
+              "default": "WGS 84 EPSG:4326",
+              "readOnly": true
             }
           },
-          "relation": {
-            "title": "Relationship type",
-            "type": "string",
-            "description": "The type of relationship between this item and the related item.",
-            "options": {
-              "hasAutoComplete": true,
-              "placeholder": "Start typing to autocomplete..."
-            },
-            "oneOf": [
-              {
-                "const": "isCitedBy",
-                "title": "cites this upload"
-              },
-              {
-                "const": "cites",
-                "title": "is cited by this upload"
-              },
-              {
-                "const": "isSupplementTo",
-                "title": "is supplemented by this upload"
-              },
-              {
-                "const": "isSupplementedBy",
-                "title": "is a supplement to this upload"
-              },
-              {
-                "const": "isContinuedBy",
-                "title": "continues this upload"
-              },
-              {
-                "const": "continues",
-                "title": "is continued by this upload"
-              },
-              {
-                "const": "isDescribedBy",
-                "title": "describes this upload"
-              },
-              {
-                "const": "describes",
-                "title": "is described by this upload"
-              },
-              {
-                "const": "hasMetadata",
-                "title": "has additional metadata from this upload"
-              },
-              {
-                "const": "isMetadataFor",
-                "title": "is additional metadata for this upload"
-              },
-              {
-                "const": "isNewVersionOf",
-                "title": "is previous version of this upload"
-              },
-              {
-                "const": "isPreviousVersionOf",
-                "title": "is new version of this upload"
-              },
-              {
-                "const": "isPartOf",
-                "title": "has this upload as part"
-              },
-              {
-                "const": "hasPart",
-                "title": "is part of this upload"
-              },
-              {
-                "const": "isReferencedBy",
-                "title": "references this upload"
-              },
-              {
-                "const": "references",
-                "title": "is referenced by this upload"
-              },
-              {
-                "const": "isDocumentedBy",
-                "title": "documents this upload"
-              },
-              {
-                "const": "documents",
-                "title": "is documented by this upload"
-              },
-              {
-                "const": "isCompiledBy",
-                "title": "compiled/created this upload"
-              },
-              {
-                "const": "compiles",
-                "title": "is compiled/created by this upload"
-              },
-              {
-                "const": "isVariantFormOf",
-                "title": "is a variant or different form of this upload"
-              },
-              {
-                "const": "isOrignialFormOf",
-                "title": "is an original form of this upload"
-              },
-              {
-                "const": "isIdenticalTo",
-                "title": "is identical to this upload"
-              },
-              {
-                "const": "isReviewedBy",
-                "title": "reviews this upload"
-              },
-              {
-                "const": "reviews",
-                "title": "is reviewed by this upload"
-              },
-              {
-                "const": "isDerivedFrom",
-                "title": "is the source this upload is derived from"
-              },
-              {
-                "const": "isSourceOf",
-                "title": "has this upload as its source"
-              },
-              {
-                "const": "requires",
-                "title": "is required by this upload"
-              },
-              {
-                "const": "isRequiredBy",
-                "title": "requires this upload"
-              },
-              {
-                "const": "isObsoletedBy",
-                "title": "replaces this upload"
-              },
-              {
-                "const": "obsoletes",
-                "title": "is replaced by this upload"
-              },
-              {
-                "const": "isPublishedIn",
-                "title": "published this upload"
-              }
-            ]
-          },
-          "resource_type": {
-            "title": "Resource type",
-            "type": "string",
-            "description": "Resource type of the related identifier.",
-            "options": {},
-            "oneOf": [
-              {
-                "const": "undefined",
-                "title": "N/A"
-              },
-              {
-                "const": "",
-                "title": "",
-                "divider": true
-              },
-              {
-                "const": "",
-                "title": "",
-                "header": "Publication"
-              },
-              {
-                "const": "publication-annotationcollection",
-                "title": "Annotation collection"
-              },
-              {
-                "const": "publication-book",
-                "title": "Book"
-              },
-              {
-                "const": "publication-section",
-                "title": "Book section"
-              },
-              {
-                "const": "publication-conferencepaper",
-                "title": "Conference paper"
-              },
-              {
-                "const": "publication-datamanagementplan",
-                "title": "Data management plan"
-              },
-              {
-                "const": "publication-article",
-                "title": "Journal article"
-              },
-              {
-                "const": "publication-other",
-                "title": "Other"
-              },
-              {
-                "const": "publication-patent",
-                "title": "Patent"
-              },
-              {
-                "const": "publication-preprint",
-                "title": "Preprint"
-              },
-              {
-                "const": "publication-deliverable",
-                "title": "Project deliverable"
-              },
-              {
-                "const": "publication-milestone",
-                "title": "Project milestone"
-              },
-              {
-                "const": "publication-proposal",
-                "title": "Proposal"
-              },
-              {
-                "const": "publication-report",
-                "title": "Report"
-              },
-              {
-                "const": "publication-softwaredocumentation",
-                "title": "Software documentation"
-              },
-              {
-                "const": "publication-taxonomictreatment",
-                "title": "Taxonomic treatment"
-              },
-              {
-                "const": "publication-technicalnote",
-                "title": "Technical note"
-              },
-              {
-                "const": "publication-thesis",
-                "title": "Thesis"
-              },
-              {
-                "const": "publication-workingpaper",
-                "title": "Working paper"
-              },
-              {
-                "const": "",
-                "title": "",
-                "divider": true
-              },
-              {
-                "const": "",
-                "title": "",
-                "header": "Image"
-              },
-              {
-                "const": "image-diagram",
-                "title": "Diagram"
-              },
-              {
-                "const": "image-drawing",
-                "title": "Drawing"
-              },
-              {
-                "const": "image-figure",
-                "title": "Figure"
-              },
-              {
-                "const": "image-other",
-                "title": "Other"
-              },
-              {
-                "const": "image-photo",
-                "title": "Photo"
-              },
-              {
-                "const": "image-plot",
-                "title": "Plot"
-              },
-              {
-                "const": "",
-                "title": "",
-                "divider": true
-              },
-              {
-                "const": "lesson",
-                "title": "Lesson"
-              },
-              {
-                "const": "other",
-                "title": "Other"
-              },
-              {
-                "const": "physicalobject",
-                "title": "Physical object"
-              },
-              {
-                "const": "poster",
-                "title": "Poster"
-              },
-              {
-                "const": "presentation",
-                "title": "Presentation"
-              },
-              {
-                "const": "software",
-                "title": "Software"
-              },
-              {
-                "const": "video",
-                "title": "Video/Audio"
-              },
-              {
-                "const": "workflow",
-                "title": "Workflow"
-              }
-            ]
-          }
+          "required": [
+            "east",
+            "north"
+          ]
         },
-        "required": [
-          "identifier",
-          "relation"
-        ]
+        {
+          "title": "Box Coverage Metadata",
+          "description": "A class used to represent geographic coverage metadata for a resource or aggregation expressed as a\nlatitude-longitude bounding box",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "description": "A string containing a name for the place associated with the geographic coverage",
+              "type": "string"
+            },
+            "northlimit": {
+              "title": "North limit",
+              "description": "A floating point value containing the constant coordinate for the northernmost face or edge of the bounding box (between -90 and 90)",
+              "exclusiveMinimum": -90,
+              "exclusiveMaximum": 90,
+              "type": "number"
+            },
+            "eastlimit": {
+              "title": "East limit",
+              "description": "A floating point value containing the constant coordinate for the easternmost face or edge of the bounding box (between -180 and 180)",
+              "exclusiveMinimum": -180,
+              "exclusiveMaximum": 180,
+              "type": "number"
+            },
+            "southlimit": {
+              "title": "South limit",
+              "description": "A floating point value containing the constant coordinate for the southernmost face or edge of the bounding box (between -90 and 90)",
+              "exclusiveMinimum": -90,
+              "exclusiveMaximum": 90,
+              "type": "number"
+            },
+            "westlimit": {
+              "title": "West limit",
+              "description": "A floating point value containing the constant coordinate for the westernmost face or edge of the bounding box (between -180 and 180)",
+              "exclusiveMinimum": -180,
+              "exclusiveMaximum": 180,
+              "type": "number"
+            },
+            "units": {
+              "title": "Units",
+              "description": "A string containing the units applying to the unlabelled numeric values of northlimit, eastlimit, southlimit, and westlimit",
+              "type": "string",
+              "default": "Decimal degrees",
+              "readOnly": true
+            },
+            "projection": {
+              "title": "Projection",
+              "description": "A string containing the name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
+              "type": "string",
+              "default": "WGS 84 EPSG:4326",
+              "readOnly": true
+            }
+          },
+          "required": [
+            "northlimit",
+            "eastlimit",
+            "southlimit",
+            "westlimit"
+          ]
+        }
+      ],
+      "errorMessage": {
+        "anyOf": "selected item is incomplete"
       }
     },
-    "resource_type": {
-      "title": "Resource type",
-      "type": "object",
-      "description": "Record resource type.",
-      "additionalProperties": false,
-      "properties": {
-        "openaire_subtype": {
-          "title": "OpenAIRE subtype",
-          "type": "string",
-          "description": "OpenAIRE-specific resource type."
-        },
-        "subtype": {
-          "title": "Subtype",
-          "type": "string",
-          "description": "Specific resource type."
-        },
-        "type": {
-          "title": "General resource type",
-          "type": "string",
-          "description": "General resource type.",
-          "default": "publication"
+    "period_coverage": {
+      "title": "Temporal coverage",
+      "description": "An object containing information about the temporal topic or applicability of a resource",
+      "$ref": "#/definitions/PeriodCoverage"
+    },
+    "publisher": {
+      "title": "Publisher",
+      "description": "An object containing information about the publisher of a resource",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Publisher"
         }
-      },
-      "required": [
-        "type"
       ]
     },
-    "subjects": {
-      "title": "Subjects from specific vocabularies",
-      "type": "array",
-      "description": "Subjects from a taxonomy or controlled vocabulary.",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "identifier": {
-            "title": "Term identifier",
-            "type": "string",
-            "description": "Subjects term identifier (e.g., a URL)."
-          },
-          "term": {
-            "title": "Subject term",
-            "type": "string",
-            "description": "Subject term value."
-          }
-        }
-      }
-    },
-    "title": {
-      "title": "Title",
+    "citation": {
+      "title": "Citation",
+      "description": "A string containing the biblilographic citation for a resource",
       "type": "string",
-      "description": "Descriptive title for the record."
-    },
-    "version": {
-      "title": "Version",
-      "type": "string",
-      "description": "Record version tag. Mostly relevant for software and dataset uploads. Any string will be accepted, but semantically-versioned tag is recommended."
-    },
-    "upload_type": {
-      "additionalProperties": false,
-      "default": "dataset",
-      "description": "Record upload type.",
-      "enum": [
-        "publication",
-        "poster",
-        "presentation",
-        "dataset",
-        "image",
-        "video",
-        "software",
-        "lesson",
-        "physicalobject",
-        "other"
-      ],
-      "type": "string"
+      "readOnly": true
     }
   },
   "required": [
     "title",
-    "description",
-    "keywords",
-    "notes",
-    "access_right",
-    "license"
-  ]
+    "abstract",
+    "subjects",
+    "awards",
+    "rights"
+  ],
+  "definitions": {
+    "Creator": {
+      "title": "Creator Metadata",
+      "description": "A class used to represent the metadata associated with a creator of a resource",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "A string containing the name of the creator",
+          "maxLength": 100,
+          "type": "string",
+          "options": {
+            "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
+          }
+        },
+        "phone": {
+          "title": "Phone",
+          "description": "A string containing a phone number for the creator",
+          "maxLength": 25,
+          "type": "string",
+          "options": {
+            "placeholder": "Phone: e.g., (435) 797-2946"
+          }
+        },
+        "address": {
+          "title": "Address",
+          "description": "A string containing an address for the creator",
+          "maxLength": 250,
+          "type": "string",
+          "options": {
+            "placeholder": "e.g., 8200 Old Main Hill, Logan, UT 84322-8200"
+          }
+        },
+        "organization": {
+          "title": "Organization",
+          "description": "A string containing the name of the organization with which the creator is affiliated",
+          "maxLength": 200,
+          "type": "string",
+          "options": {
+            "placeholder": "e.g. 'Utah State University'"
+          }
+        },
+        "email": {
+          "title": "Email",
+          "description": "A string containing an email address for the creator",
+          "type": "string",
+          "format": "email",
+          "options": {
+            "placeholder": "e.g. 'jeff.horsburgh@usu.edu'"
+          }
+        },
+        "homepage": {
+          "$ref": "#/definitions/UrlPattern"
+        },
+        "profile_url": {
+          "$ref": "#/definitions/ProfileUrlPattern"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Contributor": {
+      "title": "Contributor Metadata",
+      "description": "A class used to represent the metadata associated with a contributor to a resource",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "A string containing the name of the contributor",
+          "type": "string",
+          "maxLength": 100,
+          "options": {
+            "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
+          }
+        },
+        "phone": {
+          "title": "Phone",
+          "description": "A string containing a phone number for the contributor",
+          "maxLength": 25,
+          "type": "string",
+          "options": {
+            "placeholder": "Phone: e.g., (435) 797-2946"
+          }
+        },
+        "address": {
+          "title": "Address",
+          "description": "A string containing an address for the contributor",
+          "maxLength": 250,
+          "type": "string",
+          "options": {
+            "placeholder": "e.g., 8200 Old Main Hill, Logan, UT 84322-8200"
+          }
+        },
+        "organization": {
+          "title": "Organization",
+          "description": "A string containing the name of the organization with which the contributor is affiliated",
+          "maxLength": 200,
+          "type": "string",
+          "options": {
+            "placeholder": "e.g. 'Utah State University'"
+          }
+        },
+        "email": {
+          "title": "Email",
+          "description": "A string containing an email address for the contributor",
+          "type": "string",
+          "format": "email",
+          "options": {
+            "placeholder": "e.g. 'jeff.horsburgh@usu.edu'"
+          }
+        },
+        "homepage": {
+          "$ref": "#/definitions/UrlPattern"
+        },
+        "profile_url": {
+          "$ref": "#/definitions/ProfileUrlPattern"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Relation": {
+      "title": "Related Resource Metadata",
+      "description": "A class used to represent the metadata associated with a resource related to the resource being described",
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "RelationType",
+          "description": "",
+          "enum": [
+            "The content of this resource is part of",
+            "This resource includes",
+            "The content of this resource was created by a related App or software program",
+            "The content of this resource was created by",
+            "This resource updates and replaces a previous version",
+            "This resource has been replaced by a newer version",
+            "This resource is described by",
+            "This resource conforms to established standard described by",
+            "This resource has a related resource in another format",
+            "This resource is a different format of",
+            "This resource is required by",
+            "This resource requires",
+            "This resource is referenced by",
+            "The content of this resource references",
+            "This resource replaces",
+            "The content of this resource is derived from"
+          ],
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "description": "String expressing the Full text citation, URL link for, or description of the related resource",
+          "maxLength": 500,
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "value"
+      ]
+    },
+    "AdditionalMetadata": {
+      "title": "Key-Value",
+      "description": "A key-value pair",
+      "type": "object",
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "key",
+        "value"
+      ]
+    },
+    "AwardInfo": {
+      "title": "Funding Agency Metadata",
+      "description": "A class used to represent the metadata associated with funding agency credits for a resource",
+      "type": "object",
+      "properties": {
+        "funding_agency_name": {
+          "title": "Agency name",
+          "description": "A string containing the name of the funding agency or organization",
+          "type": "string"
+        },
+        "title": {
+          "title": "Award title",
+          "description": "A string containing the title of the project or award",
+          "type": "string"
+        },
+        "number": {
+          "title": "Award number",
+          "description": "A string containing the award number or other identifier",
+          "type": "string"
+        },
+        "funding_agency_url": {
+          "$ref": "#/definitions/UrlPattern"
+        }
+      },
+      "required": [
+        "funding_agency_name",
+        "number",
+        "title"
+      ]
+    },
+    "PeriodCoverage": {
+      "title": "Period coverage",
+      "description": "A class used to represent temporal coverage metadata for a resource or aggregation",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "A string containing a name for the time interval",
+          "type": "string"
+        },
+        "start": {
+          "title": "Start",
+          "description": "A datetime object containing the instant corresponding to the commencement of the time interval",
+          "type": "string",
+          "format": "date-time",
+          "options": {
+            "placeholder": "YYYY-MM-DDTHH:MM"
+          }
+        },
+        "end": {
+          "title": "End",
+          "description": "A datetime object containing the instant corresponding to the termination of the time interval",
+          "type": "string",
+          "format": "date-time",
+          "options": {
+            "placeholder": "YYYY-MM-DDTHH:MM"
+          },
+          "formatMinimum": {
+            "$data": "1/start"
+          }
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ]
+    },
+    "Publisher": {
+      "title": "Publisher Metadata",
+      "description": "A class used to represent the metadata associated with the publisher of a resource",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Publisher name",
+          "description": "A string containing the name of the publisher",
+          "maxLength": 200,
+          "type": "string"
+        },
+        "url": {
+          "title": "Publisher URL",
+          "description": "An object containing a URL that points to the publisher website",
+          "minLength": 1,
+          "maxLength": 2047,
+          "$ref": "#/definitions/UrlPattern"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ]
+    },
+    "UrlPattern": {
+      "type": "string",
+      "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
+      "errorMessage": {
+        "pattern": "must match format \"url\""
+      }
+    },
+    "ProfileUrlPattern": {
+      "type": "string",
+      "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?hydroshare\\.org\\/user\\/\\d+\\/?$",
+      "errorMessage": {
+        "pattern": "must match profile link format. e.g. \"https://www.hydroshare.org/user/10/\""
+      }
+    }
+  }
 }

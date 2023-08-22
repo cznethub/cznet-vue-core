@@ -10,7 +10,7 @@
         :id="control.id + '-input'"
         :class="styles.control.input"
         :readonly="!control.enabled || control.schema['readOnly']"
-        :disabled="appliedOptions.isDisabled || !control.enabled"
+        :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="appliedOptions.placeholder"
         :label="computedLabel"
