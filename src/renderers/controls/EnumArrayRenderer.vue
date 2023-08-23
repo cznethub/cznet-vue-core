@@ -22,7 +22,7 @@
         :value="control.data"
         :items="control.options"
         :readonly="!control.enabled || control.schema['readOnly']"
-        :filled="!!control.schema['readOnly']"
+        :filled="!!control.schema['readOnly'] || appliedOptions.isViewMode"
         v-bind="vuetifyProps(`v-select`)"
         chips
         small-chips
