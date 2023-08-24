@@ -20,7 +20,7 @@
         </legend>
 
         <slot name="actions" :show="show" :hide="hide">
-          <div v-if="hasToggle">
+          <div v-if="hasToggle && enabled">
             <v-tooltip v-if="!isAdded" bottom transition="fade">
               <template v-slot:activator="{ on: onTooltip }">
                 <v-btn

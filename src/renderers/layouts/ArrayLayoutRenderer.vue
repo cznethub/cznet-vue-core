@@ -17,7 +17,7 @@
       @show="noData && control.enabled ? addButtonClick() : null"
       ref="fieldset"
     >
-      <template v-slot:actions="{ show }">
+      <template v-if="control.enabled" v-slot:actions="{ show }">
         <v-tooltip bottom transition="fade">
           <template v-slot:activator="{ on: onTooltip }">
             <v-btn
