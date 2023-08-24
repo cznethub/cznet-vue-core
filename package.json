@@ -1,6 +1,6 @@
 {
   "name": "@cznethub/cznet-vue-core",
-  "version": "0.1.54",
+  "version": "0.1.59",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -29,9 +29,9 @@
     "vuetify-loader": "^1.9.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.10",
+    "@babel/core": "^7.22.11",
     "@babel/preset-env": "^7.22.10",
-    "@babel/preset-typescript": "^7.22.5",
+    "@babel/preset-typescript": "^7.22.11",
     "@jsonforms/core": "3.1.0-alpha.0",
     "@jsonforms/vue2": "3.1.0-alpha.0",
     "@mdi/font": "^7.2.96",
@@ -73,10 +73,7 @@
     "vue": "^2.7.14",
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.1.2",
-    "vuetify": "^2.6.14",
-    "ajv": "^8.12.0",
-    "ajv-errors": "^3.0.0",
-    "ajv-keywords": "^5.1.0"
+    "vuetify": "^2.6.14"
   },
   "eslintConfig": {
     "root": true,

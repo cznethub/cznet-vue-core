@@ -31,10 +31,8 @@ import { CzRenderers, extendedCzRenderers } from "@/renderers/renderer";
 const renderers = [...CzRenderers];
 
 import { createAjv } from "@/validate/validate";
-import ajvErrors from "ajv-errors";
 
 const ajv = createAjv();
-ajvErrors(ajv);
 
 /**
  * The error-type of an AJV error is defined by its `keyword` property.
