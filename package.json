@@ -1,6 +1,6 @@
 {
   "name": "@cznethub/cznet-vue-core",
-  "version": "0.1.53",
+  "version": "0.1.54",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -73,7 +73,10 @@
     "vue": "^2.7.14",
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.1.2",
-    "vuetify": "^2.6.14"
+    "vuetify": "^2.6.14",
+    "ajv": "^8.12.0",
+    "ajv-errors": "^3.0.0",
+    "ajv-keywords": "^5.1.0"
   },
   "eslintConfig": {
     "root": true,
