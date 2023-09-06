@@ -21,6 +21,7 @@
         :id="control.id + '-input'"
         :class="styles.control.input"
         :readonly="!control.enabled || control.schema['readOnly']"
+        :filled="!!control.schema['readOnly'] || appliedOptions.isViewMode"
         :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
@@ -150,6 +151,17 @@ const controlRenderer = defineComponent({
       this.tags = this.tags
         .filter((tag) => !!tag.trim())
         .map((tag) => tag.trim());
+
+      // pre-process to remove duplicates of different casing
+      this.tags = this.tags.reduce((acc, curr, _prev) => {
+        if (
+          !acc.some((tag) => curr.toLowerCase() === tag.toLocaleLowerCase())
+        ) {
+          acc.push(curr);
+        }
+        return acc;
+      }, [] as string[]);
+
       this.tags = [...new Set(this.tags)];
       this.handleChange(this.control.path, this.tags);
     },
