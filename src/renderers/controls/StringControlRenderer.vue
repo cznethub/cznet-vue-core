@@ -12,6 +12,7 @@
         :data-id="computedLabel.replaceAll(` `, ``)"
         :class="styles.control.input"
         :readonly="!control.enabled"
+        :filled="!!control.schema['readOnly'] || appliedOptions.isViewMode"
         :disabled="appliedOptions.isDisabled"
         :autofocus="appliedOptions.focus"
         :placeholder="placeholder"
