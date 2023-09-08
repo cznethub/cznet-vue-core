@@ -20,3 +20,8 @@
     line-height: 1.5rem;
   }
 }
+
+:not(.cz-fieldset) > .v-label--active {
+  font-size: 22px !important;
+  transform: translateY(-22px) scale(0.75) !important;
+}
