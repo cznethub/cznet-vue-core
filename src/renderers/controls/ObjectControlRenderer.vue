@@ -15,9 +15,8 @@
         !appliedOptions.isDisabled
       "
       :hasData="!noData"
-      :enabled="!appliedOptions.isDisabled && control.enabled"
+      :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled || control.schema['readOnly']"
-      :filled="!!control.schema['readOnly'] || appliedOptions.isViewMode"
       :errors="control.errors"
       :title="control.schema.title"
       :computedLabel="computedLabel"

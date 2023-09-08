@@ -9,7 +9,7 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="control.description"
       :hasToggle="noData"
-      :enabled="!appliedOptions.isDisabled && control.enabled"
+      :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
       :title="control.schema.title"

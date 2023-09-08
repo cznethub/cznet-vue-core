@@ -9,9 +9,6 @@
       <v-combobox
         :id="control.id + '-input'"
         :class="styles.control.input"
-        :readonly="!control.enabled || control.schema['readOnly']"
-        :disabled="appliedOptions.isDisabled"
-        :autofocus="appliedOptions.focus"
         :placeholder="appliedOptions.placeholder"
         :label="computedLabel"
         :hint="control.description"

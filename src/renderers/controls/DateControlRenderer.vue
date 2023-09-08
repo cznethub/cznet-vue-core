@@ -24,10 +24,6 @@
         <v-text-field
           :id="control.id + '-input'"
           :class="styles.control.input"
-          :readonly="!control.enabled || control.schema['readOnly']"
-          :filled="!!control.schema['readOnly'] || appliedOptions.isViewMode"
-          :disabled="appliedOptions.isDisabled"
-          :autofocus="appliedOptions.focus"
           :placeholder="placeholder"
           :label="computedLabel"
           :hint="control.description"

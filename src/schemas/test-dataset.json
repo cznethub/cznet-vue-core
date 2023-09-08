@@ -1,35 +1,55 @@
 {
-  "@context": "https://schema.org",
-  "@type": "Dataset",
-  "name": "New test",
-  "description": "test",
-  "url": "https://www.hydroshare.org/resource/473ae31864444c8aba35b31970863158/",
-  "creator": [
+  "title": "Logan Digital Elevation Model",
+  "abstract": "Digital Elevation Model for the watershed draining the Logan River Basin near Logan Utah.",
+  "subjects": [
+    "Elevation",
+    "DEM"
+  ],
+  "creators": [
     {
-      "@type": "Person",
-      "name": "test"
+      "name": "David Tarboton",
+      "organization": "Utah State University",
+      "email": "dtarb@usu.edu",
+      "profile_url": "https://www.hydroshare.org/user/2/"
     }
   ],
-  "dateCreated": "2023-08-15T00:00:00",
-  "keywords": [
-    "test"
-  ],
-  "license": {
-    "@type": "CreativeWork",
-    "name": "test"
-  },
-  "provider": {
-    "@type": "Organization",
-    "name": "test"
-  },
-  "inLanguage": "eng",
-  "spatialCoverage": {
-    "@type": "Place",
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 41.378,
-      "longitude": -111.7008
+  "contributors": [],
+  "relations": [
+    {
+      "type": "This resource is referenced by",
+      "value": "Tarboton, D. (2017). Logan Specific Catchment Area, HydroShare, https://doi.org/10.4211/hs.877bf9ed9e66468cadddb229838a9ced"
+    },
+    {
+      "type": "The content of this resource is derived from",
+      "value": "http://ned.usgs.gov/"
+    },
+    {
+      "type": "The content of this resource is part of",
+      "value": "Tarboton, D. (2018). Logan River Geography, HydroShare, http://www.hydroshare.org/resource/2adee16a5b0d4df0b5e687046be8515e"
+    },
+    {
+      "type": "The content of this resource is part of",
+      "value": "Tarboton, D. (2018). Logan River Geography, HydroShare, http://www.hydroshare.org/resource/dc8a31ef4741441ea5e7e837492fc3aa"
     }
+  ],
+  "additional_metadata": [],
+  "rights": {
+    "statement": "This resource is shared under the Creative Commons Attribution CC BY.",
+    "url": "http://creativecommons.org/licenses/by/4.0/"
   },
-  "_id": "64dbb313ece5823293782841"
+  "awards": [],
+  "spatial_coverage": {
+    "name": "Logan River Basin",
+    "northlimit": 42.1107160531,
+    "eastlimit": -111.45699925,
+    "southlimit": 41.6641797506,
+    "westlimit": -111.817618871,
+    "units": "Decimal degrees",
+    "projection": "WGS 84 EPSG:4326"
+  },
+  "publisher": {
+    "name": "Consortium of Universities for the Advancement of Hydrologic Science, Inc. (CUAHSI)",
+    "url": "https://www.cuahsi.org"
+  },
+  "citation": "Tarboton, D. (2017). Logan Digital Elevation Model, HydroShare, https://doi.org/10.4211/hs.b7822782896143ca8712395f6814c44b"
 }

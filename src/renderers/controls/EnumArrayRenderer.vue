@@ -11,9 +11,6 @@
         :id="control.id + '-input'"
         :data-id="computedLabel.replaceAll(` `, ``)"
         :class="styles.control.input"
-        :disabled="!control.enabled || control.schema.readOnly"
-        :autofocus="appliedOptions.focus"
-        :placeholder="appliedOptions.placeholder"
         :label="computedLabel"
         :hint="control.description"
         :required="control.required"
@@ -21,8 +18,6 @@
         :clearable="hover && !control.schema.readOnly"
         :value="control.data"
         :items="control.options"
-        :readonly="!control.enabled || control.schema['readOnly']"
-        :filled="!!control.schema['readOnly'] || appliedOptions.isViewMode"
         v-bind="vuetifyProps(`v-select`)"
         chips
         small-chips

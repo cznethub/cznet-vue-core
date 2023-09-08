@@ -164,6 +164,16 @@ export const useVuetifyControl = <
   const vuetifyProps = (path: string) => {
     const props = {
       ...appliedOptions.value?.vuetify.commonAttrs,
+      filled:
+        !!input.control.value.schema["readOnly"] ||
+        appliedOptions.value.isViewMode ||
+        appliedOptions.value.isReadOnly ||
+        appliedOptions.value?.vuetify.commonAttrs.filled,
+      readonly:
+        !input.control.value.enabled || input.control.value.schema["readOnly"],
+      disabled: appliedOptions.value.isDisabled,
+      autofocus: appliedOptions.value.focus,
+      placeholder: appliedOptions.value.placeholder,
       ...get(appliedOptions.value?.vuetify, path),
     };
 

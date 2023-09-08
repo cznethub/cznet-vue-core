@@ -188,6 +188,10 @@ const layoutRenderer = defineComponent({
     async initMap() {
       const google = await loader.load();
 
+      if (!this.$refs.map) {
+        return;
+      }
+
       // @ts-ignore
       this.map = new google.maps.Map(this.$refs.map, {
         center: { lat: 39.8097343, lng: -98.5556199 },

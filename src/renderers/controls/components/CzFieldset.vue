@@ -7,6 +7,7 @@
         'is-invalid': !!errors,
         'is-readonly': readonly,
         'is-disabled': !enabled,
+        'is-expanded': isAdded || !hasToggle,
       }"
     >
       <template v-if="!isFlat">
@@ -20,7 +21,7 @@
         </legend>
 
         <slot name="actions" :show="show" :hide="hide">
-          <div v-if="hasToggle && enabled">
+          <div v-if="hasToggle && enabled && !readonly">
             <v-tooltip v-if="!isAdded" bottom transition="fade">
               <template v-slot:activator="{ on: onTooltip }">
                 <v-btn
@@ -159,6 +160,14 @@ fieldset,
   padding: 1rem;
   position: relative;
   min-height: 2rem;
+
+  &.is-readonly:not(.is-expanded) {
+    background: rgba(0, 0, 0, 0.06);
+
+    legend {
+      background: transparent;
+    }
+  }
 
   &.is-invalid {
     & > legend,

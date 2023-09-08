@@ -34,7 +34,7 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-text>
-          <pre>{{ data }}</pre>
+          <!-- <pre>{{ data }}</pre> -->
         </v-card-text>
         <v-divider></v-divider>
         <v-card-text>
@@ -107,8 +107,8 @@ import CzForm from "@/components/cz-form.vue";
 
 const schema = require("@/schemas/schema.json");
 const uischema = require("@/schemas/uischema.json");
-// const initialData = require("@/schemas/test-dataset.json");
-const initialData = {};
+const initialData = require("@/schemas/test-dataset.json");
+// const initialData = {};
 
 @Component({
   name: "app",
