@@ -7,7 +7,7 @@
     :data-id="generateId"
   >
     <v-card-title class="grey lighten-4">
-      <div class="text-overline secondary--text">
+      <div class="text-overline">
         {{ computedLabel }}
       </div>
       <div class="text-subtitle-1 text--secondary">
