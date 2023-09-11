@@ -9,7 +9,9 @@
     :config="config"
     :schema="schema"
     :uischema="uischema"
-    :validationMode="isViewMode ? 'NoValidation' : 'ValidateAndShow'"
+    :validationMode="
+      isViewMode || isReadOnly ? 'NoValidation' : 'ValidateAndShow'
+    "
     ref="form"
   />
 </template>
