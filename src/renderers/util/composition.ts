@@ -66,15 +66,9 @@ export const useVuetifyLabel = <I extends { label: any }>(input: I) => {
     )
   );
 
-  // TODO: put into util function and reuse
-  const vuetifyProps = (path: string) => {
-    const props = {
-      ...appliedOptions.value?.vuetify.commonAttrs,
-      ...get(appliedOptions.value?.vuetify, path),
-    };
+  const vuetifyProps = (path: string) =>
+    getVuetifyControlProps(path, appliedOptions, input);
 
-    return props && isPlainObject(props) ? props : {};
-  };
   return {
     ...input,
     appliedOptions,
@@ -99,6 +93,25 @@ export const useDefaults = <I extends { control: any; handleChange: any }>(
       input.handleChange(input.control.value.path, undefined);
     }
   }
+};
+
+export const getVuetifyControlProps = (path, appliedOptions, input) => {
+  const props = {
+    ...appliedOptions.value?.vuetify.commonAttrs,
+    filled:
+      !!input.control.value.schema["readOnly"] ||
+      appliedOptions.value.isViewMode ||
+      appliedOptions.value.isReadOnly ||
+      appliedOptions.value?.vuetify.commonAttrs.filled,
+    readonly:
+      !input.control.value.enabled || input.control.value.schema["readOnly"],
+    disabled: appliedOptions.value.isDisabled,
+    autofocus: appliedOptions.value.focus,
+    placeholder: appliedOptions.value.placeholder,
+    ...get(appliedOptions.value?.vuetify, path),
+  };
+
+  return props && isPlainObject(props) ? props : {};
 };
 
 /**
@@ -161,24 +174,8 @@ export const useVuetifyControl = <
 
   const styles = useStyles(input.control.value.uischema);
 
-  const vuetifyProps = (path: string) => {
-    const props = {
-      ...appliedOptions.value?.vuetify.commonAttrs,
-      filled:
-        !!input.control.value.schema["readOnly"] ||
-        appliedOptions.value.isViewMode ||
-        appliedOptions.value.isReadOnly ||
-        appliedOptions.value?.vuetify.commonAttrs.filled,
-      readonly:
-        !input.control.value.enabled || input.control.value.schema["readOnly"],
-      disabled: appliedOptions.value.isDisabled,
-      autofocus: appliedOptions.value.focus,
-      placeholder: appliedOptions.value.placeholder,
-      ...get(appliedOptions.value?.vuetify, path),
-    };
-
-    return props && isPlainObject(props) ? props : {};
-  };
+  const vuetifyProps = (path: string) =>
+    getVuetifyControlProps(path, appliedOptions, input);
 
   return {
     ...input,
@@ -273,14 +270,8 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
   const appliedOptions = useControlAppliedOptions(input);
   const computedLabel = useComputedLabel(input, appliedOptions);
 
-  const vuetifyProps = (path: string) => {
-    const props = {
-      ...appliedOptions.value?.vuetify.commonAttrs,
-      ...get(appliedOptions.value?.vuetify, path),
-    };
-
-    return props && isPlainObject(props) ? props : {};
-  };
+  const vuetifyProps = (path: string) =>
+    getVuetifyControlProps(path, appliedOptions, input);
 
   const description = computed(() => {
     return (
@@ -399,14 +390,8 @@ export const useVuetifyBasicControl = <I extends { control: any }>(
 ) => {
   const appliedOptions = useControlAppliedOptions(input);
 
-  const vuetifyProps = (path: string) => {
-    const props = {
-      ...appliedOptions.value?.vuetify.commonAttrs,
-      ...get(appliedOptions.value?.vuetify, path),
-    };
-
-    return props && isPlainObject(props) ? props : {};
-  };
+  const vuetifyProps = (path: string) =>
+    getVuetifyControlProps(path, appliedOptions, input);
 
   return {
     ...input,
