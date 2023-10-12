@@ -56,7 +56,7 @@ import {
 import cloneDeep from "lodash/cloneDeep";
 import { useNested, useVuetifyControl } from "@/renderers/util/composition";
 import { defineComponent } from "vue";
-import { isEqual } from "lodash";
+// import { isEqual } from "lodash";
 import { VBtn, VIcon, VTooltip } from "vuetify/lib";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 import { default as ControlWrapper } from "./ControlWrapper.vue";
@@ -83,19 +83,20 @@ const controlRenderer = defineComponent({
       nested,
     };
   },
-  watch: {
-    "control.data": function (newVal, _oldVal) {
-      if (newVal) {
-        const filteredObj = Object.fromEntries(
-          Object.entries(newVal).filter(([_, value]) => value !== undefined) // strip out undefined properties
-        );
+  // @deprecated: all of our renderers can now handle objects with undefined property values
+  // watch: {
+  //   "control.data": function (newVal, _oldVal) {
+  //     if (newVal) {
+  //       const filteredObj = Object.fromEntries(
+  //         Object.entries(newVal).filter(([_, value]) => value !== undefined) // strip out undefined properties
+  //       );
 
-        if (isEqual(filteredObj, {})) {
-          this.handleChange(this.control.path, undefined);
-        }
-      }
-    },
-  },
+  //       if (isEqual(filteredObj, {})) {
+  //         this.handleChange(this.control.path, undefined);
+  //       }
+  //     }
+  //   },
+  // },
   methods: {
     onHide() {
       this.handleChange(this.control.path, undefined);
