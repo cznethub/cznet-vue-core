@@ -23,7 +23,19 @@
         v-bind="vuetifyProps('v-autocomplete')"
         item-text="label"
         item-value="value"
-      />
+      >
+        <template v-slot:message>
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
+          </div>
+          <div v-if="cleanedErrors" class="v-messages error--text">
+            {{ cleanedErrors }}
+          </div>
+        </template>
+      </v-autocomplete>
 
       <v-select
         v-else
@@ -41,7 +53,19 @@
         v-bind="vuetifyProps('v-select')"
         item-text="label"
         item-value="value"
-      />
+      >
+        <template v-slot:message>
+          <div
+            v-if="control.description"
+            class="text-subtitle-1 text--secondary"
+          >
+            {{ control.description }}
+          </div>
+          <div v-if="cleanedErrors" class="v-messages error--text">
+            {{ cleanedErrors }}
+          </div>
+        </template>
+      </v-select>
     </v-hover>
   </control-wrapper>
 </template>
