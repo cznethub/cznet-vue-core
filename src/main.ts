@@ -6,9 +6,11 @@ import Vue from "vue";
 import App from "./App.vue";
 import vuetify from "@/plugins/vuetify";
 import { orm } from "@/models/orm";
+import vueFilterPrettyBytes from "vue-filter-pretty-bytes";
 
 Vue.config.productionTip = false;
 Vue.use(Vuex);
+Vue.use(vueFilterPrettyBytes);
 
 // Create Vuex Store and register database through Vuex ORM.
 const store = new Vuex.Store({

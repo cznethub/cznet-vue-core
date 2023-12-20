@@ -47,8 +47,10 @@ import {
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { VContainer, VRow, VCol } from "vuetify/lib";
 import { Loader, LoaderOptions } from "google-maps";
+import { APP_GOOGLE_MAPS_API_KEY } from "@/constants";
+
 const options: LoaderOptions = { libraries: ["drawing"] };
-const loader = new Loader(process.env.VUE_APP_GOOGLE_MAPS_API_KEY, options);
+const loader = new Loader(APP_GOOGLE_MAPS_API_KEY, options);
 
 const layoutRenderer = defineComponent({
   name: "map-layout-renderer",

@@ -12,6 +12,32 @@
         </v-card-text>
       </v-card>
 
+      <v-card>
+        <v-card-title>CzFileExplorer</v-card-title>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-expansion-panels>
+            <v-expansion-panel
+            >
+              <v-expansion-panel-header>
+                <div class="text-overline">File Explorer Data</div>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <pre>{{ rootDirectory }}</pre>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-text>
+          <cz-file-explorer 
+            :rootDirectory="rootDirectory"
+            :canUpload="false"
+          />
+        </v-card-text>
+      </v-card>
+
       <v-card class="my-5">
         <v-card-title>CzForm</v-card-title>
         <v-divider></v-divider>
@@ -32,12 +58,25 @@
             class="mr-4"
           ></v-checkbox>
         </v-card-text>
+
         <v-divider></v-divider>
         <v-card-text>
-          <!-- <pre>{{ data }}</pre> -->
+          <v-expansion-panels>
+            <v-expansion-panel
+            >
+              <v-expansion-panel-header>
+                <div class="text-overline">Form Data</div>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <pre>{{ data }}</pre>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card-text>
+        
         <v-divider></v-divider>
         <v-card-text>
+
           <cz-form
             :schema="schema"
             :uischema="uischema"
@@ -100,10 +139,11 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { Config } from "@/types";
+import { Config, IFolder, IFile } from "@/types";
 import CzNotifications from "@/components/base/cz.notifications.vue";
 import Notifications from "@/models/notifications";
-import CzForm from "@/components/cz-form.vue";
+import CzForm from "@/components/cz.form.vue";
+import CzFileExplorer from "@/components/cz.file-explorer.vue";
 
 const schema = require("@/schemas/schema.json");
 const uischema = require("@/schemas/uischema.json");
@@ -112,7 +152,7 @@ const initialData = require("@/schemas/test-dataset.json");
 
 @Component({
   name: "app",
-  components: { CzNotifications, CzForm },
+  components: { CzNotifications, CzForm, CzFileExplorer },
 })
 export default class App extends Vue {
   // @Ref("form") form!: InstanceType<typeof CzForm>;
@@ -122,6 +162,42 @@ export default class App extends Vue {
   protected isValid = false;
   protected errors = [];
   protected data = initialData;
+
+  /** Example folder/file tree structure */
+  protected rootDirectory: IFolder = {
+    name: "root",
+    children: [
+      {
+        name: "Some Folder",
+        children: [
+          {
+            name: "readme.txt",
+            key: `0`, // Needs to be a unique identifier
+            path: "/readme.txt",
+          } as IFile,
+          {
+            name: "presentation.ppt",
+            key: `1`,
+          } as IFile
+        ],
+        parent: null,
+        key: `2`,
+        path: "/",
+      },
+      {
+        name: "logs.txt",
+        key: `3`,
+      } as IFile,
+      {
+        name: "landscape.png",
+        key: `4`,
+      } as IFile
+
+    ],
+    parent: null,
+    key: "5",
+    path: "",
+  };
 
   protected config: Config = {
     restrict: true,

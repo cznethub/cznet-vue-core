@@ -1,6 +1,6 @@
 {
   "name": "@cznethub/cznet-vue-core",
-  "version": "0.1.66",
+  "version": "0.1.67",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -26,6 +26,7 @@
     "lodash": "^4.17.15",
     "v-mask": "^2.3.0",
     "vue-cli-plugin-vuetify": "^2.5.8",
+    "vue-filter-pretty-bytes": "^0.1.6",
     "vuetify-loader": "^1.9.2"
   },
   "devDependencies": {
