@@ -17,13 +17,12 @@
         <v-divider></v-divider>
         <v-card-text>
           <v-expansion-panels>
-            <v-expansion-panel
-            >
+            <v-expansion-panel>
               <v-expansion-panel-header>
                 <div class="text-overline">File Explorer Data</div>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <pre>{{ rootDirectory }}</pre>
+                <pre>{{ JSON.parse(stringify(rootDirectory)) }}</pre>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -31,10 +30,7 @@
 
         <v-divider></v-divider>
         <v-card-text>
-          <cz-file-explorer 
-            :rootDirectory="rootDirectory"
-            :canUpload="false"
-          />
+          <cz-file-explorer :rootDirectory="rootDirectory" :canUpload="true" />
         </v-card-text>
       </v-card>
 
@@ -62,8 +58,7 @@
         <v-divider></v-divider>
         <v-card-text>
           <v-expansion-panels>
-            <v-expansion-panel
-            >
+            <v-expansion-panel>
               <v-expansion-panel-header>
                 <div class="text-overline">Form Data</div>
               </v-expansion-panel-header>
@@ -73,10 +68,9 @@
             </v-expansion-panel>
           </v-expansion-panels>
         </v-card-text>
-        
+
         <v-divider></v-divider>
         <v-card-text>
-
           <cz-form
             :schema="schema"
             :uischema="uischema"
@@ -171,32 +165,46 @@ export default class App extends Vue {
         name: "Some Folder",
         children: [
           {
+            name: "Nested folder",
+            children: [
+              {
+                name: "Deeply nested folder",
+                children: [
+                  {
+                    name: "deeply nested file.txt",
+                    // key: `0`, // Needs to be a unique identifier
+                    // path: "/readme.txt",
+                  } as IFile,
+                ],
+              } as IFolder,
+            ],
+          } as IFolder,
+          {
             name: "readme.txt",
-            key: `0`, // Needs to be a unique identifier
-            path: "/readme.txt",
+            // key: `0`, // Needs to be a unique identifier
+            // path: "/readme.txt",
           } as IFile,
           {
             name: "presentation.ppt",
-            key: `1`,
-          } as IFile
+            // key: `1`,
+          } as IFile,
         ],
-        parent: null,
-        key: `2`,
-        path: "/",
+        // parent: null,
+        // key: `2`,
+        // path: "/",
       },
       {
         name: "logs.txt",
-        key: `3`,
+        // key: `3`,
       } as IFile,
       {
         name: "landscape.png",
-        key: `4`,
-      } as IFile
-
+        // key: `4`,
+      } as IFile,
     ],
-    parent: null,
-    key: "5",
-    path: "",
+    // parent: null,
+    // key: "5",
+    // path: "",
   };
 
   protected config: Config = {
@@ -233,6 +241,23 @@ export default class App extends Vue {
       content: "Some message for the dialog",
       onConfirm: () => {},
     });
+  }
+
+  stringify(obj) {
+    let cache: any = [];
+    let str = JSON.stringify(obj, function (_key, value) {
+      if (typeof value === "object" && value !== null) {
+        if (cache.indexOf(value) !== -1) {
+          // Circular reference found, discard key
+          return;
+        }
+        // Store value in our collection
+        cache.push(value);
+      }
+      return value;
+    });
+    cache = null; // reset the cache
+    return str;
   }
 
   toast() {

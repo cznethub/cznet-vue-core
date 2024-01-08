@@ -161,7 +161,7 @@
         <v-card-text class="files-container" style="height: 15rem">
           <v-row class="flex-grow-1">
             <v-col
-              :cols="$vuetify.breakpoint.smAndUp ? 9 : 11"
+              :cols="11"
               v-click-outside="{ handler: onClickOutside, include }"
             >
               <v-treeview
@@ -196,7 +196,10 @@
                     :disabled="item.isDisabled"
                     :color="item.isCutting ? 'grey' : ''"
                   >
-                    {{ fileIcons[item.name.split(".").pop()] || fileIcons["default"] }}
+                    {{
+                      fileIcons[item.name.split(".").pop()] ||
+                      fileIcons["default"]
+                    }}
                   </v-icon>
                 </template>
                 <template v-slot:label="{ item }">
@@ -230,7 +233,7 @@
                       class="d-flex flex-column flex-sm-row align-start align-sm-center"
                     >
                       <div class="item-name flex-grow-1 flex-shrink-1">
-                        {{ item.name }}
+                        <span :title="item.name">{{ item.name }}</span>
                       </div>
                       <div
                         v-if="item.file"
@@ -311,8 +314,7 @@
                             <li v-if="isFileTooBig(item)">
                               Files cannot be larger than
                               <b>{{
-                                maxUploadSizePerFile |
-                                  prettyBytes(2, false)
+                                maxUploadSizePerFile | prettyBytes(2, false)
                               }}</b
                               >.
                             </li>
@@ -320,21 +322,33 @@
                         </div>
                       </v-menu>
                     </v-col>
+                    <v-col v-if="active && canRenameItem(item)">
+                      <v-btn
+                        v-if="!item.isRenaming"
+                        @click.stop="renameItem(item)"
+                        fab
+                        small
+                        text
+                        title="Rename"
+                        ><v-icon>mdi-pencil-outline</v-icon></v-btn
+                      >
+                    </v-col>
                     <v-col
                       v-if="
-                        active && canRenameItem(item)
+                        active &&
+                        !item.isRenaming &&
+                        hasFileMetadata &&
+                        !isFolder(item)
                       "
                     >
-                      <template>
-                        <v-btn
-                          v-if="!item.isRenaming"
-                          @click.stop="renameItem(item)"
-                          fab
-                          small
-                          text
-                          ><v-icon>mdi-pencil-outline</v-icon></v-btn
-                        >
-                      </template>
+                      <v-btn
+                        @click.stop="$emit('showMetadata', item)"
+                        fab
+                        small
+                        text
+                        title="View file metadata"
+                        ><v-icon>mdi-text-box-search-outline</v-icon></v-btn
+                      >
                     </v-col>
                     <v-col v-if="item.isDisabled">
                       <v-icon small>fas fa-circle-notch fa-spin</v-icon>
@@ -343,7 +357,7 @@
                 </template>
               </v-treeview>
             </v-col>
-            <v-col cols="3" v-if="$vuetify.breakpoint.smAndUp"></v-col>
+            <v-col v-if="$vuetify.breakpoint.smAndUp"></v-col>
           </v-row>
         </v-card-text>
         <v-divider></v-divider>
@@ -379,10 +393,8 @@
 
             <div class="pa-4 has-bg-white text-subtitle-1">
               The total upload size cannot exceed
-              <b>{{
-                maxTotalUploadSize | prettyBytes(2, false)
-              }}</b>
-            </div>  
+              <b>{{ maxTotalUploadSize | prettyBytes(2, false) }}</b>
+            </div>
           </v-menu>
         </div>
       </v-card>
@@ -439,7 +451,7 @@
 import { Component, Watch, Prop, Vue } from "vue-property-decorator";
 import { IFolder, IFile } from "@/types";
 import { default as Notifications } from "@/models/notifications";
-import { FILE_ICONS } from "@/constants"
+import { FILE_ICONS } from "@/constants";
 
 @Component({
   name: "cz-file-explorer",
@@ -458,20 +470,23 @@ export default class CzFileExplorer extends Vue {
   @Prop() fileNameRegex!: RegExp;
   /** If `true`, allow folder operations */
   @Prop({ default: false }) hasFolders!: boolean;
+  /** If `true`, display a button next to a selected file that will emit a `showMetadata` event. */
+  @Prop({ default: true }) hasFileMetadata!: boolean;
   /** Usable when `editMode` is `true`. If `true`, indicates that renaming of uploaded files is supported by the repository and enables the controls */
   @Prop({ default: false }) canRenameUploadedFiles!: boolean;
-  @Prop({default: (_item: IFile | IFolder, _newPath: string) => true}) renameFileOrFolder!: (
+  @Prop({ default: (_item: IFile | IFolder, _newPath: string) => true })
+  renameFileOrFolder!: (
     item: IFile | IFolder,
     newPath: string
   ) => Promise<boolean>;
-  @Prop({default: (_item: IFile | IFolder) => true}) deleteFileOrFolder!: (
+  @Prop({ default: (_item: IFile | IFolder) => true }) deleteFileOrFolder!: (
     item: IFile | IFolder
-  ) => Promise<boolean>
+  ) => Promise<boolean>;
 
-  /** 
-   * If `true`, render the file browser in edit mode. The property `identifier` will also need to be specified. 
-   * Indicates that operations will be ran against repository endpoints
-  */
+  /**
+   * If `true`, render the file browser in edit mode. The property `identifier` will also need to be specified.
+   * Indicates that operations will run against repository endpoints
+   */
   @Prop({ default: false }) isEditMode!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   @Prop({ default: false }) isReadOnly!: boolean;
@@ -500,8 +515,10 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected get allFiles() : IFile[] {
-    return this.allItems.filter((item: IFile | IFolder) => { return !this.isFolder(item)})
+  protected get allFiles(): IFile[] {
+    return this.allItems.filter((item: IFile | IFolder) => {
+      return !this.isFolder(item);
+    });
   }
 
   public get canUploadFiles() {
@@ -572,6 +589,26 @@ export default class CzFileExplorer extends Vue {
     }, 0);
   }
 
+  created() {
+    this.annotateDirectory(this.rootDirectory);
+  }
+
+  // Traverse the file structure and annotate `parent` and `path` properties.
+  annotateDirectory(item: IFolder) {
+    const childFolders = item.children.filter((i, index) => {
+      i.parent = item;
+      i.path = this.getPathString(i.parent as IFolder);
+      i.key = `${i.path}/${index}`;
+      return this.isFolder(i);
+    }) as IFolder[];
+
+    for (let i = 0; i < childFolders.length; i++) {
+      this.annotateDirectory(childFolders[i]);
+    }
+
+    console.log(this.rootDirectory);
+  }
+
   // There is a bug in v-treeview when moving items or changing keys. Items become unactivatable
   // We redraw the treeview as a workaround
   public redrawFileTree() {
@@ -581,6 +618,7 @@ export default class CzFileExplorer extends Vue {
   @Watch("rootDirectory.children", { deep: true })
   protected onInput() {
     const items = this._getDirectoryItems(this.rootDirectory) as IFile[];
+
     // Update paths
     items.map((i) => (i.path = this.getPathString(i.parent as IFolder)));
     const updatedItems = this._getDirectoryItems(this.rootDirectory);
@@ -601,12 +639,12 @@ export default class CzFileExplorer extends Vue {
       ? (this.activeDirectoryItem as IFolder)
       : (this.activeDirectoryItem.parent as IFolder);
 
-    const addedFiles = newFiles.map((file, index) => {
+    const addedFiles = newFiles.map((file, _index) => {
       const newItem = {
         name: this._getAvailableName(file.name, targetFolder),
-        parent: targetFolder,
-        path: this.getPathString(targetFolder),
-        key: `${Date.now().toString()}-${index}`,
+        // parent: targetFolder,
+        // path: this.getPathString(targetFolder),
+        // key: `${Date.now().toString()}-${index}`,
         file: file,
         // Need to populate these optional properties so that Vue can set reactive bindings to it
         isRenaming: false,
@@ -627,6 +665,7 @@ export default class CzFileExplorer extends Vue {
         this.$emit("upload", validFiles);
       }
     }
+    this.annotateDirectory(targetFolder);
     this.dropFiles = [];
   }
 
@@ -721,11 +760,16 @@ export default class CzFileExplorer extends Vue {
     destination.children = destination.children.sort((_a, b) => {
       return b.hasOwnProperty("children") ? 1 : -1;
     });
+    this.annotateDirectory(destination);
     this._openRecursive(destination);
   }
 
   protected canRenameItem(item: IFile | IFolder) {
-    !item.isDisabled && this.canRename && !this.isReadOnly && (item.isUploaded && !this.isEditMode)
+    !item.isDisabled &&
+      this.canRename &&
+      !this.isReadOnly &&
+      item.isUploaded &&
+      !this.isEditMode;
   }
 
   protected onItemClick(item: IFolder | IFile) {
@@ -803,10 +847,7 @@ export default class CzFileExplorer extends Vue {
       return false;
     }
 
-    return (
-      file.file?.size &&
-      file.file?.size > this.maxUploadSizePerFile
-    );
+    return file.file?.size && file.file?.size > this.maxUploadSizePerFile;
   }
 
   protected canRetryUpload(item: IFile | IFolder) {
@@ -843,10 +884,7 @@ export default class CzFileExplorer extends Vue {
       if (this.isEditMode) {
         item.isDisabled = true;
         const newPath = item.path ? item.path + "/" + newName : newName;
-        const wasRenamed = await this.renameFileOrFolder(
-          item,
-          newPath
-        );
+        const wasRenamed = await this.renameFileOrFolder(item, newPath);
         if (wasRenamed) {
           item.name = newName;
         } else {
@@ -929,9 +967,7 @@ export default class CzFileExplorer extends Vue {
       // File was not uplaoded because it was invalid. No need to delete in repository.
       wasDeleted = true;
     } else {
-      wasDeleted = await this.deleteFileOrFolder(
-        item
-      );
+      wasDeleted = await this.deleteFileOrFolder(item);
     }
 
     this.toggleItemDisabled(item, false);
@@ -1025,11 +1061,12 @@ export default class CzFileExplorer extends Vue {
       this.$emit("upload", [newFolder]);
     }
 
-    newFolder.parent.children.push(newFolder);
+    newFolder.parent.children.push(newFolder.parent);
     newFolder.parent.children = newFolder.parent.children.sort((_a, b) => {
       return b.hasOwnProperty("children") ? 1 : -1;
     });
 
+    this.annotateDirectory(newFolder.parent);
     this._openRecursive(newFolder);
   }
 
@@ -1132,15 +1169,12 @@ export default class CzFileExplorer extends Vue {
 
   private async _paste(item, targetFolder): Promise<boolean> {
     let wasMoved = false;
-    
+
     if (this.isEditMode) {
       let newPath = this.getPathString(targetFolder);
       newPath = newPath ? newPath + "/" + item.name : item.name;
       item.isDisabled = true;
-      wasMoved = await this.renameFileOrFolder(
-        item,
-        newPath
-      );
+      wasMoved = await this.renameFileOrFolder(item, newPath);
     } else {
       wasMoved = true;
     }
@@ -1180,6 +1214,15 @@ export default class CzFileExplorer extends Vue {
     text-overflow: ellipsis;
     flex-basis: fit-content;
     max-width: 100%;
+  }
+}
+
+.upload-drop-area,
+.upload-drop-area .upload {
+  cursor: pointer;
+
+  &:hover {
+    background: #eee;
   }
 }
 </style>
