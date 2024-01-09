@@ -452,6 +452,7 @@ import { Component, Watch, Prop, Vue } from "vue-property-decorator";
 import { IFolder, IFile } from "@/types";
 import { default as Notifications } from "@/models/notifications";
 import { FILE_ICONS } from "@/constants";
+import { setReactive } from "@/utils";
 
 @Component({
   name: "cz-file-explorer",
@@ -558,8 +559,9 @@ export default class CzFileExplorer extends Vue {
   protected get canPaste() {
     const isValidTarget = this.selected.length <= 1;
     const areItemsValid =
-      this.itemsToCut.length &&
+      this.itemsToCut.length > 0 &&
       !this.itemsToCut.includes(this.activeDirectoryItem);
+
     return isValidTarget && areItemsValid;
   }
 
@@ -605,8 +607,6 @@ export default class CzFileExplorer extends Vue {
     for (let i = 0; i < childFolders.length; i++) {
       this.annotateDirectory(childFolders[i]);
     }
-
-    console.log(this.rootDirectory);
   }
 
   // There is a bug in v-treeview when moving items or changing keys. Items become unactivatable
@@ -709,7 +709,7 @@ export default class CzFileExplorer extends Vue {
 
     this.selected.map((item) => {
       if (item) {
-        item.isCutting = true;
+        setReactive(item, "isCutting", true);
       }
     });
   }
@@ -812,7 +812,7 @@ export default class CzFileExplorer extends Vue {
 
   protected renameItem(item: IFile | IFolder) {
     this.clearRenaming();
-    item.isRenaming = true;
+    setReactive(item, "isRenaming", true);
   }
 
   protected isFileExtensionValid(file: IFile) {
@@ -882,7 +882,7 @@ export default class CzFileExplorer extends Vue {
       );
 
       if (this.isEditMode) {
-        item.isDisabled = true;
+        setReactive(item, "isDisabled", true);
         const newPath = item.path ? item.path + "/" + newName : newName;
         const wasRenamed = await this.renameFileOrFolder(item, newPath);
         if (wasRenamed) {
@@ -1173,7 +1173,7 @@ export default class CzFileExplorer extends Vue {
     if (this.isEditMode) {
       let newPath = this.getPathString(targetFolder);
       newPath = newPath ? newPath + "/" + item.name : item.name;
-      item.isDisabled = true;
+      setReactive(item, "isDisabled", true);
       wasMoved = await this.renameFileOrFolder(item, newPath);
     } else {
       wasMoved = true;

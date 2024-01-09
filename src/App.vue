@@ -30,7 +30,11 @@
 
         <v-divider></v-divider>
         <v-card-text>
-          <cz-file-explorer :rootDirectory="rootDirectory" :canUpload="true" />
+          <cz-file-explorer
+            :rootDirectory="rootDirectory"
+            :hasFolders="true"
+            :canUpload="true"
+          />
         </v-card-text>
       </v-card>
 
@@ -160,6 +164,7 @@ export default class App extends Vue {
   /** Example folder/file tree structure */
   protected rootDirectory: IFolder = {
     name: "root",
+    /** Folders have a `children` property */
     children: [
       {
         name: "Some Folder",
@@ -172,8 +177,6 @@ export default class App extends Vue {
                 children: [
                   {
                     name: "deeply nested file.txt",
-                    // key: `0`, // Needs to be a unique identifier
-                    // path: "/readme.txt",
                   } as IFile,
                 ],
               } as IFolder,
@@ -181,30 +184,23 @@ export default class App extends Vue {
           } as IFolder,
           {
             name: "readme.txt",
-            // key: `0`, // Needs to be a unique identifier
-            // path: "/readme.txt",
           } as IFile,
           {
             name: "presentation.ppt",
-            // key: `1`,
           } as IFile,
         ],
-        // parent: null,
-        // key: `2`,
-        // path: "/",
       },
       {
+        name: "An empty folder",
+        children: [],
+      } as IFolder,
+      {
         name: "logs.txt",
-        // key: `3`,
       } as IFile,
       {
         name: "landscape.png",
-        // key: `4`,
       } as IFile,
     ],
-    // parent: null,
-    // key: "5",
-    // path: "",
   };
 
   protected config: Config = {
@@ -243,6 +239,7 @@ export default class App extends Vue {
     });
   }
 
+  // Stringify a JSON object and avoid circular references
   stringify(obj) {
     let cache: any = [];
     let str = JSON.stringify(obj, function (_key, value) {
