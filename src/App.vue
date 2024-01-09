@@ -33,7 +33,7 @@
           <cz-file-explorer
             :rootDirectory="rootDirectory"
             :hasFolders="true"
-            :canUpload="true"
+            @showMetadata="onShowMetadata($event)"
           />
         </v-card-text>
       </v-card>
@@ -132,12 +132,30 @@
     </v-container>
 
     <cz-notifications></cz-notifications>
+
+    <v-dialog v-model="selectedMetadata" width="500">
+      <v-card>
+        <v-card-title>Some file</v-card-title>
+
+        <v-card-text>File metadata...</v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="selectedMetadata = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { Config, IFolder, IFile } from "@/types";
+import { stringify } from "@/utils";
 import CzNotifications from "@/components/base/cz.notifications.vue";
 import Notifications from "@/models/notifications";
 import CzForm from "@/components/cz.form.vue";
@@ -160,6 +178,8 @@ export default class App extends Vue {
   protected isValid = false;
   protected errors = [];
   protected data = initialData;
+  protected stringify = stringify;
+  protected selectedMetadata: any = false;
 
   /** Example folder/file tree structure */
   protected rootDirectory: IFolder = {
@@ -239,22 +259,9 @@ export default class App extends Vue {
     });
   }
 
-  // Stringify a JSON object and avoid circular references
-  stringify(obj) {
-    let cache: any = [];
-    let str = JSON.stringify(obj, function (_key, value) {
-      if (typeof value === "object" && value !== null) {
-        if (cache.indexOf(value) !== -1) {
-          // Circular reference found, discard key
-          return;
-        }
-        // Store value in our collection
-        cache.push(value);
-      }
-      return value;
-    });
-    cache = null; // reset the cache
-    return str;
+  onShowMetadata(item) {
+    console.log(item);
+    this.selectedMetadata = item;
   }
 
   toast() {

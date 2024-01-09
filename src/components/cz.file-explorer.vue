@@ -117,17 +117,20 @@
         </template>
       </template>
 
-      <template v-if="selected.length">
-        <v-divider class="mx-4" vertical></v-divider>
-        <span class="text-subtitle-2"
-          >{{ selected.length }} item{{
-            selected.length !== 1 ? "s" : ""
-          }}
-          selected</span
-        >
-      </template>
-
       <v-spacer></v-spacer>
+
+      <v-text-field
+        v-model="search"
+        rounded
+        label="Search by file or folder name..."
+        dense
+        solo
+        flat
+        hide-details
+        clearable
+        clear-icon="mdi-close-circle-outline"
+        prepend-inner-icon="mdi-magnify"
+      />
 
       <template
         v-if="
@@ -169,6 +172,8 @@
                 :items="rootDirectory.children"
                 :open.sync="open"
                 :active.sync="selected"
+                :search="search"
+                :filter="filter"
                 return-object
                 multiple-active
                 transition
@@ -338,6 +343,7 @@
                         active &&
                         !item.isRenaming &&
                         hasFileMetadata &&
+                        selected.length === 1 &&
                         !isFolder(item)
                       "
                     >
@@ -378,6 +384,17 @@
             "
             >{{ totalUploadSize | prettyBytes(2, false) }}
           </span>
+
+          <template v-if="selected.length">
+            <v-divider class="mx-4" vertical></v-divider>
+            <span class="text-subtitle-2"
+              >{{ selected.length }} item{{
+                selected.length !== 1 ? "s" : ""
+              }}
+              selected</span
+            >
+          </template>
+
           <v-menu
             v-if="isTotalUploadSizeTooBig"
             open-on-hover
@@ -399,12 +416,16 @@
         </div>
       </v-card>
 
-      <div
+      <v-card
+        flat
+        outlined
         v-else-if="isReadOnly || !rootDirectory.children.length"
         class="pa-2 text-body-1 text--secondary mb-2"
       >
-        No files have been included in this submission.
-      </div>
+        <v-card-text class="text-center">
+          No files have been included in this submission.
+        </v-card-text>
+      </v-card>
 
       <v-alert
         v-if="hasTooManyFiles"
@@ -483,7 +504,6 @@ export default class CzFileExplorer extends Vue {
   @Prop({ default: (_item: IFile | IFolder) => true }) deleteFileOrFolder!: (
     item: IFile | IFolder
   ) => Promise<boolean>;
-
   /**
    * If `true`, render the file browser in edit mode. The property `identifier` will also need to be specified.
    * Indicates that operations will run against repository endpoints
@@ -492,12 +512,11 @@ export default class CzFileExplorer extends Vue {
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   @Prop({ default: false }) isReadOnly!: boolean;
   /** If `true`, allows file upload functionality */
-  @Prop({ default: true }) canUpload!: boolean;
+  @Prop({ default: false }) canUpload!: boolean;
   /** Use with `isEditMode` as `true`. Specify the identifier of the resource being edited.  */
   @Prop() identifier!: string;
 
   protected redraw = 0;
-
   protected fileIcons = FILE_ICONS;
   protected open: (IFolder | IFile)[] = [];
   protected selected: (IFolder | IFile)[] = [];
@@ -505,6 +524,7 @@ export default class CzFileExplorer extends Vue {
   protected isDeleting = false;
   protected fileReleaseDate = null;
   protected shiftAnchor: IFolder | IFile | null = null;
+  protected search = "";
 
   public get hasInvalidFilesToUpload() {
     return this.allItems.some((item: IFile | IFolder) => {
@@ -615,6 +635,17 @@ export default class CzFileExplorer extends Vue {
     this.redraw = this.redraw ? 0 : 1;
   }
 
+  protected get filter() {
+    return (item, search, textKey) => {
+      return (
+        item[textKey]
+          .trim()
+          .toLowerCase()
+          .indexOf(search.trim().toLowerCase()) > -1
+      );
+    };
+  }
+
   @Watch("rootDirectory.children", { deep: true })
   protected onInput() {
     const items = this._getDirectoryItems(this.rootDirectory) as IFile[];
@@ -647,10 +678,10 @@ export default class CzFileExplorer extends Vue {
         // key: `${Date.now().toString()}-${index}`,
         file: file,
         // Need to populate these optional properties so that Vue can set reactive bindings to it
-        isRenaming: false,
-        isCutting: false,
-        isDisabled: false,
-        isUploaded: undefined,
+        // isRenaming: false,
+        // isCutting: false,
+        // isDisabled: false,
+        // isUploaded: undefined,
       } as IFile;
 
       targetFolder.children.push(newItem);
@@ -765,11 +796,13 @@ export default class CzFileExplorer extends Vue {
   }
 
   protected canRenameItem(item: IFile | IFolder) {
-    !item.isDisabled &&
+    return (
+      !item.isDisabled &&
       this.canRename &&
       !this.isReadOnly &&
       item.isUploaded &&
-      !this.isEditMode;
+      !this.isEditMode
+    );
   }
 
   protected onItemClick(item: IFolder | IFile) {
@@ -949,7 +982,6 @@ export default class CzFileExplorer extends Vue {
       }
     }
 
-    // TODO: zenodo cannot handle multiple deletes in parallel. We do it sequentially
     if (response.includes(false)) {
       // Failed to delete some file
       Notifications.toast({
