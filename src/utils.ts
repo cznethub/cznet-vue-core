@@ -6,7 +6,7 @@ import { Vue } from "vue-property-decorator";
 export function setReactive(obj, key: string, value: any) {
   if (obj.hasOwnProperty(key)) {
     // Property is already defined
-    obj.isCutting = true;
+    obj[key] = true;
   } else {
     // Set reactively
     Vue.set(obj, key, value);

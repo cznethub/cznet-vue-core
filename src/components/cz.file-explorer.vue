@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center has-bg-light-gray primary lighten-4 files-container--included flex-wrap"
+      class="pa-4 d-flex align-center has-bg-light-gray primary lighten-4 files-container--included flex-wrap gap-1"
     >
       <v-tooltip
         v-if="hasFolders && !isReadOnly && canUpload"
@@ -24,7 +24,7 @@
 
       <div v-else class="text-subtitle-1 mr-4">Files</div>
 
-      <template v-if="!isReadOnly && canUpload">
+      <div v-if="!isReadOnly">
         <template>
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
@@ -37,14 +37,14 @@
                 v-on="on"
                 v-bind="attrs"
               >
-                <v-icon>mdi-checkbox-marked-outline</v-icon>
+                <v-icon>mdi-select</v-icon>
               </v-btn>
             </template>
             <span>Select All</span>
           </v-tooltip>
         </template>
 
-        <template>
+        <!-- <template>
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -61,14 +61,14 @@
             <span>Unselect All</span>
           </v-tooltip>
           <v-divider class="mx-4" vertical></v-divider>
-        </template>
+        </template> -->
 
         <template v-if="hasFolders">
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 @click="cut"
-                :disabled="!canCut"
+                :disabled="!canCutSelected"
                 class="mr-1"
                 icon
                 small
@@ -115,7 +115,7 @@
             <span>Discard</span>
           </v-tooltip>
         </template>
-      </template>
+      </div>
 
       <v-spacer></v-spacer>
 
@@ -140,6 +140,7 @@
           canUpload
         "
       >
+        <v-spacer></v-spacer>
         <v-btn @click="empty" small depressed class="primary lighten-2">
           Discard All
         </v-btn>
@@ -159,6 +160,46 @@
         make here will be immediately applied to your files. You do not need to
         click the Save Changes button for your changes to be effective.
       </v-alert>
+
+      <v-menu v-model="showMenu" v-bind="menuAttrs" absolute offset-y>
+        <v-list v-if="showMenuItem">
+          <v-list-item
+            v-if="canRenameItem(showMenuItem)"
+            @click.stop="renameItem(showMenuItem)"
+            :disabled="showMenuItem.isRenaming"
+          >
+            <v-list-item-title
+              ><v-icon>mdi-pencil-outline</v-icon> Rename</v-list-item-title
+            >
+          </v-list-item>
+
+          <v-list-item
+            v-if="hasFileMetadata && !isFolder(showMenuItem)"
+            @click.stop="$emit('showMetadata', showMenuItem)"
+          >
+            <v-list-item-title
+              ><v-icon>mdi-text-box-search-outline</v-icon> View file
+              metadata</v-list-item-title
+            >
+          </v-list-item>
+
+          <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
+            <v-list-item-title
+              ><v-icon>mdi-content-cut</v-icon> Cut</v-list-item-title
+            >
+          </v-list-item>
+
+          <v-list-item
+            v-if="isFolder(showMenuItem)"
+            @click="paste"
+            :disabled="!canPasteOnFolder(showMenuItem)"
+          >
+            <v-list-item-title
+              ><v-icon>mdi-content-paste</v-icon> Paste</v-list-item-title
+            >
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
         <v-card-text class="files-container" style="height: 15rem">
@@ -225,8 +266,10 @@
                     autofocus
                   >
                   </v-text-field>
+
                   <v-row
                     v-else
+                    @contextmenu.prevent="show($event, item)"
                     @click.exact="onItemClick(item)"
                     @click.ctrl.exact="onItemCtrlClick(item)"
                     @click.meta.exact="onItemCtrlClick(item)"
@@ -327,35 +370,7 @@
                         </div>
                       </v-menu>
                     </v-col>
-                    <v-col v-if="active && canRenameItem(item)">
-                      <v-btn
-                        v-if="!item.isRenaming"
-                        @click.stop="renameItem(item)"
-                        fab
-                        small
-                        text
-                        title="Rename"
-                        ><v-icon>mdi-pencil-outline</v-icon></v-btn
-                      >
-                    </v-col>
-                    <v-col
-                      v-if="
-                        active &&
-                        !item.isRenaming &&
-                        hasFileMetadata &&
-                        selected.length === 1 &&
-                        !isFolder(item)
-                      "
-                    >
-                      <v-btn
-                        @click.stop="$emit('showMetadata', item)"
-                        fab
-                        small
-                        text
-                        title="View file metadata"
-                        ><v-icon>mdi-text-box-search-outline</v-icon></v-btn
-                      >
-                    </v-col>
+
                     <v-col v-if="item.isDisabled">
                       <v-icon small>fas fa-circle-notch fa-spin</v-icon>
                     </v-col>
@@ -493,28 +508,35 @@ export default class CzFileExplorer extends Vue {
   /** If `true`, allow folder operations */
   @Prop({ default: false }) hasFolders!: boolean;
   /** If `true`, display a button next to a selected file that will emit a `showMetadata` event. */
-  @Prop({ default: true }) hasFileMetadata!: boolean;
+  @Prop({ default: false }) hasFileMetadata!: boolean;
   /** Usable when `editMode` is `true`. If `true`, indicates that renaming of uploaded files is supported by the repository and enables the controls */
   @Prop({ default: false }) canRenameUploadedFiles!: boolean;
-  @Prop({ default: (_item: IFile | IFolder, _newPath: string) => true })
+
+  @Prop({
+    default: (_item: IFile | IFolder, _newPath) => {
+      return () => {
+        return true;
+      };
+    },
+  })
   renameFileOrFolder!: (
-    item: IFile | IFolder,
-    newPath: string
+    _item: IFile | IFolder,
+    _newPath: string
   ) => Promise<boolean>;
-  @Prop({ default: (_item: IFile | IFolder) => true }) deleteFileOrFolder!: (
-    item: IFile | IFolder
-  ) => Promise<boolean>;
-  /**
-   * If `true`, render the file browser in edit mode. The property `identifier` will also need to be specified.
-   * Indicates that operations will run against repository endpoints
-   */
+
+  @Prop({
+    default: (_item: IFile | IFolder) => {
+      return true;
+    },
+  })
+  deleteFileOrFolder!: (item: IFile | IFolder) => Promise<boolean>;
+
+  /** If `true`, render the file browser in edit mode. Enables file and folder operations. */
   @Prop({ default: false }) isEditMode!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   @Prop({ default: false }) isReadOnly!: boolean;
   /** If `true`, allows file upload functionality */
   @Prop({ default: false }) canUpload!: boolean;
-  /** Use with `isEditMode` as `true`. Specify the identifier of the resource being edited.  */
-  @Prop() identifier!: string;
 
   protected redraw = 0;
   protected fileIcons = FILE_ICONS;
@@ -525,6 +547,14 @@ export default class CzFileExplorer extends Vue {
   protected fileReleaseDate = null;
   protected shiftAnchor: IFolder | IFile | null = null;
   protected search = "";
+
+  protected showMenu = false;
+  protected showMenuItem: IFolder | IFile | null = null;
+
+  menuAttrs = {
+    "position-x": 0,
+    "position-y": 0,
+  };
 
   public get hasInvalidFilesToUpload() {
     return this.allItems.some((item: IFile | IFolder) => {
@@ -585,18 +615,39 @@ export default class CzFileExplorer extends Vue {
     return isValidTarget && areItemsValid;
   }
 
-  protected get canCut() {
+  protected canPasteOnFolder(item: IFolder) {
+    return (
+      this.itemsToCut.length > 0 &&
+      !this.itemsToCut.includes(item) &&
+      this.itemsToCut.some((i) => i.parent !== item)
+    );
+  }
+
+  protected get canCutSelected() {
     return this.selected.length && !this.isReadOnly;
   }
 
-  protected get canRename() {
-    return (
-      !(this.isEditMode && !this.canRenameUploadedFiles) && !this.isReadOnly
-    );
+  protected canCutItem(item: IFile | IFolder) {
+    return !this.isReadOnly && this.hasFolders && !item.isCutting;
   }
 
   protected get allItems(): IFile[] {
     return this._getDirectoryItems(this.rootDirectory);
+  }
+
+  protected show(e, item: IFile | IFolder) {
+    if (this.isSelected(item)) {
+    } else {
+      this.unselectAll();
+      this.select([item]);
+    }
+    this.showMenu = false;
+    this.menuAttrs["position-x"] = e.clientX;
+    this.menuAttrs["position-y"] = e.clientY;
+    this.$nextTick(() => {
+      this.showMenu = true;
+      this.showMenuItem = item;
+    });
   }
 
   /** @return total size of files uploaded and valid files pending to upload */
@@ -674,14 +725,7 @@ export default class CzFileExplorer extends Vue {
       const newItem = {
         name: this._getAvailableName(file.name, targetFolder),
         // parent: targetFolder,
-        // path: this.getPathString(targetFolder),
-        // key: `${Date.now().toString()}-${index}`,
         file: file,
-        // Need to populate these optional properties so that Vue can set reactive bindings to it
-        // isRenaming: false,
-        // isCutting: false,
-        // isDisabled: false,
-        // isUploaded: undefined,
       } as IFile;
 
       targetFolder.children.push(newItem);
@@ -745,6 +789,12 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
+  // protected cutItem(item: IFile | IFolder) {
+  //   this.uncutAll();
+  //   if (this.isSele)
+  //   setReactive(item, "isCutting", true);
+  // }
+
   protected uncutAll() {
     this.itemsToCut.map((item) => {
       item.isCutting = false;
@@ -775,6 +825,27 @@ export default class CzFileExplorer extends Vue {
     this.redrawFileTree();
   }
 
+  // protected async pasteOnFolder(targetItem: IFolder) {
+  //   const pastePromises: Promise<boolean>[] = [];
+  //   const itemsToCut = [...this.itemsToCut]; // We make a copy because the original can change during iteration below
+
+  //   for (let i = 0; i < itemsToCut.length; i++) {
+  //     const item = itemsToCut[i];
+
+  //     if (this.isFolder(targetItem) && item && item.parent !== targetItem) {
+  //       pastePromises.push(this._paste(item, targetItem));
+  //     }
+  //   }
+
+  //   await Promise.all(pastePromises);
+
+  //   this.itemsToCut.map((item) => {
+  //     item.isCutting = false;
+  //   });
+  //   this.unselectAll();
+  //   this.redrawFileTree();
+  // }
+
   protected moveItem(item: IFolder | IFile, destination: IFolder) {
     const previousParent = item.parent as IFolder;
 
@@ -798,10 +869,10 @@ export default class CzFileExplorer extends Vue {
   protected canRenameItem(item: IFile | IFolder) {
     return (
       !item.isDisabled &&
-      this.canRename &&
-      !this.isReadOnly &&
-      item.isUploaded &&
-      !this.isEditMode
+      // item.isUploaded &&
+      this.canRenameUploadedFiles &&
+      this.isEditMode &&
+      !this.isReadOnly
     );
   }
 
@@ -844,7 +915,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   protected renameItem(item: IFile | IFolder) {
-    this.clearRenaming();
+    this._clearRenaming(this.rootDirectory);
     setReactive(item, "isRenaming", true);
   }
 
@@ -1027,10 +1098,6 @@ export default class CzFileExplorer extends Vue {
     return [...document.getElementsByClassName("files-container--included")];
   }
 
-  protected clearRenaming() {
-    this._clearRenamingRecursive(this.rootDirectory);
-  }
-
   protected empty() {
     Notifications.openDialog({
       title: "Remove all files?",
@@ -1059,7 +1126,7 @@ export default class CzFileExplorer extends Vue {
       return;
     }
 
-    this.clearRenaming();
+    this._clearRenaming(this.rootDirectory);
     const newFolder = {
       name: "New folder",
       children: [],
@@ -1161,10 +1228,11 @@ export default class CzFileExplorer extends Vue {
     return fileName.replace(/\.[^/.]+$/, "");
   }
 
-  private _clearRenamingRecursive(item: IFile | IFolder) {
-    item.isRenaming = false;
+  /** Sets `isRenaming` property of all files and folders inside the directory to `false` */
+  private _clearRenaming(item: IFile | IFolder) {
+    setReactive(item, "isRenaming", false);
     if (item.hasOwnProperty("children")) {
-      (item as IFolder).children.map(this._clearRenamingRecursive);
+      (item as IFolder).children.map(this._clearRenaming);
     }
   }
 

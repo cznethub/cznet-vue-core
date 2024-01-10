@@ -33,6 +33,10 @@
           <cz-file-explorer
             :rootDirectory="rootDirectory"
             :hasFolders="true"
+            :isEditMode="true"
+            :hasFileMetadata="true"
+            :canUpload="true"
+            :canRenameUploadedFiles="true"
             @showMetadata="onShowMetadata($event)"
           />
         </v-card-text>
@@ -133,7 +137,7 @@
 
     <cz-notifications></cz-notifications>
 
-    <v-dialog v-model="selectedMetadata" width="500">
+    <v-dialog v-model="selectedMetadata" width="800">
       <v-card>
         <v-card-title>Some file</v-card-title>
 
