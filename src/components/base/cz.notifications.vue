@@ -20,7 +20,8 @@
     <v-dialog
       :id="`dialog-` + dialog.title.replaceAll(` `, ``)"
       v-model="dialog.isActive"
-      persistent
+      :contentClass="dialog.contentClass"
+      :persistent="dialog.isPersistent"
       width="500"
     >
       <v-card>

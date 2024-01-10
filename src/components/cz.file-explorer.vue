@@ -80,7 +80,7 @@
             Cut
           </v-tooltip>
 
-          <v-tooltip v-if="!isReadOnly" bottom transition="fade">
+          <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 @click="paste"
@@ -162,7 +162,12 @@
       </v-alert>
 
       <v-menu v-model="showMenu" v-bind="menuAttrs" absolute offset-y>
-        <v-list v-if="showMenuItem">
+        <v-list
+          v-if="showMenuItem"
+          width="200"
+          class="files-container--included"
+        >
+          <!-- RENAME -->
           <v-list-item
             v-if="canRenameItem(showMenuItem)"
             @click.stop="renameItem(showMenuItem)"
@@ -173,31 +178,48 @@
             >
           </v-list-item>
 
-          <v-list-item
-            v-if="hasFileMetadata && !isFolder(showMenuItem)"
-            @click.stop="$emit('showMetadata', showMenuItem)"
-          >
-            <v-list-item-title
-              ><v-icon>mdi-text-box-search-outline</v-icon> View file
-              metadata</v-list-item-title
+          <template v-if="!isReadOnly && hasFolders">
+            <!-- CUT -->
+            <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
+              <v-list-item-title
+                ><v-icon>mdi-content-cut</v-icon> Cut</v-list-item-title
+              >
+            </v-list-item>
+
+            <!-- PASTE -->
+            <v-list-item
+              v-if="isFolder(showMenuItem)"
+              @click="paste"
+              :disabled="!canPasteOnFolder(showMenuItem)"
             >
+              <v-list-item-title
+                ><v-icon>mdi-content-paste</v-icon> Paste</v-list-item-title
+              >
+            </v-list-item>
+          </template>
+
+          <!-- DISCARD -->
+          <v-list-item
+            v-if="!isReadOnly"
+            @click="deleteSelected"
+            :disabled="isDeleting"
+          >
+            <v-list-item-title>
+              <v-icon>mdi-delete</v-icon> Discard
+            </v-list-item-title>
           </v-list-item>
 
-          <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
-            <v-list-item-title
-              ><v-icon>mdi-content-cut</v-icon> Cut</v-list-item-title
-            >
-          </v-list-item>
+          <!-- VIEW FILE METADATA -->
+          <template v-if="hasFileMetadata && !isFolder(showMenuItem)">
+            <v-divider></v-divider>
 
-          <v-list-item
-            v-if="isFolder(showMenuItem)"
-            @click="paste"
-            :disabled="!canPasteOnFolder(showMenuItem)"
-          >
-            <v-list-item-title
-              ><v-icon>mdi-content-paste</v-icon> Paste</v-list-item-title
-            >
-          </v-list-item>
+            <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
+              <v-list-item-title
+                ><v-icon>mdi-text-box-search-outline</v-icon> View file
+                metadata</v-list-item-title
+              >
+            </v-list-item>
+          </template>
         </v-list>
       </v-menu>
 
@@ -251,6 +273,7 @@
                 <template v-slot:label="{ item }">
                   <v-text-field
                     v-if="item.isRenaming"
+                    class="ml-3"
                     @change="onRenamed(item, $event)"
                     @keydown.enter="item.isRenaming = false"
                     @click.exact="onItemClick(item)"
@@ -262,6 +285,7 @@
                     v-click-outside="onClickOutside"
                     append-icon="mdi-cancel"
                     dense
+                    outlined
                     hide-details="auto"
                     autofocus
                   >
@@ -298,7 +322,7 @@
                     </v-col>
                   </v-row>
                 </template>
-                <template v-slot:append="{ item, active }">
+                <template v-slot:append="{ item }">
                   <v-row v-if="!item.isRenaming">
                     <v-col
                       v-if="!isFolder(item) && item.isUploaded"
@@ -917,6 +941,8 @@ export default class CzFileExplorer extends Vue {
   protected renameItem(item: IFile | IFolder) {
     this._clearRenaming(this.rootDirectory);
     setReactive(item, "isRenaming", true);
+    this.showMenu = false;
+    this.showMenuItem = null;
   }
 
   protected isFileExtensionValid(file: IFile) {
@@ -1014,6 +1040,8 @@ export default class CzFileExplorer extends Vue {
       content: "Are you sure you want to remove the selected files?",
       confirmText: "Remove",
       cancelText: "Cancel",
+      contentClass: "files-container--included",
+      isPersistent: true,
       onConfirm: async () => {
         this._deleteSelected();
       },
@@ -1095,7 +1123,10 @@ export default class CzFileExplorer extends Vue {
   }
 
   protected include() {
-    return [...document.getElementsByClassName("files-container--included")];
+    return [
+      ...document.getElementsByClassName("files-container--included"),
+      ...document.getElementsByClassName("v-overlay"),
+    ];
   }
 
   protected empty() {
@@ -1104,6 +1135,7 @@ export default class CzFileExplorer extends Vue {
       content: "Are you sure you want to remove all files from this list?",
       confirmText: "Remove",
       cancelText: "Cancel",
+      isPersistent: true,
       onConfirm: async () => {
         this.rootDirectory.children = [];
         this.selected = [];
@@ -1231,7 +1263,7 @@ export default class CzFileExplorer extends Vue {
   /** Sets `isRenaming` property of all files and folders inside the directory to `false` */
   private _clearRenaming(item: IFile | IFolder) {
     setReactive(item, "isRenaming", false);
-    if (item.hasOwnProperty("children")) {
+    if (this.isFolder(item)) {
       (item as IFolder).children.map(this._clearRenaming);
     }
   }

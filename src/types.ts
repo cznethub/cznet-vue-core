@@ -13,6 +13,8 @@ export interface IDialog {
   confirmText?: string;
   secondaryActionText?: string;
   cancelText?: string;
+  contentClass?: string;
+  isPersistent?: boolean;
   onConfirm: () => any;
   onSecondaryAction?: () => any;
   onCancel?: () => any;
