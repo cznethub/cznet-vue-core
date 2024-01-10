@@ -98,7 +98,7 @@
           <v-divider class="mx-4" vertical></v-divider>
         </template>
 
-        <template>
+        <template v-if="canUpload">
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -161,7 +161,13 @@
         click the Save Changes button for your changes to be effective.
       </v-alert>
 
-      <v-menu v-model="showMenu" v-bind="menuAttrs" absolute offset-y>
+      <v-menu
+        v-if="!isReadOnly"
+        v-model="showMenu"
+        v-bind="menuAttrs"
+        absolute
+        offset-y
+      >
         <v-list
           v-if="showMenuItem"
           width="200"
@@ -200,7 +206,7 @@
 
           <!-- DISCARD -->
           <v-list-item
-            v-if="!isReadOnly"
+            v-if="!isReadOnly && canUpload"
             @click="deleteSelected"
             :disabled="isDeleting"
           >
@@ -226,6 +232,9 @@
       <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
         <v-card-text class="files-container" style="height: 15rem">
           <v-row class="flex-grow-1">
+            <!-- TODO: find a way to have a context menu in the empty area -->
+            <!-- @contextmenu="show($event, null)" -->
+
             <v-col
               :cols="11"
               v-click-outside="{ handler: onClickOutside, include }"
@@ -394,7 +403,6 @@
                         </div>
                       </v-menu>
                     </v-col>
-
                     <v-col v-if="item.isDisabled">
                       <v-icon small>fas fa-circle-notch fa-spin</v-icon>
                     </v-col>
@@ -659,9 +667,11 @@ export default class CzFileExplorer extends Vue {
     return this._getDirectoryItems(this.rootDirectory);
   }
 
-  protected show(e, item: IFile | IFolder) {
-    if (this.isSelected(item)) {
-    } else {
+  protected show(e, item: IFile | IFolder | null) {
+    if (this.isReadOnly) {
+      return;
+    }
+    if (item && !this.isSelected(item)) {
       this.unselectAll();
       this.select([item]);
     }
@@ -891,13 +901,12 @@ export default class CzFileExplorer extends Vue {
   }
 
   protected canRenameItem(item: IFile | IFolder) {
-    return (
-      !item.isDisabled &&
-      // item.isUploaded &&
-      this.canRenameUploadedFiles &&
-      this.isEditMode &&
-      !this.isReadOnly
-    );
+    return item.isUploaded
+      ? this.canRenameUploadedFiles &&
+          this.isEditMode &&
+          !this.isReadOnly &&
+          !item.isDisabled
+      : !item.isDisabled && !this.isReadOnly;
   }
 
   protected onItemClick(item: IFolder | IFile) {

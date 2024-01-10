@@ -15,6 +15,39 @@
       <v-card>
         <v-card-title>CzFileExplorer</v-card-title>
         <v-divider></v-divider>
+        <v-card-text class="d-flex"
+          ><v-checkbox
+            label="isReadOnly"
+            v-model="fileExplorerConfig.isReadOnly"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            label="hasFolders"
+            v-model="fileExplorerConfig.hasFolders"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            label="isEditMode"
+            v-model="fileExplorerConfig.isEditMode"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            label="hasFileMetadata"
+            v-model="fileExplorerConfig.hasFileMetadata"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            label="canUpload"
+            v-model="fileExplorerConfig.canUpload"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            label="canRenameUploadedFiles"
+            v-model="fileExplorerConfig.canRenameUploadedFiles"
+            class="mr-4"
+          ></v-checkbox>
+        </v-card-text>
+        <v-divider></v-divider>
         <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
@@ -32,11 +65,12 @@
         <v-card-text>
           <cz-file-explorer
             :rootDirectory="rootDirectory"
-            :hasFolders="true"
-            :isEditMode="true"
-            :hasFileMetadata="true"
-            :canUpload="true"
-            :canRenameUploadedFiles="true"
+            :hasFolders="fileExplorerConfig.hasFolders"
+            :isEditMode="fileExplorerConfig.isEditMode"
+            :isReadOnly="fileExplorerConfig.isReadOnly"
+            :hasFileMetadata="fileExplorerConfig.hasFileMetadata"
+            :canUpload="fileExplorerConfig.canUpload"
+            :canRenameUploadedFiles="fileExplorerConfig.canRenameUploadedFiles"
             @showMetadata="onShowMetadata($event)"
           />
         </v-card-text>
@@ -248,6 +282,15 @@ export default class App extends Vue {
     isViewMode: false,
     isReadOnly: false,
     isDisabled: false,
+  };
+
+  protected fileExplorerConfig = {
+    isReadOnly: false,
+    canUpload: false,
+    hasFolders: false,
+    isEditMode: false,
+    hasFileMetadata: false,
+    canRenameUploadedFiles: false,
   };
 
   beforeCreate() {
