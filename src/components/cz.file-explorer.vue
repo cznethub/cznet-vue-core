@@ -137,6 +137,7 @@
           depressed
           class="primary lighten-2"
         >
+          <v-icon class="mr-2" small>mdi-delete-outline</v-icon>
           Discard All
         </v-btn>
       </template>
@@ -228,13 +229,13 @@
             </v-list-item>
           </template>
 
-          <!-- VIEW FILE METADATA -->
+          <!-- VIEW METADATA -->
           <template v-if="hasFileMetadata(showMenuItem)">
             <v-divider v-if="!isReadOnly"></v-divider>
 
             <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
               <v-list-item-title
-                ><v-icon small>mdi-text-box-search-outline</v-icon> View file
+                ><v-icon small>mdi-text-box-search-outline</v-icon> View
                 metadata</v-list-item-title
               >
             </v-list-item>
