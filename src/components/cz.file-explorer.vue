@@ -826,6 +826,7 @@ export default class CzFileExplorer extends Vue {
     }
     this.annotateDirectory(targetFolder);
     this.dropFiles = [];
+    this.redrawFileTree();
   }
 
   protected selectAll() {
