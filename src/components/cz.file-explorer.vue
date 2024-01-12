@@ -3,7 +3,7 @@
     <v-sheet
       class="pa-4 d-flex align-center has-bg-light-gray primary lighten-4 files-container--included flex-wrap gap-1"
     >
-      <v-tooltip v-if="hasFolders && canUpload" bottom transition="fade">
+      <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             @click="newFolder"
@@ -20,7 +20,7 @@
 
       <div v-else class="text-subtitle-1 mr-4">Files</div>
 
-      <div v-if="canUpload">
+      <div v-if="!isReadOnly">
         <template>
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
@@ -94,7 +94,7 @@
           <v-divider class="mx-4" vertical></v-divider>
         </template>
 
-        <template v-if="canUpload">
+        <template v-if="!isReadOnly">
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -128,9 +128,15 @@
         prepend-inner-icon="mdi-magnify"
       />
 
-      <template v-if="rootDirectory.children.length && canUpload">
+      <template v-if="rootDirectory.children.length && !isReadOnly">
         <v-spacer></v-spacer>
-        <v-btn @click="empty" small depressed class="primary lighten-2">
+        <v-btn
+          @click="empty"
+          :disabled="!isSomeNotUploaded"
+          small
+          depressed
+          class="primary lighten-2"
+        >
           Discard All
         </v-btn>
       </template>
@@ -145,15 +151,15 @@
           width="200"
           class="files-container--included"
         >
-          <template v-if="canUpload">
+          <template v-if="!isReadOnly">
             <!-- CREATE NEW FOLDER -->
             <v-list-item
               v-if="isFolder(showMenuItem) && hasFolders"
               @click.stop="newFolder"
             >
               <v-list-item-title
-                ><v-icon>mdi-folder</v-icon> Create new
-                folder</v-list-item-title
+                ><v-icon color="primary" small>mdi-folder-outline</v-icon>
+                Create new folder</v-list-item-title
               >
             </v-list-item>
 
@@ -164,7 +170,12 @@
               :disabled="showMenuItem.isRenaming"
             >
               <v-list-item-title
-                ><v-icon>mdi-pencil-outline</v-icon> Rename</v-list-item-title
+                ><v-icon
+                  :class="{ 'text--disabled': showMenuItem.isRenaming }"
+                  small
+                  >mdi-pencil-outline</v-icon
+                >
+                Rename</v-list-item-title
               >
             </v-list-item>
 
@@ -172,7 +183,12 @@
               <!-- CUT -->
               <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
                 <v-list-item-title
-                  ><v-icon>mdi-content-cut</v-icon> Cut</v-list-item-title
+                  ><v-icon
+                    :class="{ 'text--disabled': !canCutItem(showMenuItem) }"
+                    small
+                    >mdi-content-cut</v-icon
+                  >
+                  Cut</v-list-item-title
                 >
               </v-list-item>
 
@@ -183,26 +199,42 @@
                 :disabled="!canPasteOnFolder(showMenuItem)"
               >
                 <v-list-item-title
-                  ><v-icon>mdi-content-paste</v-icon> Paste</v-list-item-title
+                  ><v-icon
+                    small
+                    :class="{
+                      'text--disabled': !canPasteOnFolder(showMenuItem),
+                    }"
+                    >mdi-content-paste</v-icon
+                  >
+                  Paste</v-list-item-title
                 >
               </v-list-item>
             </template>
 
             <!-- DISCARD -->
             <v-list-item @click="deleteSelected" :disabled="isDeleting">
-              <v-list-item-title>
-                <v-icon>mdi-delete</v-icon> Discard
+              <v-list-item-title v-if="showMenuItem.isUploaded">
+                <v-icon small :class="{ 'text--disabled': isDeleting }"
+                  >mdi-cloud-remove-outline</v-icon
+                >
+                Delete
+              </v-list-item-title>
+              <v-list-item-title v-else>
+                <v-icon :class="{ 'text--disabled': isDeleting }" small
+                  >mdi-delete-outline</v-icon
+                >
+                Discard
               </v-list-item-title>
             </v-list-item>
           </template>
 
           <!-- VIEW FILE METADATA -->
           <template v-if="hasFileMetadata(showMenuItem)">
-            <v-divider v-if="canUpload"></v-divider>
+            <v-divider v-if="!isReadOnly"></v-divider>
 
             <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
               <v-list-item-title
-                ><v-icon>mdi-text-box-search-outline</v-icon> View file
+                ><v-icon small>mdi-text-box-search-outline</v-icon> View file
                 metadata</v-list-item-title
               >
             </v-list-item>
@@ -318,7 +350,7 @@
                       v-if="!isFolder(item) && item.isUploaded"
                       class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                     >
-                      <v-icon class="text--disabled" small
+                      <v-icon class="text--disabled" title="uploaded" small
                         >mdi-cloud-check</v-icon
                       >
                     </v-col>
@@ -467,7 +499,10 @@
         <b>{{ maxNumberOfFiles }}</b>
       </v-alert>
 
-      <div v-if="canUpload" class="upload-drop-area files-container--included">
+      <div
+        v-if="!isReadOnly"
+        class="upload-drop-area files-container--included"
+      >
         <b-upload
           type="file"
           multiple
@@ -561,7 +596,7 @@ export default class CzFileExplorer extends Vue {
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   // @Prop({ default: false }) isReadOnly!: boolean;
   /** If `true`, allows file upload functionality */
-  @Prop({ default: false }) canUpload!: boolean;
+  @Prop({ default: false }) isReadOnly!: boolean;
 
   /** A function to check if an item has metadata that can be displayed using the
    * 'View file metadata' context menu item
@@ -609,6 +644,10 @@ export default class CzFileExplorer extends Vue {
         this.isFileInvalid(item as IFile)
       );
     });
+  }
+
+  protected get isSomeNotUploaded() {
+    return this.allFiles.some((i) => !i.isUploaded);
   }
 
   protected get allFiles(): IFile[] {
@@ -708,7 +747,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   protected show(e, item: IFile | IFolder | null) {
-    if (item && !this.hasFileMetadata(item) && !this.canUpload) {
+    if (item && !this.hasFileMetadata(item) && this.isReadOnly) {
       return false;
     }
 
@@ -716,6 +755,7 @@ export default class CzFileExplorer extends Vue {
       this.unselectAll();
       this.select([item]);
     }
+    this.shiftAnchor = item;
     this.showMenu = false;
     this.menuAttrs["position-x"] = e.clientX;
     this.menuAttrs["position-y"] = e.clientY;
@@ -1117,7 +1157,9 @@ export default class CzFileExplorer extends Vue {
       cancelText: "Cancel",
       isPersistent: true,
       onConfirm: async () => {
-        this.rootDirectory.children = [];
+        this.rootDirectory.children = this.rootDirectory.children.filter(
+          (i) => i.isUploaded
+        );
         this.selected = [];
         this.open = [];
       },

@@ -17,16 +17,18 @@
         <v-divider></v-divider>
         <v-card-text class="d-flex">
           <v-checkbox
+            label="isReadOnly"
+            v-model="fileExplorerConfig.isReadOnly"
+            class="mr-4"
+          ></v-checkbox>
+          <v-checkbox
+            v-if="!fileExplorerConfig.isReadOnly"
             label="hasFolders"
             v-model="fileExplorerConfig.hasFolders"
             class="mr-4"
           ></v-checkbox>
           <v-checkbox
-            label="canUpload"
-            v-model="fileExplorerConfig.canUpload"
-            class="mr-4"
-          ></v-checkbox>
-          <v-checkbox
+            v-if="!fileExplorerConfig.isReadOnly"
             label="canRenameUploadedFiles"
             v-model="fileExplorerConfig.canRenameUploadedFiles"
             class="mr-4"
@@ -52,7 +54,6 @@
             :rootDirectory="rootDirectory"
             :hasFolders="fileExplorerConfig.hasFolders"
             :isReadOnly="fileExplorerConfig.isReadOnly"
-            :canUpload="fileExplorerConfig.canUpload"
             :canRenameUploadedFiles="fileExplorerConfig.canRenameUploadedFiles"
             @showMetadata="onShowMetadata($event)"
           >
@@ -249,6 +250,7 @@ export default class App extends Vue {
       } as IFolder,
       {
         name: "logs.txt",
+        isUploaded: true,
       } as IFile,
       {
         name: "landscape.png",
@@ -280,7 +282,7 @@ export default class App extends Vue {
   };
 
   protected fileExplorerConfig = {
-    canUpload: true,
+    isReadOnly: false,
     hasFolders: false,
     canRenameUploadedFiles: false,
   };
