@@ -15,25 +15,10 @@
       <v-card>
         <v-card-title>CzFileExplorer</v-card-title>
         <v-divider></v-divider>
-        <v-card-text class="d-flex"
-          ><v-checkbox
-            label="isReadOnly"
-            v-model="fileExplorerConfig.isReadOnly"
-            class="mr-4"
-          ></v-checkbox>
+        <v-card-text class="d-flex">
           <v-checkbox
             label="hasFolders"
             v-model="fileExplorerConfig.hasFolders"
-            class="mr-4"
-          ></v-checkbox>
-          <v-checkbox
-            label="isEditMode"
-            v-model="fileExplorerConfig.isEditMode"
-            class="mr-4"
-          ></v-checkbox>
-          <v-checkbox
-            label="hasFileMetadata"
-            v-model="fileExplorerConfig.hasFileMetadata"
             class="mr-4"
           ></v-checkbox>
           <v-checkbox
@@ -66,13 +51,23 @@
           <cz-file-explorer
             :rootDirectory="rootDirectory"
             :hasFolders="fileExplorerConfig.hasFolders"
-            :isEditMode="fileExplorerConfig.isEditMode"
             :isReadOnly="fileExplorerConfig.isReadOnly"
-            :hasFileMetadata="fileExplorerConfig.hasFileMetadata"
             :canUpload="fileExplorerConfig.canUpload"
             :canRenameUploadedFiles="fileExplorerConfig.canRenameUploadedFiles"
             @showMetadata="onShowMetadata($event)"
-          />
+          >
+            <template v-slot:prepend>
+              <v-alert
+                class="text-subtitle-1"
+                border="left"
+                colored-border
+                type="info"
+                elevation="1"
+              >
+                You can prepend content to this area
+              </v-alert>
+            </template>
+          </cz-file-explorer>
         </v-card-text>
       </v-card>
 
@@ -285,11 +280,8 @@ export default class App extends Vue {
   };
 
   protected fileExplorerConfig = {
-    isReadOnly: false,
-    canUpload: false,
+    canUpload: true,
     hasFolders: false,
-    isEditMode: false,
-    hasFileMetadata: false,
     canRenameUploadedFiles: false,
   };
 
