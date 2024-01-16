@@ -27,12 +27,6 @@
             v-model="fileExplorerConfig.hasFolders"
             class="mr-4"
           ></v-checkbox>
-          <v-checkbox
-            v-if="!fileExplorerConfig.isReadOnly"
-            label="canRenameUploadedFiles"
-            v-model="fileExplorerConfig.canRenameUploadedFiles"
-            class="mr-4"
-          ></v-checkbox>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-text>
@@ -54,7 +48,7 @@
             :rootDirectory="rootDirectory"
             :hasFolders="fileExplorerConfig.hasFolders"
             :isReadOnly="fileExplorerConfig.isReadOnly"
-            :canRenameUploadedFiles="fileExplorerConfig.canRenameUploadedFiles"
+            :hasFileMetadata="() => true"
             @showMetadata="onShowMetadata($event)"
           >
             <template v-slot:prepend>
@@ -231,6 +225,7 @@ export default class App extends Vue {
                 children: [
                   {
                     name: "deeply nested file.txt",
+                    file: { size: 2637468 },
                   } as IFile,
                 ],
               } as IFolder,
@@ -238,9 +233,11 @@ export default class App extends Vue {
           } as IFolder,
           {
             name: "readme.txt",
+            file: { size: 12000 },
           } as IFile,
           {
             name: "presentation.ppt",
+            file: { size: 1237468 },
           } as IFile,
         ],
       },
@@ -251,9 +248,11 @@ export default class App extends Vue {
       {
         name: "logs.txt",
         isUploaded: true,
+        file: { size: 8421 },
       } as IFile,
       {
         name: "landscape.png",
+        file: { size: 2637468 },
       } as IFile,
     ],
   };
@@ -284,7 +283,6 @@ export default class App extends Vue {
   protected fileExplorerConfig = {
     isReadOnly: false,
     hasFolders: false,
-    canRenameUploadedFiles: false,
   };
 
   beforeCreate() {

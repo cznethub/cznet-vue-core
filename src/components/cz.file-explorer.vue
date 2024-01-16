@@ -593,7 +593,6 @@ export default class CzFileExplorer extends Vue {
   @Prop() fileNameRegex!: RegExp;
   /** If `true`, allow folder operations */
   @Prop({ default: false }) hasFolders!: boolean;
-  @Prop({ default: false }) canRenameUploadedFiles!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   // @Prop({ default: false }) isReadOnly!: boolean;
   /** If `true`, allows file upload functionality */
@@ -603,22 +602,22 @@ export default class CzFileExplorer extends Vue {
    * 'View file metadata' context menu item
    * */
   @Prop({ default: (_item: IFile | IFolder, _newPath) => () => false })
-  hasFileMetadata!: (_item: IFile | IFolder) => Promise<boolean>;
+  hasFileMetadata?: (_item: IFile | IFolder) => Promise<boolean>;
 
   /** Asynchronous function to run when renaming files or folders */
-  @Prop({ default: (_item: IFile | IFolder, _newPath) => () => true })
-  renameFileOrFolder!: (
+  @Prop()
+  renameFileOrFolder?: (
     _item: IFile | IFolder,
     _newPath: string
   ) => Promise<boolean>;
 
   /** Asynchronous function to run when deleting files or folders */
   @Prop({ default: (_item: IFile | IFolder) => () => true })
-  deleteFileOrFolder!: (item: IFile | IFolder) => Promise<boolean>;
+  deleteFileOrFolder?: (item: IFile | IFolder) => Promise<boolean>;
 
   /** Asynchronous function to run when uploading files or creating folders */
   @Prop({ default: (_items: IFile[] | IFolder[]) => () => true })
-  upload!: (_items: IFile[] | IFolder[]) => Promise<boolean>;
+  upload?: (_items: IFile[] | IFolder[]) => Promise<boolean>;
 
   protected redraw = 0;
   protected fileIcons = FILE_ICONS;
@@ -748,7 +747,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   protected show(e, item: IFile | IFolder | null) {
-    if (item && !this.hasFileMetadata(item) && this.isReadOnly) {
+    if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
       return false;
     }
 
@@ -927,7 +926,7 @@ export default class CzFileExplorer extends Vue {
 
   protected canRenameItem(item: IFile | IFolder) {
     return item.isUploaded
-      ? this.canRenameUploadedFiles && !item.isDisabled
+      ? this.renameFileOrFolder && !item.isDisabled
       : !item.isDisabled;
   }
 
@@ -1043,7 +1042,9 @@ export default class CzFileExplorer extends Vue {
 
       setReactive(item, "isDisabled", true);
       const newPath = item.path ? item.path + "/" + newName : newName;
-      const wasRenamed = await this.renameFileOrFolder(item, newPath);
+      const wasRenamed = this.renameFileOrFolder
+        ? await this.renameFileOrFolder(item, newPath)
+        : true;
       if (wasRenamed) {
         item.name = newName;
       } else {
@@ -1119,8 +1120,10 @@ export default class CzFileExplorer extends Vue {
     if (!this.isFolder(item) && this.isFileInvalid(item as IFile)) {
       // File was not uplaoded because it was invalid. No need to delete asynchronously.
       wasDeleted = true;
-    } else {
+    } else if (this.deleteFileOrFolder) {
       wasDeleted = await this.deleteFileOrFolder(item);
+    } else {
+      wasDeleted = true;
     }
 
     this.toggleItemDisabled(item, false);
@@ -1211,7 +1214,7 @@ export default class CzFileExplorer extends Vue {
     }
 
     this.updateFolderPath(newFolder);
-    const wasUploaded = await this.upload([newFolder]);
+    const wasUploaded = this.upload ? await this.upload([newFolder]) : true;
 
     if (wasUploaded) {
       newFolder.parent.children.push(newFolder);
@@ -1334,7 +1337,9 @@ export default class CzFileExplorer extends Vue {
     let newPath = this.getPathString(targetFolder);
     newPath = newPath ? newPath + "/" + item.name : item.name;
     setReactive(item, "isDisabled", true);
-    wasMoved = await this.renameFileOrFolder(item, newPath);
+    wasMoved = this.renameFileOrFolder
+      ? await this.renameFileOrFolder(item, newPath)
+      : true;
 
     if (wasMoved) {
       this.moveItem(item, targetFolder);
