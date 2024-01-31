@@ -79,7 +79,7 @@
           <v-tooltip bottom transition="fade">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                @click="paste"
+                @click="onPaste"
                 :disabled="!canPaste"
                 icon
                 small
@@ -196,7 +196,7 @@
               <!-- PASTE -->
               <v-list-item
                 v-if="isFolder(showMenuItem)"
-                @click="paste"
+                @click="onPaste"
                 :disabled="!canPasteOnFolder(showMenuItem)"
               >
                 <v-list-item-title
@@ -245,7 +245,7 @@
 
       <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
         <v-card-text class="files-container" style="height: 15rem">
-          <drop @drop="onDrop($event, rootDirectory)" class="root-drop">
+          <drop @drop="onDropMove($event, rootDirectory)" class="root-drop">
             <drop-mask class="mask"></drop-mask>
             <v-row class="flex-grow-1">
               <!-- TODO: find a way to have a context menu in the empty area -->
@@ -298,7 +298,7 @@
                       </v-icon>
                     </template>
                     <template v-slot:label="{ item }">
-                      <drop @drop="onDrop($event, item)">
+                      <drop @drop="onDropMove($event, item)">
                         <drop-mask class="mask"></drop-mask>
                         <drag
                           :key="item.key"
@@ -655,7 +655,6 @@ export default class CzFileExplorer extends Vue {
   protected search = "";
   protected showMenu = false;
   protected showMenuItem: IFolder | IFile | null = null;
-  protected dropped = [];
 
   menuAttrs = {
     "position-x": 0,
@@ -719,12 +718,6 @@ export default class CzFileExplorer extends Vue {
       !this.itemsToCut.includes(this.activeDirectoryItem);
 
     return isValidTarget && areItemsValid;
-  }
-
-  onDrop(event, dropTarget) {
-    const item = event.data;
-    const target = this.isFolder(dropTarget) ? dropTarget : dropTarget.parent;
-    this._paste(item, target);
   }
 
   protected canPasteOnFolder(item: IFolder) {
@@ -914,34 +907,45 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected async paste() {
-    const pastePromises: Promise<boolean>[] = [];
-    const itemsToCut = [...this.itemsToCut]; // We make a copy because the original can change during iteration below
+  /** Paste the selected files inside the directory where the file was dropped */
+  protected async onDropMove(_event, dropTarget) {
+    const target = this.isFolder(dropTarget) ? dropTarget : dropTarget.parent;
+    await this._handlePaste(target, this.selected);
+  }
 
-    for (let i = 0; i < itemsToCut.length; i++) {
-      const item = itemsToCut[i];
-      const targetFolder: IFolder = this.isFolder(this.activeDirectoryItem)
-        ? (this.activeDirectoryItem as IFolder)
-        : (this.activeDirectoryItem.parent as IFolder);
+  /** Paste the selected files inside the selected folder */
+  protected async onPaste() {
+    const targetFolder: IFolder = this.isFolder(this.activeDirectoryItem)
+      ? (this.activeDirectoryItem as IFolder)
+      : (this.activeDirectoryItem.parent as IFolder);
 
-      if (item && item.parent !== targetFolder) {
-        pastePromises.push(this._paste(item, targetFolder));
-      }
-    }
-
-    const wasPasted = await Promise.allSettled(pastePromises);
+    await this._handlePaste(targetFolder, this.itemsToCut);
 
     this.itemsToCut.map((item) => {
       item.isCutting = false;
     });
+  }
+
+  private async _handlePaste(target: IFolder, items: (IFile | IFolder)[]) {
+    const itemsToMove = [...items]; // We make a copy because the original can change during iteration below
+    const pastePromises: Promise<boolean>[] = [];
+
+    for (let i = 0; i < itemsToMove.length; i++) {
+      const item = itemsToMove[i];
+      pastePromises.push(this._paste(item, target));
+    }
+
+    const wasPasted = await Promise.allSettled(pastePromises);
 
     if (wasPasted.some((r) => r.status === "fulfilled" && r.value)) {
       this.unselectAll();
       this.redrawFileTree();
+      this._openRecursive(target);
     }
   }
 
-  private _moveItem(item: IFolder | IFile, destination: IFolder) {
+  /** Move an item to the target folder inside the Treeview structure */
+  private _moveItem(item: IFolder | IFile, targetFolder: IFolder) {
     const previousParent = item.parent as IFolder;
 
     // Remove from previous parent
@@ -951,15 +955,41 @@ export default class CzFileExplorer extends Vue {
     }
 
     // Add to destination
-    item.parent = destination;
+    item.parent = targetFolder;
     item.name = this._getAvailableName(item.name, item.parent);
-    destination.children.push(item);
-    destination.children = destination.children.sort((_a, b) => {
+    targetFolder.children.push(item);
+    targetFolder.children = targetFolder.children.sort((_a, b) => {
       return b.hasOwnProperty("children") ? 1 : -1;
     });
-    this.annotateDirectory(destination);
-    this.redrawFileTree();
-    this._openRecursive(destination);
+    this.annotateDirectory(targetFolder);
+  }
+
+  private async _paste(
+    item: IFile | IFolder,
+    targetFolder: IFolder
+  ): Promise<boolean> {
+    let wasMoved = false;
+    const targetPathString = this.getPathString(targetFolder);
+    const itemPathString = this.getPathString(item);
+
+    const newPath = targetPathString
+      ? targetPathString + "/" + item.name
+      : item.name;
+
+    // Can't move a parent folder to a path inside itself
+    if (newPath.startsWith(itemPathString)) {
+      return false;
+    }
+    setReactive(item, "isDisabled", true);
+    wasMoved = this.renameFileOrFolder
+      ? await this.renameFileOrFolder(item, newPath)
+      : true;
+
+    if (wasMoved) {
+      this._moveItem(item, targetFolder);
+    }
+    item.isDisabled = false;
+    return wasMoved;
   }
 
   protected canRenameItem(item: IFile | IFolder) {
@@ -1375,33 +1405,6 @@ export default class CzFileExplorer extends Vue {
           return [...acc, ...curr];
         }, []),
     ];
-  }
-
-  private async _paste(
-    item: IFile | IFolder,
-    targetFolder: IFolder
-  ): Promise<boolean> {
-    let wasMoved = false;
-    const targetPathString = this.getPathString(targetFolder);
-    const newPath = targetPathString
-      ? targetPathString + "/" + item.name
-      : item.name;
-
-    // Can't move a parent folder to a path inside itself
-    const itemPathString = this.getPathString(item);
-    if (targetPathString.startsWith(itemPathString)) {
-      return false;
-    }
-    setReactive(item, "isDisabled", true);
-    wasMoved = this.renameFileOrFolder
-      ? await this.renameFileOrFolder(item, newPath)
-      : true;
-
-    if (wasMoved) {
-      this._moveItem(item, targetFolder);
-    }
-    item.isDisabled = false;
-    return wasMoved;
   }
 }
 </script>

@@ -282,7 +282,7 @@ export default class App extends Vue {
 
   protected fileExplorerConfig = {
     isReadOnly: false,
-    hasFolders: false,
+    hasFolders: true,
   };
 
   beforeCreate() {
