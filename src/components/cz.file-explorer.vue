@@ -802,6 +802,7 @@ export default class CzFileExplorer extends Vue {
 
   // There is a bug in v-treeview when moving items or changing keys. Items become unactivatable
   // We redraw the treeview as a workaround
+  // https://github.com/vuetifyjs/vuetify/issues/5719
   protected redrawFileTree() {
     this.redraw = this.redraw ? 0 : 1;
   }
@@ -939,7 +940,6 @@ export default class CzFileExplorer extends Vue {
 
     if (wasPasted.some((r) => r.status === "fulfilled" && r.value)) {
       this.unselectAll();
-      this.redrawFileTree();
       this._openRecursive(target);
     }
   }
@@ -952,16 +952,20 @@ export default class CzFileExplorer extends Vue {
     const index = previousParent.children.indexOf(item);
     if (index >= 0) {
       previousParent.children.splice(index, 1);
+      this.annotateDirectory(previousParent);
     }
 
-    // Add to destination
-    item.parent = targetFolder;
-    item.name = this._getAvailableName(item.name, item.parent);
-    targetFolder.children.push(item);
-    targetFolder.children = targetFolder.children.sort((_a, b) => {
-      return b.hasOwnProperty("children") ? 1 : -1;
+    // Need to be performed on next tick after changes from splice operation above are propagated to the tree
+    this.$nextTick(() => {
+      // Add to destination
+      item.name = this._getAvailableName(item.name, targetFolder);
+      targetFolder.children.push(item);
+      // TODO: breaks tree vnode references
+      // targetFolder.children = targetFolder.children.sort((_a, b) => {
+      //   return b.hasOwnProperty("children") ? 1 : -1;
+      // });
+      this.annotateDirectory(targetFolder);
     });
-    this.annotateDirectory(targetFolder);
   }
 
   private async _paste(
@@ -1329,6 +1333,7 @@ export default class CzFileExplorer extends Vue {
 
     if (index >= 0) {
       parent.children.splice(index, 1);
+      this.annotateDirectory(parent);
       // If the folder is now empty, mark it as closed
       if (!parent.children.length) {
         const index = this.open.indexOf(parent);
