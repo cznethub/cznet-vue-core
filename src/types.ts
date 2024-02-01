@@ -45,8 +45,7 @@ export interface IFile {
   isDisabled?: boolean;
   isUploaded: boolean | undefined;
   uploadedSize?: number;
-  key?: string;
-  path?: string;
+  key?: number;
   file: File | null;
 }
 
@@ -57,7 +56,6 @@ export interface IFolder {
   isCutting?: boolean;
   isDisabled?: boolean;
   isUploaded?: boolean | undefined;
-  key?: string;
-  path?: string;
+  key?: number;
   children: (IFile | IFolder)[];
 }

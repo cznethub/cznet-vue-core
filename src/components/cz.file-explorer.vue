@@ -655,6 +655,7 @@ export default class CzFileExplorer extends Vue {
   protected search = "";
   protected showMenu = false;
   protected showMenuItem: IFolder | IFile | null = null;
+  protected keyCounter = 0;
 
   menuAttrs = {
     "position-x": 0,
@@ -788,10 +789,10 @@ export default class CzFileExplorer extends Vue {
 
   /** Traverse the file structure and annotate `parent` and `path` properties. */
   protected annotateDirectory(item: IFolder) {
-    const childFolders = item.children.filter((i, index) => {
+    const childFolders = item.children.filter((i, _index) => {
       i.parent = item;
-      i.path = this.getPathString(i.parent as IFolder);
-      i.key = `${i.path}/${index}`;
+      // i.path = this.getPathString(i.parent as IFolder);
+      i.key = i.key ?? this.keyCounter++;
       return this.isFolder(i);
     }) as IFolder[];
 
@@ -809,8 +810,6 @@ export default class CzFileExplorer extends Vue {
 
   @Watch("rootDirectory.children", { deep: true })
   protected onInput() {
-    const items = this._getDirectoryItems(this.rootDirectory) as IFile[];
-    items.map((i) => (i.path = this.getPathString(i.parent as IFolder)));
     const updatedItems = this._getDirectoryItems(this.rootDirectory);
     const validItems = updatedItems.filter(
       (item) => !this.isFileInvalid(item as IFile)
@@ -960,10 +959,9 @@ export default class CzFileExplorer extends Vue {
       // Add to destination
       item.name = this._getAvailableName(item.name, targetFolder);
       targetFolder.children.push(item);
-      // TODO: breaks tree vnode references
-      // targetFolder.children = targetFolder.children.sort((_a, b) => {
-      //   return b.hasOwnProperty("children") ? 1 : -1;
-      // });
+      targetFolder.children = targetFolder.children.sort((_a, b) => {
+        return b.hasOwnProperty("children") ? 1 : -1;
+      });
       this.annotateDirectory(targetFolder);
     });
   }
@@ -1121,9 +1119,8 @@ export default class CzFileExplorer extends Vue {
       );
 
       setReactive(item, "isDisabled", true);
-      const newPath = item.path ? item.path + "/" + newName : newName;
       const wasRenamed = this.renameFileOrFolder
-        ? await this.renameFileOrFolder(item, newPath)
+        ? await this.renameFileOrFolder(item, name)
         : true;
       if (wasRenamed) {
         item.name = newName;
@@ -1251,15 +1248,6 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected updateFolderPath(folder: IFolder) {
-    folder.path =
-      folder.parent === this.rootDirectory
-        ? ""
-        : folder.parent?.path
-        ? folder.parent.path + "/" + folder.parent.name
-        : folder.parent?.name || "";
-  }
-
   protected async newFolder() {
     if (!this.hasFolders) {
       return;
@@ -1273,8 +1261,7 @@ export default class CzFileExplorer extends Vue {
       isRenaming: false,
       isCutting: false,
       isDisabled: false,
-      key: Date.now().toString(),
-      path: "",
+      key: this.keyCounter++,
     } as IFolder;
 
     if (this.isFolder(this.activeDirectoryItem)) {
@@ -1293,7 +1280,6 @@ export default class CzFileExplorer extends Vue {
       );
     }
 
-    this.updateFolderPath(newFolder);
     const wasUploaded = this.upload ? await this.upload([newFolder]) : true;
 
     if (wasUploaded) {
