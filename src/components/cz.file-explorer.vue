@@ -908,10 +908,15 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** Paste the selected files inside the directory where the file was dropped */
-  protected async onDropMove(_event, dropTarget) {
+  protected async onDropMove(event, dropTarget) {
     const targetFolder = this.isFolder(dropTarget)
       ? dropTarget
       : this.getParent(dropTarget);
+    if (!this.isSelected(event.data)) {
+      this.unselectAll();
+      this.select([event.data]);
+    }
+
     await this._handlePaste(targetFolder, this.selected);
   }
 
