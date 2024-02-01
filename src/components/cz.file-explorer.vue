@@ -246,7 +246,6 @@
       <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
         <v-card-text class="files-container" style="height: 15rem">
           <drop @drop="onDropMove($event, rootDirectory)" class="root-drop">
-            <drop-mask class="mask"></drop-mask>
             <v-row class="flex-grow-1">
               <!-- TODO: find a way to have a context menu in the empty area -->
               <!-- @contextmenu="show($event, null)" -->
@@ -271,7 +270,7 @@
                     tag="span"
                     open-on-click
                     class="files-container--included"
-                    :key="redraw"
+                    ref="tree"
                   >
                     <template v-slot:prepend="{ item, open }">
                       <v-icon
@@ -299,7 +298,6 @@
                     </template>
                     <template v-slot:label="{ item }">
                       <drop @drop="onDropMove($event, item)">
-                        <drop-mask class="mask"></drop-mask>
                         <drag
                           :key="item.key"
                           :disabled="!hasFolders"
@@ -550,7 +548,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Prop, Vue } from "vue-property-decorator";
+import { Component, Watch, Prop, Vue, Ref } from "vue-property-decorator";
 import { IFolder, IFile } from "@/types";
 import { default as Notifications } from "@/models/notifications";
 import { FILE_ICONS } from "@/constants";
@@ -619,8 +617,6 @@ export default class CzFileExplorer extends Vue {
   /** If `true`, allow folder operations */
   @Prop({ default: false }) hasFolders!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
-  // @Prop({ default: false }) isReadOnly!: boolean;
-  /** If `true`, allows file upload functionality */
   @Prop({ default: false }) isReadOnly!: boolean;
 
   /** A function to check if an item has metadata that can be displayed using the
@@ -644,7 +640,8 @@ export default class CzFileExplorer extends Vue {
   @Prop({ default: (_items: IFile[] | IFolder[]) => () => true })
   upload?: (_items: IFile[] | IFolder[]) => Promise<boolean>;
 
-  protected redraw = 0;
+  @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
+
   protected fileIcons = FILE_ICONS;
   protected open: (IFolder | IFile)[] = [];
   protected selected: (IFolder | IFile)[] = [];
@@ -725,7 +722,7 @@ export default class CzFileExplorer extends Vue {
     return (
       this.itemsToCut.length > 0 &&
       !this.itemsToCut.includes(item) &&
-      this.itemsToCut.some((i) => i.parent !== item)
+      this.itemsToCut.some((i) => this.getParent(i) !== item)
     );
   }
 
@@ -765,7 +762,17 @@ export default class CzFileExplorer extends Vue {
   }
 
   created() {
+    // Add keys
     this.annotateDirectory(this.rootDirectory);
+  }
+
+  protected generateNewKey(): number {
+    const newKey = this.keyCounter++;
+    if (this.tree && this.tree.nodes[newKey]) {
+      // This key already exists
+      return this.generateNewKey();
+    }
+    return newKey;
   }
 
   protected show(e, item: IFile | IFolder | null) {
@@ -787,25 +794,16 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  /** Traverse the file structure and annotate `parent` and `path` properties. */
+  /** Traverse the file structure and annotate keys. */
   protected annotateDirectory(item: IFolder) {
     const childFolders = item.children.filter((i, _index) => {
-      i.parent = item;
-      // i.path = this.getPathString(i.parent as IFolder);
-      i.key = i.key ?? this.keyCounter++;
+      i.key = i.key ?? this.generateNewKey();
       return this.isFolder(i);
     }) as IFolder[];
 
     for (let i = 0; i < childFolders.length; i++) {
       this.annotateDirectory(childFolders[i]);
     }
-  }
-
-  // There is a bug in v-treeview when moving items or changing keys. Items become unactivatable
-  // We redraw the treeview as a workaround
-  // https://github.com/vuetifyjs/vuetify/issues/5719
-  protected redrawFileTree() {
-    this.redraw = this.redraw ? 0 : 1;
   }
 
   @Watch("rootDirectory.children", { deep: true })
@@ -826,12 +824,12 @@ export default class CzFileExplorer extends Vue {
       "children"
     )
       ? (this.activeDirectoryItem as IFolder)
-      : (this.activeDirectoryItem.parent as IFolder);
+      : this.getParent(this.activeDirectoryItem);
 
     const addedFiles = newFiles.map((file, _index) => {
       const newItem = {
         name: this._getAvailableName(file.name, targetFolder),
-        parent: targetFolder,
+        key: this.generateNewKey(),
         file: file,
       } as IFile;
 
@@ -850,9 +848,7 @@ export default class CzFileExplorer extends Vue {
     ) {
       await this.upload(validFiles);
     }
-    this.annotateDirectory(targetFolder);
     this.dropFiles = [];
-    this.redrawFileTree();
   }
 
   protected selectAll() {
@@ -864,8 +860,10 @@ export default class CzFileExplorer extends Vue {
     if (item === this.rootDirectory) {
       return "";
     }
-    const pre = this.getPathString(item.parent as IFolder);
-    return `${pre ? pre + "/" : ""}${item.name}`;
+
+    const parentKeys = this.tree.getParents(item.key);
+    const parentNames = parentKeys.map((p) => this.tree.nodes[p].item.name);
+    return [...parentNames.reverse(), item.name].join("/");
   }
 
   protected isFolder(item: IFile | IFolder) {
@@ -909,15 +907,17 @@ export default class CzFileExplorer extends Vue {
 
   /** Paste the selected files inside the directory where the file was dropped */
   protected async onDropMove(_event, dropTarget) {
-    const target = this.isFolder(dropTarget) ? dropTarget : dropTarget.parent;
-    await this._handlePaste(target, this.selected);
+    const targetFolder = this.isFolder(dropTarget)
+      ? dropTarget
+      : this.getParent(dropTarget);
+    await this._handlePaste(targetFolder, this.selected);
   }
 
   /** Paste the selected files inside the selected folder */
   protected async onPaste() {
     const targetFolder: IFolder = this.isFolder(this.activeDirectoryItem)
       ? (this.activeDirectoryItem as IFolder)
-      : (this.activeDirectoryItem.parent as IFolder);
+      : this.getParent(this.activeDirectoryItem);
 
     await this._handlePaste(targetFolder, this.itemsToCut);
 
@@ -945,13 +945,11 @@ export default class CzFileExplorer extends Vue {
 
   /** Move an item to the target folder inside the Treeview structure */
   private _moveItem(item: IFolder | IFile, targetFolder: IFolder) {
-    const previousParent = item.parent as IFolder;
-
+    const previousParent = this.getParent(item);
     // Remove from previous parent
     const index = previousParent.children.indexOf(item);
     if (index >= 0) {
       previousParent.children.splice(index, 1);
-      this.annotateDirectory(previousParent);
     }
 
     // Need to be performed on next tick after changes from splice operation above are propagated to the tree
@@ -962,7 +960,6 @@ export default class CzFileExplorer extends Vue {
       targetFolder.children = targetFolder.children.sort((_a, b) => {
         return b.hasOwnProperty("children") ? 1 : -1;
       });
-      this.annotateDirectory(targetFolder);
     });
   }
 
@@ -974,9 +971,9 @@ export default class CzFileExplorer extends Vue {
     const targetPathString = this.getPathString(targetFolder);
     const itemPathString = this.getPathString(item);
 
-    const newPath = targetPathString
-      ? targetPathString + "/" + item.name
-      : item.name;
+    const newPath = [targetPathString, item.name]
+      .filter((s) => s.length)
+      .join("/");
 
     // Can't move a parent folder to a path inside itself
     if (newPath.startsWith(itemPathString)) {
@@ -1018,8 +1015,18 @@ export default class CzFileExplorer extends Vue {
     event.stopPropagation();
   }
 
+  protected getParent(item: IFile | IFolder): IFolder {
+    if (item.key !== undefined) {
+      const parentKey = this.tree.getParents(item.key)[0];
+      const parentNode = this.tree.nodes[parentKey];
+      return parentNode?.item || this.rootDirectory;
+    }
+
+    return this.rootDirectory;
+  }
+
   protected onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
-    const parent: IFolder = item.parent as IFolder;
+    const parent = this.getParent(item);
     const itemIndex = parent.children.indexOf(item);
     const anchorIndex = this.shiftAnchor
       ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
@@ -1114,7 +1121,7 @@ export default class CzFileExplorer extends Vue {
     if (name.trim()) {
       const newName = this._getAvailableName(
         name,
-        item.parent as IFolder,
+        this.getParent(item),
         item.name
       );
 
@@ -1171,7 +1178,7 @@ export default class CzFileExplorer extends Vue {
           this.shiftAnchor = null;
         }
 
-        const isParentSelected = this.isSelected(item.parent as IFolder);
+        const isParentSelected = this.isSelected(this.getParent(item));
         if (!this.isFolder(item) && !(item as IFile).isUploaded) {
           this._deleteItem(item); // Item hasn't been uploaded, just discard it
         } else if (!isParentSelected) {
@@ -1257,38 +1264,26 @@ export default class CzFileExplorer extends Vue {
     const newFolder = {
       name: "New folder",
       children: [],
-      parent: null,
       isRenaming: false,
       isCutting: false,
       isDisabled: false,
-      key: this.keyCounter++,
+      key: this.generateNewKey(),
     } as IFolder;
 
-    if (this.isFolder(this.activeDirectoryItem)) {
-      // Selected item is a folder
-      newFolder.parent = this.activeDirectoryItem as IFolder;
-      newFolder.name = this._getAvailableName(
-        newFolder.name,
-        this.activeDirectoryItem as IFolder
-      );
-    } else {
-      // Selected item is a file
-      newFolder.parent = this.activeDirectoryItem.parent as IFolder;
-      newFolder.name = this._getAvailableName(
-        newFolder.name,
-        newFolder.parent as IFolder
-      );
-    }
+    const targetFolder = this.isFolder(this.activeDirectoryItem)
+      ? (this.activeDirectoryItem as IFolder)
+      : this.getParent(this.activeDirectoryItem);
+
+    newFolder.name = this._getAvailableName(newFolder.name, targetFolder);
 
     const wasUploaded = this.upload ? await this.upload([newFolder]) : true;
 
     if (wasUploaded) {
-      newFolder.parent.children.push(newFolder);
-      newFolder.parent.children = newFolder.parent.children.sort((_a, b) => {
+      targetFolder.children.push(newFolder);
+      targetFolder.children = targetFolder.children.sort((_a, b) => {
         return b.hasOwnProperty("children") ? 1 : -1;
       });
 
-      this.annotateDirectory(newFolder.parent);
       this._openRecursive(newFolder);
     } else {
       // Failed to delete some file
@@ -1300,12 +1295,18 @@ export default class CzFileExplorer extends Vue {
   }
 
   private _openRecursive(item: IFile | IFolder) {
+    if (item === this.rootDirectory) {
+      return;
+    }
+
     if (this.isFolder(item)) {
       this.open = [...new Set([...this.open, item])];
     }
-    if (item.parent) {
-      this.open = [...new Set([...this.open, item.parent])];
-      this._openRecursive(item.parent);
+
+    const parent = this.getParent(item);
+    if (parent) {
+      this.open = [...new Set([...this.open, parent])];
+      this._openRecursive(parent);
     }
   }
 
@@ -1314,12 +1315,11 @@ export default class CzFileExplorer extends Vue {
       return;
     }
 
-    const parent = item.parent as IFolder;
+    const parent = this.getParent(item);
     const index = parent.children.indexOf(item);
 
     if (index >= 0) {
       parent.children.splice(index, 1);
-      this.annotateDirectory(parent);
       // If the folder is now empty, mark it as closed
       if (!parent.children.length) {
         const index = this.open.indexOf(parent);

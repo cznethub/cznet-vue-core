@@ -39,7 +39,7 @@ export interface Config {
 export interface IFile {
   name: string;
   serverName?: string;
-  parent: IFolder | null;
+  // parent: IFolder | null;
   isRenaming?: boolean;
   isCutting?: boolean;
   isDisabled?: boolean;
@@ -51,7 +51,7 @@ export interface IFile {
 
 export interface IFolder {
   name: string;
-  parent?: IFolder | null;
+  // parent?: IFolder | null;
   isRenaming?: boolean;
   isCutting?: boolean;
   isDisabled?: boolean;
