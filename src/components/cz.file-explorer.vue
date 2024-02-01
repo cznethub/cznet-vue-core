@@ -301,7 +301,9 @@
                       <drop :key="item.key" @drop="onDropMove($event, item)">
                         <drag
                           :key="item.key"
-                          :disabled="!hasFolders"
+                          :disabled="
+                            !hasFolders || item.isRenaming || isReadOnly
+                          "
                           class="drag"
                           :data="item"
                           @cut="remove(item)"
@@ -804,7 +806,6 @@ export default class CzFileExplorer extends Vue {
     for (let i = 0; i < childFolders.length; i++) {
       this.annotateDirectory(childFolders[i]);
     }
-    console.log(item);
   }
 
   @Watch("rootDirectory.children", { deep: true })
@@ -921,10 +922,6 @@ export default class CzFileExplorer extends Vue {
       : this.getParent(this.activeDirectoryItem);
 
     await this._handlePaste(targetFolder, this.itemsToCut);
-
-    this.itemsToCut.map((item) => {
-      item.isCutting = false;
-    });
   }
 
   private async _handlePaste(target: IFolder, items: (IFile | IFolder)[]) {
@@ -940,6 +937,7 @@ export default class CzFileExplorer extends Vue {
 
     if (wasPasted.some((r) => r.status === "fulfilled" && r.value)) {
       this.unselectAll();
+      this.uncutAll();
       this._openRecursive(target);
     }
   }
