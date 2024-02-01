@@ -23,6 +23,7 @@
     "ajv-keywords": "^5.1.0",
     "buefy": "^0.9.27",
     "dayjs": "^1.11.9",
+    "drag-select-vue": "^1.8.0",
     "google-maps": "^4.3.3",
     "lodash": "^4.17.15",
     "v-mask": "^2.3.0",

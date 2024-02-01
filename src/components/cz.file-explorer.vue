@@ -246,59 +246,70 @@
       <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
         <v-card-text class="files-container" style="height: 15rem">
           <drop @drop="onDropMove($event, rootDirectory)" class="root-drop">
-            <v-row class="flex-grow-1">
-              <!-- TODO: find a way to have a context menu in the empty area -->
-              <!-- @contextmenu="show($event, null)" -->
+            <!-- TODO: items need to be direct children of the drag-select component -->
+            <drag-select
+              class="root-drop"
+              attribute="attr"
+              ref="dragSelect"
+              @change="onDragSelect"
+              :key="redrawDragSelect"
+            >
+              <v-row class="flex-grow-1">
+                <!-- TODO: find a way to have a context menu in the empty area -->
+                <!-- @contextmenu="show($event, null)" -->
 
-              <v-col
-                :cols="11"
-                v-click-outside="{ handler: onClickOutside, include }"
-              >
-                <v-treeview
-                  item-disabled="isDisabled"
-                  :items="rootDirectory.children"
-                  :open.sync="open"
-                  :active.sync="selected"
-                  :search="search"
-                  :filter="filter"
-                  return-object
-                  multiple-active
-                  transition
-                  item-key="key"
-                  dense
-                  tag="span"
-                  open-on-click
-                  class="files-container--included"
-                  ref="tree"
-                  :key="0"
+                <v-col
+                  :cols="11"
+                  v-click-outside="{ handler: onClickOutside, include }"
                 >
-                  <template v-slot:prepend="{ item, open }">
-                    <v-icon
-                      v-if="isFolder(item)"
-                      @click.exact="onItemClick($event, item)"
-                      @click.ctrl.exact="onItemCtrlClick($event, item)"
-                      @click.meta.exact="onItemCtrlClick($event, item)"
-                      @click.shift.exact="onItemShiftClick($event, item)"
-                      :disabled="item.isDisabled"
-                      :color="item.isCutting ? 'grey' : ''"
-                    >
-                      {{ open ? "mdi-folder-open" : "mdi-folder" }}
-                    </v-icon>
-                    <v-icon
-                      v-else
-                      @click.ctrl.exact="onItemCtrlClick($event, item)"
-                      :disabled="item.isDisabled"
-                      :color="item.isCutting ? 'grey' : ''"
-                    >
-                      {{
-                        fileIcons[item.name.split(".").pop()] ||
-                        fileIcons["default"]
-                      }}
-                    </v-icon>
-                  </template>
-                  <template v-slot:label="{ item }">
-                    <transition-group name="list" tag="div">
-                      <drop :key="item.key" @drop="onDropMove($event, item)">
+                  <v-treeview
+                    item-disabled="isDisabled"
+                    :items="rootDirectory.children"
+                    :open.sync="open"
+                    :active.sync="selected"
+                    :search="search"
+                    :filter="filter"
+                    return-object
+                    multiple-active
+                    transition
+                    item-key="key"
+                    dense
+                    tag="span"
+                    open-on-click
+                    class="files-container--included"
+                    ref="tree"
+                    :key="0"
+                  >
+                    <template v-slot:prepend="{ item, open }">
+                      <v-icon
+                        v-if="isFolder(item)"
+                        @click.exact="onItemClick($event, item)"
+                        @click.ctrl.exact="onItemCtrlClick($event, item)"
+                        @click.meta.exact="onItemCtrlClick($event, item)"
+                        @click.shift.exact="onItemShiftClick($event, item)"
+                        :disabled="item.isDisabled"
+                        :color="item.isCutting ? 'grey' : ''"
+                      >
+                        {{ open ? "mdi-folder-open" : "mdi-folder" }}
+                      </v-icon>
+                      <v-icon
+                        v-else
+                        @click.ctrl.exact="onItemCtrlClick($event, item)"
+                        :disabled="item.isDisabled"
+                        :color="item.isCutting ? 'grey' : ''"
+                      >
+                        {{
+                          fileIcons[item.name.split(".").pop()] ||
+                          fileIcons["default"]
+                        }}
+                      </v-icon>
+                    </template>
+                    <template v-slot:label="{ item }">
+                      <drop
+                        :key="item.key"
+                        @drop="onDropMove($event, item)"
+                        :attr="item.key"
+                      >
                         <drag
                           :key="item.key"
                           :disabled="
@@ -361,90 +372,91 @@
                           </v-row>
                         </drag>
                       </drop>
-                    </transition-group>
-                  </template>
-                  <template v-slot:append="{ item }">
-                    <v-row v-if="!item.isRenaming">
-                      <v-col
-                        v-if="!isFolder(item) && item.isUploaded"
-                        class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
-                      >
-                        <v-icon class="text--disabled" title="uploaded" small
-                          >mdi-cloud-check</v-icon
+                    </template>
+                    <template v-slot:append="{ item }">
+                      <v-row v-if="!item.isRenaming">
+                        <v-col
+                          v-if="!isFolder(item) && item.isUploaded"
+                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
-                      </v-col>
-                      <v-col
-                        v-if="canRetryUpload(item)"
-                        class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
-                      >
-                        <v-btn
-                          color="info"
-                          @click="$emit('upload', [item])"
-                          :disabled="item.isDisabled"
-                          small
-                          depressed
+                          <v-icon class="text--disabled" title="uploaded" small
+                            >mdi-cloud-check</v-icon
+                          >
+                        </v-col>
+                        <v-col
+                          v-if="canRetryUpload(item)"
+                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
-                          <v-icon left>mdi-cloud-upload</v-icon>
-                          Retry
-                        </v-btn>
-                      </v-col>
-                      <v-col
-                        v-if="showFileWarnings(item)"
-                        class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text--secondary align-center"
-                      >
-                        <v-menu open-on-hover bottom left offset-y>
-                          <template v-slot:activator="{ on, attrs }">
-                            <div v-bind="attrs" v-on="on">
-                              <v-icon
-                                :color="
+                          <v-btn
+                            color="info"
+                            @click="$emit('upload', [item])"
+                            :disabled="item.isDisabled"
+                            small
+                            depressed
+                          >
+                            <v-icon left>mdi-cloud-upload</v-icon>
+                            Retry
+                          </v-btn>
+                        </v-col>
+                        <v-col
+                          v-if="showFileWarnings(item)"
+                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text--secondary align-center"
+                        >
+                          <v-menu open-on-hover bottom left offset-y>
+                            <template v-slot:activator="{ on, attrs }">
+                              <div v-bind="attrs" v-on="on">
+                                <v-icon
+                                  :color="
+                                    isFileInvalid(item) ||
+                                    couldNotUploadFile(item)
+                                      ? 'error'
+                                      : 'warning'
+                                  "
+                                  >mdi-alert-circle</v-icon
+                                >
+                              </div>
+                            </template>
+                            <div class="pa-4 has-bg-white">
+                              <div
+                                v-if="
                                   isFileInvalid(item) ||
                                   couldNotUploadFile(item)
-                                    ? 'error'
-                                    : 'warning'
                                 "
-                                >mdi-alert-circle</v-icon
+                                class="text-body-2 mb-4"
                               >
+                                <b>This file cannot be uploaded</b>
+                              </div>
+                              <ul class="text-subtitle-1">
+                                <li v-if="couldNotUploadFile(item)">
+                                  Maximum number of files exceeded.
+                                </li>
+                                <li v-if="!isFileExtensionValid(item)">
+                                  This file extension is not allowed for upload.
+                                </li>
+                                <li v-if="!isFileNameValid(item)">
+                                  This file name contains invalid characters.
+                                </li>
+                                <li v-if="isFileTooBig(item)">
+                                  Files cannot be larger than
+                                  <b>{{
+                                    maxUploadSizePerFile | prettyBytes(2, false)
+                                  }}</b
+                                  >.
+                                </li>
+                              </ul>
                             </div>
-                          </template>
-                          <div class="pa-4 has-bg-white">
-                            <div
-                              v-if="
-                                isFileInvalid(item) || couldNotUploadFile(item)
-                              "
-                              class="text-body-2 mb-4"
-                            >
-                              <b>This file cannot be uploaded</b>
-                            </div>
-                            <ul class="text-subtitle-1">
-                              <li v-if="couldNotUploadFile(item)">
-                                Maximum number of files exceeded.
-                              </li>
-                              <li v-if="!isFileExtensionValid(item)">
-                                This file extension is not allowed for upload.
-                              </li>
-                              <li v-if="!isFileNameValid(item)">
-                                This file name contains invalid characters.
-                              </li>
-                              <li v-if="isFileTooBig(item)">
-                                Files cannot be larger than
-                                <b>{{
-                                  maxUploadSizePerFile | prettyBytes(2, false)
-                                }}</b
-                                >.
-                              </li>
-                            </ul>
-                          </div>
-                        </v-menu>
-                      </v-col>
-                      <v-col v-if="item.isDisabled">
-                        <v-icon small>fas fa-circle-notch fa-spin</v-icon>
-                      </v-col>
-                    </v-row>
-                  </template>
-                </v-treeview>
-              </v-col>
-              <v-col v-if="$vuetify.breakpoint.smAndUp"></v-col>
-            </v-row>
+                          </v-menu>
+                        </v-col>
+                        <v-col v-if="item.isDisabled">
+                          <v-icon small>fas fa-circle-notch fa-spin</v-icon>
+                        </v-col>
+                      </v-row>
+                    </template>
+                  </v-treeview>
+                </v-col>
+                <v-col v-if="$vuetify.breakpoint.smAndUp"></v-col>
+              </v-row>
+            </drag-select>
           </drop>
         </v-card-text>
         <v-divider></v-divider>
@@ -579,6 +591,8 @@ import {
 
 import { Drag, Drop, DropMask } from "vue-easy-dnd";
 
+import DragSelect from "drag-select-vue";
+
 @Component({
   name: "cz-file-explorer",
   components: {
@@ -602,6 +616,7 @@ import { Drag, Drop, DropMask } from "vue-easy-dnd";
     Drag,
     Drop,
     DropMask,
+    DragSelect,
   },
   directives: { ClickOutside },
   filters: {},
@@ -643,6 +658,7 @@ export default class CzFileExplorer extends Vue {
   upload?: (_items: IFile[] | IFolder[]) => Promise<boolean>;
 
   @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
+  @Ref("dragSelect") dragSelect!: InstanceType<typeof DragSelect> & any;
 
   protected fileIcons = FILE_ICONS;
   protected open: (IFolder | IFile)[] = [];
@@ -655,6 +671,7 @@ export default class CzFileExplorer extends Vue {
   protected showMenu = false;
   protected showMenuItem: IFolder | IFile | null = null;
   protected keyCounter = 0;
+  protected redrawDragSelect = 0;
 
   menuAttrs = {
     "position-x": 0,
@@ -766,6 +783,16 @@ export default class CzFileExplorer extends Vue {
   created() {
     // Add keys
     this.annotateDirectory(this.rootDirectory);
+  }
+
+  mounted() {
+    console.log(this.dragSelect);
+  }
+
+  // TODO: even't won't fire from deeply nested elements
+  // https://github.com/andi23rosca/drag-select-vue/issues/34
+  protected onDragSelect(items) {
+    console.log(items);
   }
 
   protected generateNewKey(): number {
