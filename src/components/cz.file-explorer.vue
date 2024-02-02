@@ -243,15 +243,26 @@
         </v-list>
       </v-menu>
 
-      <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
+      <v-card
+        flat
+        outlined
+        v-if="rootDirectory.children.length"
+        class="mb-4 files-container-card"
+        :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
+      >
         <v-card-text class="files-container" style="height: 15rem">
-          <drop @drop="onDropMove($event, rootDirectory)" class="full-height">
+          <drop
+            @drop="onDropMove($event, rootDirectory)"
+            @dragenter.exact="isRootDragging = true"
+            @dragleave.exact="isRootDragging = false"
+            class="full-height"
+          >
             <drag-select
               attribute="customAttribute"
               @change="onDragSelect"
               @endDrag="onDragEnd"
               @startDrag="onDragStart"
-              class="root-drop"
+              class="root-drag-select"
             >
               <v-row class="flex-grow-1">
                 <!-- TODO: find a way to have a context menu in the empty area -->
@@ -314,7 +325,10 @@
                             !hasFolders || item.isRenaming || isReadOnly
                           "
                           :data="item"
-                          @dragstart="isDragMoving = true"
+                          @dragstart="
+                            isDragMoving = true;
+                            isRootDragging = false;
+                          "
                           @dragend="isDragMoving = false"
                           drag-class="drag-ghost"
                           go-back
@@ -534,7 +548,7 @@
       <drop
         @drop="onDropDiscard($event)"
         v-if="isDragMoving && !isReadOnly"
-        class="discard-area d-flex align-center justify-center error lighten-5 files-container--included"
+        class="discard-area d-flex align-center justify-center error lighten-5 files-container--included transition-swing"
       >
         <v-icon class="mr-2" x-large>mdi-delete-outline</v-icon>
       </drop>
@@ -677,6 +691,7 @@ export default class CzFileExplorer extends Vue {
   protected keyCounter = 0;
   protected ignoreNextClick = false;
   protected isDragMoving = false;
+  protected isRootDragging = false;
 
   menuAttrs = {
     "position-x": 0,
@@ -1482,11 +1497,10 @@ export default class CzFileExplorer extends Vue {
   border-radius: 0.5rem;
   cursor: pointer;
   opacity: 0.45;
-  transition: opacity 0.25s ease;
 
   &.error.lighten-5 {
     border: 1px dashed !important;
-    border-color: rgba(0, 0, 0, 0.54) !important;
+    border-color: rgba(0, 0, 0, 0.25) !important;
 
     &:hover {
       opacity: 1 !important;
@@ -1494,12 +1508,17 @@ export default class CzFileExplorer extends Vue {
   }
 }
 
+.files-container-card.border-dash {
+  border: 1px dashed !important;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+
 .files-container {
   overflow: auto;
   resize: vertical;
 }
 
-.root-drop {
+.root-drag-select {
   min-height: 100%;
 }
 
