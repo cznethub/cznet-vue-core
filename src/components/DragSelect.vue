@@ -16,7 +16,6 @@
 <script lang="ts">
 /**
  *  Adapted from https://github.com/andi23rosca/drag-select-vue
- *
  */
 import { Component, Watch, Prop, Vue } from "vue-property-decorator";
 const getDimensions = (p1, p2) => ({
@@ -65,6 +64,7 @@ export default class CzFileExplorer extends Vue {
     box.style.position = "absolute";
     box.classList.add("primary", "lighten-4");
     box.style.opacity = "0.4";
+    box.style.borderRadius = "2px";
 
     let start = { x: 0, y: 0 };
     let end = { x: 0, y: 0 };
@@ -76,8 +76,8 @@ export default class CzFileExplorer extends Vue {
         .map((c) => c.getAttribute(self.attribute));
 
       if (
-        intersected.some((i) => !self.intersected.includes(i)) ||
-        self.intersected.some((i) => !intersected.includes(i))
+        intersected.length !== self.intersected.length ||
+        intersected.some((i) => !self.intersected.includes(i))
       ) {
         self.intersected = intersected;
       }
@@ -105,6 +105,7 @@ export default class CzFileExplorer extends Vue {
 
       container.prepend(box);
       intersection();
+      self.$emit("startDrag");
     }
 
     function drag(e) {
@@ -151,3 +152,5 @@ export default class CzFileExplorer extends Vue {
   }
 }
 </script>
+
+<style lang="scss"></style>

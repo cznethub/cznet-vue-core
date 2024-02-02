@@ -250,6 +250,7 @@
               attribute="customAttribute"
               @change="onDragSelect"
               @endDrag="onDragEnd"
+              @startDrag="onDragStart"
               class="root-drop"
             >
               <v-row class="flex-grow-1">
@@ -276,7 +277,6 @@
                     open-on-click
                     class="files-container--included"
                     ref="tree"
-                    :key="0"
                   >
                     <template v-slot:prepend="{ item, open }">
                       <v-icon
@@ -313,9 +313,10 @@
                           :disabled="
                             !hasFolders || item.isRenaming || isReadOnly
                           "
-                          class="drag"
                           :data="item"
-                          @cut="remove(item)"
+                          @dragstart="isDragMoving = true"
+                          @dragend="isDragMoving = false"
+                          drag-class="drag-ghost"
                           go-back
                         >
                           <v-text-field
@@ -530,8 +531,15 @@
         <b>{{ maxNumberOfFiles }}</b>
       </v-alert>
 
+      <drop
+        @drop="onDropDiscard($event)"
+        v-if="isDragMoving && !isReadOnly"
+        class="discard-area d-flex align-center justify-center error lighten-5 files-container--included"
+      >
+        <v-icon class="mr-2" x-large>mdi-delete-outline</v-icon>
+      </drop>
       <div
-        v-if="!isReadOnly"
+        v-else-if="!isReadOnly"
         class="upload-drop-area files-container--included"
       >
         <b-upload
@@ -668,6 +676,7 @@ export default class CzFileExplorer extends Vue {
   protected showMenuItem: IFolder | IFile | null = null;
   protected keyCounter = 0;
   protected ignoreNextClick = false;
+  protected isDragMoving = false;
 
   menuAttrs = {
     "position-x": 0,
@@ -743,6 +752,10 @@ export default class CzFileExplorer extends Vue {
 
   protected onDragEnd() {
     this.ignoreNextClick = true;
+  }
+
+  protected onDragStart() {
+    this.unselectAll();
   }
 
   protected canPasteOnFolder(item: IFolder) {
@@ -945,6 +958,14 @@ export default class CzFileExplorer extends Vue {
     await this._handlePaste(targetFolder, this.selected);
   }
 
+  protected onDropDiscard(event) {
+    if (!this.isSelected(event.data)) {
+      this.unselectAll();
+      this.select([event.data]);
+    }
+    this.deleteSelected();
+  }
+
   /** Paste the selected files inside the selected folder */
   protected async onPaste() {
     const targetFolder: IFolder = this.isFolder(this.activeDirectoryItem)
@@ -972,14 +993,19 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
+  // TODO: currently not propagating correctly
+  protected _closeIfEmpty(item: IFolder) {
+    if (!item.children.length) {
+      const index = this.open.indexOf(item);
+      if (index >= 0) {
+        this.open.splice(index, 1);
+      }
+    }
+  }
+
   /** Move an item to the target folder inside the Treeview structure */
   private _moveItem(item: IFolder | IFile, targetFolder: IFolder) {
-    const previousParent = this.getParent(item);
-    // Remove from previous parent
-    const index = previousParent.children.indexOf(item);
-    if (index >= 0) {
-      previousParent.children.splice(index, 1);
-    }
+    this._deleteItem(item);
 
     // Need to be performed on next tick after changes from splice operation above are propagated to the tree
     this.$nextTick(() => {
@@ -1353,13 +1379,7 @@ export default class CzFileExplorer extends Vue {
 
     if (index >= 0) {
       parent.children.splice(index, 1);
-      // If the folder is now empty, mark it as closed
-      if (!parent.children.length) {
-        const index = this.open.indexOf(parent);
-        if (index >= 0) {
-          this.open.splice(index, 1);
-        }
-      }
+      this._closeIfEmpty(parent);
     }
   }
 
@@ -1439,12 +1459,38 @@ export default class CzFileExplorer extends Vue {
   border-radius: 0.5rem;
   cursor: pointer;
 
+  &,
+  .upload {
+    cursor: pointer;
+
+    &:hover {
+      background: #eee;
+    }
+  }
+
   ::v-deep input[type="file"] {
     display: none;
   }
 
   ::v-deep .upload-draggable.is-hovered {
     background: lightgray;
+  }
+}
+
+.discard-area {
+  height: 7.0625rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+
+  &.error.lighten-5 {
+    border: 1px dashed !important;
+    border-color: rgba(0, 0, 0, 0.54) !important;
+
+    &:hover {
+      opacity: 1 !important;
+    }
   }
 }
 
@@ -1466,12 +1512,8 @@ export default class CzFileExplorer extends Vue {
   }
 }
 
-.upload-drop-area,
-.upload-drop-area .upload {
-  cursor: pointer;
-
-  &:hover {
-    background: #eee;
-  }
+.drag-ghost {
+  background: white !important;
+  border: 1px solid #ddd !important;
 }
 </style>
