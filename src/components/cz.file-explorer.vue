@@ -245,7 +245,7 @@
 
       <v-card flat outlined v-if="rootDirectory.children.length" class="mb-4">
         <v-card-text class="files-container" style="height: 15rem">
-          <drop @drop="onDropMove($event, rootDirectory)" class="root-drop">
+          <drop @drop="onDropMove($event, rootDirectory)" class="full-height">
             <drag-select
               attribute="customAttribute"
               @change="onDragSelect"
@@ -1500,6 +1500,10 @@ export default class CzFileExplorer extends Vue {
 }
 
 .root-drop {
+  min-height: 100%;
+}
+
+.full-height {
   height: 100%;
 }
 
