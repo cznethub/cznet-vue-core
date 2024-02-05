@@ -589,6 +589,8 @@ import { IFolder, IFile } from "@/types";
 import { default as Notifications } from "@/models/notifications";
 import { FILE_ICONS } from "@/constants";
 import { setReactive } from "@/utils";
+import { Drag, Drop, DropMask } from "vue-easy-dnd";
+import CzDragSelect from "@/components/cz.drag-select.vue";
 
 import {
   VCard,
@@ -610,9 +612,6 @@ import {
   VListItemTitle,
   ClickOutside,
 } from "vuetify/lib";
-
-import { Drag, Drop, DropMask } from "vue-easy-dnd";
-import CzDragSelect from "@/components/cz.drag-select.vue";
 
 @Component({
   name: "cz-file-explorer",
@@ -678,7 +677,7 @@ export default class CzFileExplorer extends Vue {
   /** Asynchronous function to run when uploading files or creating folders
    * @returns An boolean array indicating if the file was uploaded successfully
    */
-  @Prop({ default: (_items: IFile[] | IFolder[]) => () => true })
+  @Prop({ default: (_items: IFile[] | IFolder[]) => () => [true] })
   upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
 
   @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
@@ -1021,13 +1020,13 @@ export default class CzFileExplorer extends Vue {
       const item = itemsToMove[i];
       pastePromises.push(this._paste(item, target));
     }
+    this._openRecursive(target);
 
     const wasPasted = await Promise.allSettled(pastePromises);
 
     if (wasPasted.some((r) => r.status === "fulfilled" && r.value)) {
       this.unselectAll();
       this.uncutAll();
-      this._openRecursive(target);
     }
   }
 
@@ -1377,8 +1376,8 @@ export default class CzFileExplorer extends Vue {
     if (this.upload) {
       this._toggleItemDisabled(newFolder, true);
       try {
-        wasUploaded = await this.upload([newFolder]);
-        newFolder.isUploaded = true;
+        const response = await this.upload([newFolder]);
+        wasUploaded = response[0];
       } catch (e) {
         wasUploaded = false;
       } finally {
@@ -1387,6 +1386,7 @@ export default class CzFileExplorer extends Vue {
     }
 
     if (wasUploaded) {
+      newFolder.isUploaded = true;
       this.$nextTick(() => {
         this._openRecursive(newFolder);
       });
