@@ -404,7 +404,7 @@
                         >
                           <v-btn
                             color="info"
-                            @click="$emit('upload', [item])"
+                            @click="retryUpload(item)"
                             :disabled="item.isDisabled"
                             small
                             depressed
@@ -675,9 +675,11 @@ export default class CzFileExplorer extends Vue {
   @Prop({ default: (_item: IFile | IFolder) => () => true })
   deleteFileOrFolder?: (item: IFile | IFolder) => Promise<boolean>;
 
-  /** Asynchronous function to run when uploading files or creating folders */
+  /** Asynchronous function to run when uploading files or creating folders
+   * @returns An boolean array indicating if the file was uploaded successfully
+   */
   @Prop({ default: (_items: IFile[] | IFolder[]) => () => true })
-  upload?: (_items: IFile[] | IFolder[]) => Promise<boolean>;
+  upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
 
   @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
 
@@ -875,6 +877,13 @@ export default class CzFileExplorer extends Vue {
     this.$emit("input", validItems);
   }
 
+  protected retryUpload(item: IFile) {
+    this.onDeleteFileOrFolder(item);
+    if (item.file) {
+      this.onFilesDropped([item.file]);
+    }
+  }
+
   @Watch("dropFiles")
   protected async onFilesDropped(newFiles: File[]) {
     if (!newFiles.length) {
@@ -908,7 +917,10 @@ export default class CzFileExplorer extends Vue {
     ) {
       validFiles.map((f) => this._toggleItemDisabled(f, true));
       try {
-        await this.upload(validFiles);
+        const responses = await this.upload(validFiles);
+        responses.map((wasUploaded, index) => {
+          validFiles[index].isUploaded = wasUploaded;
+        });
       } catch (e) {
       } finally {
         validFiles.map((f) => this._toggleItemDisabled(f, false));
@@ -1180,8 +1192,9 @@ export default class CzFileExplorer extends Vue {
     return file.file?.size && file.file?.size > this.maxUploadSizePerFile;
   }
 
-  protected canRetryUpload(item: IFile | IFolder) {
+  protected canRetryUpload(item: IFile) {
     return (
+      item.file &&
       !this.hasTooManyFiles &&
       !this.isFolder(item) &&
       !this.isFileInvalid(item as IFile) &&

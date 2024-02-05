@@ -318,25 +318,25 @@ export default class App extends Vue {
   // MOCK FUNCTIONS
   // =======================
 
-  protected async uploadMock() {
+  protected async uploadMock(_items: (IFile | IFolder)[]) {
     return new Promise((_resolve, _reject) => {
-      setTimeout((_items: IFile[] | IFolder[]) => {
+      setTimeout(() => {
+        _resolve(_items.map((_i) => true));
+        // _reject(false);
+      }, 2000);
+    });
+  }
+
+  protected async deleteFileOrFolderMock(_item: IFile | IFolder) {
+    return new Promise((_resolve, _reject) => {
+      setTimeout(() => {
         _resolve(true);
         // _reject(false);
       }, 2000);
     });
   }
 
-  protected async deleteFileOrFolderMock() {
-    return new Promise((_resolve, _reject) => {
-      setTimeout((_item: IFile | IFolder) => {
-        _resolve(true);
-        // _reject(false);
-      }, 2000);
-    });
-  }
-
-  protected async renameFileOrFolderMock() {
+  protected async renameFileOrFolderMock(_item: IFile | IFolder) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
         _resolve(true);
