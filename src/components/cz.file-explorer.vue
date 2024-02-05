@@ -611,6 +611,7 @@ import {
   VListItem,
   VListItemTitle,
   ClickOutside,
+  VAlert,
 } from "vuetify/lib";
 
 @Component({
@@ -637,6 +638,7 @@ import {
     Drop,
     DropMask,
     CzDragSelect,
+    VAlert,
   },
   directives: { ClickOutside },
   filters: {},

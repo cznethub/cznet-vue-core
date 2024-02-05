@@ -192,14 +192,58 @@ import Notifications from "@/models/notifications";
 import CzForm from "@/components/cz.form.vue";
 import CzFileExplorer from "@/components/cz.file-explorer.vue";
 
-const schema = require("@/schemas/schema.json");
-const uischema = require("@/schemas/uischema.json");
-const initialData = require("@/schemas/test-dataset.json");
+import schema from "@/schemas/schema.json";
+import uischema from "@/schemas/uischema.json";
+import initialData from "@/schemas/test-dataset.json";
+console.log(initialData);
 // const initialData = {};
+
+import {
+  VApp,
+  VContainer,
+  VCard,
+  VCardTitle,
+  VDivider,
+  VCardText,
+  VBtn,
+  VCheckbox,
+  VExpansionPanels,
+  VExpansionPanel,
+  VExpansionPanelHeader,
+  VExpansionPanelContent,
+  VAlert,
+  VSpacer,
+  VMenu,
+  VDialog,
+  VCardActions,
+  VBadge,
+} from "vuetify/lib";
 
 @Component({
   name: "app",
-  components: { CzNotifications, CzForm, CzFileExplorer },
+  components: {
+    CzNotifications,
+    CzForm,
+    CzFileExplorer,
+    VApp,
+    VContainer,
+    VCard,
+    VCardTitle,
+    VDivider,
+    VCardText,
+    VBtn,
+    VCheckbox,
+    VExpansionPanels,
+    VExpansionPanel,
+    VExpansionPanelHeader,
+    VExpansionPanelContent,
+    VAlert,
+    VSpacer,
+    VMenu,
+    VDialog,
+    VCardActions,
+    VBadge,
+  },
 })
 export default class App extends Vue {
   // @Ref("form") form!: InstanceType<typeof CzForm>;
@@ -288,7 +332,7 @@ export default class App extends Vue {
     hasFolders: true,
   };
 
-  beforeCreate() {
+  async beforeCreate() {
     this.schema = schema;
     this.uischema = uischema;
   }
