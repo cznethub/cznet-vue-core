@@ -18,6 +18,8 @@
     "access": "public"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "@fortawesome/vue-fontawesome": "^2.0.10",
     "ajv": "^8.12.0",
     "ajv-errors": "^3.0.0",
     "ajv-keywords": "^5.1.0",

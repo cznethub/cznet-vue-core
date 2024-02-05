@@ -58,7 +58,7 @@
               dialog.isActive = false;
               dialog.onConfirm();
             "
-            color="green darken-1"
+            :color="dialog.confirmTextColor || 'green darken-1'"
             text
           >
             {{ dialog.confirmText }}

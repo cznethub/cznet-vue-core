@@ -30,9 +30,9 @@ const collisionCheck = (node1, node2) =>
 
 @Component({
   components: {},
-  name: "DragSelect",
+  name: "cz-drag-select",
 })
-export default class CzFileExplorer extends Vue {
+export default class CzDragSelect extends Vue {
   @Prop({ required: true }) attribute!: string;
 
   intersected: any[] = [];

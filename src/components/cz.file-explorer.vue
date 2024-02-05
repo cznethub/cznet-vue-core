@@ -131,13 +131,15 @@
       <template v-if="rootDirectory.children.length && !isReadOnly">
         <v-spacer></v-spacer>
         <v-btn
-          @click="empty"
+          @click="discardAll"
           :disabled="!isSomeNotUploaded"
           small
           depressed
-          class="primary lighten-2"
+          class="default"
         >
-          <v-icon class="mr-2" small>mdi-delete-outline</v-icon>
+          <v-icon class="mr-2" small color="error"
+            >mdi-cloud-cancel-outline</v-icon
+          >
           Discard All
         </v-btn>
       </template>
@@ -257,7 +259,7 @@
             @dragleave.exact="isRootDragging = false"
             class="full-height"
           >
-            <drag-select
+            <cz-drag-select
               attribute="customAttribute"
               @change="onDragSelect"
               @endDrag="onDragEnd"
@@ -297,7 +299,7 @@
                         @click.meta.exact="onItemCtrlClick($event, item)"
                         @click.shift.exact="onItemShiftClick($event, item)"
                         :disabled="item.isDisabled"
-                        :color="item.isCutting ? 'grey' : ''"
+                        :color="item.isCutting ? 'grey' : folderColor"
                       >
                         {{ open ? "mdi-folder-open" : "mdi-folder" }}
                       </v-icon>
@@ -389,7 +391,7 @@
                     <template v-slot:append="{ item }">
                       <v-row v-if="!item.isRenaming">
                         <v-col
-                          v-if="!isFolder(item) && item.isUploaded"
+                          v-if="item.isUploaded"
                           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
                           <v-icon class="text--disabled" title="uploaded" small
@@ -469,7 +471,7 @@
                 </v-col>
                 <v-col v-if="$vuetify.breakpoint.smAndUp"></v-col>
               </v-row>
-            </drag-select>
+            </cz-drag-select>
           </drop>
         </v-card-text>
         <v-divider></v-divider>
@@ -571,8 +573,8 @@
             colored-border
             icon="mdi-paperclip"
           >
-            <span class="text-subtitle-1"
-              >Drop your files here or click to upload</span
+            <span class="text-body-1"
+              >Drop your files here or click to upload.</span
             >
           </v-alert>
         </b-upload>
@@ -610,7 +612,7 @@ import {
 } from "vuetify/lib";
 
 import { Drag, Drop, DropMask } from "vue-easy-dnd";
-import DragSelect from "@/components/DragSelect.vue";
+import CzDragSelect from "@/components/cz.drag-select.vue";
 
 @Component({
   name: "cz-file-explorer",
@@ -635,7 +637,7 @@ import DragSelect from "@/components/DragSelect.vue";
     Drag,
     Drop,
     DropMask,
-    DragSelect,
+    CzDragSelect,
   },
   directives: { ClickOutside },
   filters: {},
@@ -646,6 +648,7 @@ export default class CzFileExplorer extends Vue {
   @Prop() maxNumberOfFiles!: number;
   @Prop() maxTotalUploadSize!: number;
   @Prop() maxUploadSizePerFile!: number;
+  @Prop({ default: "primary lighten-2" }) folderColor!: boolean;
   /** If specified, will only allow upload of listed file types */
   @Prop() supportedFileTypes!: string[];
   /** A regular expression to test validity of file names */
@@ -818,19 +821,21 @@ export default class CzFileExplorer extends Vue {
 
   created() {
     // Add keys
-    this.annotateDirectory(this.rootDirectory);
+    this._annotateDirectory(this.rootDirectory);
   }
 
   protected generateNewKey(): number {
     const newKey = this.keyCounter++;
     if (this.tree && this.tree.nodes[newKey]) {
-      // This key already exists
+      // This key already exists, try the next one.
       return this.generateNewKey();
     }
     return newKey;
   }
 
-  protected show(e, item: IFile | IFolder | null) {
+  protected show(event: MouseEvent, item: IFile | IFolder | null) {
+    // TODO: right click will erase the previous selection and only select the current item
+    // Find a way to prevent this behaviour
     if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
       return false;
     }
@@ -841,8 +846,8 @@ export default class CzFileExplorer extends Vue {
     }
     this.shiftAnchor = item;
     this.showMenu = false;
-    this.menuAttrs["position-x"] = e.clientX;
-    this.menuAttrs["position-y"] = e.clientY;
+    this.menuAttrs["position-x"] = event.clientX;
+    this.menuAttrs["position-y"] = event.clientY;
     this.$nextTick(() => {
       this.showMenu = true;
       this.showMenuItem = item;
@@ -850,14 +855,14 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** Traverse the file structure and annotate keys. */
-  protected annotateDirectory(item: IFolder) {
+  private _annotateDirectory(item: IFolder) {
     const childFolders = item.children.filter((i, _index) => {
       i.key = i.key ?? this.generateNewKey();
       return this.isFolder(i);
     }) as IFolder[];
 
     for (let i = 0; i < childFolders.length; i++) {
-      this.annotateDirectory(childFolders[i]);
+      this._annotateDirectory(childFolders[i]);
     }
   }
 
@@ -901,7 +906,13 @@ export default class CzFileExplorer extends Vue {
       !this.hasTooManyFiles &&
       !this.isTotalUploadSizeTooBig
     ) {
-      await this.upload(validFiles);
+      validFiles.map((f) => this._toggleItemDisabled(f, true));
+      try {
+        await this.upload(validFiles);
+      } catch (e) {
+      } finally {
+        validFiles.map((f) => this._toggleItemDisabled(f, false));
+      }
     }
     this.dropFiles = [];
   }
@@ -1009,14 +1020,14 @@ export default class CzFileExplorer extends Vue {
   }
 
   // TODO: currently not propagating correctly
-  protected _closeIfEmpty(item: IFolder) {
-    if (!item.children.length) {
-      const index = this.open.indexOf(item);
-      if (index >= 0) {
-        this.open.splice(index, 1);
-      }
-    }
-  }
+  // protected _closeIfEmpty(item: IFolder) {
+  //   if (!item.children.length) {
+  //     const index = this.open.indexOf(item);
+  //     if (index >= 0) {
+  //       this.open.splice(index, 1);
+  //     }
+  //   }
+  // }
 
   /** Move an item to the target folder inside the Treeview structure */
   private _moveItem(item: IFolder | IFile, targetFolder: IFolder) {
@@ -1049,15 +1060,19 @@ export default class CzFileExplorer extends Vue {
     if (newPath.startsWith(itemPathString)) {
       return false;
     }
-    setReactive(item, "isDisabled", true);
-    wasMoved = this.renameFileOrFolder
-      ? await this.renameFileOrFolder(item, newPath)
-      : true;
+
+    this._toggleItemDisabled(item, true);
+    wasMoved =
+      item.isUploaded && this.renameFileOrFolder
+        ? await this.renameFileOrFolder(item, newPath)
+        : true;
 
     if (wasMoved) {
       this._moveItem(item, targetFolder);
     }
-    item.isDisabled = false;
+
+    this._toggleItemDisabled(item, false);
+
     return wasMoved;
   }
 
@@ -1195,24 +1210,22 @@ export default class CzFileExplorer extends Vue {
         item.name
       );
 
-      setReactive(item, "isDisabled", true);
-      const wasRenamed = this.renameFileOrFolder
-        ? await this.renameFileOrFolder(item, name)
-        : true;
-      if (wasRenamed) {
-        item.name = newName;
-      } else {
-        Notifications.toast({
-          message: `Failed to rename ${
-            this.isFolder(item) ? "folder" : "file"
-          }`,
-          type: "error",
-        });
+      this._toggleItemDisabled(item, true);
+      try {
+        const wasRenamed =
+          item.isUploaded && this.renameFileOrFolder
+            ? await this.renameFileOrFolder(item, name)
+            : true;
+        if (wasRenamed) {
+          item.name = newName;
+        }
+      } catch (e) {
+      } finally {
+        this._toggleItemDisabled(item, false);
       }
-      item.isDisabled = false;
     }
 
-    item.isRenaming = false;
+    setReactive(item, "isRenaming", false);
   }
 
   protected async deleteSelected() {
@@ -1232,12 +1245,11 @@ export default class CzFileExplorer extends Vue {
   private async _deleteSelected() {
     this.isDeleting = true;
     const reversedSelected = this.selected.reverse();
-    const response: any[] = [];
 
     // First, disable all items to delete
     for (let i = 0; i < reversedSelected.length; i++) {
       const item = reversedSelected[i];
-      this.toggleItemDisabled(item, true);
+      this._toggleItemDisabled(item, true);
     }
 
     for (let i = 0; i < reversedSelected.length; i++) {
@@ -1252,18 +1264,9 @@ export default class CzFileExplorer extends Vue {
         if (!this.isFolder(item) && !(item as IFile).isUploaded) {
           this._deleteItem(item); // Item hasn't been uploaded, just discard it
         } else if (!isParentSelected) {
-          const message = await this.onDeleteFileOrFolder(item);
-          response.push(message);
+          await this.onDeleteFileOrFolder(item);
         }
       }
-    }
-
-    if (response.includes(false)) {
-      // Failed to delete some file
-      Notifications.toast({
-        message: "Some of your files could not be deleted",
-        type: "error",
-      });
     }
     this.isDeleting = false;
     this.selected = [];
@@ -1274,25 +1277,26 @@ export default class CzFileExplorer extends Vue {
     if (!this.isFolder(item) && this.isFileInvalid(item as IFile)) {
       // File was not uplaoded because it was invalid. No need to delete asynchronously.
       wasDeleted = true;
-    } else if (this.deleteFileOrFolder) {
+    } else if (item.isUploaded && this.deleteFileOrFolder) {
+      this._toggleItemDisabled(item, true);
       wasDeleted = await this.deleteFileOrFolder(item);
     } else {
       wasDeleted = true;
     }
 
-    this.toggleItemDisabled(item, false);
+    this._toggleItemDisabled(item, false);
     if (wasDeleted) {
       this._deleteItem(item);
     }
     return wasDeleted;
   }
 
-  private toggleItemDisabled(item: IFolder | IFile, isDisabled: boolean) {
-    item.isDisabled = isDisabled;
+  private _toggleItemDisabled(item: IFolder | IFile, isDisabled: boolean) {
+    setReactive(item, "isDisabled", isDisabled);
     if (this.isFolder(item)) {
       (item as IFolder).children.map((item) => {
-        (item as IFolder).isDisabled = isDisabled;
-        this.toggleItemDisabled(item as IFolder, isDisabled);
+        setReactive(item, "isDisabled", isDisabled);
+        this._toggleItemDisabled(item as IFolder, isDisabled);
       });
     }
   }
@@ -1312,11 +1316,12 @@ export default class CzFileExplorer extends Vue {
     ];
   }
 
-  protected empty() {
+  protected discardAll() {
     Notifications.openDialog({
-      title: "Remove all files?",
-      content: "Are you sure you want to remove all files from this list?",
-      confirmText: "Remove",
+      title: "Discard all files?",
+      content: "Are you sure you want to remove all files staged for upload?",
+      confirmText: "Discard",
+      confirmTextColor: "error",
       cancelText: "Cancel",
       isPersistent: true,
       onConfirm: async () => {
@@ -1350,21 +1355,30 @@ export default class CzFileExplorer extends Vue {
 
     newFolder.name = this._getAvailableName(newFolder.name, targetFolder);
 
-    const wasUploaded = this.upload ? await this.upload([newFolder]) : true;
+    let wasUploaded = true;
+    this._openRecursive(targetFolder);
+    targetFolder.children.push(newFolder);
+    targetFolder.children = targetFolder.children.sort((_a, b) => {
+      return b.hasOwnProperty("children") ? 1 : -1;
+    });
+    if (this.upload) {
+      this._toggleItemDisabled(newFolder, true);
+      try {
+        wasUploaded = await this.upload([newFolder]);
+        newFolder.isUploaded = true;
+      } catch (e) {
+        wasUploaded = false;
+      } finally {
+        this._toggleItemDisabled(newFolder, false);
+      }
+    }
 
     if (wasUploaded) {
-      targetFolder.children.push(newFolder);
-      targetFolder.children = targetFolder.children.sort((_a, b) => {
-        return b.hasOwnProperty("children") ? 1 : -1;
+      this.$nextTick(() => {
+        this._openRecursive(newFolder);
       });
-
-      this._openRecursive(newFolder);
     } else {
-      // Failed to delete some file
-      Notifications.toast({
-        message: "Failed to create new folder",
-        type: "error",
-      });
+      this._deleteItem(newFolder);
     }
   }
 
@@ -1394,7 +1408,7 @@ export default class CzFileExplorer extends Vue {
 
     if (index >= 0) {
       parent.children.splice(index, 1);
-      this._closeIfEmpty(parent);
+      // this._closeIfEmpty(parent);
     }
   }
 

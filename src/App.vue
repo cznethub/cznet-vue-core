@@ -50,6 +50,9 @@
             :isReadOnly="fileExplorerConfig.isReadOnly"
             :hasFileMetadata="() => true"
             @showMetadata="onShowMetadata($event)"
+            :renameFileOrFolder="renameFileOrFolderMock"
+            :deleteFileOrFolder="deleteFileOrFolderMock"
+            :upload="uploadMock"
           >
             <template v-slot:prepend>
               <v-alert
@@ -247,7 +250,7 @@ export default class App extends Vue {
       } as IFolder,
       {
         name: "logs.txt",
-        isUploaded: true,
+        isUploaded: true, // IMPORTANT: indicates that asynchronous operations will run on this file
         file: { size: 8421 },
       } as IFile,
       {
@@ -309,6 +312,37 @@ export default class App extends Vue {
 
   protected submit() {
     console.log(this.data);
+  }
+
+  // =======================
+  // MOCK FUNCTIONS
+  // =======================
+
+  protected async uploadMock() {
+    return new Promise((_resolve, _reject) => {
+      setTimeout((_items: IFile[] | IFolder[]) => {
+        _resolve(true);
+        // _reject(false);
+      }, 2000);
+    });
+  }
+
+  protected async deleteFileOrFolderMock() {
+    return new Promise((_resolve, _reject) => {
+      setTimeout((_item: IFile | IFolder) => {
+        _resolve(true);
+        // _reject(false);
+      }, 2000);
+    });
+  }
+
+  protected async renameFileOrFolderMock() {
+    return new Promise((_resolve, _reject) => {
+      setTimeout(() => {
+        _resolve(true);
+        // _reject(false);
+      }, 2000);
+    });
   }
 }
 </script>

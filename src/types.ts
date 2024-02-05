@@ -11,6 +11,7 @@ export interface IDialog {
   title: string;
   content: string;
   confirmText?: string;
+  confirmTextColor?: string;
   secondaryActionText?: string;
   cancelText?: string;
   contentClass?: string;
