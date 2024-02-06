@@ -252,7 +252,7 @@
         class="mb-4 files-container-card"
         :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
       >
-        <v-card-text class="files-container" style="height: 15rem">
+        <v-card-text class="files-container">
           <drop
             @drop="onDropMove($event, rootDirectory)"
             @dragenter.exact="isRootDragging = true"
@@ -463,7 +463,9 @@
                           </v-menu>
                         </v-col>
                         <v-col v-if="item.isDisabled">
-                          <v-icon small>fas fa-circle-notch fa-spin</v-icon>
+                          <v-icon color="primary lighten-2" small
+                            >fas fa-circle-notch fa-spin</v-icon
+                          >
                         </v-col>
                       </v-row>
                     </template>
@@ -684,20 +686,20 @@ export default class CzFileExplorer extends Vue {
 
   @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
 
-  protected fileIcons = FILE_ICONS;
-  protected open: (IFolder | IFile)[] = [];
-  protected selected: (IFolder | IFile)[] = [];
-  protected dropFiles: File[] = [];
-  protected isDeleting = false;
-  protected fileReleaseDate = null;
-  protected shiftAnchor: IFolder | IFile | null = null;
-  protected search = "";
-  protected showMenu = false;
-  protected showMenuItem: IFolder | IFile | null = null;
-  protected keyCounter = 0;
-  protected ignoreNextClick = false;
-  protected isDragMoving = false;
-  protected isRootDragging = false;
+  fileIcons = FILE_ICONS;
+  open: (IFolder | IFile)[] = [];
+  selected: (IFolder | IFile)[] = [];
+  dropFiles: File[] = [];
+  isDeleting = false;
+  fileReleaseDate = null;
+  shiftAnchor: IFolder | IFile | null = null;
+  search = "";
+  showMenu = false;
+  showMenuItem: IFolder | IFile | null = null;
+  keyCounter = 0;
+  ignoreNextClick = false;
+  isDragMoving = false;
+  isRootDragging = false;
 
   menuAttrs = {
     "position-x": 0,
@@ -714,17 +716,17 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected get isSomeNotUploaded() {
+  get isSomeNotUploaded() {
     return this.allFiles.some((i) => !i.isUploaded);
   }
 
-  protected get allFiles(): IFile[] {
+  get allFiles(): IFile[] {
     return this.allItems.filter((item: IFile | IFolder) => {
       return !this.isFolder(item);
     });
   }
 
-  protected get hasTooManyFiles() {
+  get hasTooManyFiles() {
     if (!this.maxNumberOfFiles) {
       return false;
     }
@@ -735,18 +737,18 @@ export default class CzFileExplorer extends Vue {
     return validFiles.length > this.maxNumberOfFiles;
   }
 
-  protected get isTotalUploadSizeTooBig() {
+  get isTotalUploadSizeTooBig() {
     if (!this.maxTotalUploadSize) {
       return false;
     }
     return this.totalUploadSize > this.maxTotalUploadSize;
   }
 
-  protected get itemsToCut(): (IFile | IFolder)[] {
+  get itemsToCut(): (IFile | IFolder)[] {
     return this._itemsToCutRecursive(this.rootDirectory);
   }
 
-  protected get activeDirectoryItem(): IFolder | IFile {
+  get activeDirectoryItem(): IFolder | IFile {
     if (this.selected.length !== 1) {
       return this.rootDirectory;
     } else {
@@ -754,7 +756,7 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected get canPaste() {
+  get canPaste() {
     const isValidTarget = this.selected.length <= 1;
     const areItemsValid =
       this.itemsToCut.length > 0 &&
@@ -763,7 +765,7 @@ export default class CzFileExplorer extends Vue {
     return isValidTarget && areItemsValid;
   }
 
-  protected onDragSelect(selectedKeys: number[]) {
+  onDragSelect(selectedKeys: number[]) {
     this.unselectAll();
     const selectedItems = selectedKeys.map((key) => {
       return this.tree.nodes[key].item;
@@ -771,15 +773,15 @@ export default class CzFileExplorer extends Vue {
     this.select(selectedItems);
   }
 
-  protected onDragEnd() {
+  onDragEnd() {
     this.ignoreNextClick = true;
   }
 
-  protected onDragStart() {
+  onDragStart() {
     this.unselectAll();
   }
 
-  protected canPasteOnFolder(item: IFolder) {
+  canPasteOnFolder(item: IFolder) {
     return (
       this.itemsToCut.length > 0 &&
       !this.itemsToCut.includes(item) &&
@@ -787,19 +789,19 @@ export default class CzFileExplorer extends Vue {
     );
   }
 
-  protected get canCutSelected() {
+  get canCutSelected() {
     return this.selected.length;
   }
 
-  protected canCutItem(item: IFile | IFolder) {
+  canCutItem(item: IFile | IFolder) {
     return this.hasFolders && !item.isCutting;
   }
 
-  protected get allItems(): IFile[] {
+  get allItems(): IFile[] {
     return this._getDirectoryItems(this.rootDirectory);
   }
 
-  protected get filter() {
+  get filter() {
     return (item, search, textKey) => {
       return (
         item[textKey]
@@ -811,7 +813,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** @return total size of files uploaded and valid files pending to upload */
-  protected get totalUploadSize(): number {
+  get totalUploadSize(): number {
     const validFiles = this.allItems.filter(
       (item) => !this.isFileInvalid(item as IFile)
     );
@@ -827,7 +829,7 @@ export default class CzFileExplorer extends Vue {
     this._annotateDirectory(this.rootDirectory);
   }
 
-  protected generateNewKey(): number {
+  generateNewKey(): number {
     const newKey = this.keyCounter++;
     if (this.tree && this.tree.nodes[newKey]) {
       // This key already exists, try the next one.
@@ -836,7 +838,7 @@ export default class CzFileExplorer extends Vue {
     return newKey;
   }
 
-  protected show(event: MouseEvent, item: IFile | IFolder | null) {
+  show(event: MouseEvent, item: IFile | IFolder | null) {
     // TODO: right click will erase the previous selection and only select the current item
     // Find a way to prevent this behaviour
     if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
@@ -870,7 +872,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   @Watch("rootDirectory.children", { deep: true })
-  protected onInput() {
+  onInput() {
     const updatedItems = this._getDirectoryItems(this.rootDirectory);
     const validItems = updatedItems.filter(
       (item) => !this.isFileInvalid(item as IFile)
@@ -878,7 +880,7 @@ export default class CzFileExplorer extends Vue {
     this.$emit("input", validItems);
   }
 
-  protected retryUpload(item: IFile) {
+  retryUpload(item: IFile) {
     this.onDeleteFileOrFolder(item);
     if (item.file) {
       this.onFilesDropped([item.file]);
@@ -886,7 +888,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   @Watch("dropFiles")
-  protected async onFilesDropped(newFiles: File[]) {
+  async onFilesDropped(newFiles: File[]) {
     if (!newFiles.length) {
       return;
     }
@@ -930,12 +932,12 @@ export default class CzFileExplorer extends Vue {
     this.dropFiles = [];
   }
 
-  protected selectAll() {
+  selectAll() {
     this.select(this.allItems);
   }
 
   /** Returns an item path string. I.e: "Some Folder/readme.txt" */
-  protected getPathString(item: IFolder | IFile) {
+  getPathString(item: IFolder | IFile) {
     if (item === this.rootDirectory) {
       return "";
     }
@@ -945,30 +947,30 @@ export default class CzFileExplorer extends Vue {
     return [...parentNames.reverse(), item.name].join("/");
   }
 
-  protected isFolder(item: IFile | IFolder) {
+  isFolder(item: IFile | IFolder) {
     return item.hasOwnProperty("children");
   }
 
-  protected isSelected(item: IFolder | IFile) {
+  isSelected(item: IFolder | IFile) {
     return this.selected.includes(item);
   }
 
-  protected select(items: (IFolder | IFile)[]) {
+  select(items: (IFolder | IFile)[]) {
     this.selected = [...new Set([...this.selected, ...items])];
   }
 
-  protected unselect(item: IFolder | IFile) {
+  unselect(item: IFolder | IFile) {
     const index = this.selected.indexOf(item);
     if (index >= 0) {
       this.selected.splice(index, 1);
     }
   }
 
-  protected unselectAll() {
+  unselectAll() {
     this.selected = [];
   }
 
-  protected cut() {
+  cut() {
     this.uncutAll();
 
     this.selected.map((item) => {
@@ -978,14 +980,14 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected uncutAll() {
+  uncutAll() {
     this.itemsToCut.map((item) => {
       item.isCutting = false;
     });
   }
 
   /** Paste the selected files inside the directory where the file was dropped */
-  protected async onDropMove(event, dropTarget) {
+  async onDropMove(event, dropTarget) {
     const targetFolder = this.isFolder(dropTarget)
       ? dropTarget
       : this.getParent(dropTarget);
@@ -997,7 +999,7 @@ export default class CzFileExplorer extends Vue {
     await this._handlePaste(targetFolder, this.selected);
   }
 
-  protected onDropDiscard(event) {
+  onDropDiscard(event) {
     if (!this.isSelected(event.data)) {
       this.unselectAll();
       this.select([event.data]);
@@ -1006,7 +1008,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** Paste the selected files inside the selected folder */
-  protected async onPaste() {
+  async onPaste() {
     const targetFolder: IFolder = this.isFolder(this.activeDirectoryItem)
       ? (this.activeDirectoryItem as IFolder)
       : this.getParent(this.activeDirectoryItem);
@@ -1033,7 +1035,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   // TODO: currently not propagating correctly
-  // protected _closeIfEmpty(item: IFolder) {
+  // _closeIfEmpty(item: IFolder) {
   //   if (!item.children.length) {
   //     const index = this.open.indexOf(item);
   //     if (index >= 0) {
@@ -1089,13 +1091,13 @@ export default class CzFileExplorer extends Vue {
     return wasMoved;
   }
 
-  protected canRenameItem(item: IFile | IFolder) {
+  canRenameItem(item: IFile | IFolder) {
     return item.isUploaded
       ? this.renameFileOrFolder && !item.isDisabled
       : !item.isDisabled;
   }
 
-  protected onItemClick(event: MouseEvent, item: IFolder | IFile) {
+  onItemClick(event: MouseEvent, item: IFolder | IFile) {
     const wasOnlyOneSelected =
       this.isSelected(item) && this.selected.length == 1;
     this.unselectAll();
@@ -1107,13 +1109,13 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected onItemCtrlClick(event: MouseEvent, item: IFolder | IFile) {
+  onItemCtrlClick(event: MouseEvent, item: IFolder | IFile) {
     this.toggleSelect(item);
     this.shiftAnchor = item;
     event.stopPropagation();
   }
 
-  protected getParent(item: IFile | IFolder): IFolder {
+  getParent(item: IFile | IFolder): IFolder {
     if (item.key !== undefined) {
       const parentKey = this.tree.getParents(item.key)[0];
       const parentNode = this.tree.nodes[parentKey];
@@ -1123,7 +1125,7 @@ export default class CzFileExplorer extends Vue {
     return this.rootDirectory;
   }
 
-  protected onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
+  onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
     const parent = this.getParent(item);
     const itemIndex = parent.children.indexOf(item);
     const anchorIndex = this.shiftAnchor
@@ -1143,7 +1145,7 @@ export default class CzFileExplorer extends Vue {
     event.stopPropagation();
   }
 
-  protected toggleSelect(item: IFolder | IFile) {
+  toggleSelect(item: IFolder | IFile) {
     if (this.isSelected(item)) {
       this.unselect(item);
     } else {
@@ -1151,14 +1153,14 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected renameItem(item: IFile | IFolder) {
+  renameItem(item: IFile | IFolder) {
     this._clearRenaming(this.rootDirectory);
     setReactive(item, "isRenaming", true);
     this.showMenu = false;
     this.showMenuItem = null;
   }
 
-  protected isFileExtensionValid(file: IFile) {
+  isFileExtensionValid(file: IFile) {
     if (!this.supportedFileTypes) {
       return true;
     }
@@ -1168,7 +1170,7 @@ export default class CzFileExplorer extends Vue {
     return this.supportedFileTypes.includes(extention);
   }
 
-  protected isFileNameValid(file: IFile) {
+  isFileNameValid(file: IFile) {
     if (!this.fileNameRegex) {
       return true;
     }
@@ -1177,15 +1179,15 @@ export default class CzFileExplorer extends Vue {
     return isValid;
   }
 
-  protected isFileInvalid(file: IFile) {
+  isFileInvalid(file: IFile) {
     return !this.isFileExtensionValid(file) || this.isFileTooBig(file);
   }
 
-  protected hasFileWarnings(file: IFile) {
+  hasFileWarnings(file: IFile) {
     return !this.isFileNameValid(file);
   }
 
-  protected isFileTooBig(file: IFile) {
+  isFileTooBig(file: IFile) {
     if (!this.maxUploadSizePerFile) {
       return false;
     }
@@ -1193,7 +1195,7 @@ export default class CzFileExplorer extends Vue {
     return file.file?.size && file.file?.size > this.maxUploadSizePerFile;
   }
 
-  protected canRetryUpload(item: IFile) {
+  canRetryUpload(item: IFile) {
     return (
       item.file &&
       !this.hasTooManyFiles &&
@@ -1203,11 +1205,11 @@ export default class CzFileExplorer extends Vue {
     );
   }
 
-  protected couldNotUploadFile(item: IFile) {
+  couldNotUploadFile(item: IFile) {
     return item.isUploaded === false && this.hasTooManyFiles;
   }
 
-  protected showFileWarnings(item: IFile) {
+  showFileWarnings(item: IFile) {
     return (
       !this.isFolder(item) &&
       (this.isFileInvalid(item) ||
@@ -1216,7 +1218,7 @@ export default class CzFileExplorer extends Vue {
     );
   }
 
-  protected async onRenamed(item: IFile | IFolder, name: string) {
+  async onRenamed(item: IFile | IFolder, name: string) {
     if (name.trim()) {
       const newName = this._getAvailableName(
         name,
@@ -1242,7 +1244,7 @@ export default class CzFileExplorer extends Vue {
     setReactive(item, "isRenaming", false);
   }
 
-  protected async deleteSelected() {
+  async deleteSelected() {
     Notifications.openDialog({
       title: "Remove files?",
       content: "Are you sure you want to remove the selected files?",
@@ -1315,7 +1317,7 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected onClickOutside() {
+  onClickOutside() {
     if (this.ignoreNextClick) {
       this.ignoreNextClick = false;
     } else {
@@ -1323,14 +1325,14 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected include() {
+  include() {
     return [
       ...document.getElementsByClassName("files-container--included"),
       ...document.getElementsByClassName("v-overlay"),
     ];
   }
 
-  protected discardAll() {
+  discardAll() {
     Notifications.openDialog({
       title: "Discard all files?",
       content: "Are you sure you want to remove all files staged for upload?",
@@ -1348,7 +1350,7 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected async newFolder() {
+  async newFolder() {
     if (!this.hasFolders) {
       return;
     }
@@ -1543,6 +1545,7 @@ export default class CzFileExplorer extends Vue {
 }
 
 .files-container {
+  height: 15rem;
   overflow: auto;
   resize: vertical;
 }

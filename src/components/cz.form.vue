@@ -84,9 +84,9 @@ export default class CzForm extends Vue {
   /** When `true`, sets the form to view mode. Validation is disabled, fields are readonly and empty fields are not rendered. */
   @Prop({ default: () => defaultConfigs }) config!: Config;
 
-  protected timesChanged = 0;
+  timesChanged = 0;
   renderers: JsonFormsRendererRegistryEntry[] = renderers;
-  // protected i18n: JsonFormsI18nState = {
+  // i18n: JsonFormsI18nState = {
   //   locale: "en",
   //   translate: createTranslator("en", undefined),
   // } as JsonFormsI18nState;
@@ -99,15 +99,15 @@ export default class CzForm extends Vue {
     return ajv;
   }
 
-  protected get isViewMode() {
+  get isViewMode() {
     return !!this.config.isViewMode;
   }
 
-  protected get isReadOnly() {
+  get isReadOnly() {
     return !!this.config.isReadOnly;
   }
 
-  protected get isDisabled() {
+  get isDisabled() {
     return !!this.config.isDisabled;
   }
 

@@ -138,7 +138,7 @@
                     depressed
                     @click="submit"
                     :disabled="
-                      config.isReadonly || config.isViewMode || !isValid
+                      config.isReadOnly || config.isViewMode || !isValid
                     "
                     >Submit</v-btn
                   >
@@ -195,7 +195,6 @@ import CzFileExplorer from "@/components/cz.file-explorer.vue";
 import schema from "@/schemas/schema.json";
 import uischema from "@/schemas/uischema.json";
 import initialData from "@/schemas/test-dataset.json";
-console.log(initialData);
 // const initialData = {};
 
 import {
@@ -248,16 +247,16 @@ import {
 export default class App extends Vue {
   // @Ref("form") form!: InstanceType<typeof CzForm>;
 
-  protected schema;
-  protected uischema;
-  protected isValid = false;
-  protected errors = [];
-  protected data = initialData;
-  protected stringify = stringify;
-  protected selectedMetadata: any = false;
+  schema!: { [key: string]: any };
+  uischema!: { [key: string]: any };
+  isValid = false;
+  errors: { title: string; message: string }[] = [];
+  data = initialData;
+  stringify = stringify;
+  selectedMetadata: any = false;
 
   /** Example folder/file tree structure */
-  protected rootDirectory: IFolder = {
+  rootDirectory: IFolder = {
     name: "root",
     /** Folders have a `children` property */
     children: [
@@ -275,9 +274,9 @@ export default class App extends Vue {
                     file: { size: 2637468 },
                   } as IFile,
                 ],
-              } as IFolder,
+              },
             ],
-          } as IFolder,
+          },
           {
             name: "readme.txt",
             file: { size: 12000 },
@@ -291,7 +290,7 @@ export default class App extends Vue {
       {
         name: "An empty folder",
         children: [],
-      } as IFolder,
+      },
       {
         name: "logs.txt",
         isUploaded: true, // IMPORTANT: indicates that asynchronous operations will run on this file
@@ -304,7 +303,7 @@ export default class App extends Vue {
     ],
   };
 
-  protected config: Config = {
+  config: Config = {
     restrict: true,
     trim: false,
     showUnfocusedDescription: false,
@@ -327,7 +326,7 @@ export default class App extends Vue {
     isDisabled: false,
   };
 
-  protected fileExplorerConfig = {
+  fileExplorerConfig = {
     isReadOnly: false,
     hasFolders: true,
   };
@@ -345,7 +344,7 @@ export default class App extends Vue {
     });
   }
 
-  onShowMetadata(item) {
+  onShowMetadata(item: any) {
     console.log(item);
     this.selectedMetadata = item;
   }
@@ -354,7 +353,7 @@ export default class App extends Vue {
     Notifications.toast({ message: "Some toasty message", type: "success" });
   }
 
-  protected submit() {
+  submit() {
     console.log(this.data);
   }
 
@@ -362,7 +361,7 @@ export default class App extends Vue {
   // MOCK FUNCTIONS
   // =======================
 
-  protected async uploadMock(_items: (IFile | IFolder)[]) {
+  async uploadMock(_items: (IFile | IFolder)[]) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
         _resolve(_items.map((_i) => true));
@@ -371,7 +370,7 @@ export default class App extends Vue {
     });
   }
 
-  protected async deleteFileOrFolderMock(_item: IFile | IFolder) {
+  async deleteFileOrFolderMock(_item: IFile | IFolder) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
         _resolve(true);
@@ -380,7 +379,7 @@ export default class App extends Vue {
     });
   }
 
-  protected async renameFileOrFolderMock(_item: IFile | IFolder) {
+  async renameFileOrFolderMock(_item: IFile | IFolder) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
         _resolve(true);

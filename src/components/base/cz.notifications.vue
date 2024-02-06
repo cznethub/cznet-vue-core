@@ -3,7 +3,7 @@
     <v-snackbar
       v-model="snackbar.isActive"
       :timeout="snackbar.isInfinite ? -1 : snackbar.duration"
-      :color="snackbarColors[snackbar.type].snackbar"
+      :color="snackbar.type ? snackbarColors[snackbar.type].snackbar : ''"
     >
       <span>{{ snackbar.message }}</span>
 
@@ -11,7 +11,9 @@
         <v-btn
           @click="snackbar.isActive = false"
           v-bind="attrs"
-          :color="snackbarColors[snackbar.type].actionButton"
+          :color="
+            snackbar.type ? snackbarColors[snackbar.type].actionButton : ''
+          "
           >Dismiss</v-btn
         >
       </template>
@@ -33,7 +35,7 @@
             class="dialog-cancel"
             @click="
               dialog.isActive = false;
-              dialog.onCancel();
+              dialog.onCancel?.();
             "
             text
           >
