@@ -119,6 +119,7 @@ export default class CzForm extends Vue {
           ?.filter((e: ErrorObject) => {
             return (
               !filteredErrorKeywords.includes(e.keyword) &&
+              // @ts-ignore
               !filteredErrorKeywords.includes(e["_keyword"])
             );
           })
@@ -152,7 +153,8 @@ export default class CzForm extends Vue {
         const combinatorSchema = isCombinatorSchema(error.parentSchema);
 
         const propTitle = combinatorSchema
-          ? error.parentSchema?.anyOf[error["_selectedSchemaIndex"]]?.[
+          ? // @ts-ignore
+            error.parentSchema?.anyOf[error["_selectedSchemaIndex"]]?.[
               error.params.missingProperty
             ]?.title
           : error.parentSchema?.properties?.[error.params.missingProperty]

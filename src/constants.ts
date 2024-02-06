@@ -2,7 +2,7 @@ export const APP_NAME = "CZNet Vue Core";
 export const APP_GOOGLE_MAPS_API_KEY =
   import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 export const DEFAULT_TOAST_DURATION = 3500;
-export const FILE_ICONS = {
+export const FILE_ICONS: { [key: string]: string } = {
   html: "mdi-language-html5",
   md: "mdi-language-markdown",
   js: "mdi-nodejs",

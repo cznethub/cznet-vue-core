@@ -22,8 +22,7 @@
         :class="styles.control.input"
         :placeholder="placeholder"
         :required="control.required"
-        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
-        :value="control.data"
+        :clearable="hover && !(!control.enabled || control.schema.readOnly)"
         :items="control.options"
         v-bind="vuetifyProps('v-combobox')"
         item-text="label"
@@ -73,6 +72,7 @@ import {
   JsonFormsRendererRegistryEntry,
   not,
   rankWith,
+  UISchemaElement,
 } from "@jsonforms/core";
 import { defineComponent } from "vue";
 import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
@@ -93,7 +93,6 @@ const controlRenderer = defineComponent({
   },
   setup(props: any) {
     const tags: string[] = [];
-
     return {
       tags,
       ...useVuetifyControl(
@@ -122,9 +121,9 @@ const controlRenderer = defineComponent({
     if (requiredValues && this.control.data) {
       // We need to check if existing values are required values with different casing. And if so, use the casing specified in required values.
       const existingValues = this.control.data.filter(
-        (val) =>
+        (val: string) =>
           !requiredValues.some(
-            (requiredVal) =>
+            (requiredVal: string) =>
               requiredVal.toLowerCase().trim() === val.toLowerCase().trim()
           )
       );
@@ -167,9 +166,7 @@ const controlRenderer = defineComponent({
     },
     isRequired(item: string) {
       return (
-        // @ts-ignore
         this.control.schema.contains &&
-        // @ts-ignore
         this.control.schema.contains.enum.includes(item)
       );
     },
@@ -177,7 +174,7 @@ const controlRenderer = defineComponent({
 });
 export default controlRenderer;
 
-const useArrayLayout = (uiSchema) => {
+const useArrayLayout = (uiSchema: UISchemaElement) => {
   return uiSchema.options?.useArrayLayout;
 };
 

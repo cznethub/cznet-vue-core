@@ -7,6 +7,7 @@ import {
   JsonFormsSubStates,
   Resolve,
   getControlPath,
+  JsonSchema7,
 } from "@jsonforms/core";
 import cloneDeep from "lodash/cloneDeep";
 import debounce from "lodash/debounce";
@@ -177,8 +178,10 @@ export const useVuetifyControl = <
   const vuetifyProps = (path: string) =>
     getVuetifyControlProps(path, appliedOptions, input);
 
+  input.control.schema = input.control.schema as JsonSchema7;
+
   return {
-    ...input,
+    input,
     styles,
     isFocused,
     appliedOptions,
@@ -363,6 +366,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
             e.parentSchema
           );
           if (errorSchemaIndex >= 0) {
+            // @ts-ignore
             e["_selectedSchemaIndex"] = errorSchemaIndex;
           }
           if (
@@ -370,6 +374,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
             e.keyword !== "errorMessage"
           ) {
             // Indicate that the error should be ignored
+            // @ts-ignore
             e["_keyword"] = keyword; // used to filter out error in CzForm's onChange method
             e["message"] = ""; // removes the error from props of child components
           }

@@ -232,7 +232,7 @@
           </template>
 
           <!-- VIEW METADATA -->
-          <template v-if="hasFileMetadata(showMenuItem)">
+          <template v-if="hasFileMetadata?.(showMenuItem)">
             <v-divider v-if="!isReadOnly"></v-divider>
 
             <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
@@ -375,13 +375,13 @@
                                 v-if="item.file"
                                 class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text--secondary"
                               >
-                                {{ item.file.size | prettyBytes(2, false) }}
+                                {{ prettyBytes(item.file.size) }}
                               </div>
                               <div
                                 v-else-if="item.uploadedSize"
                                 class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text--secondary"
                               >
-                                {{ item.uploadedSize | prettyBytes(2, false) }}
+                                {{ prettyBytes(item.uploadedSize) }}
                               </div>
                             </v-col>
                           </v-row>
@@ -453,9 +453,7 @@
                                 </li>
                                 <li v-if="isFileTooBig(item)">
                                   Files cannot be larger than
-                                  <b>{{
-                                    maxUploadSizePerFile | prettyBytes(2, false)
-                                  }}</b
+                                  <b>{{ prettyBytes(maxUploadSizePerFile) }}</b
                                   >.
                                 </li>
                               </ul>
@@ -492,7 +490,7 @@
                 ? 'red--text text--lighten-1 font-weight-bold'
                 : ''
             "
-            >{{ totalUploadSize | prettyBytes(2, false) }}
+            >{{ prettyBytes(totalUploadSize) }}
           </span>
 
           <template v-if="selected.length">
@@ -520,7 +518,7 @@
 
             <div class="pa-4 has-bg-white text-subtitle-1">
               The total upload size cannot exceed
-              <b>{{ maxTotalUploadSize | prettyBytes(2, false) }}</b>
+              <b>{{ prettyBytes(maxTotalUploadSize) }}</b>
             </div>
           </v-menu>
         </div>
@@ -591,7 +589,7 @@ import { IFolder, IFile } from "@/types";
 import { default as Notifications } from "@/models/notifications";
 import { FILE_ICONS } from "@/constants";
 import { setReactive } from "@/utils";
-import { Drag, Drop, DropMask } from "vue-easy-dnd";
+import { DnDEvent, Drag, Drop, DropMask } from "vue-easy-dnd";
 import CzDragSelect from "@/components/cz.drag-select.vue";
 
 import {
@@ -615,6 +613,8 @@ import {
   ClickOutside,
   VAlert,
 } from "vuetify/lib";
+
+import prettyBytes from "pretty-bytes";
 
 @Component({
   name: "cz-file-explorer",
@@ -664,25 +664,22 @@ export default class CzFileExplorer extends Vue {
   /** A function to check if an item has metadata that can be displayed using the
    * 'View file metadata' context menu item
    * */
-  @Prop({ default: (_item: IFile | IFolder, _newPath) => () => false })
+  @Prop()
   hasFileMetadata?: (_item: IFile | IFolder) => Promise<boolean>;
 
   /** Asynchronous function to run when renaming files or folders */
-  @Prop()
-  renameFileOrFolder?: (
+  @Prop() renameFileOrFolder?: (
     _item: IFile | IFolder,
     _newPath: string
   ) => Promise<boolean>;
 
   /** Asynchronous function to run when deleting files or folders */
-  @Prop({ default: (_item: IFile | IFolder) => () => true })
-  deleteFileOrFolder?: (item: IFile | IFolder) => Promise<boolean>;
+  @Prop() deleteFileOrFolder?: (item: IFile | IFolder) => Promise<boolean>;
 
   /** Asynchronous function to run when uploading files or creating folders
    * @returns An boolean array indicating if the file was uploaded successfully
    */
-  @Prop({ default: (_items: IFile[] | IFolder[]) => () => [true] })
-  upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
+  @Prop() upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
 
   @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
 
@@ -700,6 +697,7 @@ export default class CzFileExplorer extends Vue {
   ignoreNextClick = false;
   isDragMoving = false;
   isRootDragging = false;
+  prettyBytes = prettyBytes;
 
   menuAttrs = {
     "position-x": 0,
@@ -781,7 +779,7 @@ export default class CzFileExplorer extends Vue {
     this.unselectAll();
   }
 
-  canPasteOnFolder(item: IFolder) {
+  canPasteOnFolder(item: IFile | IFolder) {
     return (
       this.itemsToCut.length > 0 &&
       !this.itemsToCut.includes(item) &&
@@ -802,7 +800,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   get filter() {
-    return (item, search, textKey) => {
+    return (item: any, search: string, textKey: string) => {
       return (
         item[textKey]
           .trim()
@@ -943,7 +941,9 @@ export default class CzFileExplorer extends Vue {
     }
 
     const parentKeys = this.tree.getParents(item.key);
-    const parentNames = parentKeys.map((p) => this.tree.nodes[p].item.name);
+    const parentNames = parentKeys.map(
+      (p: string) => this.tree.nodes[p].item.name
+    );
     return [...parentNames.reverse(), item.name].join("/");
   }
 
@@ -987,7 +987,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** Paste the selected files inside the directory where the file was dropped */
-  async onDropMove(event, dropTarget) {
+  async onDropMove(event: DnDEvent, dropTarget: IFolder) {
     const targetFolder = this.isFolder(dropTarget)
       ? dropTarget
       : this.getParent(dropTarget);
@@ -999,7 +999,7 @@ export default class CzFileExplorer extends Vue {
     await this._handlePaste(targetFolder, this.selected);
   }
 
-  onDropDiscard(event) {
+  onDropDiscard(event: DnDEvent) {
     if (!this.isSelected(event.data)) {
       this.unselectAll();
       this.select([event.data]);
