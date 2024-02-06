@@ -97,9 +97,7 @@ import {
   useJsonFormsControlWithDetail,
 } from "@jsonforms/vue2";
 import Ajv, { ValidateFunction } from "ajv";
-import get from "lodash/get";
-import isPlainObject from "lodash/isPlainObject";
-import startCase from "lodash/startCase";
+import { get, isPlainObject, startCase } from "lodash-es";
 import { defineComponent, PropType, Ref, ref } from "vue";
 import {
   VBtn,

@@ -96,9 +96,7 @@ import {
   RendererProps,
 } from "@jsonforms/vue2";
 import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import isArray from "lodash/isArray";
-import every from "lodash/every";
-import isString from "lodash/isString";
+import { isArray, every, isString } from "lodash-es";
 import { default as ControlWrapper } from "./ControlWrapper.vue";
 import { VTextField, VCombobox, VHover } from "vuetify/lib";
 

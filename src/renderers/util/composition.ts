@@ -9,11 +9,7 @@ import {
   getControlPath,
   JsonSchema7,
 } from "@jsonforms/core";
-import cloneDeep from "lodash/cloneDeep";
-import debounce from "lodash/debounce";
-import merge from "lodash/merge";
-import get from "lodash/get";
-import isPlainObject from "lodash/isPlainObject";
+import { cloneDeep, debounce, merge, get, isPlainObject } from "lodash-es";
 import { useStyles } from "../styles";
 import { computed, ComputedRef, inject, ref, provide, watchEffect } from "vue";
 import Ajv, { ErrorObject } from "ajv";

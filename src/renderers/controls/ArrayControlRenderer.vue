@@ -222,7 +222,7 @@ import {
   and,
   VerticalLayout,
 } from "@jsonforms/core";
-import startCase from "lodash/startCase";
+import { startCase } from "lodash-es";
 import { defineComponent, ref } from "vue";
 import {
   DispatchCell,
@@ -249,7 +249,7 @@ import {
   VSpacer,
   VSimpleTable,
 } from "vuetify/lib";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { default as CzFieldset } from "./components/CzFieldset.vue";
 import { default as ControlWrapper } from "./ControlWrapper.vue";
 

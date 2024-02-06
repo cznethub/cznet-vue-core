@@ -281,7 +281,7 @@ import {
 } from "vuetify/lib";
 import { ErrorObject } from "ajv";
 import { ref } from "vue";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
 

@@ -53,10 +53,9 @@ import {
   RendererProps,
   useJsonFormsControlWithDetail,
 } from "@jsonforms/vue2";
-import cloneDeep from "lodash/cloneDeep";
+import { cloneDeep } from "lodash-es";
 import { useNested, useVuetifyControl } from "@/renderers/util/composition";
 import { defineComponent } from "vue";
-// import { isEqual } from "lodash";
 import { VBtn, VIcon, VTooltip } from "vuetify/lib";
 import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
 import { default as ControlWrapper } from "./ControlWrapper.vue";

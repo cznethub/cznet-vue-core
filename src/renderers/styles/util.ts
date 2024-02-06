@@ -1,6 +1,5 @@
 import { Styles } from "./styles";
-import cloneDeep from "lodash/cloneDeep";
-import mergeWith from "lodash/mergeWith";
+import { cloneDeep, mergeWith } from "lodash-es";
 export const classes = (
   strings: TemplateStringsArray,
   ...variables: any[]

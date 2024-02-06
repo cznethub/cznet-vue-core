@@ -77,9 +77,8 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
 import { VHover, VCombobox, VChip } from "vuetify/lib";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
-import isArray from "lodash/isArray";
-import every from "lodash/every";
-import isString from "lodash/isString";
+import { isArray, every, isString } from "lodash-es";
+
 
 const controlRenderer = defineComponent({
   name: "array-primitive-control-renderer",

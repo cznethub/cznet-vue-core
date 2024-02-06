@@ -7,8 +7,7 @@ import type {
 } from "ajv";
 import { getProperty } from "ajv/lib/compile/codegen/code";
 import { _, stringify } from "ajv";
-import capitalizeFn from "lodash/capitalize";
-import startCaseFn from "lodash/startCase";
+import { capitalize, startCase } from "lodash-es";
 
 type TransformName =
   | "trimStart"
@@ -37,8 +36,8 @@ const transform: { [key in TransformName]: Transform } = {
   toLowerCase: (s) => s.toLowerCase(),
   toUpperCase: (s) => s.toUpperCase(),
   toEnumCase: (s, cfg) => cfg?.hash[configKey(s)] || s,
-  capitalize: (s) => capitalizeFn(s),
-  startCase: (s) => startCaseFn(s),
+  capitalize: (s) => capitalize(s),
+  startCase: (s) => startCase(s),
 };
 
 const getDef: (() => CodeKeywordDefinition) & {

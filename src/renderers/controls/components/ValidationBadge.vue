@@ -33,7 +33,7 @@
 import { defineComponent, PropType } from "vue";
 import { VBadge, VTooltip } from "vuetify/lib";
 import { ErrorObject } from "ajv";
-import findIndex from "lodash/findIndex";
+import { findIndex } from "lodash-es";
 import {
   createControlElement,
   createLabelDescriptionFrom,
