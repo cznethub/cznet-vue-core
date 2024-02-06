@@ -889,14 +889,30 @@ export default class CzFileExplorer extends Vue {
   }
 
   retryUpload(item: IFile) {
+    this.select([this.getParent(item)]);
     this.onDeleteFileOrFolder(item);
+
+    const nameOverrides: { [index: number]: string } = {};
+
+    // If the file that failed to upload was renamed after, use the new file name
+    if (item.file && item.file.name !== item.name) {
+      nameOverrides[0] = item.name;
+    }
+
     if (item.file) {
-      this.onFilesDropped([item.file]);
+      this.onFilesDropped([item.file], [], nameOverrides);
     }
   }
 
+  /**
+   * @param nameOverrides A key - value dictionary where the key is the index of the file in the `newFiles` array and the value is the new file name.
+   * */
   @Watch("dropFiles")
-  async onFilesDropped(newFiles: File[]) {
+  async onFilesDropped(
+    newFiles: File[],
+    _oldFiles: File[],
+    nameOverrides?: { [index: string]: string }
+  ) {
     if (!newFiles.length) {
       return;
     }
@@ -906,9 +922,12 @@ export default class CzFileExplorer extends Vue {
       ? (this.activeDirectoryItem as IFolder)
       : this.getParent(this.activeDirectoryItem);
 
-    const addedFiles = newFiles.map((file, _index) => {
+    const addedFiles = newFiles.map((file, index) => {
       const newItem = {
-        name: this._getAvailableName(file.name, targetFolder),
+        name: this._getAvailableName(
+          nameOverrides?.[index] || file.name,
+          targetFolder
+        ),
         key: this.generateNewKey(),
         file: file,
       } as IFile;
@@ -1129,7 +1148,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   getParent(item: IFile | IFolder): IFolder {
-    if (item.key !== undefined) {
+    if (item.key !== undefined && this.tree.nodes.hasOwnProperty(item.key)) {
       const parentKey = this.tree.getParents(item.key)[0];
       const parentNode = this.tree.nodes[parentKey];
       return parentNode?.item || this.rootDirectory;
