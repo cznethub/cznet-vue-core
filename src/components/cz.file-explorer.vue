@@ -151,7 +151,7 @@
       <v-menu v-model="showMenu" v-bind="menuAttrs" absolute offset-y>
         <v-list
           v-if="showMenuItem"
-          width="200"
+          width="auto"
           class="files-container--included"
         >
           <template v-if="!isReadOnly">
@@ -161,7 +161,9 @@
               @click.stop="newFolder"
             >
               <v-list-item-title
-                ><v-icon color="primary" small>mdi-folder-outline</v-icon>
+                ><v-icon color="primary" class="mr-2"
+                  >mdi-folder-outline</v-icon
+                >
                 Create new folder</v-list-item-title
               >
             </v-list-item>
@@ -174,8 +176,8 @@
             >
               <v-list-item-title
                 ><v-icon
+                  class="mr-2"
                   :class="{ 'text--disabled': showMenuItem.isRenaming }"
-                  small
                   >mdi-pencil-outline</v-icon
                 >
                 Rename</v-list-item-title
@@ -187,8 +189,8 @@
               <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
                 <v-list-item-title
                   ><v-icon
+                    class="mr-2"
                     :class="{ 'text--disabled': !canCutItem(showMenuItem) }"
-                    small
                     >mdi-content-cut</v-icon
                   >
                   Cut</v-list-item-title
@@ -203,7 +205,7 @@
               >
                 <v-list-item-title
                   ><v-icon
-                    small
+                    class="mr-2"
                     :class="{
                       'text--disabled': !canPasteOnFolder(showMenuItem),
                     }"
@@ -217,13 +219,19 @@
             <!-- DISCARD -->
             <v-list-item @click="deleteSelected" :disabled="isDeleting">
               <v-list-item-title v-if="showMenuItem.isUploaded">
-                <v-icon small :class="{ 'text--disabled': isDeleting }"
+                <v-icon
+                  class="mr-2"
+                  color="error lighten-2"
+                  :class="{ 'text--disabled': isDeleting }"
                   >mdi-cloud-remove-outline</v-icon
                 >
                 Delete
               </v-list-item-title>
               <v-list-item-title v-else>
-                <v-icon :class="{ 'text--disabled': isDeleting }" small
+                <v-icon
+                  class="mr-2"
+                  color="error lighten-2"
+                  :class="{ 'text--disabled': isDeleting }"
                   >mdi-delete-outline</v-icon
                 >
                 Discard
@@ -237,8 +245,10 @@
 
             <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
               <v-list-item-title
-                ><v-icon small>mdi-text-box-search-outline</v-icon> View
-                metadata</v-list-item-title
+                ><v-icon class="mr-2" color="orange"
+                  >mdi-text-box-search-outline</v-icon
+                >
+                View metadata</v-list-item-title
               >
             </v-list-item>
           </template>
@@ -1249,6 +1259,7 @@ export default class CzFileExplorer extends Vue {
       title: "Remove files?",
       content: "Are you sure you want to remove the selected files?",
       confirmText: "Remove",
+      confirmTextColor: "error",
       cancelText: "Cancel",
       contentClass: "files-container--included",
       isPersistent: true,
