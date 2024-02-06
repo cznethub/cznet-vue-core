@@ -932,7 +932,10 @@ export default class CzFileExplorer extends Vue {
         responses.map((wasUploaded, index) => {
           validFiles[index].isUploaded = wasUploaded;
         });
-      } catch (e) {
+      } catch (e: any) {
+        e.map((wasUploaded: boolean, index: number) => {
+          validFiles[index].isUploaded = wasUploaded;
+        });
       } finally {
         validFiles.map((f) => this._toggleItemDisabled(f, false));
       }
