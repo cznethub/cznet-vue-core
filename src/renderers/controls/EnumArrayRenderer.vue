@@ -15,7 +15,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && !control.schema.readOnly"
+        :clearable="hover && !control.uischema.options?.readonly"
         :value="control.data"
         :items="control.options"
         v-bind="vuetifyProps(`v-select`)"

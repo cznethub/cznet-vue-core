@@ -22,8 +22,10 @@
         :class="styles.control.input"
         :placeholder="placeholder"
         :required="control.required"
-        :clearable="hover && !(!control.enabled || control.schema.readOnly)"
-        :items="control.options"
+        :clearable="
+          hover && !(!control.enabled || control.uischema.options?.readonly)
+        "
+        :items="suggestions"
         v-bind="vuetifyProps('v-combobox')"
         item-text="label"
         item-value="value"
@@ -33,14 +35,10 @@
         <template v-slot:selection="{ attrs, item }">
           <v-chip
             v-bind="attrs"
-            :readonly="!control.enabled || control.schema['readOnly']"
+            :readonly="!control.enabled || control.schema.readOnly"
             :disabled="appliedOptions.isDisabled"
             :close="
-              !(
-                isRequired(item) ||
-                !control.enabled ||
-                control.schema['readOnly']
-              )
+              !(isRequired(item) || !control.enabled || control.schema.readOnly)
             "
             small
             @click:close="remove(item)"
@@ -79,6 +77,9 @@ import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
 import { VHover, VCombobox, VChip } from "vuetify/lib";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
+import isArray from "lodash/isArray";
+import every from "lodash/every";
+import isString from "lodash/isString";
 
 const controlRenderer = defineComponent({
   name: "array-primitive-control-renderer",
@@ -138,6 +139,20 @@ const controlRenderer = defineComponent({
       return this.control.schema.options?.delimeter === false
         ? undefined
         : [","];
+    },
+    suggestions(): string[] | undefined {
+      // TODO: modify schema files to use options from uischema
+      const suggestions = this.control.uischema.options?.suggestion;
+
+      if (
+        suggestions === undefined ||
+        !isArray(suggestions) ||
+        !every(suggestions, isString)
+      ) {
+        // check for incorrect data
+        return undefined;
+      }
+      return suggestions;
     },
   },
   methods: {

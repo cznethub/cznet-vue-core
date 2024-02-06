@@ -18,7 +18,7 @@
         :max="control.schema.exclusiveMaximum"
         :min="control.schema.exclusiveMinumum"
         :error-messages="control.errors"
-        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
+        :clearable="hover && !(!control.enabled || control.schema.readOnly)"
         @input="onInputChange"
         v-bind="vuetifyProps('v-text-field')"
       >

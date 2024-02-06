@@ -17,7 +17,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
+        :clearable="hover && !(!control.enabled || control.schema.readOnly)"
         :value="control.data"
         :items="sortedOptions"
         v-bind="vuetifyProps('v-autocomplete')"
@@ -47,7 +47,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
+        :clearable="hover && !(!control.enabled || control.schema.readOnly)"
         :value="control.data"
         :items="customOptions"
         v-bind="vuetifyProps('v-select')"
@@ -111,14 +111,12 @@ const controlRenderer = defineComponent({
       return this.control.schema.options?.hasAutoComplete;
     },
     sortedOptions() {
-      // @ts-ignore
       return this.control.options.sort((a: EnumOption, b: EnumOption) => {
         return a.label < b.label ? -1 : 1;
       });
     },
     customOptions() {
       const schemaOptions = this.control.schema.oneOf;
-      // @ts-ignore
       return this.control.options.map((option, index) => {
         return {
           ...option,

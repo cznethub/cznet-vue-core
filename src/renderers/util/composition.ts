@@ -178,10 +178,8 @@ export const useVuetifyControl = <
   const vuetifyProps = (path: string) =>
     getVuetifyControlProps(path, appliedOptions, input);
 
-  input.control.schema = input.control.schema as JsonSchema7;
-
   return {
-    input,
+    ...input,
     styles,
     isFocused,
     appliedOptions,

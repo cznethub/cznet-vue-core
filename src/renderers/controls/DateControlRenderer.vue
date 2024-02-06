@@ -15,9 +15,7 @@
       min-width="290px"
       v-bind="vuetifyProps('v-menu')"
       :disabled="
-        appliedOptions.isDisabled ||
-        !control.enabled ||
-        control.schema['readOnly']
+        appliedOptions.isDisabled || !control.enabled || control.schema.readOnly
       "
     >
       <template v-slot:activator="{ on, attrs }">
