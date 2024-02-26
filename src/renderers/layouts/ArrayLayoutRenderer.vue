@@ -212,16 +212,7 @@
             <v-spacer></v-spacer>
 
             <v-btn text @click="suggestToDelete = null"> Cancel </v-btn>
-            <v-btn
-              text
-              ref="confirm"
-              @click="
-                removeItemsClick([suggestToDelete]);
-                suggestToDelete = null;
-              "
-            >
-              Delete
-            </v-btn>
+            <v-btn text ref="confirm" @click="onRemoveItem"> Delete </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -454,6 +445,12 @@ const controlRenderer = defineComponent({
         // @ts-ignore
         return element[this.appliedOptions.elementLabelProp];
       }
+    },
+    onRemoveItem() {
+      if (this.suggestToDelete !== null) {
+        this.removeItemsClick([this.suggestToDelete]);
+      }
+      this.suggestToDelete = null;
     },
   },
 });

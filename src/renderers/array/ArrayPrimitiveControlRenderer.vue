@@ -35,10 +35,10 @@
         <template v-slot:selection="{ attrs, item }">
           <v-chip
             v-bind="attrs"
-            :readonly="!control.enabled || control.schema.readOnly"
+            :readonly="!control.enabled || (control.schema as JsonSchema7).readOnly"
             :disabled="appliedOptions.isDisabled"
             :close="
-              !(isRequired(item) || !control.enabled || control.schema.readOnly)
+              !(isRequired(item) || !control.enabled || (control.schema as JsonSchema7).readOnly)
             "
             small
             @click:close="remove(item)"
@@ -68,6 +68,7 @@ import {
   ControlElement,
   isPrimitiveArrayControl,
   JsonFormsRendererRegistryEntry,
+  JsonSchema7,
   not,
   rankWith,
   UISchemaElement,
@@ -78,7 +79,6 @@ import { VHover, VCombobox, VChip } from "vuetify/lib";
 import { useVuetifyControl } from "@/renderers/util/composition";
 import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
 import { isArray, every, isString } from "lodash-es";
-
 
 const controlRenderer = defineComponent({
   name: "array-primitive-control-renderer",
@@ -179,10 +179,8 @@ const controlRenderer = defineComponent({
       this.onTagsChange();
     },
     isRequired(item: string) {
-      return (
-        this.control.schema.contains &&
-        this.control.schema.contains.enum.includes(item)
-      );
+      const schema = this.control.schema as JsonSchema7;
+      return schema.contains && schema.contains.enum?.includes(item);
     },
   },
 });
