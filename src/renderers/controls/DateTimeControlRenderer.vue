@@ -14,7 +14,7 @@
       offset-y
       :min-width="useTabLayout ? '290px' : '580px'"
       v-bind="vuetifyProps('v-menu')"
-      :disabled="!control.enabled || control.schema.readOnly"
+      :disabled="!control.enabled || isReadOnly"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-text-field

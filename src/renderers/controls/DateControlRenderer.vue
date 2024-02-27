@@ -14,9 +14,7 @@
       offset-y
       min-width="290px"
       v-bind="vuetifyProps('v-menu')"
-      :disabled="
-        appliedOptions.isDisabled || !control.enabled || control.schema.readOnly
-      "
+      :disabled="appliedOptions.isDisabled || !control.enabled || isReadOnly"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-text-field

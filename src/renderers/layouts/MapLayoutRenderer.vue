@@ -4,7 +4,7 @@
       <v-row>
         <v-col sm="12" md="5">
           <v-row
-            v-for="(element, index) in control.uischema.elements"
+            v-for="(element, index) in elements"
             :data-id="`vertical-${index}`"
             :key="`${control.path}-${index}`"
             no-gutters
@@ -133,6 +133,10 @@ const layoutRenderer = defineComponent({
     },
   },
   computed: {
+    elements() {
+      // @ts-ignore
+      return this.control.uischema.elements;
+    },
     mapType(): "point" | "box" {
       return this.control.uischema.options?.map.type || "point";
     },

@@ -35,11 +35,9 @@
         <template v-slot:selection="{ attrs, item }">
           <v-chip
             v-bind="attrs"
-            :readonly="!control.enabled || (control.schema as JsonSchema7).readOnly"
+            :readonly="!control.enabled || isReadOnly"
             :disabled="appliedOptions.isDisabled"
-            :close="
-              !(isRequired(item) || !control.enabled || (control.schema as JsonSchema7).readOnly)
-            "
+            :close="!(isRequired(item) || !control.enabled || isReadOnly)"
             small
             @click:close="remove(item)"
           >

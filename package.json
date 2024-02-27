@@ -1,6 +1,6 @@
 {
   "name": "@cznethub/cznet-vue-core",
-  "version": "0.1.86",
+  "version": "0.1.91",
   "private": false,
   "scripts": {
     "dev": "vite",
@@ -8,11 +8,23 @@
     "preview": "vite preview",
     "publish": "npm publish --access public"
   },
-  "main": "lib/cznet-vue-core.cjs.js",
-  "module": "lib/cznet-vue-core.esm.js",
+  "main": "dist/cznet-vue-core.umd.js",
+  "module": "dist/cznet-vue-core.es.js",
   "files": [
-    "lib"
+    "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/cznet-vue-core.es.js",
+      "require": "./dist/cznet-vue-core.umd.js"
+    },
+    "./dist/my-library-vue-ts.css": {
+      "import": "./dist/cznet-vue-core.css",
+      "require": "./dist/cznet-vue-core.css"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "types": "./dist/main.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -43,6 +55,7 @@
     "sass": "^1.70.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
+    "vite-plugin-dts": "^3.7.3",
     "vite-plugin-vue2": "^2.0.3",
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.1.2",

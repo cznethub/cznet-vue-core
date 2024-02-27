@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-for="(element, index) in layout.uischema.elements"
+      v-for="(element, index) in elements"
       :data-id="`group-${index}`"
       :key="`${layout.path}-${index}`"
       :class="styles.group.item"
@@ -46,6 +46,12 @@ const layoutRenderer = defineComponent({
   },
   setup(props: RendererProps<Layout>) {
     return useVuetifyLayout(useJsonFormsLayout(props));
+  },
+  computed: {
+    elements() {
+      // @ts-ignore
+      return this.layout.uischema.elements;
+    },
   },
 });
 

@@ -7,7 +7,6 @@ import {
   JsonFormsSubStates,
   Resolve,
   getControlPath,
-  JsonSchema7,
 } from "@jsonforms/core";
 import { cloneDeep, debounce, merge, get, isPlainObject } from "lodash-es";
 import { useStyles } from "../styles";
@@ -174,6 +173,10 @@ export const useVuetifyControl = <
   const vuetifyProps = (path: string) =>
     getVuetifyControlProps(path, appliedOptions, input);
 
+  const isReadOnly = computed(() => {
+    return input.control.value.schema.readOnly;
+  });
+
   return {
     ...input,
     styles,
@@ -187,6 +190,7 @@ export const useVuetifyControl = <
     isCombinatorSchema,
     cleanedErrors,
     placeholder,
+    isReadOnly,
   };
 };
 

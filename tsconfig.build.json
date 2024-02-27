@@ -28,12 +28,9 @@
     "experimentalDecorators": true,
     "typeRoots": [ "../node_modules/@types" ],
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-
-    "outDir": "dist",
-    "declaration": true,
+    "noImplicitAny": false
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "lib"],
+  "include": ["lib"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 

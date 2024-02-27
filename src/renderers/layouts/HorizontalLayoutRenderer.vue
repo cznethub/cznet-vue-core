@@ -5,7 +5,7 @@
   >
     <v-row class="flex-column flex-md-row">
       <v-col
-        v-for="(element, index) in layout.uischema.elements"
+        v-for="(element, index) in elements"
         :data-id="`horizontal-${index}`"
         :key="`${layout.path}-${index}`"
         :class="styles.horizontalLayout.item"
@@ -52,6 +52,12 @@ const layoutRenderer = defineComponent({
   },
   setup(props: RendererProps<Layout>) {
     return useVuetifyLayout(useJsonFormsLayout(props));
+  },
+  computed: {
+    elements() {
+      // @ts-ignore
+      return this.layout.uischema.elements;
+    },
   },
 });
 

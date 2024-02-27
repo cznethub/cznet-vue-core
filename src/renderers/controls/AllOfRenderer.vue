@@ -14,7 +14,7 @@
   >
     <template v-if="delegateUISchema">
       <dispatch-renderer
-        :schema="subSchema"
+        :schema="control.schema"
         :uischema="delegateUISchema"
         :path="control.path"
         :enabled="control.enabled"

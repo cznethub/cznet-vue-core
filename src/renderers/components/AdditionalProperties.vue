@@ -12,9 +12,9 @@
             :class="styles.control.input"
             :error-messages="newPropertyErrors"
             v-model="newPropertyName"
-            :clearable="hover && control.enabled && !control.schema.readOnly"
+            :clearable="hover && control.enabled && !isReadOnly"
             :placeholder="placeholder"
-            :readonly="!control.enabled || control.schema.readOnly"
+            :readonly="!control.enabled || isReadOnly"
             :disabled="appliedOptions.isDisabled"
             v-bind="vuetifyProps('v-text-field')"
           >
@@ -98,7 +98,7 @@ import {
 } from "@jsonforms/vue2";
 import Ajv, { ValidateFunction } from "ajv";
 import { get, isPlainObject, startCase } from "lodash-es";
-import { defineComponent, PropType, Ref, ref } from "vue";
+import { defineComponent, PropType, ref } from "vue";
 import {
   VBtn,
   VCard,
@@ -164,9 +164,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const control = props.input.control as any as Ref<
-      typeof props.input.control
-    >;
+    const control = props.input.control;
     const reservedPropertyNames = Object.keys(
       control.value.schema.properties || {}
     );
@@ -297,6 +295,9 @@ export default defineComponent({
     };
   },
   computed: {
+    isReadOnly(): boolean {
+      return !!(this.control.schema as JsonSchema7).readOnly;
+    },
     addPropertyDisabled(): boolean {
       return (
         // add is disabled because the overall control is disabled

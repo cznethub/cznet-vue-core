@@ -5,7 +5,7 @@
     v-bind="vuetifyProps('v-container')"
   >
     <v-row
-      v-for="(element, index) in layout.uischema.elements"
+      v-for="(element, index) in elements"
       :data-id="`vertical-${index}`"
       :key="`${layout.path}-${index}`"
       no-gutters
@@ -55,6 +55,12 @@ const layoutRenderer = defineComponent({
   },
   setup(props: RendererProps<Layout>) {
     return useVuetifyLayout(useJsonFormsLayout(props));
+  },
+  computed: {
+    elements() {
+      // @ts-ignore
+      return this.layout.uischema.elements;
+    },
   },
 });
 
