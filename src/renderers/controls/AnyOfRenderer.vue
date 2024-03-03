@@ -30,6 +30,7 @@
           <v-tab
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
             :key="`${control.path}-${anyOfIndex}`"
+            :model-value="anyOfIndex"
             @change="handleTabChange(anyOfIndex)"
             :disabled="
               (appliedOptions.isViewMode ||
@@ -38,13 +39,16 @@
               selectedIndex !== anyOfIndex
             "
           >
-            {{ anyOfRenderInfo.uischema["label"] || anyOfRenderInfo.label }}
+            {{
+              anyOfRenderInfo.uischema.options?.label || anyOfRenderInfo.label
+            }}
           </v-tab>
         </v-tabs>
 
-        <v-tabs-items v-model="selectedIndex">
-          <v-tab-item
+        <v-window v-model="selectedIndex">
+          <v-window-item
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
+            :model-value="anyOfIndex"
             :key="`${control.path}-${anyOfIndex}`"
           >
             <dispatch-renderer
@@ -56,8 +60,8 @@
               :cells="control.cells"
               :enabled="control.enabled"
             />
-          </v-tab-item>
-        </v-tabs-items>
+          </v-window-item>
+        </v-window>
       </template>
 
       <template v-else>
@@ -66,14 +70,15 @@
           :items="anyOfRenderInfos"
           :label="title"
           :hint="selectHint"
-          :value="anyOfRenderInfos[selectedIndex]"
+          :model-value="anyOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
           :error-messages="control.errors"
           v-bind="vuetifyProps('v-select')"
           item-text="label"
-          >{{ currentLabel }}</v-select
         >
+          {{ currentLabel }}
+        </v-select>
 
         <dispatch-renderer
           v-if="selectedIndex >= 0 && anyOfRenderInfos[selectedIndex]"
@@ -99,18 +104,18 @@ import {
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
   isAnyOfControl,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsAnyOfControl,
-} from "@jsonforms/vue2";
-import { defineComponent, ref } from "vue";
+} from '@jsonforms/vue';
+import { defineComponent, ref } from 'vue';
 import {
   useVuetifyControl,
   useCombinatorChildErrors,
-} from "@/renderers/util/composition";
+} from '@/renderers/util/composition';
 import {
   VDialog,
   VCard,
@@ -121,18 +126,16 @@ import {
   VBtn,
   VTabs,
   VTab,
-  VTabsItems,
-  VTabItem,
   VTooltip,
   VIcon,
   VSelect,
-} from "vuetify/lib";
-import CombinatorProperties from "../components/CombinatorProperties.vue";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from 'vuetify/components';
+import CombinatorProperties from '../components/CombinatorProperties.vue';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "any-of-renderer",
+  name: 'any-of-renderer',
   components: {
     DispatchRenderer,
     CombinatorProperties,
@@ -145,8 +148,6 @@ const controlRenderer = defineComponent({
     VBtn,
     VTabs,
     VTab,
-    VTabsItems,
-    VTabItem,
     VTooltip,
     VIcon,
     CzFieldset,
@@ -163,7 +164,7 @@ const controlRenderer = defineComponent({
 
     return {
       ...useVuetifyControl(input),
-      ...useCombinatorChildErrors(input, "anyOf"),
+      ...useCombinatorChildErrors(input, 'anyOf'),
       isAdded,
       tabData,
     };
@@ -183,7 +184,7 @@ const controlRenderer = defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.anyOf!,
         this.control.rootSchema,
-        "anyOf",
+        'anyOf',
         this.control.uischema,
         this.control.path,
         this.control.uischemas
@@ -197,13 +198,13 @@ const controlRenderer = defineComponent({
           i.uischema;
       });
 
-      return result.filter((info) => info.uischema);
+      return result.filter(info => info.uischema);
     },
     hasToggle() {
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.uischema["options"]?.flat;
+      return this.control.uischema['options']?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore
@@ -212,7 +213,7 @@ const controlRenderer = defineComponent({
     title(): string {
       return (
         // @ts-ignore
-        this.control.uischema?.options?.title || this.control.schema.title || ""
+        this.control.uischema?.options?.title || this.control.schema.title || ''
       );
     },
     desc(): string {
@@ -222,7 +223,7 @@ const controlRenderer = defineComponent({
         this.control.uischema?.options?.description ||
         this.appliedOptions.description ||
         this.anyOfRenderInfos[this.selectedIndex].schema.description ||
-        ""
+        ''
       );
     },
     selectHint(): string {
@@ -231,7 +232,7 @@ const controlRenderer = defineComponent({
     currentLabel(): string {
       return this.selectedIndex >= 0
         ? this.anyOfRenderInfos[this.selectedIndex].label
-        : "";
+        : '';
     },
     noData(): boolean {
       return !this.control.data;
@@ -244,12 +245,12 @@ const controlRenderer = defineComponent({
       }
 
       // Store form state before tab change.
-      this.$set(this.tabData, this.selectedIndex, this.control.data);
+      this.tabData[this.selectedIndex] = this.control.data;
       this.selectedIndex = -1;
 
-      if (typeof nextIndexOrLabel === "number") {
+      if (typeof nextIndexOrLabel === 'number') {
         this.selectedIndex = nextIndexOrLabel;
-      } else if (typeof nextIndexOrLabel === "string") {
+      } else if (typeof nextIndexOrLabel === 'string') {
         this.selectedIndex = this.anyOfRenderInfos.findIndex(
           (info: CombinatorSubSchemaRenderInfo) =>
             info.label === nextIndexOrLabel
@@ -262,8 +263,8 @@ const controlRenderer = defineComponent({
       } else {
         const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
         const val =
-          schema.type === "array" || schema.type === "object"
-            ? createDefaultValue(schema)
+          schema.type === 'array' || schema.type === 'object'
+            ? createDefaultValue(schema, this.control.rootSchema)
             : undefined;
 
         // Only create default values for objects and arrays.

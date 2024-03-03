@@ -36,24 +36,24 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   ControlElement,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsControlWithDetail,
-} from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { VContainer, VRow, VCol } from "vuetify/lib";
-import { Loader, LoaderOptions } from "google-maps";
-import { APP_GOOGLE_MAPS_API_KEY } from "@/constants";
+} from '@jsonforms/vue';
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { VContainer, VRow, VCol } from 'vuetify/components';
+import { Loader, LoaderOptions } from 'google-maps';
+import { APP_GOOGLE_MAPS_API_KEY } from '@/constants';
 
-const options: LoaderOptions = { libraries: ["drawing"] };
+const options: LoaderOptions = { libraries: ['drawing'] };
 const loader = new Loader(APP_GOOGLE_MAPS_API_KEY, options);
 
 const layoutRenderer = defineComponent({
-  name: "map-layout-renderer",
+  name: 'map-layout-renderer',
   components: {
     DispatchRenderer,
     VContainer,
@@ -72,10 +72,10 @@ const layoutRenderer = defineComponent({
     const initialized = false;
 
     const rectangleOptions: google.maps.RectangleOptions = {
-      fillColor: "#1976d2",
+      fillColor: '#1976d2',
       fillOpacity: 0.25,
       strokeWeight: 2,
-      strokeColor: "#1976d2",
+      strokeColor: '#1976d2',
       zIndex: 1,
       editable:
         !props.config.isViewMode &&
@@ -107,7 +107,7 @@ const layoutRenderer = defineComponent({
       this.loadDrawing();
 
       if (this.map) {
-        if (this.mapType === "box") {
+        if (this.mapType === 'box') {
           // Zoom and center to rectangle
           (this.map as google.maps.Map).fitBounds(this.rectangle.bounds);
         } else {
@@ -121,7 +121,7 @@ const layoutRenderer = defineComponent({
     }
   },
   watch: {
-    "control.data": function (_newData, _oldData) {
+    'control.data': function (_newData, _oldData) {
       if (this.isEventFromMap) {
         this.isEventFromMap = false;
       } else {
@@ -137,35 +137,35 @@ const layoutRenderer = defineComponent({
       // @ts-ignore
       return this.control.uischema.elements;
     },
-    mapType(): "point" | "box" {
-      return this.control.uischema.options?.map.type || "point";
+    mapType(): 'point' | 'box' {
+      return this.control.uischema.options?.map.type || 'point';
     },
     isBoxSchemaOrgFormat() {
       return (
-        this.mapType === "box" &&
-        this.control.uischema.options?.map.format === "GeoShape"
+        this.mapType === 'box' &&
+        this.control.uischema.options?.map.format === 'GeoShape'
       );
     },
     inputFields(): { [key: string]: string } {
       const options = this.control.uischema.options?.map;
 
-      return this.mapType === "point"
+      return this.mapType === 'point'
         ? { east: options.east, north: options.north }
         : this.isBoxSchemaOrgFormat
-        ? { box: options.box }
-        : {
-            northlimit: options.northlimit,
-            eastlimit: options.eastlimit,
-            southlimit: options.southlimit,
-            westlimit: options.westlimit,
-          };
+          ? { box: options.box }
+          : {
+              northlimit: options.northlimit,
+              eastlimit: options.eastlimit,
+              southlimit: options.southlimit,
+              westlimit: options.westlimit,
+            };
     },
     hasData(): boolean {
       if (!this.control.data) {
         return false;
       }
 
-      if (this.mapType === "point") {
+      if (this.mapType === 'point') {
         return (
           !isNaN(this.control.data[this.inputFields.north]) &&
           !isNaN(this.control.data[this.inputFields.east])
@@ -177,8 +177,8 @@ const layoutRenderer = defineComponent({
           if (!boxStr) {
             return false;
           }
-          const segments = boxStr.trim().split(" ");
-          return segments.length === 4 && segments.some((s) => !isNaN(s));
+          const segments = boxStr.trim().split(' ');
+          return segments.length === 4 && segments.some(s => !isNaN(s));
         } else {
           return (
             !isNaN(this.control.data[this.inputFields.northlimit]) &&
@@ -192,7 +192,7 @@ const layoutRenderer = defineComponent({
   },
   methods: {
     async initMap() {
-      const google = await loader.load();
+      await loader.load();
 
       if (!this.$refs.map) {
         return;
@@ -205,15 +205,15 @@ const layoutRenderer = defineComponent({
       });
 
       const drawwingMode =
-        this.mapType === "point"
+        this.mapType === 'point'
           ? google.maps.drawing.OverlayType.MARKER
           : google.maps.drawing.OverlayType.RECTANGLE;
 
       // Icon base from: http://kml4earth.appspot.com/icons.html
-      const iconBase = "http://earth.google.com/images/kml-icons/";
+      const iconBase = 'http://earth.google.com/images/kml-icons/';
       const icons = {
         track_directional: {
-          icon: iconBase + "track-directional/track-8.png",
+          icon: iconBase + 'track-directional/track-8.png',
         },
       };
 
@@ -248,7 +248,7 @@ const layoutRenderer = defineComponent({
 
         google.maps.event.addListener(
           drawingManager,
-          "markercomplete",
+          'markercomplete',
           (marker: google.maps.Marker) => {
             this.clearMarkers();
             this.marker = marker;
@@ -259,11 +259,11 @@ const layoutRenderer = defineComponent({
 
         google.maps.event.addListener(
           drawingManager,
-          "rectanglecomplete",
+          'rectanglecomplete',
           (rectangle: google.maps.Rectangle) => {
             this.clearRectangles();
             this.rectangle = rectangle;
-            rectangle.addListener("bounds_changed", () => {
+            rectangle.addListener('bounds_changed', () => {
               this.isEventFromMap = true;
               this.handleDrawing();
             });
@@ -283,7 +283,7 @@ const layoutRenderer = defineComponent({
     },
     handleDrawing() {
       // propagate to form inputs
-      if (this.mapType === "box") {
+      if (this.mapType === 'box') {
         const bounds = this.rectangle.getBounds();
         const northEast = bounds.getNorthEast();
         const southWeast = bounds.getSouthWest();
@@ -313,7 +313,7 @@ const layoutRenderer = defineComponent({
           // Debounced to prevent stuttering while draging the rectangle around
           this.debouncedHandleChange();
         }
-      } else if (this.mapType === "point") {
+      } else if (this.mapType === 'point') {
         const position = this.marker.getPosition();
         const lat = position?.lat().toFixed(4);
         const lng = position?.lng().toFixed(4);
@@ -341,7 +341,7 @@ const layoutRenderer = defineComponent({
       }
     },
     loadDrawing() {
-      if (this.mapType === "point") {
+      if (this.mapType === 'point') {
         this.loadPoint();
       } else {
         this.loadRectangle();
@@ -357,8 +357,8 @@ const layoutRenderer = defineComponent({
             // Schema.org format
             const segments = this.control.data[this.inputFields.box]
               .trim()
-              .split(" ")
-              .map((s) => +s);
+              .split(' ')
+              .map(s => +s);
             bounds = {
               north: segments[0],
               east: segments[1],
@@ -381,7 +381,7 @@ const layoutRenderer = defineComponent({
             map: this.map,
           });
 
-          this.rectangle.addListener("bounds_changed", () => {
+          this.rectangle.addListener('bounds_changed', () => {
             this.isEventFromMap = true;
             this.handleDrawing();
           });
@@ -412,7 +412,7 @@ const layoutRenderer = defineComponent({
 export default layoutRenderer;
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
-  tester: rankWith(2, uiTypeIs("MapLayout")),
+  tester: rankWith(2, uiTypeIs('MapLayout')),
 };
 </script>
 

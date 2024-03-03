@@ -1,60 +1,90 @@
-const { createVuePlugin } = require("vite-plugin-vue2");
-const path = require("path");
-import dts from "vite-plugin-dts";
-import { resolve } from "path";
+import { resolve } from 'path';
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
-// https://vitejs.dev/config/
-module.exports = {
-  plugins: [createVuePlugin(), dts({ include: ["lib"] })],
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "@cznethub/cznet-vue-core",
-      fileName: (format) => `cznet-vue-core.${format}.js`,
-    },
-    rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
-      external: [
-        "vue",
-        "vuetify",
-        "vuetify/lib",
-        "vue-class-component",
-        "vue-property-decorator",
-      ],
-      output: {
-        // Provide global variables to use in the UMD build
-        // for externalized deps
-        globals: {
-          vue: "Vue",
-          vuetify: "Vuetify",
-          "vuetify/lib": "Vuetify",
+export default defineConfig(({ mode }) => {
+  const isProd = mode === 'prod';
+  const isDev = mode === 'dev';
+  const isTest = mode === 'test';
+
+  let build = {};
+  if (isProd) {
+    build = {
+      lib: {
+        entry: resolve(__dirname, 'src/index.ts'),
+        name: '@cznethub/cznet-vue-core',
+        fileName: 'index',
+        formats: ['es', 'cjs', 'umd'],
+      },
+      rollupOptions: {
+        /**
+         * DESC:
+         * make sure to externalize deps that shouldn't be bundled
+         * into your library
+         */
+        external: ['vue', 'vue-demi', 'vuetify'],
+        output: {
+          /**
+           * DESC:
+           * Provide global variables to use in the UMD build
+           * for externalized deps
+           */
+          globals: {
+            vue: 'Vue',
+            'vue-demi': 'VueDemi',
+            vuetify: 'Vuetify',
+          },
         },
       },
-    },
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  module: {
-    rules: [
-      {
-        test: /\.s(c|a)ss$/,
-        use: [
-          "vue-style-loader",
-          "css-loader",
-          {
-            loader: "sass-loader",
-            // Requires sass-loader@^7.0.0
-            options: {
-              implementation: require("sass"),
-              indentedSyntax: true, // optional
-            },
-          },
-        ],
+    };
+  }
+
+  let optimizeDeps = {};
+  if (isDev) {
+    /**
+     * DESC:
+     * dependency pre-bundling
+     */
+    optimizeDeps = {
+      exclude: ['vue-demi'],
+    };
+  }
+
+  let test = {};
+  if (isTest) {
+    /**
+     * DESC:
+     * vitest config
+     */
+    test = {
+      include: ['test/**/*.test.ts'],
+      environment: 'happy-dom',
+      deps: {
+        inline: ['@vue', 'vue-demi'],
       },
-    ],
-  },
-};
+      coverage: {
+        reporter: ['text', 'text-summary', 'lcov'],
+      },
+    };
+  }
+
+  return {
+    plugins: [vue()],
+    optimizeDeps,
+    build,
+    test,
+
+    /**
+     * DESC:
+     * defining aliases
+     */
+    resolve: {
+      alias: [
+        {
+          find: '@',
+          replacement: resolve(__dirname, './src'),
+        },
+      ],
+    },
+  };
+});

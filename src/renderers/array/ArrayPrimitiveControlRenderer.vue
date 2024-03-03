@@ -5,7 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-combobox
         v-model="tags"
         @input="onTagsChange"
@@ -23,7 +23,8 @@
         :placeholder="placeholder"
         :required="control.required"
         :clearable="
-          hover && !(!control.enabled || control.uischema.options?.readonly)
+          isHovering &&
+          !(!control.enabled || control.uischema.options?.readonly)
         "
         :items="suggestions"
         v-bind="vuetifyProps('v-combobox')"
@@ -70,16 +71,16 @@ import {
   not,
   rankWith,
   UISchemaElement,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
-import { VHover, VCombobox, VChip } from "vuetify/lib";
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
-import { isArray, every, isString } from "lodash-es";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
+import { rendererProps, useJsonFormsControl } from '@jsonforms/vue';
+import { VHover, VCombobox, VChip } from 'vuetify/components';
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
+import { isArray, every, isString } from 'lodash-es';
 
 const controlRenderer = defineComponent({
-  name: "array-primitive-control-renderer",
+  name: 'array-primitive-control-renderer',
   components: {
     VHover,
     VCombobox,
@@ -95,7 +96,7 @@ const controlRenderer = defineComponent({
       tags,
       ...useVuetifyControl(
         useJsonFormsControl(props),
-        (value) => value || undefined
+        value => value || undefined
       ),
     };
   },
@@ -135,7 +136,7 @@ const controlRenderer = defineComponent({
       // @ts-ignore
       return this.control.schema.options?.delimeter === false
         ? undefined
-        : [","];
+        : [','];
     },
     suggestions(): string[] | undefined {
       // TODO: modify schema files to use options from uischema
@@ -155,15 +156,11 @@ const controlRenderer = defineComponent({
   methods: {
     onTagsChange() {
       // Prevent inserting duplicates and trim values
-      this.tags = this.tags
-        .filter((tag) => !!tag.trim())
-        .map((tag) => tag.trim());
+      this.tags = this.tags.filter(tag => !!tag.trim()).map(tag => tag.trim());
 
       // pre-process to remove duplicates of different casing
       this.tags = this.tags.reduce((acc, curr, _prev) => {
-        if (
-          !acc.some((tag) => curr.toLowerCase() === tag.toLocaleLowerCase())
-        ) {
+        if (!acc.some(tag => curr.toLowerCase() === tag.toLocaleLowerCase())) {
           acc.push(curr);
         }
         return acc;
@@ -195,7 +192,7 @@ export const entry: JsonFormsRendererRegistryEntry = {
 </script>
 
 <style lang="scss" scoped>
-::v-deep .v-input__append-inner {
+:deep(.v-input__append-inner) {
   display: none !important;
 }
 </style>

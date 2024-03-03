@@ -11,7 +11,7 @@
         {{ computedLabel }}
       </div>
       <div class="text-subtitle-1 text--secondary">
-        {{ layout.uischema["description"] }}
+        {{ layout.uischema['description'] }}
       </div>
     </v-card-title>
 
@@ -45,19 +45,19 @@ import {
   and,
   isLayout,
   uiTypeIs,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsLayout,
-} from "@jsonforms/vue2";
-import { useVuetifyLayout } from "@/renderers/util/composition";
-import { VCard, VCardText, VCardTitle, VDivider } from "vuetify/lib";
+} from '@jsonforms/vue';
+import { useVuetifyLayout } from '@/renderers/util/composition';
+import { VCard, VCardText, VCardTitle, VDivider } from 'vuetify/components';
 
 const layoutRenderer = defineComponent({
-  name: "group-renderer",
+  name: 'group-renderer',
   components: {
     DispatchRenderer,
     VCard,
@@ -74,7 +74,7 @@ const layoutRenderer = defineComponent({
   computed: {
     generateId(): string {
       // @ts-ignore
-      return `group-${this.layout.uischema.label?.replaceAll(" ", "")}`;
+      return `group-${this.layout.uischema.label?.replaceAll(' ', '')}`;
     },
   },
 });
@@ -83,7 +83,7 @@ export default layoutRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
-  tester: rankWith(3, and(isLayout, uiTypeIs("Group"))),
+  tester: rankWith(3, and(isLayout, uiTypeIs('Group'))),
 };
 </script>
 

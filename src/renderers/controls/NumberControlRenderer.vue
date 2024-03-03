@@ -5,7 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-text-field
         type="number"
         :label="computedLabel"
@@ -13,12 +13,12 @@
         :id="control.id + '-input'"
         :data-id="computedLabel.replaceAll(` `, ``)"
         :class="styles.control.input"
-        :value="control.data"
+        :model-value="control.data"
         :hint="control.description"
         :max="control.schema.exclusiveMaximum"
         :min="control.schema.exclusiveMinimum"
         :error-messages="control.errors"
-        :clearable="hover && !(!control.enabled || isReadOnly)"
+        :clearable="isHovering && !(!control.enabled || isReadOnly)"
         @input="onInputChange"
         v-bind="vuetifyProps('v-text-field')"
       >
@@ -44,33 +44,33 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isNumberControl,
-} from "@jsonforms/core";
-import { defineComponent, ref, unref } from "vue";
+} from '@jsonforms/core';
+import { defineComponent, ref, unref } from 'vue';
 import {
   rendererProps,
   useJsonFormsControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { VTextField, VHover } from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { VTextField, VHover } from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
 const controlRenderer = defineComponent({
-  name: "number-control-renderer",
+  name: 'number-control-renderer',
   components: { VTextField, ControlWrapper, VHover },
   props: {
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     const adaptValue = (value: any) =>
-      typeof value === "number" ? value : value || undefined;
+      typeof value === 'number' ? value : value || undefined;
     const input = useVuetifyControl(useJsonFormsControl(props), adaptValue);
 
     // preserve the value as it was typed by the user - for example when the user type very long number if we rely on the control.data to return back the actual data then the string could appear with exponent form and etc.
     // otherwise while typing the string in the input can suddenly change
-    const inputValue = ref((unref(input.control).data as string) || "");
+    const inputValue = ref((unref(input.control).data as string) || '');
     return { ...input, adaptValue, inputValue };
   },
   created() {
@@ -97,17 +97,17 @@ const controlRenderer = defineComponent({
     onInputChange(value: string): void {
       this.inputValue = value;
       const result = this.toNumberOrString(value);
-      if (typeof result === "number") {
+      if (typeof result === 'number') {
         // if user entered 5675.4444444444444444444444444444444 but the actual data is 5675.444444444444 then sync the input with what the data represents and try to preserve the format
         const inputStringIsInExponentForm =
-          this.inputValue.includes("E") || this.inputValue.includes("e");
+          this.inputValue.includes('E') || this.inputValue.includes('e');
 
         const numberAsString = inputStringIsInExponentForm
           ? result.toExponential()
           : result.toPrecision();
 
         const numberIsInExponentForm =
-          numberAsString.includes("E") || numberAsString.includes("e");
+          numberAsString.includes('E') || numberAsString.includes('e');
 
         if (
           this.inputValue !== numberAsString &&

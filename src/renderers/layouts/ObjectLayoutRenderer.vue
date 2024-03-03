@@ -26,18 +26,18 @@ import {
   and,
   isLayout,
   uiTypeIs,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsLayout,
-} from "@jsonforms/vue2";
-import { useVuetifyLayout } from "@/renderers/util/composition";
+} from '@jsonforms/vue';
+import { useVuetifyLayout } from '@/renderers/util/composition';
 
 const layoutRenderer = defineComponent({
-  name: "object-layout-renderer",
+  name: 'object-layout-renderer',
   components: {
     DispatchRenderer,
   },
@@ -59,6 +59,6 @@ export default layoutRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
-  tester: rankWith(3, and(isLayout, uiTypeIs("Object"))),
+  tester: rankWith(3, and(isLayout, uiTypeIs('Object'))),
 };
 </script>

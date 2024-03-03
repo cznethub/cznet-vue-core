@@ -4,7 +4,7 @@
     :ajv="ajv"
     :data="data"
     :readonly="isReadOnly || isViewMode || isDisabled"
-    :renderers="Object.freeze(renderers)"
+    :renderers="renderers"
     :cells="cells"
     :config="config"
     :schema="schema"
@@ -17,23 +17,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
-import { JsonForms, JsonFormsChangeEvent } from "@jsonforms/vue2";
-import { Config } from "@/types";
-import {
-  JsonFormsRendererRegistryEntry,
-  // JsonFormsI18nState,
-} from "@jsonforms/core";
-import { ErrorObject } from "ajv";
-import { isCombinatorSchema } from "@/renderers/util";
+import { Component, Vue, Prop, toNative } from 'vue-facing-decorator';
+import { JsonForms, JsonFormsChangeEvent } from '@jsonforms/vue';
+import { Config } from '@/types';
+import { ErrorObject } from 'ajv';
+import { isCombinatorSchema } from '@/renderers/util';
+import { createAjv } from '@/validate/validate';
+import { CzRenderers, extendedCzRenderers } from '@/renderers/renderer';
+import { JsonSchema } from '@jsonforms/core';
 
 // import { createTranslator } from "@/renderers/i18n";
-import { CzRenderers, extendedCzRenderers } from "@/renderers/renderer";
 
-const renderers = [...CzRenderers];
-
-import { createAjv } from "@/validate/validate";
-
+const renderers = Object.freeze([...CzRenderers]);
 const ajv = createAjv();
 
 /**
@@ -48,10 +43,10 @@ const ajv = createAjv();
  * - oneOf: Indicates that an oneOf definition itself is not valid because not exactly one of its subschemas matches.
  */
 const filteredErrorKeywords = [
-  "additionalProperties",
-  "allOf",
-  "anyOf",
-  "oneOf",
+  'additionalProperties',
+  'allOf',
+  'anyOf',
+  'oneOf',
 ];
 
 const defaultConfigs: Config = {
@@ -73,10 +68,11 @@ const defaultConfigs: Config = {
 };
 
 @Component({
-  name: "cz-form",
+  name: 'cz-form',
   components: { JsonForms },
+  emits: ['update:is-valid', 'update:errors', 'update:data'],
 })
-export default class CzForm extends Vue {
+class CzForm extends Vue {
   @Prop() schema!: any;
   @Prop() uischema!: any;
   /** The initial data. Can bind to it using `.sync` modifier */
@@ -85,7 +81,7 @@ export default class CzForm extends Vue {
   @Prop({ default: () => defaultConfigs }) config!: Config;
 
   timesChanged = 0;
-  renderers: JsonFormsRendererRegistryEntry[] = renderers;
+  renderers = renderers;
   // i18n: JsonFormsI18nState = {
   //   locale: "en",
   //   translate: createTranslator("en", undefined),
@@ -120,7 +116,7 @@ export default class CzForm extends Vue {
             return (
               !filteredErrorKeywords.includes(e.keyword) &&
               // @ts-ignore
-              !filteredErrorKeywords.includes(e["_keyword"])
+              !filteredErrorKeywords.includes(e['_keyword'])
             );
           })
           .map((e: ErrorObject) => ({
@@ -128,9 +124,9 @@ export default class CzForm extends Vue {
             message: this._getErrorMessage(e),
           })) || [];
 
-      this.$emit("update:is-valid", !event.errors?.length);
-      this.$emit("update:errors", errors);
-      this.$emit("update:data", event.data);
+      this.$emit('update:is-valid', !event.errors?.length);
+      this.$emit('update:errors', errors);
+      this.$emit('update:data', event.data);
     });
   }
 
@@ -141,12 +137,12 @@ export default class CzForm extends Vue {
     return (
       error.parentSchema?.properties?.[error.params.missingProperty]?.title ||
       error.params.missingProperty ||
-      ""
+      ''
     );
   }
 
   private _getErrorMessage(error: ErrorObject): string {
-    if (error.keyword === "required") {
+    if (error.keyword === 'required') {
       if (error.instancePath) {
         // Error is in a nested object
         // For combinator renderers we must anotate `_selectedSchemaIndex` in the control itself and then use it here to get the corresponding prop title
@@ -154,7 +150,7 @@ export default class CzForm extends Vue {
 
         const propTitle = combinatorSchema
           ? // @ts-ignore
-            error.parentSchema?.anyOf[error["_selectedSchemaIndex"]]?.[
+            error.parentSchema?.anyOf[error['_selectedSchemaIndex']]?.[
               error.params.missingProperty
             ]?.title
           : error.parentSchema?.properties?.[error.params.missingProperty]
@@ -164,16 +160,18 @@ export default class CzForm extends Vue {
           return `must have required property '${propTitle}'`;
         }
       } else {
-        return "is a required property";
+        return 'is a required property';
       }
-    } else if (error.keyword === "type" && error.data === undefined) {
-      error.message = "is a required property";
+    } else if (error.keyword === 'type' && error.data === undefined) {
+      error.message = 'is a required property';
     }
-    return error.message || "";
+    return error.message || '';
   }
 }
+
+export default toNative(CzForm);
 </script>
 
 <style lang="scss">
-@import "../renderers/styles/renderers.scss";
+@import '../renderers/styles/renderers.scss';
 </style>

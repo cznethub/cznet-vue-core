@@ -5,7 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-select
         @change="onChange"
         @focus="isFocused = true"
@@ -16,8 +16,8 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && !control.uischema.options?.readonly"
-        :value="control.data"
+        :clearable="isHovering && !control.uischema.options?.readonly"
+        :model-value="control.data"
         :items="control.options"
         v-bind="vuetifyProps('v-select')"
         item-text="label"
@@ -45,19 +45,19 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isEnumControl,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   rendererProps,
   useJsonFormsEnumControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import { VSelect, VHover } from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
+import { VSelect, VHover } from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "enum-control-renderer",
+  name: 'enum-control-renderer',
   components: {
     VSelect,
     VHover,
@@ -69,7 +69,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsEnumControl(props);
     useDefaults(control);
-    return useVuetifyControl(control, (value) => value || undefined);
+    return useVuetifyControl(control, value => value || undefined);
   },
 });
 

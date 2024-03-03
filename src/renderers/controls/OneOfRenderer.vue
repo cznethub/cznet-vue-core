@@ -30,6 +30,7 @@
           <v-tab
             v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
             :key="`${control.path}-${oneOfIndex}`"
+            :model-value="`${control.path}-${oneOfIndex}`"
             @change="handleTabChange(oneOfIndex)"
             :disabled="
               (appliedOptions.isViewMode ||
@@ -38,12 +39,12 @@
               selectedIndex !== oneOfIndex
             "
           >
-            {{ oneOfRenderInfo.uischema["label"] || oneOfRenderInfo.label }}
+            {{ oneOfRenderInfo.uischema['label'] || oneOfRenderInfo.label }}
           </v-tab>
         </v-tabs>
 
-        <v-tabs-items v-model="selectedIndex">
-          <v-tab-item
+        <v-window v-model="selectedIndex">
+          <v-window-item
             v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
             :key="`${control.path}-${oneOfIndex}`"
           >
@@ -56,8 +57,8 @@
               :cells="control.cells"
               :enabled="control.enabled"
             />
-          </v-tab-item>
-        </v-tabs-items>
+          </v-window-item>
+        </v-window>
       </template>
 
       <template v-else>
@@ -66,14 +67,15 @@
           :items="oneOfRenderInfos"
           :label="title"
           :hint="selectHint"
-          :value="oneOfRenderInfos[selectedIndex]"
+          :model-value="oneOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
           :error-messages="control.errors"
           v-bind="vuetifyProps('v-select')"
           item-text="label"
-          >{{ currentLabel }}</v-select
         >
+          {{ currentLabel }}
+        </v-select>
 
         <dispatch-renderer
           v-if="selectedIndex >= 0 && oneOfRenderInfos[selectedIndex]"
@@ -99,18 +101,18 @@ import {
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
   isOneOfControl,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsOneOfControl,
-} from "@jsonforms/vue2";
-import { defineComponent, ref } from "vue";
+} from '@jsonforms/vue';
+import { defineComponent, ref } from 'vue';
 import {
   useVuetifyControl,
   useCombinatorChildErrors,
-} from "@/renderers/util/composition";
+} from '@/renderers/util/composition';
 import {
   VDialog,
   VCard,
@@ -121,18 +123,16 @@ import {
   VBtn,
   VTabs,
   VTab,
-  VTabsItems,
-  VTabItem,
   VTooltip,
   VIcon,
   VSelect,
-} from "vuetify/lib";
-import CombinatorProperties from "../components/CombinatorProperties.vue";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from 'vuetify/components';
+import CombinatorProperties from '../components/CombinatorProperties.vue';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "one-of-renderer",
+  name: 'one-of-renderer',
   components: {
     DispatchRenderer,
     CombinatorProperties,
@@ -145,8 +145,6 @@ const controlRenderer = defineComponent({
     VBtn,
     VTabs,
     VTab,
-    VTabsItems,
-    VTabItem,
     VTooltip,
     VIcon,
     CzFieldset,
@@ -163,7 +161,7 @@ const controlRenderer = defineComponent({
 
     return {
       ...useVuetifyControl(input),
-      ...useCombinatorChildErrors(input, "oneOf"),
+      ...useCombinatorChildErrors(input, 'oneOf'),
       isAdded,
       tabData,
     };
@@ -183,7 +181,7 @@ const controlRenderer = defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.oneOf!,
         this.control.rootSchema,
-        "oneOf",
+        'oneOf',
         this.control.uischema,
         this.control.path,
         this.control.uischemas
@@ -197,13 +195,13 @@ const controlRenderer = defineComponent({
           i.uischema;
       });
 
-      return result.filter((info) => info.uischema);
+      return result.filter(info => info.uischema);
     },
     hasToggle() {
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.uischema["options"]?.flat;
+      return this.control.uischema['options']?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore
@@ -212,7 +210,7 @@ const controlRenderer = defineComponent({
     title(): string {
       return (
         // @ts-ignore
-        this.control.uischema?.options?.title || this.control.schema.title || ""
+        this.control.uischema?.options?.title || this.control.schema.title || ''
       );
     },
     desc(): string {
@@ -222,7 +220,7 @@ const controlRenderer = defineComponent({
         this.control.uischema?.options?.description ||
         this.appliedOptions.description ||
         this.oneOfRenderInfos[this.selectedIndex].schema.description ||
-        ""
+        ''
       );
     },
     selectHint(): string {
@@ -231,7 +229,7 @@ const controlRenderer = defineComponent({
     currentLabel(): string {
       return this.selectedIndex >= 0
         ? this.oneOfRenderInfos[this.selectedIndex].label
-        : "";
+        : '';
     },
     noData(): boolean {
       return !this.control.data;
@@ -247,9 +245,9 @@ const controlRenderer = defineComponent({
       this.$set(this.tabData, this.selectedIndex, this.control.data);
       this.selectedIndex = -1;
 
-      if (typeof nextIndexOrLabel === "number") {
+      if (typeof nextIndexOrLabel === 'number') {
         this.selectedIndex = nextIndexOrLabel;
-      } else if (typeof nextIndexOrLabel === "string") {
+      } else if (typeof nextIndexOrLabel === 'string') {
         this.selectedIndex = this.oneOfRenderInfos.findIndex(
           (info: CombinatorSubSchemaRenderInfo) =>
             info.label === nextIndexOrLabel
@@ -262,7 +260,7 @@ const controlRenderer = defineComponent({
       } else {
         const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
         const val =
-          schema.type === "array" || schema.type === "object"
+          schema.type === 'array' || schema.type === 'object'
             ? createDefaultValue(schema)
             : undefined;
 

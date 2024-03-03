@@ -47,20 +47,20 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   UISchemaElement,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsAllOfControl,
-} from "@jsonforms/vue2";
-import { defineComponent } from "vue";
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { VDivider } from "vuetify/lib";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
+} from '@jsonforms/vue';
+import { defineComponent } from 'vue';
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { VDivider } from 'vuetify/components';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 
 const controlRenderer = defineComponent({
-  name: "all-of-renderer",
+  name: 'all-of-renderer',
   components: {
     DispatchRenderer,
     VDivider,
@@ -90,16 +90,17 @@ const controlRenderer = defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.allOf!,
         this.control.rootSchema,
-        "allOf",
+        'allOf',
         this.control.uischema,
         this.control.path,
         this.control.uischemas
       );
 
-      return result.filter((info) => info.uischema);
+      return result.filter(info => info.uischema);
     },
     isFlat() {
-      return this.control.schema["options"]?.flat;
+      // @ts-ignore
+      return this.control.schema.options?.flat;
     },
     hasToggle() {
       return !this.control.required && !this.isFlat;
@@ -107,7 +108,7 @@ const controlRenderer = defineComponent({
     title(): string {
       return (
         // @ts-ignore
-        this.control.schema?.options?.title || this.control.schema.title || ""
+        this.control.schema?.options?.title || this.control.schema.title || ''
       );
     },
   },

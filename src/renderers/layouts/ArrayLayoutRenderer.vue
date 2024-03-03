@@ -19,7 +19,7 @@
     >
       <template v-if="control.enabled" v-slot:actions="{ show }">
         <v-tooltip bottom transition="fade">
-          <template v-slot:activator="{ on: onTooltip }">
+          <template v-slot:activator="{ props }">
             <v-btn
               icon
               color="primary"
@@ -30,7 +30,7 @@
               :class="styles.arrayList.addButton"
               class="btn-add"
               :aria-label="`Add to ${control.label}`"
-              v-on="onTooltip"
+              v-bind="props"
               :disabled="
                 !control.enabled ||
                 appliedOptions.isDisabled ||
@@ -61,7 +61,7 @@
               :class="styles.arrayList.item"
               elevation="0"
             >
-              <v-expansion-panel-header :class="styles.arrayList.itemHeader">
+              <v-expansion-panel-title :class="styles.arrayList.itemHeader">
                 <div
                   v-if="!hideAvatar"
                   align-self="center"
@@ -69,9 +69,9 @@
                   class="flex-grow-0"
                 >
                   <v-chip aria-label="Index" color="primary">
-                    <span class="primary--text text--lighten-5">{{
-                      index + 1
-                    }}</span>
+                    <span class="primary--text text--lighten-5">
+                      {{ index + 1 }}
+                    </span>
                   </v-chip>
                 </div>
 
@@ -98,9 +98,9 @@
                   >
                     <div align-self="center" class="flex-grow-0 flex-shrink-0">
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ on: onTooltip }">
+                        <template v-slot:activator="{ props }">
                           <v-btn
-                            v-on="onTooltip"
+                            v-bind="props"
                             fab
                             text
                             elevation="0"
@@ -119,9 +119,9 @@
                     </div>
                     <div align-self="center" class="flex-grow-0 flex-shrink-0">
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ on: onTooltip }">
+                        <template v-slot:activator="{ props }">
                           <v-btn
-                            v-on="onTooltip"
+                            v-bind="props"
                             fab
                             text
                             elevation="0"
@@ -145,9 +145,9 @@
 
                   <div align-self="center" class="flex-grow-0 flex-shrink-0">
                     <v-tooltip bottom>
-                      <template v-slot:activator="{ on: onTooltip }">
+                      <template v-slot:activator="{ props }">
                         <v-btn
-                          v-on="onTooltip"
+                          v-bind="props"
                           fab
                           text
                           elevation="0"
@@ -171,8 +171,8 @@
                     </v-tooltip>
                   </div>
                 </template>
-              </v-expansion-panel-header>
-              <v-expansion-panel-content
+              </v-expansion-panel-title>
+              <v-expansion-panel-text
                 :class="styles.arrayList.itemContent"
                 class="pa-0 pt-4"
               >
@@ -184,7 +184,7 @@
                   :renderers="control.renderers"
                   :cells="control.cells"
                 />
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </v-row>
@@ -196,23 +196,23 @@
           !appliedOptions.isReadOnly &&
           !appliedOptions.isDisabled
         "
-        :value="suggestToDelete !== null"
+        :model-value="suggestToDelete !== null"
         max-width="600"
         @keydown.esc="suggestToDelete = null"
         @click:outside="suggestToDelete = null"
       >
         <v-card>
           <v-card-title class="text-h5">
-            Delete {{ childLabelForIndex(suggestToDelete) || "element" }}?
+            Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
           </v-card-title>
 
-          <v-card-text> The element will be deleted. </v-card-text>
+          <v-card-text>The element will be deleted.</v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
 
-            <v-btn text @click="suggestToDelete = null"> Cancel </v-btn>
-            <v-btn text ref="confirm" @click="onRemoveItem"> Delete </v-btn>
+            <v-btn text @click="suggestToDelete = null">Cancel</v-btn>
+            <v-btn text ref="confirm" @click="onRemoveItem">Delete</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -235,19 +235,19 @@ import {
   getControlPath,
   or,
   isObjectArrayControl,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsArrayControl,
   RendererProps,
   useJsonFormsControl,
-} from "@jsonforms/vue2";
+} from '@jsonforms/vue';
 import {
   useNested,
   useVuetifyArrayControl,
-} from "@/renderers/util/composition";
+} from '@/renderers/util/composition';
 import {
   VCard,
   VCardActions,
@@ -266,18 +266,18 @@ import {
   VSpacer,
   VExpansionPanels,
   VExpansionPanel,
-  VExpansionPanelHeader,
-  VExpansionPanelContent,
+  VExpansionPanelTitle,
+  VExpansionPanelText,
   VChip,
-} from "vuetify/lib";
-import { ErrorObject } from "ajv";
-import { ref } from "vue";
-import { isEqual } from "lodash-es";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
-import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
+} from 'vuetify/components';
+import { ErrorObject } from 'ajv';
+import { ref } from 'vue';
+import { isEqual } from 'lodash-es';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
+import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "array-layout-renderer",
+  name: 'array-layout-renderer',
   components: {
     DispatchRenderer,
     VCard,
@@ -296,8 +296,8 @@ const controlRenderer = defineComponent({
     VSpacer,
     VExpansionPanels,
     VExpansionPanel,
-    VExpansionPanelHeader,
-    VExpansionPanelContent,
+    VExpansionPanelTitle,
+    VExpansionPanelText,
     VContainer,
     VChip,
     CzFieldset,
@@ -316,19 +316,19 @@ const controlRenderer = defineComponent({
     const currentlyExpanded: number[] = [];
     const suggestToDelete = ref<null | number>(null);
     // indicate to our child renderers that we are increasing the "nested" level
-    useNested("array");
+    useNested('array');
     return { ...control, currentlyExpanded, suggestToDelete, fieldset };
   },
   created() {
     // @ts-ignore
     const requiredItems = this.control.schema.contains?.enum || [];
 
-    requiredItems.map((item) => {
+    requiredItems.map(item => {
       if (!this.control.data) {
         this.handleChange(this.control.path, undefined);
       }
       // We most use isEqual to compare objects instead of Arra.includes
-      const isIncluded = this.control.data?.some((existingItem) =>
+      const isIncluded = this.control.data?.some(existingItem =>
         isEqual(item, existingItem)
       );
       if (!isIncluded) {
@@ -337,7 +337,7 @@ const controlRenderer = defineComponent({
     });
 
     if (this.control.schema.default && !this.control.data) {
-      this.control.schema.default.map((item) => {
+      this.control.schema.default.map(item => {
         this.addItem(this.control.path, item)();
       });
     }
@@ -396,7 +396,7 @@ const controlRenderer = defineComponent({
        * For primitive types we use `undefined` which will correctly trigger validation
        */
       const val =
-        !combinatorSchema || ["object", "array"].includes(defaultSchema.type)
+        !combinatorSchema || ['object', 'array'].includes(defaultSchema.type)
           ? createDefaultValue(defaultSchema)
           : undefined;
 
@@ -424,7 +424,7 @@ const controlRenderer = defineComponent({
       }
     },
     childErrors(index: number): ErrorObject[] {
-      return this.control.childErrors.filter((e) => {
+      return this.control.childErrors.filter(e => {
         const errorDataPath = getControlPath(e);
         return errorDataPath.startsWith(
           this.composePaths(this.control.path, `${index}`)
@@ -433,14 +433,14 @@ const controlRenderer = defineComponent({
     },
     getItemLabel(element) {
       if (!element) {
-        return "";
+        return '';
       }
       // @ts-ignore
       if (Array.isArray(this.appliedOptions.elementLabelProp)) {
         // @ts-ignore
         return this.appliedOptions.elementLabelProp
-          .map((prop) => element[prop])
-          .join(" ");
+          .map(prop => element[prop])
+          .join(' ');
       } else {
         // @ts-ignore
         return element[this.appliedOptions.elementLabelProp];
@@ -457,7 +457,7 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-const useArrayLayout = (uiSchema) => {
+const useArrayLayout = uiSchema => {
   return uiSchema.options?.useArrayLayout;
 };
 

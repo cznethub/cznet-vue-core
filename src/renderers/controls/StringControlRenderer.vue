@@ -5,7 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-combobox
         v-if="suggestions !== undefined"
         :id="control.id + '-input'"
@@ -17,7 +17,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && control.enabled"
+        :clearable="isHovering && control.enabled"
         :maxlength="
           appliedOptions.restrict ? control.schema.maxLength : undefined
         "
@@ -26,7 +26,7 @@
             ? control.schema.maxLength
             : undefined
         "
-        :value="control.data"
+        :model-value="control.data"
         :items="suggestions"
         v-bind="vuetifyProps('v-combobox')"
         @input="onChange"
@@ -53,7 +53,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :value="control.data"
+        :model-value="control.data"
         :maxlength="
           appliedOptions.restrict ? control.schema.maxLength : undefined
         "
@@ -62,9 +62,11 @@
             ? control.schema.maxLength
             : undefined
         "
-        :clearable="hover && control.enabled"
+        :clearable="isHovering && control.enabled"
         v-bind="vuetifyProps('v-text-field')"
-        @input="onChange"
+        @update:model-value="onChange"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
       >
         <template v-slot:message>
           <div
@@ -88,20 +90,20 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isStringControl,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   rendererProps,
   useJsonFormsControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import { isArray, every, isString } from "lodash-es";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
-import { VTextField, VCombobox, VHover } from "vuetify/lib";
+} from '@jsonforms/vue';
+import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
+import { isArray, every, isString } from 'lodash-es';
+import { default as ControlWrapper } from './ControlWrapper.vue';
+import { VTextField, VCombobox, VHover } from 'vuetify/components';
 
 const controlRenderer = defineComponent({
-  name: "string-control-renderer",
+  name: 'string-control-renderer',
   props: {
     ...rendererProps<ControlElement>(),
   },
@@ -112,12 +114,11 @@ const controlRenderer = defineComponent({
     ControlWrapper,
   },
   setup(props: RendererProps<ControlElement>) {
-    const control = useJsonFormsControl(props);
-    useDefaults(control);
-    return useVuetifyControl(control, (value) => value || undefined, 300);
+    const control = useDefaults(useJsonFormsControl(props));
+    return useVuetifyControl(control, value => value || undefined, 300);
   },
   created() {
-    if (this.control.data && typeof this.control.data !== "string") {
+    if (this.control.data && typeof this.control.data !== 'string') {
       // Unsupported data type
       this.handleChange(this.control.path, undefined);
     }

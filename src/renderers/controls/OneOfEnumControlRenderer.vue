@@ -6,7 +6,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-autocomplete
         v-if="hasAutoComplete"
         @change="onChange"
@@ -17,8 +17,8 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && !(!control.enabled || isReadOnly)"
-        :value="control.data"
+        :clearable="isHovering && !(!control.enabled || isReadOnly)"
+        :model-value="control.data"
         :items="sortedOptions"
         v-bind="vuetifyProps('v-autocomplete')"
         item-text="label"
@@ -47,8 +47,8 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="hover && !(!control.enabled || isReadOnly)"
-        :value="control.data"
+        :clearable="isHovering && !(!control.enabled || isReadOnly)"
+        :model-value="control.data"
         :items="customOptions"
         v-bind="vuetifyProps('v-select')"
         item-text="label"
@@ -77,19 +77,19 @@ import {
   rankWith,
   isOneOfEnumControl,
   EnumOption,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   rendererProps,
   useJsonFormsOneOfEnumControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import { VSelect, VHover, VAutocomplete } from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
+import { VSelect, VHover, VAutocomplete } from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "oneof-enum-control-renderer",
+  name: 'oneof-enum-control-renderer',
   components: {
     VSelect,
     VHover,
@@ -103,7 +103,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsOneOfEnumControl(props);
     useDefaults(control);
-    return useVuetifyControl(control, (value) => value || undefined);
+    return useVuetifyControl(control, value => value || undefined);
   },
   computed: {
     hasAutoComplete() {

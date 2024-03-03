@@ -1,21 +1,33 @@
-import Vue from "vue";
-import Vuetify from "vuetify/lib";
-import { default as Notifications } from "./models/notifications";
+import Notifications from './models/notifications';
+import CzNotifications from './components/cz.notifications.vue';
+import CzDragSelect from './components/cz.drag-select.vue';
+import CzForm from './components/cz.form.vue';
+import CzFileExplorer from './components/cz.file-explorer.vue';
 
-import CzNotifications from "./components/base/cz.notifications.vue";
-import CzForm from "./components/cz.form.vue";
-import CzFileExplorer from "./components/cz.file-explorer.vue";
-
-Vue.use(Vuetify);
-
-const components = {
+const components: Record<string, any> = {
   CzNotifications,
+  CzDragSelect,
   CzForm,
   CzFileExplorer,
 };
 
-Object.keys(components).forEach((name) => {
-  Vue.component(name, components[name]);
-});
+const createCzNetVueCore = {
+  install(
+    app: { component: (name: string, component: any) => void },
+    _options: any
+  ) {
+    // configure the app
+    Object.keys(components).forEach(name => {
+      app.component(name, components[name]);
+    });
+  },
+};
 
-export { CzNotifications, Notifications, CzForm, CzFileExplorer };
+export {
+  createCzNetVueCore,
+  Notifications,
+  CzNotifications,
+  CzDragSelect,
+  CzForm,
+  CzFileExplorer,
+};

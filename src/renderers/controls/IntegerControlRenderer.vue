@@ -5,7 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-text-field
         type="number"
         @change.native="beforeChange($event)"
@@ -17,8 +17,8 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :value="control.data"
-        :clearable="hover && control.enabled"
+        :model-value="control.data"
+        :clearable="isHovering && control.enabled"
         v-bind="vuetifyProps('v-text-field')"
       >
         <template v-slot:message>
@@ -43,19 +43,19 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isIntegerControl,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   rendererProps,
   useJsonFormsControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { VTextField, VHover } from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { VTextField, VHover } from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "integer-control-renderer",
+  name: 'integer-control-renderer',
   components: {
     VTextField,
     ControlWrapper,
@@ -65,7 +65,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(useJsonFormsControl(props), (value) => {
+    return useVuetifyControl(useJsonFormsControl(props), value => {
       const val = parseInt(value, 10);
       return isNaN(val) ? undefined : val;
     });
@@ -79,7 +79,7 @@ const controlRenderer = defineComponent({
   methods: {
     // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error
     beforeChange(event) {
-      if (event.target.value === null || event.target.value.trim() === "") {
+      if (event.target.value === null || event.target.value.trim() === '') {
         this.handleChange(this.control.path, undefined);
       } else {
         this.onChange(event.target.value);

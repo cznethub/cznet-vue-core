@@ -1,5 +1,5 @@
 <template>
-  <v-app app>
+  <v-app>
     <v-container>
       <div class="text-h5 text-center">CZNet vue core components</div>
 
@@ -20,24 +20,26 @@
             label="isReadOnly"
             v-model="fileExplorerConfig.isReadOnly"
             class="mr-4"
-          ></v-checkbox>
+            hide-details
+          />
           <v-checkbox
             v-if="!fileExplorerConfig.isReadOnly"
             label="hasFolders"
             v-model="fileExplorerConfig.hasFolders"
             class="mr-4"
-          ></v-checkbox>
+            hide-details
+          />
         </v-card-text>
         <v-divider></v-divider>
         <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-header>
+              <v-expansion-panel-title>
                 <div class="text-overline">File Explorer Data</div>
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
                 <pre>{{ JSON.parse(stringify(rootDirectory)) }}</pre>
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </v-card-text>
@@ -57,7 +59,7 @@
             <template v-slot:prepend>
               <v-alert
                 class="text-subtitle-1"
-                border="left"
+                border="start"
                 colored-border
                 type="info"
                 elevation="1"
@@ -72,34 +74,37 @@
       <v-card class="my-5">
         <v-card-title>CzForm</v-card-title>
         <v-divider></v-divider>
-        <v-card-text class="d-flex"
-          ><v-checkbox
+        <v-card-text class="d-flex">
+          <v-checkbox
             label="ReadOnly"
             v-model="config.isReadOnly"
             class="mr-4"
-          ></v-checkbox>
+            hide-details
+          />
           <v-checkbox
             label="View mode"
             v-model="config.isViewMode"
             class="mr-4"
-          ></v-checkbox>
+            hide-details
+          />
           <v-checkbox
             label="Disabled"
             v-model="config.isDisabled"
             class="mr-4"
-          ></v-checkbox>
+            hide-details
+          />
         </v-card-text>
 
         <v-divider></v-divider>
         <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-header>
+              <v-expansion-panel-title>
                 <div class="text-overline">Form Data</div>
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
                 <pre>{{ data }}</pre>
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </v-card-text>
@@ -121,10 +126,9 @@
           <v-spacer></v-spacer>
 
           <v-menu :disabled="isValid" open-on-hover bottom left offset-y>
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <div
-                v-bind="attrs"
-                v-on="on"
+                v-bind="props"
                 class="d-flex form-controls flex-column flex-sm-row"
               >
                 <v-badge
@@ -140,8 +144,9 @@
                     :disabled="
                       config.isReadOnly || config.isViewMode || !isValid
                     "
-                    >Submit</v-btn
                   >
+                    Submit
+                  </v-btn>
                 </v-badge>
               </div>
             </template>
@@ -153,7 +158,8 @@
                 class="text-subtitle-1"
               >
                 <li>
-                  <b>{{ error.title }}</b> {{ error.message }}.
+                  <b>{{ error.title }}</b>
+                  {{ error.message }}.
                 </li>
               </ul>
             </div>
@@ -161,94 +167,36 @@
         </v-card-actions>
       </v-card>
     </v-container>
-
-    <cz-notifications></cz-notifications>
-
-    <v-dialog v-model="selectedMetadata" width="800">
-      <v-card>
-        <v-card-title>Some file</v-card-title>
-
-        <v-card-text>File metadata...</v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="selectedMetadata = false">
-            Close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <cz-notifications />
   </v-app>
+  <div></div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { Config, IFolder, IFile } from "@/types";
-import { stringify } from "@/utils";
-import CzNotifications from "@/components/base/cz.notifications.vue";
-import Notifications from "@/models/notifications";
-import CzForm from "@/components/cz.form.vue";
-import CzFileExplorer from "@/components/cz.file-explorer.vue";
+import CzDragSelect from './components/cz.drag-select.vue';
+import { Component, Vue, toNative, Ref } from 'vue-facing-decorator';
+import czNotifications from './components/cz.notifications.vue';
+import Notifications from './models/notifications';
+import { Config, IFolder, IFile } from '@/types';
+import { stringify } from '@/utils';
+import CzFileExplorer from './components/cz.file-explorer.vue';
 
-import schema from "@/schemas/schema.json";
-import uischema from "@/schemas/uischema.json";
-import initialData from "@/schemas/test-dataset.json";
+import schema from './schemas/schema.json';
+import uischema from './schemas/uischema.json';
+import initialData from './schemas/test-dataset.json';
+import czForm from './components/cz.form.vue';
+
 // const initialData = {};
 
-import {
-  VApp,
-  VContainer,
-  VCard,
-  VCardTitle,
-  VDivider,
-  VCardText,
-  VBtn,
-  VCheckbox,
-  VExpansionPanels,
-  VExpansionPanel,
-  VExpansionPanelHeader,
-  VExpansionPanelContent,
-  VAlert,
-  VSpacer,
-  VMenu,
-  VDialog,
-  VCardActions,
-  VBadge,
-} from "vuetify/lib";
-
 @Component({
-  name: "app",
-  components: {
-    CzNotifications,
-    CzForm,
-    CzFileExplorer,
-    VApp,
-    VContainer,
-    VCard,
-    VCardTitle,
-    VDivider,
-    VCardText,
-    VBtn,
-    VCheckbox,
-    VExpansionPanels,
-    VExpansionPanel,
-    VExpansionPanelHeader,
-    VExpansionPanelContent,
-    VAlert,
-    VSpacer,
-    VMenu,
-    VDialog,
-    VCardActions,
-    VBadge,
-  },
+  components: { CzDragSelect, czNotifications, CzFileExplorer, czForm },
+  name: 'App',
 })
-export default class App extends Vue {
-  // @Ref("form") form!: InstanceType<typeof CzForm>;
+class App extends Vue {
+  @Ref('form') form!: InstanceType<typeof czForm>;
 
-  schema!: { [key: string]: any };
-  uischema!: { [key: string]: any };
+  schema: { [key: string]: any } = schema;
+  uischema: { [key: string]: any } = uischema;
   isValid = false;
   errors: { title: string; message: string }[] = [];
   data = initialData;
@@ -257,20 +205,20 @@ export default class App extends Vue {
 
   /** Example folder/file tree structure */
   rootDirectory: IFolder = {
-    name: "root",
+    name: 'root',
     /** Folders have a `children` property */
     children: [
       {
-        name: "Some Folder",
+        name: 'Some Folder',
         children: [
           {
-            name: "Nested folder",
+            name: 'Nested folder',
             children: [
               {
-                name: "Deeply nested folder",
+                name: 'Deeply nested folder',
                 children: [
                   {
-                    name: "deeply nested file.txt",
+                    name: 'deeply nested file.txt',
                     file: { size: 2637468 },
                   } as IFile,
                 ],
@@ -278,26 +226,26 @@ export default class App extends Vue {
             ],
           },
           {
-            name: "readme.txt",
+            name: 'readme.txt',
             file: { size: 12000 },
           } as IFile,
           {
-            name: "presentation.ppt",
+            name: 'presentation.ppt',
             file: { size: 1237468 },
           } as IFile,
         ],
       },
       {
-        name: "An empty folder",
+        name: 'An empty folder',
         children: [],
       },
       {
-        name: "logs.txt",
+        name: 'logs.txt',
         isUploaded: true, // IMPORTANT: indicates that asynchronous operations will run on this file
         file: { size: 8421 },
       } as IFile,
       {
-        name: "landscape.png",
+        name: 'landscape.png',
         file: { size: 2637468 },
       } as IFile,
     ],
@@ -317,8 +265,8 @@ export default class App extends Vue {
       commonAttrs: {
         dense: true,
         outlined: true,
-        "persistent-hint": true,
-        "hide-details": false,
+        'persistent-hint': true,
+        'hide-details': false,
       },
     },
     isViewMode: false,
@@ -339,7 +287,7 @@ export default class App extends Vue {
   openDialog() {
     Notifications.openDialog({
       title: `Dialog Title`,
-      content: "Some message for the dialog",
+      content: 'Some message for the dialog',
       onConfirm: () => {},
     });
   }
@@ -350,7 +298,7 @@ export default class App extends Vue {
   }
 
   toast() {
-    Notifications.toast({ message: "Some toasty message", type: "success" });
+    Notifications.toast({ message: 'Some toasty message', type: 'success' });
   }
 
   submit() {
@@ -364,7 +312,7 @@ export default class App extends Vue {
   async uploadMock(_items: (IFile | IFolder)[]) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
-        _resolve(_items.map((_i) => true));
+        _resolve(_items.map(_i => true));
         // _reject(_items.map((_i) => false));
       }, 2000);
     });
@@ -388,6 +336,6 @@ export default class App extends Vue {
     });
   }
 }
-</script>
 
-<style></style>
+export default toNative(App);
+</script>

@@ -5,7 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
+    <v-hover v-slot="{ isHovering }">
       <v-textarea
         :id="control.id + '-input'"
         :data-id="computedLabel.replaceAll(` `, ``)"
@@ -21,10 +21,10 @@
         :error-messages="control.errors"
         :required="control.required"
         :hint="control.description"
-        :value="control.data"
+        :model-value="control.data"
         :placeholder="placeholder"
         :label="computedLabel"
-        :clearable="hover && control.enabled && !isReadOnly"
+        :clearable="isHovering && control.enabled && !isReadOnly"
         v-bind="vuetifyProps('v-textarea')"
       >
         <template v-slot:message>
@@ -51,19 +51,19 @@ import {
   isStringControl,
   isMultiLineControl,
   and,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   rendererProps,
   useJsonFormsControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import { VTextarea, VHover } from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
+import { VTextarea, VHover } from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "multi-string-control-renderer",
+  name: 'multi-string-control-renderer',
   components: { VTextarea, VHover, ControlWrapper },
   props: {
     ...rendererProps<ControlElement>(),
@@ -71,7 +71,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsControl(props);
     useDefaults(control);
-    return useVuetifyControl(control, (value) => value || undefined, 300);
+    return useVuetifyControl(control, value => value || undefined, 300);
   },
   created() {
     // If a value was loaded, check if HTML needs to be stripped
@@ -87,8 +87,8 @@ const controlRenderer = defineComponent({
   },
   methods: {
     strip(html: string) {
-      const doc = new DOMParser().parseFromString(html, "text/html");
-      return doc.body.textContent || "";
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return doc.body.textContent || '';
     },
   },
 });

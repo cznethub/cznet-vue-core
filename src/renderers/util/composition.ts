@@ -7,11 +7,11 @@ import {
   JsonFormsSubStates,
   Resolve,
   getControlPath,
-} from "@jsonforms/core";
-import { cloneDeep, debounce, merge, get, isPlainObject } from "lodash-es";
-import { useStyles } from "../styles";
-import { computed, ComputedRef, inject, ref, provide, watchEffect } from "vue";
-import Ajv, { ErrorObject } from "ajv";
+} from '@jsonforms/core';
+import { cloneDeep, debounce, merge, get, isPlainObject } from 'lodash-es';
+import { useStyles } from '../styles';
+import { computed, ComputedRef, inject, ref, provide, watchEffect } from 'vue';
+import Ajv, { ErrorObject } from 'ajv';
 
 export const useControlAppliedOptions = <I extends { control: any }>(
   input: I
@@ -27,12 +27,12 @@ export const useControlAppliedOptions = <I extends { control: any }>(
 
 export const isCombinatorSchema = (schema: any): string => {
   return schema.anyOf
-    ? "anyOf"
+    ? 'anyOf'
     : schema.allOf
-    ? "allOf"
-    : schema.oneOf
-    ? "oneOf"
-    : "";
+      ? 'allOf'
+      : schema.oneOf
+        ? 'oneOf'
+        : '';
 };
 
 export const useComputedLabel = <I extends { control: any }>(
@@ -42,7 +42,6 @@ export const useComputedLabel = <I extends { control: any }>(
   return computed((): string => {
     return computeLabel(
       input.control.value.label,
-      // TODO: a lot of schemas do not have their `required` property populated for some reason
       input.control.value.required,
       !!appliedOptions.value?.hideRequiredAsterisk
     );
@@ -89,18 +88,23 @@ export const useDefaults = <I extends { control: any; handleChange: any }>(
       input.handleChange(input.control.value.path, undefined);
     }
   }
+  return input;
 };
 
-export const getVuetifyControlProps = (path, appliedOptions, input) => {
+export const getVuetifyControlProps = (
+  path: string,
+  appliedOptions: any,
+  input: any
+) => {
   const props = {
     ...appliedOptions.value?.vuetify.commonAttrs,
     filled:
-      !!input.control.value.schema["readOnly"] ||
+      !!input.control.value.schema['readOnly'] ||
       appliedOptions.value.isViewMode ||
       appliedOptions.value.isReadOnly ||
       appliedOptions.value?.vuetify.commonAttrs.filled,
     readonly:
-      !input.control.value.enabled || input.control.value.schema["readOnly"],
+      !input.control.value.enabled || input.control.value.schema['readOnly'],
     disabled: appliedOptions.value.isDisabled,
     autofocus: appliedOptions.value.focus,
     placeholder: appliedOptions.value.placeholder,
@@ -114,14 +118,14 @@ export const getVuetifyControlProps = (path, appliedOptions, input) => {
  * Adds styles, isFocused, appliedOptions and onChange
  */
 export const useVuetifyControl = <
-  I extends { control: any; handleChange: any }
+  I extends { control: any; handleChange: any },
 >(
   input: I,
-  adaptValue: (target: any) => any = (v) => v,
+  adaptValue: (target: any) => any = v => v,
   debounceWait?: number
 ) => {
   const changeEmitter =
-    typeof debounceWait === "number"
+    typeof debounceWait === 'number'
       ? debounce(input.handleChange, debounceWait)
       : input.handleChange;
 
@@ -133,7 +137,7 @@ export const useVuetifyControl = <
     return (
       input.control.value.errors
         ?.replaceAll(`is a required property`, ``)
-        .trim() || ""
+        .trim() || ''
     );
   });
 
@@ -144,7 +148,7 @@ export const useVuetifyControl = <
     return (
       input.control.value.schema.options?.placeholder ||
       appliedOptions.value.placeholder ||
-      ""
+      ''
     );
   });
 
@@ -195,7 +199,7 @@ export const useVuetifyControl = <
 };
 
 export const useTranslator = () => {
-  const jsonforms = inject<JsonFormsSubStates>("jsonforms");
+  const jsonforms = inject<JsonFormsSubStates>('jsonforms');
 
   if (!jsonforms) {
     throw new Error(
@@ -279,13 +283,13 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
       input.control.value.description ||
       input.control.value.schema?.description ||
       appliedOptions.value.description ||
-      ""
+      ''
     );
   });
 
   const childLabelForIndex = (index: number | null) => {
     if (index === null) {
-      return "";
+      return '';
     }
     const childLabelProp =
       input.control.value.uischema.options?.childLabelProp ??
@@ -302,7 +306,7 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
       labelValue === null ||
       Number.isNaN(labelValue)
     ) {
-      return "";
+      return '';
     }
     return `${labelValue}`;
   };
@@ -337,7 +341,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
   keyword: CombinatorKeyword
 ) => {
   const jsonforms = inject<JsonFormsSubStates>(
-    "jsonforms"
+    'jsonforms'
   ) as JsonFormsSubStates;
 
   const selectedIndex = ref(0);
@@ -346,14 +350,14 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
     // Get child errors at this path and annotate them
     // TODO: find a more reliable way to get errors at a path
     jsonforms.core?.errors
-      ?.filter((e) => {
+      ?.filter(e => {
         const controlPath = getControlPath(e) as string;
         const isChildProp = controlPath.startsWith(
           `${input.control.value.path}.`
         )
           ? !controlPath
-              .replace(`${input.control.value.path}.`, "")
-              .includes(".")
+              .replace(`${input.control.value.path}.`, '')
+              .includes('.')
           : false;
         return controlPath === input.control.value.path || isChildProp;
       })
@@ -365,16 +369,16 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
           );
           if (errorSchemaIndex >= 0) {
             // @ts-ignore
-            e["_selectedSchemaIndex"] = errorSchemaIndex;
+            e['_selectedSchemaIndex'] = errorSchemaIndex;
           }
           if (
             errorSchemaIndex !== selectedIndex.value &&
-            e.keyword !== "errorMessage"
+            e.keyword !== 'errorMessage'
           ) {
             // Indicate that the error should be ignored
             // @ts-ignore
-            e["_keyword"] = keyword; // used to filter out error in CzForm's onChange method
-            e["message"] = ""; // removes the error from props of child components
+            e['_keyword'] = keyword; // used to filter out error in CzForm's onChange method
+            e['message'] = ''; // removes the error from props of child components
           }
         }
       });
@@ -408,7 +412,7 @@ export const useVuetifyBasicControl = <I extends { control: any }>(
  * Extracts Ajv from JSON Forms
  */
 export const useAjv = () => {
-  const jsonforms = inject<JsonFormsSubStates>("jsonforms");
+  const jsonforms = inject<JsonFormsSubStates>('jsonforms');
 
   if (!jsonforms) {
     throw new Error(
@@ -422,12 +426,12 @@ export const useAjv = () => {
 
 export interface NestedInfo {
   level: number;
-  parentElement?: "array" | "object";
+  parentElement?: 'array' | 'object';
 }
-export const useNested = (element: false | "array" | "object"): NestedInfo => {
-  const nestedInfo = inject<NestedInfo>("jsonforms.nestedInfo", { level: 0 });
+export const useNested = (element: false | 'array' | 'object'): NestedInfo => {
+  const nestedInfo = inject<NestedInfo>('jsonforms.nestedInfo', { level: 0 });
   if (element) {
-    provide("jsonforms.nestedInfo", {
+    provide('jsonforms.nestedInfo', {
       level: nestedInfo.level + 1,
       parentElement: element,
     });

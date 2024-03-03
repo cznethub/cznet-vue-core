@@ -46,22 +46,22 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   UISchemaElement,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsControlWithDetail,
-} from "@jsonforms/vue2";
-import { cloneDeep } from "lodash-es";
-import { useNested, useVuetifyControl } from "@/renderers/util/composition";
-import { defineComponent } from "vue";
-import { VBtn, VIcon, VTooltip } from "vuetify/lib";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { cloneDeep } from 'lodash-es';
+import { useNested, useVuetifyControl } from '@/renderers/util/composition';
+import { defineComponent } from 'vue';
+import { VBtn, VIcon, VTooltip } from 'vuetify/components';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "object-renderer",
+  name: 'object-renderer',
   components: {
     DispatchRenderer,
     VBtn,
@@ -75,7 +75,7 @@ const controlRenderer = defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const control = useVuetifyControl(useJsonFormsControlWithDetail(props));
-    const nested = useNested("object");
+    const nested = useNested('object');
     return {
       ...control,
       input: control,
@@ -104,7 +104,7 @@ const controlRenderer = defineComponent({
   computed: {
     detailUiSchema(): UISchemaElement {
       const uiSchemaGenerator = () => {
-        const uiSchema = Generate.uiSchema(this.control.schema, "Object");
+        const uiSchema = Generate.uiSchema(this.control.schema, 'Object');
         return uiSchema;
       };
       let result = findUISchema(
@@ -122,7 +122,7 @@ const controlRenderer = defineComponent({
           ...result.options,
           bare: true,
           alignLeft:
-            this.nested.level >= 4 || this.nested.parentElement === "array",
+            this.nested.level >= 4 || this.nested.parentElement === 'array',
         };
       }
       return result;
@@ -131,7 +131,7 @@ const controlRenderer = defineComponent({
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.schema["options"]?.flat;
+      return this.control.schema['options']?.flat;
     },
     noData(): boolean {
       return !this.control.data;
