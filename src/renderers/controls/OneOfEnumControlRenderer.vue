@@ -9,7 +9,7 @@
     <v-hover v-slot="{ isHovering }">
       <v-autocomplete
         v-if="hasAutoComplete"
-        @change="onChange"
+        @update:model-value="onChange"
         :id="control.id + '-input'"
         :class="styles.control.input"
         :placeholder="placeholder"
@@ -17,7 +17,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="isHovering && !(!control.enabled || isReadOnly)"
+        :clearable="control.enabled && !isReadOnly"
         :model-value="control.data"
         :items="sortedOptions"
         v-bind="vuetifyProps('v-autocomplete')"
@@ -34,7 +34,7 @@
 
       <v-select
         v-else
-        @change="onChange"
+        @update:model-value="onChange"
         :id="control.id + '-input'"
         :class="styles.control.input"
         :placeholder="placeholder"
@@ -42,11 +42,11 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="isHovering && !(!control.enabled || isReadOnly)"
+        :clearable="control.enabled && !isReadOnly"
         :model-value="control.data"
         :items="customOptions"
         v-bind="vuetifyProps('v-select')"
-        item-text="label"
+        item-title="label"
         item-value="value"
       >
         <template v-slot:message>

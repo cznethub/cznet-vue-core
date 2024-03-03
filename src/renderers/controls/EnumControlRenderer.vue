@@ -5,32 +5,30 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-select
-        @change="onChange"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="isHovering && !control.uischema.options?.readonly"
-        :model-value="control.data"
-        :items="control.options"
-        v-bind="vuetifyProps('v-select')"
-        item-text="label"
-        item-value="value"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-select>
-    </v-hover>
+    <v-select
+      @update:model-value="onChange"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :model-value="control.data"
+      :items="control.options"
+      v-bind="vuetifyProps('v-select')"
+      item-title="label"
+      item-value="value"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-select>
   </control-wrapper>
 </template>
 
@@ -48,7 +46,7 @@ import {
   RendererProps,
 } from '@jsonforms/vue';
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
-import { VSelect, VHover } from 'vuetify/components';
+import { VSelect } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
@@ -56,12 +54,14 @@ const controlRenderer = defineComponent({
   name: 'enum-control-renderer',
   components: {
     VSelect,
-    VHover,
     ControlWrapper,
     CzFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
+  },
+  created() {
+    console.log(this.control.options);
   },
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsEnumControl(props);

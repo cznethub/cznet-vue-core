@@ -18,7 +18,7 @@
         :required="control.required"
         :error-messages="control.errors"
         :model-value="control.data"
-        :clearable="isHovering && control.enabled"
+        :clearable="control.enabled && !isReadOnly"
         v-bind="vuetifyProps('v-text-field')"
       >
         <template v-slot:message>

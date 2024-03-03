@@ -24,7 +24,7 @@
         :model-value="control.data"
         :placeholder="placeholder"
         :label="computedLabel"
-        :clearable="isHovering && control.enabled && !isReadOnly"
+        :clearable="control.enabled && !isReadOnly"
         v-bind="vuetifyProps('v-textarea')"
       >
         <template v-slot:message>

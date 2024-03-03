@@ -107,7 +107,7 @@ class CzDragSelect extends Vue {
       children = Array.from(container.querySelectorAll(`[${self.attribute}]`));
       start = getCoords(event);
       end = start;
-      document.addEventListener('mousemove', drag);
+      document.addEventListener('mousemove', drag, true);
       document.addEventListener('touchmove', touchMove);
 
       box.style.top = start.y + 'px';
@@ -147,11 +147,11 @@ class CzDragSelect extends Vue {
       self.$emit('endDrag');
     }
 
-    container.addEventListener('mousedown', startDrag);
+    container.addEventListener('mousedown', startDrag, true);
     container.addEventListener('touchstart', touchStart);
 
-    document.addEventListener('mouseup', endDrag);
-    document.addEventListener('touchend', endDrag);
+    document.addEventListener('mouseup', endDrag, true);
+    document.addEventListener('touchend', endDrag, true);
   }
 
   // onUnmounted() {

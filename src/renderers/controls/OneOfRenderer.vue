@@ -63,7 +63,7 @@
 
       <template v-else>
         <v-select
-          @change="handleTabChange"
+          @update:model-value="handleTabChange"
           :items="oneOfRenderInfos"
           :label="title"
           :hint="selectHint"
@@ -72,7 +72,7 @@
           :required="control.required"
           :error-messages="control.errors"
           v-bind="vuetifyProps('v-select')"
-          item-text="label"
+          item-title="label"
         >
           {{ currentLabel }}
         </v-select>

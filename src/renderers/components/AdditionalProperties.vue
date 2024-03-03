@@ -12,7 +12,7 @@
             :class="styles.control.input"
             :error-messages="newPropertyErrors"
             v-model="newPropertyName"
-            :clearable="isHovering && control.enabled && !isReadOnly"
+            :clearable="control.enabled && !isReadOnly"
             :placeholder="placeholder"
             :readonly="!control.enabled || isReadOnly"
             :disabled="appliedOptions.isDisabled"

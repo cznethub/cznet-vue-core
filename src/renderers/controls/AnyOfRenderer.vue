@@ -26,12 +26,12 @@
       />
 
       <template v-if="!isDropDown">
-        <v-tabs v-model="selectedIndex">
+        <!-- this tab change emits new selectedIndex -->
+        <v-tabs v-model="selectedIndex" @update:model-value="handleTabChange">
           <v-tab
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
             :key="`${control.path}-${anyOfIndex}`"
-            :model-value="anyOfIndex"
-            @change="handleTabChange(anyOfIndex)"
+            :value="anyOfIndex"
             :disabled="
               (appliedOptions.isViewMode ||
                 appliedOptions.isReadOnly ||
@@ -65,17 +65,18 @@
       </template>
 
       <template v-else>
+        <!-- this select change emits old selectedIndex -->
         <v-select
-          @change="handleTabChange"
+          :model-value="anyOfRenderInfos[selectedIndex]"
+          @update:model-value="handleTabChange"
           :items="anyOfRenderInfos"
           :label="title"
           :hint="selectHint"
-          :model-value="anyOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
           :error-messages="control.errors"
           v-bind="vuetifyProps('v-select')"
-          item-text="label"
+          item-title="label"
         >
           {{ currentLabel }}
         </v-select>
@@ -111,7 +112,7 @@ import {
   RendererProps,
   useJsonFormsAnyOfControl,
 } from '@jsonforms/vue';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, toRaw } from 'vue';
 import {
   useVuetifyControl,
   useCombinatorChildErrors,
@@ -239,7 +240,7 @@ const controlRenderer = defineComponent({
     },
   },
   methods: {
-    handleTabChange(nextIndexOrLabel: number | string): void {
+    handleTabChange(nextIndexOrLabel: any): void {
       if (!this.control.enabled) {
         return;
       }
@@ -259,6 +260,11 @@ const controlRenderer = defineComponent({
 
       // If we had form data stored, restore it. Otherwise create default value.
       if (this.tabData[this.selectedIndex]) {
+        console.log(
+          this.selectedIndex,
+          toRaw(this.tabData[this.selectedIndex])
+        );
+
         this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
       } else {
         const schema = this.anyOfRenderInfos[this.selectedIndex].schema;

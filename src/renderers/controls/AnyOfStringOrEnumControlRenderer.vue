@@ -26,8 +26,8 @@
         "
         v-bind="vuetifyProps('v-combobox')"
         :items="items"
-        :clearable="isHovering && control.enabled && !isReadOnly"
-        @change="onChange"
+        :clearable="control.enabled && !isReadOnly"
+        @update:model-value="onChange"
         @focus="isFocused = true"
         @blur="isFocused = false"
       />

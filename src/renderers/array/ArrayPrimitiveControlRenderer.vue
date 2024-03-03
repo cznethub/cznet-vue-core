@@ -23,7 +23,7 @@
       :class="styles.control.input"
       :placeholder="placeholder"
       :required="control.required"
-      clearable
+      :clearable="control.enabled && !isReadOnly"
       closable-chips
       :items="suggestions"
       v-bind="vuetifyProps('v-combobox')"

@@ -19,7 +19,7 @@
       :model-value="control.data"
       row
       v-bind="vuetifyProps('v-radio-group')"
-      @change="onChange"
+      @update:model-value="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"
     >

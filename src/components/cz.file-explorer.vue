@@ -338,7 +338,7 @@
                           <v-text-field
                             v-if="item.isRenaming"
                             class="ml-3"
-                            @change="onRenamed(item, $event)"
+                            @update:model-value="onRenamed(item, $event)"
                             @keydown.enter="item.isRenaming = false"
                             @click.exact="onItemClick($event, item)"
                             @click.ctrl.exact="onItemCtrlClick($event, item)"

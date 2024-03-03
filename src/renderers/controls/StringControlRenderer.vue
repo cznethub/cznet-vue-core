@@ -17,7 +17,7 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="isHovering && control.enabled"
+        :clearable="control.enabled && !isReadOnly"
         :maxlength="
           appliedOptions.restrict ? control.schema.maxLength : undefined
         "
@@ -57,7 +57,7 @@
             ? control.schema.maxLength
             : undefined
         "
-        :clearable="isHovering && control.enabled"
+        :clearable="control.enabled && !isReadOnly"
         v-bind="vuetifyProps('v-text-field')"
         @update:model-value="onChange"
         @focus="isFocused = true"

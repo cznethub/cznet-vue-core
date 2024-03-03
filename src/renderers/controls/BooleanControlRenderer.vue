@@ -10,7 +10,7 @@
     :input-value="control.data"
     :model-value="control.data"
     v-bind="vuetifyProps('v-checkbox')"
-    @change="onChange"
+    @update:model-value="onChange"
     @focus="isFocused = true"
     @blur="isFocused = false"
   >

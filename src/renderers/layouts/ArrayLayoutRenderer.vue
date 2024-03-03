@@ -49,17 +49,11 @@
 
       <v-container v-if="!noData" justify-space-around align-content-center>
         <v-row justify="center">
-          <v-expansion-panels
-            flat
-            focusable
-            v-model="currentlyExpanded"
-            multiple
-          >
+          <v-expansion-panels flat focusable multiple>
             <v-expansion-panel
               v-for="(element, index) in control.data"
               :key="`${control.path}-${index}`"
               :class="styles.arrayList.item"
-              elevation="0"
             >
               <v-expansion-panel-title :class="styles.arrayList.itemHeader">
                 <div
@@ -101,18 +95,15 @@
                         <template v-slot:activator="{ props }">
                           <v-btn
                             v-bind="props"
-                            fab
-                            text
-                            elevation="0"
-                            small
+                            variant="text"
+                            icon="mdi-arrow-up"
+                            size="x-small"
                             class="v-expansion-panel-header__icon"
                             aria-label="Move up"
                             :disabled="index <= 0 || !control.enabled"
                             :class="styles.arrayList.itemMoveUp"
                             @click.native="moveUpClick($event, index)"
-                          >
-                            <v-icon class="notranslate">mdi-arrow-up</v-icon>
-                          </v-btn>
+                          ></v-btn>
                         </template>
                         Move Up
                       </v-tooltip>
@@ -122,10 +113,10 @@
                         <template v-slot:activator="{ props }">
                           <v-btn
                             v-bind="props"
-                            fab
-                            text
+                            icon="mdi-arrow-down"
+                            variant="text"
                             elevation="0"
-                            small
+                            size="x-small"
                             class="v-expansion-panel-header__icon"
                             aria-label="Move down"
                             :disabled="
@@ -134,11 +125,9 @@
                             "
                             :class="styles.arrayList.itemMoveDown"
                             @click.native="moveDownClick($event, index)"
-                          >
-                            <v-icon class="notranslate">mdi-arrow-down</v-icon>
-                          </v-btn>
+                          ></v-btn>
                         </template>
-                        Move Down
+                        Move down
                       </v-tooltip>
                     </div>
                   </template>
@@ -148,10 +137,10 @@
                       <template v-slot:activator="{ props }">
                         <v-btn
                           v-bind="props"
-                          fab
-                          text
+                          variant="text"
                           elevation="0"
-                          small
+                          icon="mdi-delete"
+                          size="x-small"
                           class="v-expansion-panel-header__icon"
                           aria-label="Delete"
                           :class="styles.arrayList.itemDelete"
@@ -163,9 +152,7 @@
                               control.data.length <= minItems)
                           "
                           @click.stop.native="suggestToDelete = index"
-                        >
-                          <v-icon class="notranslate">mdi-delete</v-icon>
-                        </v-btn>
+                        ></v-btn>
                       </template>
                       Delete
                     </v-tooltip>
@@ -211,8 +198,10 @@
           <v-card-actions>
             <v-spacer></v-spacer>
 
-            <v-btn text @click="suggestToDelete = null">Cancel</v-btn>
-            <v-btn text ref="confirm" @click="onRemoveItem">Delete</v-btn>
+            <v-btn variant="text" @click="suggestToDelete = null">Cancel</v-btn>
+            <v-btn variant="text" ref="confirm" @click="onRemoveItem">
+              Delete
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>

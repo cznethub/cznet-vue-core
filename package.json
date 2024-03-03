@@ -31,7 +31,6 @@
     "dev": "vite --mode dev",
     "build": "npm run clean:dist && vite build --mode prod && vue-tsc --declaration --emitDeclarationOnly",
     "publish": "npm publish --access public",
-    "prepare": "husky install",
     "clean:dist": "rimraf dist",
     "clean:coverage": "rimraf coverage",
     "preview": "vite preview",
@@ -45,12 +44,12 @@
     }
   },
   "peerDependencies": {
+    "@jsonforms/core": "^3.2.1",
+    "@jsonforms/vue": "^3.2.1",
     "@vue/composition-api": "^1.7.1",
     "vue": "^2.0.0 || >=3.0.0",
     "vue-facing-decorator": "^3.0.4",
-    "vuetify": "^3.5.6",
-    "@jsonforms/core": "^3.2.1",
-    "@jsonforms/vue": "^3.2.1"
+    "vuetify": "^3.5.6"
   },
   "peerDependenciesMeta": {
     "@vue/composition-api": {
@@ -97,7 +96,6 @@
     "eslint-plugin-vue": "latest",
     "eslint-plugin-vuejs-accessibility": "^2.2.0",
     "happy-dom": "^7.7.0",
-    "husky": "^8.0.2",
     "lodash-es": "^4.17.21",
     "rimraf": "^3.0.2",
     "sass": "^1.71.1",

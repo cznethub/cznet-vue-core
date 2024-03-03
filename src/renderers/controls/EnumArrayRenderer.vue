@@ -7,7 +7,7 @@
   >
     <v-hover v-slot="{ isHovering }">
       <v-select
-        @change="beforeChange"
+        @update:model-value="beforeChange"
         :id="control.id + '-input'"
         :data-id="computedLabel.replaceAll(` `, ``)"
         :class="styles.control.input"
@@ -15,14 +15,14 @@
         :hint="control.description"
         :required="control.required"
         :error-messages="control.errors"
-        :clearable="isHovering && !control.uischema.options?.readonly"
+        :clearable="control.enabled && !isReadOnly"
         :model-value="control.data"
         :items="control.options"
         v-bind="vuetifyProps(`v-select`)"
         chips
         small-chips
         deletable-chips
-        item-text="label"
+        item-title="label"
         item-value="value"
         multiple
       >
