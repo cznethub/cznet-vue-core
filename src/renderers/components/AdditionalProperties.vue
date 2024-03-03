@@ -22,17 +22,16 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ props }">
             <v-btn
-              fab
-              text
+              icon="mdi-plus"
+              variant="text"
               elevation="0"
               small
               v-bind="props"
+              size="small"
               :aria-label="addToLabel"
               :disabled="addPropertyDisabled"
               @click="addProperty"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
+            ></v-btn>
           </template>
           {{ addToLabel }}
         </v-tooltip>

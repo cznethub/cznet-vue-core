@@ -28,15 +28,10 @@
         v-bind="vuetifyProps('v-textarea')"
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-textarea>
     </v-hover>
@@ -61,10 +56,11 @@ import {
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
 import { VTextarea, VHover } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
   name: 'multi-string-control-renderer',
-  components: { VTextarea, VHover, ControlWrapper },
+  components: { VTextarea, VHover, ControlWrapper, CzFieldMessages },
   props: {
     ...rendererProps<ControlElement>(),
   },

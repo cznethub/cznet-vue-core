@@ -25,15 +25,10 @@
         item-value="value"
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-autocomplete>
 
@@ -55,15 +50,10 @@
         item-value="value"
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-select>
     </v-hover>
@@ -87,6 +77,7 @@ import {
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
 import { VSelect, VHover, VAutocomplete } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
   name: 'oneof-enum-control-renderer',
@@ -95,6 +86,7 @@ const controlRenderer = defineComponent({
     VHover,
     VAutocomplete,
     ControlWrapper,
+    CzFieldMessages,
   },
   directives: {},
   props: {

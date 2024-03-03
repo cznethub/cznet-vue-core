@@ -116,7 +116,7 @@
             :uischema="uischema"
             :errors.sync="errors"
             :isValid.sync="isValid"
-            :data.sync="data"
+            v-model="data"
             :config="config"
             ref="form"
           />

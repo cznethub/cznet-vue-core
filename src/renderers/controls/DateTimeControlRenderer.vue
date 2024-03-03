@@ -30,15 +30,10 @@
           @input="onInputChange"
         >
           <template v-slot:message>
-            <div
-              v-if="control.description"
-              class="text-subtitle-1 text--secondary"
-            >
-              {{ control.description }}
-            </div>
-            <div v-if="cleanedErrors" class="v-messages error--text">
-              {{ cleanedErrors }}
-            </div>
+            <cz-field-messages
+              :description="control.description"
+              :errors="cleanedErrors"
+            />
           </template>
           <template slot="append">
             <v-icon v-if="control.enabled" tabindex="-1" @click="clear">
@@ -138,6 +133,7 @@ import {
 } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const JSON_SCHEMA_DATE_TIME_FORMATS = [
   'YYYY-MM-DDTHH:mm:ss.SSSZ',
@@ -164,6 +160,7 @@ const controlRenderer = defineComponent({
     VCol,
     // VTimePicker,
     ControlWrapper,
+    CzFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),

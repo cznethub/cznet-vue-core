@@ -15,12 +15,10 @@
     @blur="isFocused = false"
   >
     <template v-slot:message>
-      <div v-if="control.description" class="text-subtitle-1 text--secondary">
-        {{ control.description }}
-      </div>
-      <div v-if="cleanedErrors" class="v-messages error--text">
-        {{ cleanedErrors }}
-      </div>
+      <cz-field-messages
+        :description="control.description"
+        :errors="cleanedErrors"
+      />
     </template>
   </v-checkbox>
 </template>
@@ -40,11 +38,13 @@ import {
 } from '@jsonforms/vue';
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
 import { VCheckbox } from 'vuetify/components';
+import czFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
   name: 'boolean-control-renderer',
   components: {
     VCheckbox,
+    czFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),

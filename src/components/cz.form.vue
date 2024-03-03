@@ -2,7 +2,7 @@
   <json-forms
     @change="onChange"
     :ajv="ajv"
-    :data="data"
+    :data="modelValue"
     :readonly="isReadOnly || isViewMode || isDisabled"
     :renderers="renderers"
     :cells="cells"
@@ -24,7 +24,6 @@ import { ErrorObject } from 'ajv';
 import { isCombinatorSchema } from '@/renderers/util';
 import { createAjv } from '@/validate/validate';
 import { CzRenderers, extendedCzRenderers } from '@/renderers/renderer';
-import { JsonSchema } from '@jsonforms/core';
 
 // import { createTranslator } from "@/renderers/i18n";
 
@@ -70,13 +69,13 @@ const defaultConfigs: Config = {
 @Component({
   name: 'cz-form',
   components: { JsonForms },
-  emits: ['update:is-valid', 'update:errors', 'update:data'],
+  emits: ['update:is-valid', 'update:errors', 'update:model-value'],
 })
 class CzForm extends Vue {
   @Prop() schema!: any;
   @Prop() uischema!: any;
   /** The initial data. Can bind to it using `.sync` modifier */
-  @Prop() data!: any;
+  @Prop() modelValue!: any;
   /** When `true`, sets the form to view mode. Validation is disabled, fields are readonly and empty fields are not rendered. */
   @Prop({ default: () => defaultConfigs }) config!: Config;
 
@@ -126,7 +125,7 @@ class CzForm extends Vue {
 
       this.$emit('update:is-valid', !event.errors?.length);
       this.$emit('update:errors', errors);
-      this.$emit('update:data', event.data);
+      this.$emit('update:model-value', event.data);
     });
   }
 

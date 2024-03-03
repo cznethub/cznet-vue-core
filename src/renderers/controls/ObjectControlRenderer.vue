@@ -61,7 +61,7 @@ import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: 'object-renderer',
+  name: 'object-control-renderer',
   components: {
     DispatchRenderer,
     VBtn,

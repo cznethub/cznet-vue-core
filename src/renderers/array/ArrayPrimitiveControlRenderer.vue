@@ -5,59 +5,54 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-combobox
-        v-model="tags"
-        @input="onTagsChange"
-        :label="computedLabel"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :hint="control.description"
-        :delimiters="delimeters"
-        :error-messages="control.errors"
-        :menu-props="{ openOnClick: false }"
-        small-chips
-        multiple
-        no-filter
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :placeholder="placeholder"
-        :required="control.required"
-        :clearable="
-          isHovering &&
-          !(!control.enabled || control.uischema.options?.readonly)
-        "
-        :items="suggestions"
-        v-bind="vuetifyProps('v-combobox')"
-        item-text="label"
-        item-value="value"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-      >
-        <template v-slot:selection="{ attrs, item }">
-          <v-chip
-            v-bind="attrs"
-            :readonly="!control.enabled || isReadOnly"
-            :disabled="appliedOptions.isDisabled"
-            :close="!(isRequired(item) || !control.enabled || isReadOnly)"
-            small
-            @click:close="remove(item)"
-          >
-            {{ item }}
-          </v-chip>
-        </template>
-        <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
-        </template>
-      </v-combobox>
-    </v-hover>
+    <v-combobox
+      v-model="tags"
+      @update:model-value="onTagsChange"
+      :label="computedLabel"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :hint="control.description"
+      :delimiters="delimeters"
+      :error-messages="control.errors"
+      :menu-props="{ openOnClick: false }"
+      small-chips
+      multiple
+      no-filter
+      chips
+      hide-details="auto"
+      :id="control.id + '-input'"
+      :class="styles.control.input"
+      :placeholder="placeholder"
+      :required="control.required"
+      clearable
+      closable-chips
+      :items="suggestions"
+      v-bind="vuetifyProps('v-combobox')"
+      item-text="label"
+      item-value="value"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    >
+      <template v-slot:chip="{ item }">
+        <v-chip
+          :readonly="!control.enabled || isReadOnly"
+          :disabled="appliedOptions.isDisabled"
+          :closable="
+            !(isRequired(item.value) || !control.enabled || isReadOnly)
+          "
+          @click:close="remove(item.value)"
+          small
+        >
+          {{ item.value }}
+        </v-chip>
+      </template>
+
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-combobox>
   </control-wrapper>
 </template>
 
@@ -78,6 +73,7 @@ import { VHover, VCombobox, VChip } from 'vuetify/components';
 import { useVuetifyControl } from '@/renderers/util/composition';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 import { isArray, every, isString } from 'lodash-es';
+import czFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
   name: 'array-primitive-control-renderer',
@@ -86,6 +82,7 @@ const controlRenderer = defineComponent({
     VCombobox,
     VChip,
     ControlWrapper,
+    czFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -126,6 +123,7 @@ const controlRenderer = defineComponent({
               requiredVal.toLowerCase().trim() === val.toLowerCase().trim()
           )
       );
+
       // TODO: add the missing requried value to the submission in the repository. For now autopopulated in our forms.
       this.tags = [...new Set([...requiredValues, ...existingValues])];
       this.onChange(this.tags);
@@ -154,7 +152,8 @@ const controlRenderer = defineComponent({
     },
   },
   methods: {
-    onTagsChange() {
+    onTagsChange(tags: string[]) {
+      this.tags = tags;
       // Prevent inserting duplicates and trim values
       this.tags = this.tags.filter(tag => !!tag.trim()).map(tag => tag.trim());
 
@@ -171,7 +170,7 @@ const controlRenderer = defineComponent({
     },
     remove(item: string) {
       this.tags.splice(this.tags.indexOf(item), 1);
-      this.onTagsChange();
+      this.handleChange(this.control.path, this.tags);
     },
     isRequired(item: string) {
       const schema = this.control.schema as JsonSchema7;

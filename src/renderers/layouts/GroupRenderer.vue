@@ -10,16 +10,16 @@
       <div class="text-overline">
         {{ computedLabel }}
       </div>
-      <div class="text-subtitle-1 text--secondary">
-        {{ layout.uischema['description'] }}
+      <div class="text-subtitle-1 text-medium-emphasis">
+        {{ layout.uischema.description }}
       </div>
     </v-card-title>
 
-    <v-divider></v-divider>
+    <v-divider />
 
     <v-card-text>
       <div
-        v-for="(element, index) in layout.uischema['elements']"
+        v-for="(element, index) in layout.uischema.elements"
         :data-id="`group-${index}`"
         :key="`${layout.path}-${index}`"
         :class="styles.group.item"

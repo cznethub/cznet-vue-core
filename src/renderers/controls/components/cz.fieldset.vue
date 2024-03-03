@@ -25,16 +25,16 @@
             <v-tooltip v-if="!isAdded" bottom transition="fade">
               <template v-slot:activator="{ props }">
                 <v-btn
-                  icon
+                  icon="mdi-plus"
+                  variant="text"
                   color="primary"
                   @click="show()"
                   :disabled="!enabled || readonly"
+                  size="small"
                   class="btn-add"
                   :aria-label="`Add to ${title}`"
                   v-bind="props"
-                >
-                  <v-icon>mdi-plus</v-icon>
-                </v-btn>
+                ></v-btn>
               </template>
               {{ `Add ${title}` }}
             </v-tooltip>
@@ -42,16 +42,16 @@
             <v-tooltip v-else bottom transition="fade">
               <template v-slot:activator="{ props }">
                 <v-btn
-                  icon
+                  icon="mdi-minus"
+                  variant="text"
                   color="error"
                   @click="hide()"
                   :disabled="!enabled"
+                  size="small"
                   class="btn-add"
                   aria-label="Remove"
                   v-bind="props"
-                >
-                  <v-icon>mdi-minus</v-icon>
-                </v-btn>
+                ></v-btn>
               </template>
               Remove
             </v-tooltip>
@@ -66,11 +66,17 @@
       </template>
     </fieldset>
 
-    <div v-if="description" class="text--secondary text-body-1 my-2 px-2">
+    <div
+      v-if="description"
+      class="text-subtitle-1 text-medium-emphasis my-2 px-2"
+    >
       {{ description }}
     </div>
 
-    <div v-if="cleanedErrors" class="my-2 px-2 v-messages error--text">
+    <div
+      v-if="cleanedErrors"
+      class="text-subtitle-1 text-medium-emphasis error--text my-2 px-2"
+    >
       {{ cleanedErrors }}
     </div>
   </div>
@@ -210,7 +216,7 @@ fieldset,
 
   :deep(.btn-add) {
     position: absolute;
-    top: -0.2rem;
+    top: 0;
     right: 0;
     z-index: 1;
   }

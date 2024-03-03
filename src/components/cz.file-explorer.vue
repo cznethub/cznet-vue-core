@@ -361,7 +361,7 @@
                             @click.ctrl.exact="onItemCtrlClick($event, item)"
                             @click.meta.exact="onItemCtrlClick($event, item)"
                             @click.shift.exact="onItemShiftClick($event, item)"
-                            :class="{ 'text--secondary': item.isCutting }"
+                            :class="{ 'text-medium-emphasis': item.isCutting }"
                             class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column"
                           >
                             <v-col
@@ -372,13 +372,13 @@
                               </div>
                               <div
                                 v-if="item.file"
-                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text--secondary"
+                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
                               >
                                 {{ prettyBytes(item.file.size) }}
                               </div>
                               <div
                                 v-else-if="item.uploadedSize"
-                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text--secondary"
+                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
                               >
                                 {{ prettyBytes(item.uploadedSize) }}
                               </div>
@@ -414,7 +414,7 @@
                         </v-col>
                         <v-col
                           v-if="showFileWarnings(item)"
-                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text--secondary align-center"
+                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text-medium-emphasis align-center"
                         >
                           <v-menu open-on-hover bottom left offset-y>
                             <template v-slot:activator="{ props }">
@@ -525,7 +525,7 @@
         flat
         outlined
         v-else-if="!rootDirectory.children.length"
-        class="pa-2 text-body-1 text--secondary mb-2"
+        class="pa-2 text-body-1 text-medium-emphasis mb-2"
       >
         <v-card-text class="text-center">
           No files have been included in this submission.

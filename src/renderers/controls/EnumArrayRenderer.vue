@@ -27,15 +27,10 @@
         multiple
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-select>
     </v-hover>
@@ -69,6 +64,7 @@ import {
 import { defineComponent } from 'vue';
 import { useVuetifyBasicControl } from '@/renderers/util/composition';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 //TODO: move into JsonForm Vue project under src/components/jsonFormsCompositions.ts
 const useJsonFormsMultiEnumControl = (props: ControlProps) => {
@@ -91,6 +87,7 @@ const controlRenderer = defineComponent({
     VSelect,
     VHover,
     ControlWrapper,
+    CzFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),

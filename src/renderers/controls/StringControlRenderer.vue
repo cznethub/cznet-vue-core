@@ -32,15 +32,10 @@
         @input="onChange"
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-combobox>
 
@@ -69,15 +64,10 @@
         @blur="isFocused = false"
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-text-field>
     </v-hover>
@@ -101,6 +91,7 @@ import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
 import { isArray, every, isString } from 'lodash-es';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { VTextField, VCombobox, VHover } from 'vuetify/components';
+import czFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
   name: 'string-control-renderer',
@@ -112,6 +103,7 @@ const controlRenderer = defineComponent({
     VCombobox,
     VHover,
     ControlWrapper,
+    czFieldMessages,
   },
   setup(props: RendererProps<ControlElement>) {
     const control = useDefaults(useJsonFormsControl(props));

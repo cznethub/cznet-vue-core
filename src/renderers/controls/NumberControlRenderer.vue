@@ -23,15 +23,10 @@
         v-bind="vuetifyProps('v-text-field')"
       >
         <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
+          <cz-field-messages
+            :description="control.description"
+            :errors="cleanedErrors"
+          />
         </template>
       </v-text-field>
     </v-hover>
@@ -54,12 +49,13 @@ import {
 import { useVuetifyControl } from '@/renderers/util/composition';
 import { VTextField, VHover } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
 const controlRenderer = defineComponent({
   name: 'number-control-renderer',
-  components: { VTextField, ControlWrapper, VHover },
+  components: { VTextField, ControlWrapper, VHover, CzFieldMessages },
   props: {
     ...rendererProps<ControlElement>(),
   },

@@ -32,15 +32,10 @@
           v-bind="{ ...vuetifyProps('v-text-field'), ...props }"
         >
           <template v-slot:message>
-            <div
-              v-if="control.description"
-              class="text-subtitle-1 text--secondary"
-            >
-              {{ control.description }}
-            </div>
-            <div v-if="cleanedErrors" class="v-messages error--text">
-              {{ cleanedErrors }}
-            </div>
+            <cz-field-messages
+              :description="control.description"
+              :errors="cleanedErrors"
+            />
           </template>
           <template slot="append">
             <v-icon v-if="control.enabled" tabindex="-1" @click="clear">
@@ -103,6 +98,7 @@ import {
   VTextField,
   VHover,
 } from 'vuetify/components';
+import czFieldMessages from '../components/cz.field-messages.vue';
 
 const JSON_SCHEMA_DATE_FORMATS = ['YYYY-MM-DD'];
 import { VueMaskDirective as Mask } from 'v-mask';
@@ -130,6 +126,7 @@ const controlRenderer = defineComponent({
     VSpacer,
     VBtn,
     ControlWrapper,
+    czFieldMessages,
   },
   setup(props: RendererProps<ControlElement>) {
     const t = useTranslator();

@@ -21,7 +21,9 @@
         <v-tooltip bottom transition="fade">
           <template v-slot:activator="{ props }">
             <v-btn
-              icon
+              icon="mdi-plus"
+              variant="text"
+              size="small"
               color="primary"
               @click="
                 addButtonClick();
@@ -38,9 +40,7 @@
                   control.data &&
                   control.data.length >= maxItems)
               "
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
+            ></v-btn>
           </template>
           {{ `Add to ${control.label}` }}
         </v-tooltip>
