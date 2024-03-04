@@ -171,15 +171,12 @@ const controlRenderer = defineComponent({
     };
   },
   created() {
+    this.selectedIndex = this.control.indexOfFittingSchema || 0;
+    this.prevSelectedIndex = this.selectedIndex;
+
     if (this.control.data) {
       this.isAdded = true;
     }
-  },
-  mounted() {
-    // TODO: indexOfFittingSchema not getting the right value
-    // indexOfFittingSchema is only populated after mounted hook
-    this.selectedIndex = this.control.indexOfFittingSchema || 0;
-    this.prevSelectedIndex = this.selectedIndex;
   },
   computed: {
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {

@@ -97,11 +97,13 @@
                 "statement": {
                   "type": "string",
                   "default": "This resource is shared under the Creative Commons Attribution CC BY.",
+                  "const": "This resource is shared under the Creative Commons Attribution CC BY.",
                   "readOnly": true
                 },
                 "url": {
                   "type": "string",
                   "default": "http://creativecommons.org/licenses/by/4.0/",
+                  "const": "http://creativecommons.org/licenses/by/4.0/",
                   "readOnly": true
                 }
               }
@@ -117,91 +119,13 @@
                 "statement": {
                   "type": "string",
                   "default": "This resource is shared under the Creative Commons Attribution-ShareAlike CC BY-SA.",
+                  "const": "This resource is shared under the Creative Commons Attribution-ShareAlike CC BY-SA.",
                   "readOnly": true
                 },
                 "url": {
                   "type": "string",
                   "default": "http://creativecommons.org/licenses/by-sa/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoDerivs CC BY-ND",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoDerivs CC BY-ND"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoDerivs CC BY-ND.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nd/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nc-sa/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoCommercial CC BY-NC",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoCommercial CC BY-NC"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial CC BY-NC.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nc/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nc/4.0/",
+                  "const": "http://creativecommons.org/licenses/by-sa/4.0/",
                   "readOnly": true
                 }
               }

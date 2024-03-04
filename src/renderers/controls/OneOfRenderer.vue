@@ -171,13 +171,12 @@ const controlRenderer = defineComponent({
     };
   },
   created() {
+    this.selectedIndex = this.control.indexOfFittingSchema || 0;
+    this.prevSelectedIndex = this.selectedIndex;
+
     if (this.control.data) {
       this.isAdded = true;
     }
-  },
-  mounted() {
-    // indexOfFittingSchema is only populated after mounted hook
-    this.selectedIndex = this.control.indexOfFittingSchema || 0;
   },
   computed: {
     oneOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -243,8 +242,10 @@ const controlRenderer = defineComponent({
     handleSelectChange(nextIndexOrLabel: any): void {
       if (this.control.enabled) {
         // Store form state in lookup before tab change.
+        // seletedIndex still has the previously selected index
         this.tabData[this.selectedIndex] = this.control.data;
 
+        // Update to new value
         if (typeof nextIndexOrLabel === 'number') {
           this.selectedIndex = nextIndexOrLabel;
         } else if (typeof nextIndexOrLabel === 'string') {
@@ -258,12 +259,11 @@ const controlRenderer = defineComponent({
       }
     },
     handleTabChange(_currentIndex: any): void {
+      this.tabData[this.prevSelectedIndex] = this.control.data;
+      this.prevSelectedIndex = this.selectedIndex;
+
       if (this.control.enabled) {
-        console.log(this.tabData);
         this.handleChange(this.control.path, this.getValue());
-        // Store in lookup.
-        // TODO: we actually need to store before tab change
-        this.tabData[this.selectedIndex] = this.control.data;
       }
     },
     getValue() {
