@@ -38,6 +38,8 @@
                 appliedOptions.isDisabled) &&
               selectedIndex !== anyOfIndex
             "
+            density="compact"
+            variant="elevated"
           >
             {{
               anyOfRenderInfo.uischema.options?.label || anyOfRenderInfo.label

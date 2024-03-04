@@ -1,8 +1,8 @@
 <template>
   <v-card
     elevation="0"
-    outlined
-    class="my-5"
+    variant="outlined"
+    class="cz-group my-5"
     v-if="layout.visible"
     :data-id="generateId"
   >
@@ -87,4 +87,8 @@ export const entry: JsonFormsRendererRegistryEntry = {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.cz-group {
+  border: thin solid #ababab;
+}
+</style>

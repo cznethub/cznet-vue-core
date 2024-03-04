@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-container>
-      <div class="text-h5 text-center">CZNet vue core components</div>
+      <div class="text-h5 text-center">CZNet Vue 3 core components</div>
 
       <v-card class="my-5">
         <v-card-title>Notifications</v-card-title>
@@ -58,7 +58,7 @@
           >
             <template v-slot:prepend>
               <v-alert
-                class="text-subtitle-1"
+                class="text-subtitle-1 mb-4"
                 border="start"
                 colored-border
                 type="info"
@@ -126,7 +126,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-menu open-on-hover bottom left offset-y>
+          <v-menu open-on-hover bottom left offset-y transition="fade">
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"

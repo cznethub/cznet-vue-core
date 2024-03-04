@@ -23,7 +23,6 @@
               icon="mdi-plus"
               variant="text"
               elevation="0"
-              small
               v-bind="props"
               size="small"
               :aria-label="addToLabel"
@@ -56,16 +55,14 @@
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"
-                fab
-                text
+                variant="text"
                 elevation="0"
-                small
+                size="small"
+                icon="mdi-delete"
                 :aria-label="deleteLabel"
                 :disabled="removePropertyDisabled"
                 @click="removeProperty(element.propertyName)"
-              >
-                <v-icon class="notranslate">mdi-delete</v-icon>
-              </v-btn>
+              ></v-btn>
             </template>
             {{ deleteLabel }}
           </v-tooltip>
@@ -421,7 +418,10 @@ export default defineComponent({
                 (newData[ap.propertyName] === null &&
                   ap.schema.type !== 'null')) // createDefaultValue will return null only when the ap.schema.type is 'null'
             ) {
-              const newValue = createDefaultValue(ap.schema);
+              const newValue = createDefaultValue(
+                ap.schema,
+                this.control.rootSchema
+              );
               hasChanges = newData[ap.propertyName] !== newValue;
               newData[ap.propertyName] = newValue;
             }
@@ -462,7 +462,8 @@ export default defineComponent({
           additionalProperty.schema
         ) {
           this.control.data[this.newPropertyName] = createDefaultValue(
-            additionalProperty.schema
+            additionalProperty.schema,
+            this.control.rootSchema
           );
           // we need always to preserve the key even when the value is "empty"
           this.input.handleChange(this.control.path, this.control.data);

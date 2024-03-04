@@ -49,11 +49,12 @@
 
       <v-container v-if="!noData" justify-space-around align-content-center>
         <v-row justify="center">
-          <v-expansion-panels flat focusable multiple>
+          <v-expansion-panels focusable multiple flat>
             <v-expansion-panel
               v-for="(element, index) in control.data"
               :key="`${control.path}-${index}`"
               :class="styles.arrayList.item"
+              v-model="panels"
             >
               <v-expansion-panel-title :class="styles.arrayList.itemHeader">
                 <div
@@ -303,22 +304,22 @@ const controlRenderer = defineComponent({
       ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
     };
     const fieldset = ref<InstanceType<typeof CzFieldset>>();
-    const currentlyExpanded: number[] = [];
+    const panels: number[] = [];
     const suggestToDelete = ref<null | number>(null);
     // indicate to our child renderers that we are increasing the "nested" level
     useNested('array');
-    return { ...control, currentlyExpanded, suggestToDelete, fieldset };
+    return { ...control, panels, suggestToDelete, fieldset };
   },
   created() {
     // @ts-ignore
-    const requiredItems = this.control.schema.contains?.enum || [];
+    const requiredItems: string[] = this.control.schema.contains?.enum || [];
 
     requiredItems.map(item => {
       if (!this.control.data) {
         this.handleChange(this.control.path, undefined);
       }
       // We most use isEqual to compare objects instead of Arra.includes
-      const isIncluded = this.control.data?.some(existingItem =>
+      const isIncluded = this.control.data?.some((existingItem: any) =>
         isEqual(item, existingItem)
       );
       if (!isIncluded) {
@@ -327,14 +328,14 @@ const controlRenderer = defineComponent({
     });
 
     if (this.control.schema.default && !this.control.data) {
-      this.control.schema.default.map(item => {
+      this.control.schema.default.map((item: any) => {
         this.addItem(this.control.path, item)();
       });
     }
 
     // Expand existing items
     if (this.control.data && !this.appliedOptions.collapsed) {
-      this.currentlyExpanded = this.control.data.map((_item, index) => index);
+      this.panels = this.control.data.map((_item: any, index: number) => index);
     }
   },
   computed: {
@@ -378,7 +379,7 @@ const controlRenderer = defineComponent({
     addButtonClick() {
       const combinatorSchema = this.isCombinatorSchema(this.control.schema);
       const defaultSchema = combinatorSchema
-        ? this.control.schema[combinatorSchema][0]
+        ? this.control.schema[combinatorSchema]?.[0]
         : this.control.schema;
 
       /**
@@ -387,14 +388,14 @@ const controlRenderer = defineComponent({
        */
       const val =
         !combinatorSchema || ['object', 'array'].includes(defaultSchema.type)
-          ? createDefaultValue(defaultSchema)
+          ? createDefaultValue(defaultSchema, this.control.rootSchema)
           : undefined;
 
       this.addItem(this.control.path, val)();
 
       // @ts-ignore
       if (!this.appliedOptions.collapseNewItems && this.control.data?.length) {
-        this.currentlyExpanded.push(this.control.data.length - 1);
+        this.panels.push(this.control.data.length - 1);
       }
     },
     moveUpClick(event: Event, toMove: number): void {
@@ -421,7 +422,7 @@ const controlRenderer = defineComponent({
         );
       });
     },
-    getItemLabel(element) {
+    getItemLabel(element: any) {
       if (!element) {
         return '';
       }
@@ -429,7 +430,7 @@ const controlRenderer = defineComponent({
       if (Array.isArray(this.appliedOptions.elementLabelProp)) {
         // @ts-ignore
         return this.appliedOptions.elementLabelProp
-          .map(prop => element[prop])
+          .map((prop: string) => element[prop])
           .join(' ');
       } else {
         // @ts-ignore
@@ -447,7 +448,7 @@ const controlRenderer = defineComponent({
 
 export default controlRenderer;
 
-const useArrayLayout = uiSchema => {
+const useArrayLayout = (uiSchema: UISchemaElement) => {
   return uiSchema.options?.useArrayLayout;
 };
 

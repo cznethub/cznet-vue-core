@@ -127,17 +127,15 @@
                             <v-btn
                               v-bind="props"
                               v-if="appliedOptions.showSortButtons"
-                              fab
                               variant="text"
+                              icon="mdi-arrow-up"
                               elevation="0"
-                              small
+                              size="small"
                               aria-label="Up"
                               :disabled="index <= 0 || !control.enabled"
                               :class="styles.arrayList.itemMoveUp"
                               @click.native="moveUpClick($event, index)"
-                            >
-                              <v-icon class="notranslate">mdi-arrow-up</v-icon>
-                            </v-btn>
+                            ></v-btn>
                           </template>
                           Move Up
                         </v-tooltip>
@@ -146,21 +144,17 @@
                             <v-btn
                               v-bind="props"
                               v-if="appliedOptions.showSortButtons"
-                              fab
                               variant="text"
                               elevation="0"
-                              small
+                              size="small"
+                              icon="mdi-arrow-down"
                               aria-label="Down"
                               :disabled="
                                 index >= dataLength - 1 || !control.enabled
                               "
                               :class="styles.arrayList.itemMoveDown"
                               @click.native="moveDownClick($event, index)"
-                            >
-                              <v-icon class="notranslate">
-                                mdi-arrow-down
-                              </v-icon>
-                            </v-btn>
+                            ></v-btn>
                           </template>
                           Move Down
                         </v-tooltip>
@@ -168,11 +162,10 @@
                           <template v-slot:activator="{ props }">
                             <v-btn
                               v-bind="props"
-                              fab
                               variant="text"
                               elevation="0"
-                              small
                               aria-label="Remove"
+                              icon="mdi-delete"
                               :class="styles.arrayList.itemDelete"
                               :disabled="
                                 !control.enabled ||
@@ -183,9 +176,7 @@
                                   dataLength <= arraySchema.minItems)
                               "
                               @click.native="removeItemsClick($event, [index])"
-                            >
-                              <v-icon class="notranslate">mdi-delete</v-icon>
-                            </v-btn>
+                            ></v-btn>
                           </template>
                           Remove
                         </v-tooltip>

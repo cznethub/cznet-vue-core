@@ -40,7 +40,7 @@
             !(isRequired(item.value) || !control.enabled || isReadOnly)
           "
           @click:close="remove(item.value)"
-          small
+          size="small"
         >
           {{ item.value }}
         </v-chip>

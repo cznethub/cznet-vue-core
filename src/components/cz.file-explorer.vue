@@ -1,15 +1,15 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center has-bg-light-gray primary lighten-4 files-container--included flex-wrap gap-1"
+      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1"
     >
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
         <template v-slot:activator="{ props }">
           <v-btn
             @click="newFolder"
             icon="mdi-folder"
-            class="mr-4"
-            small
+            size="small"
+            variant="text"
             v-bind="props"
           ></v-btn>
         </template>
@@ -25,9 +25,9 @@
               <v-btn
                 @click="selectAll"
                 :disabled="!rootDirectory.children.length"
-                class="mr-1"
                 icon="mdi-select"
-                small
+                size="small"
+                variant="text"
                 v-bind="props"
               ></v-btn>
             </template>
@@ -41,7 +41,7 @@
               <v-btn
                 @click="unselectAll"
                 icon
-                small
+                size="small"
                 :disabled="!selected.length"
                 v-bind="props"
                 v-bind="attrs"
@@ -60,9 +60,9 @@
               <v-btn
                 @click="cut"
                 :disabled="!canCutSelected"
-                class="mr-1"
                 icon="mdi-content-cut"
-                small
+                size="small"
+                variant="text"
                 v-bind="props"
               ></v-btn>
             </template>
@@ -75,9 +75,10 @@
                 @click="onPaste"
                 :disabled="!canPaste"
                 icon="mdi-content-paste"
-                small
+                size="small"
+                variant="text"
                 v-bind="props"
-              ></v-btn>
+              />
             </template>
             Paste
           </v-tooltip>
@@ -90,7 +91,8 @@
               <v-btn
                 @click="deleteSelected"
                 icon="mdi-delete"
-                small
+                size="small"
+                variant="text"
                 :disabled="isDeleting || !selected.length"
                 v-bind="props"
               ></v-btn>
@@ -100,15 +102,14 @@
         </template>
       </div>
 
-      <v-spacer></v-spacer>
+      <v-spacer />
 
       <v-text-field
         v-model="search"
-        rounded
         label="Search by file or folder name..."
-        dense
-        solo
-        flat
+        rounded
+        density="compact"
+        variant="outlined"
         hide-details
         clearable
         clear-icon="mdi-close-circle-outline"
@@ -120,11 +121,10 @@
         <v-btn
           @click="discardAll"
           :disabled="!isSomeNotUploaded"
-          small
           depressed
           class="default"
         >
-          <v-icon class="mr-2" small color="error">
+          <v-icon class="mr-2" size="small" color="error">
             mdi-cloud-cancel-outline
           </v-icon>
           Discard All
@@ -132,6 +132,7 @@
       </template>
     </v-sheet>
 
+    <v-divider outlined></v-divider>
     <v-card-text style="min-height: 10rem">
       <slot name="prepend"></slot>
 
@@ -247,7 +248,7 @@
 
       <v-card
         flat
-        outlined
+        variant="outlined"
         v-if="rootDirectory.children.length"
         class="mb-4 files-container-card"
         :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
@@ -348,8 +349,8 @@
                             :model-value="item.name"
                             v-click-outside="onClickOutside"
                             append-icon="mdi-cancel"
-                            dense
-                            outlined
+                            density="compact"
+                            variant="outlined"
                             hide-details="auto"
                             autofocus
                           ></v-text-field>
@@ -393,7 +394,11 @@
                           v-if="item.isUploaded"
                           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
-                          <v-icon class="text--disabled" title="uploaded" small>
+                          <v-icon
+                            class="text--disabled"
+                            title="uploaded"
+                            size="small"
+                          >
                             mdi-cloud-check
                           </v-icon>
                         </v-col>
@@ -405,7 +410,8 @@
                             color="info"
                             @click="retryUpload(item)"
                             :disabled="item.isDisabled"
-                            small
+                            size="small"
+                            variant="text"
                             depressed
                           >
                             <v-icon left>mdi-cloud-upload</v-icon>
@@ -523,7 +529,7 @@
 
       <v-card
         flat
-        outlined
+        variant="outlined"
         v-else-if="!rootDirectory.children.length"
         class="pa-2 text-body-1 text-medium-emphasis mb-2"
       >
@@ -560,7 +566,6 @@
           drag-drop
           expanded
           v-model="dropFiles"
-          class="has-bg-light-gray"
         >
           <v-alert
             class="ma-4 has-cursor-pointer transparent"
@@ -1538,6 +1543,7 @@ export default toNative(CzFileExplorer);
   border: 1px dashed #ddd;
   border-radius: 0.5rem;
   cursor: pointer;
+  min-height: 5rem;
 
   &,
   .upload {
@@ -1573,9 +1579,12 @@ export default toNative(CzFileExplorer);
   }
 }
 
-.files-container-card.border-dash {
-  border: 1px dashed !important;
+.files-container-card {
   border-color: rgba(0, 0, 0, 0.25) !important;
+
+  &.border-dash {
+    border: 1px dashed !important;
+  }
 }
 
 .files-container {
