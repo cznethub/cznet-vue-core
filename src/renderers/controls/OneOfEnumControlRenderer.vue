@@ -6,57 +6,55 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-autocomplete
-        v-if="hasAutoComplete"
-        @update:model-value="onChange"
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :placeholder="placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="control.enabled && !isReadOnly"
-        :model-value="control.data"
-        :items="sortedOptions"
-        v-bind="vuetifyProps('v-autocomplete')"
-        item-text="label"
-        item-value="value"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-autocomplete>
+    <v-autocomplete
+      v-if="hasAutoComplete"
+      @update:model-value="onChange"
+      :id="control.id + '-input'"
+      :class="styles.control.input"
+      :placeholder="placeholder"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :model-value="control.data"
+      :items="sortedOptions"
+      v-bind="vuetifyProps('v-autocomplete')"
+      item-text="label"
+      item-value="value"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-autocomplete>
 
-      <v-select
-        v-else
-        @update:model-value="onChange"
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :placeholder="placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="control.enabled && !isReadOnly"
-        :model-value="control.data"
-        :items="customOptions"
-        v-bind="vuetifyProps('v-select')"
-        item-title="label"
-        item-value="value"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-select>
-    </v-hover>
+    <v-select
+      v-else
+      @update:model-value="onChange"
+      :id="control.id + '-input'"
+      :class="styles.control.input"
+      :placeholder="placeholder"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :model-value="control.data"
+      :items="customOptions"
+      v-bind="vuetifyProps('v-select')"
+      item-title="label"
+      item-value="value"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-select>
   </control-wrapper>
 </template>
 
@@ -75,7 +73,7 @@ import {
   RendererProps,
 } from '@jsonforms/vue';
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
-import { VSelect, VHover, VAutocomplete } from 'vuetify/components';
+import { VSelect, VAutocomplete } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
@@ -83,7 +81,6 @@ const controlRenderer = defineComponent({
   name: 'oneof-enum-control-renderer',
   components: {
     VSelect,
-    VHover,
     VAutocomplete,
     ControlWrapper,
     CzFieldMessages,

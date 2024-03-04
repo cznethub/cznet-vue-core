@@ -5,33 +5,31 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-combobox
-        v-disabled-icon-focus
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :placeholder="appliedOptions.placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :model-value="control.data"
-        :maxlength="
-          appliedOptions.restrict ? control.schema.maxLength : undefined
-        "
-        :counter="
-          control.schema.maxLength !== undefined
-            ? control.schema.maxLength
-            : undefined
-        "
-        v-bind="vuetifyProps('v-combobox')"
-        :items="items"
-        :clearable="control.enabled && !isReadOnly"
-        @update:model-value="onChange"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-      />
-    </v-hover>
+    <v-combobox
+      v-disabled-icon-focus
+      :id="control.id + '-input'"
+      :class="styles.control.input"
+      :placeholder="appliedOptions.placeholder"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :model-value="control.data"
+      :maxlength="
+        appliedOptions.restrict ? control.schema.maxLength : undefined
+      "
+      :counter="
+        control.schema.maxLength !== undefined
+          ? control.schema.maxLength
+          : undefined
+      "
+      v-bind="vuetifyProps('v-combobox')"
+      :items="items"
+      :clearable="control.enabled && !isReadOnly"
+      @update:model-value="onChange"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    />
   </control-wrapper>
 </template>
 
@@ -52,7 +50,7 @@ import {
   RendererProps,
 } from '@jsonforms/vue';
 import { useVuetifyControl } from '@/renderers/util/composition';
-import { VCombobox, VHover } from 'vuetify/components';
+import { VCombobox } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { DisabledIconFocus } from './directives';
 
@@ -61,7 +59,6 @@ const controlRenderer = defineComponent({
   components: {
     VCombobox,
     ControlWrapper,
-    VHover,
   },
   directives: {
     DisabledIconFocus,

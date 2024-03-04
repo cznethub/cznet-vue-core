@@ -5,30 +5,28 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-text-field
-        type="number"
-        @change.native="beforeChange($event)"
-        :step="step"
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :placeholder="placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :model-value="control.data"
-        :clearable="control.enabled && !isReadOnly"
-        v-bind="vuetifyProps('v-text-field')"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-text-field>
-    </v-hover>
+    <v-text-field
+      type="number"
+      @change.native="beforeChange($event)"
+      :step="step"
+      :id="control.id + '-input'"
+      :class="styles.control.input"
+      :placeholder="placeholder"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :model-value="control.data"
+      :clearable="control.enabled && !isReadOnly"
+      v-bind="vuetifyProps('v-text-field')"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-text-field>
   </control-wrapper>
 </template>
 
@@ -46,7 +44,7 @@ import {
   RendererProps,
 } from '@jsonforms/vue';
 import { useVuetifyControl } from '@/renderers/util/composition';
-import { VTextField, VHover } from 'vuetify/components';
+import { VTextField } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
@@ -55,7 +53,6 @@ const controlRenderer = defineComponent({
   components: {
     VTextField,
     ControlWrapper,
-    VHover,
     CzFieldMessages,
   },
   props: {

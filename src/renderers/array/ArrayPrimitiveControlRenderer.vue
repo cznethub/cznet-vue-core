@@ -69,7 +69,7 @@ import {
 } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import { rendererProps, useJsonFormsControl } from '@jsonforms/vue';
-import { VHover, VCombobox, VChip } from 'vuetify/components';
+import { VCombobox, VChip } from 'vuetify/components';
 import { useVuetifyControl } from '@/renderers/util/composition';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 import { isArray, every, isString } from 'lodash-es';
@@ -78,7 +78,6 @@ import czFieldMessages from '../components/cz.field-messages.vue';
 const controlRenderer = defineComponent({
   name: 'array-primitive-control-renderer',
   components: {
-    VHover,
     VCombobox,
     VChip,
     ControlWrapper,

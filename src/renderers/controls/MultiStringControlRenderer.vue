@@ -5,36 +5,34 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-textarea
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        @input="onChange"
-        :maxlength="
-          appliedOptions.restrict ? control.schema.maxLength : undefined
-        "
-        :counter="
-          control.schema.maxLength !== undefined
-            ? control.schema.maxLength
-            : undefined
-        "
-        :error-messages="control.errors"
-        :required="control.required"
-        :hint="control.description"
-        :model-value="control.data"
-        :placeholder="placeholder"
-        :label="computedLabel"
-        :clearable="control.enabled && !isReadOnly"
-        v-bind="vuetifyProps('v-textarea')"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-textarea>
-    </v-hover>
+    <v-textarea
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      @update:model-value="onChange"
+      :maxlength="
+        appliedOptions.restrict ? control.schema.maxLength : undefined
+      "
+      :counter="
+        control.schema.maxLength !== undefined
+          ? control.schema.maxLength
+          : undefined
+      "
+      :error-messages="control.errors"
+      :required="control.required"
+      :hint="control.description"
+      :model-value="control.data"
+      :placeholder="placeholder"
+      :label="computedLabel"
+      :clearable="control.enabled && !isReadOnly"
+      v-bind="vuetifyProps('v-textarea')"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-textarea>
   </control-wrapper>
 </template>
 
@@ -54,13 +52,13 @@ import {
   RendererProps,
 } from '@jsonforms/vue';
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
-import { VTextarea, VHover } from 'vuetify/components';
+import { VTextarea } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
   name: 'multi-string-control-renderer',
-  components: { VTextarea, VHover, ControlWrapper, CzFieldMessages },
+  components: { VTextarea, ControlWrapper, CzFieldMessages },
   props: {
     ...rendererProps<ControlElement>(),
   },

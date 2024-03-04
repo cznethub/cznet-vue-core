@@ -60,9 +60,6 @@ const controlRenderer = defineComponent({
   props: {
     ...rendererProps<ControlElement>(),
   },
-  created() {
-    console.log(this.control.options);
-  },
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsEnumControl(props);
     useDefaults(control);

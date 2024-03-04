@@ -28,7 +28,7 @@
           prepend-inner-icon="mdi-calendar"
           v-mask="mask"
           :model-value="inputValue"
-          @input="onInputChange"
+          @update:model-value="onInputChange"
           v-bind="{ ...vuetifyProps('v-text-field'), ...props }"
         >
           <template v-slot:message>
@@ -96,7 +96,6 @@ import {
   VMenu,
   VSpacer,
   VTextField,
-  VHover,
 } from 'vuetify/components';
 import czFieldMessages from '../components/cz.field-messages.vue';
 
@@ -118,7 +117,6 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   components: {
-    VHover,
     VTextField,
     VMenu,
     VDatePicker,

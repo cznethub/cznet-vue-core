@@ -1,186 +1,197 @@
 {
-  "title": "Resource Metadata",
-  "description": "A class used to represent the metadata for a resource",
+  "$id": "http://czhub.org/schemas/cz_generic_dataset_v1.0.0.json",
+  "title": "Generic Dataset Schema for CZ Net Data Submission Portal v1.0.0",
+  "description": "Metadata for a dataset object submitted to a repository that is not supported by the CZ Hub Data Submission Portal",
   "type": "object",
   "properties": {
-    "title": {
-      "title": "Title",
-      "description": "A string containing the name given to a resource",
+    "name": {
+      "title": "Name or title",
+      "type": "string",
       "maxLength": 300,
-      "type": "string"
+      "description": "Descriptive name or title for the resource."
     },
-    "abstract": {
-      "title": "Abstract",
-      "description": "A string containing a summary of a resource",
-      "type": "string"
+    "description": {
+      "title": "Description or abstract",
+      "type": "string",
+      "description": "A string containing a description/abstract for the resource."
     },
-    "subjects": {
-      "title": "Subject keywords",
-      "description": "A list of keyword strings expressing the topic of a resource",
+    "keywords": {
+      "title": "Subject Keywords",
+      "type": "array",
+      "description": "A list of free text keywords related to the resource.",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      },
       "default": [
         "CZNet"
       ],
-      "minItems": 2,
       "contains": {
         "enum": [
           "CZNet"
         ]
-      },
-      "type": "array",
-      "items": {
-        "type": "string"
       }
     },
     "creators": {
       "title": "Creators",
-      "description": "A list of Creator objects indicating the entities responsible for creating a resource",
-      "default": [],
       "type": "array",
+      "description": "Creators of the resource in order of importance.",
+      "minItems": 1,
+      "uniqueItems": true,
       "items": {
         "$ref": "#/definitions/Creator"
       }
     },
     "contributors": {
       "title": "Contributors",
-      "description": "A list of Contributor objects indicating the entities that contributed to a resource",
-      "default": [],
       "type": "array",
+      "description": "Contributors to the resource in order of importance.",
+      "uniqueItems": true,
+      "default": [],
       "items": {
         "$ref": "#/definitions/Contributor"
       }
     },
+    "license": {
+      "title": "License",
+      "type": "object",
+      "description": "License under which the resource is released for access and reuse.",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "License Name",
+          "type": "string",
+          "description": "Name of the license under which the resource is released."
+        },
+        "description": {
+          "title": "License Description",
+          "type": "string",
+          "description": "Text of the license or description of the license for the resource."
+        },
+        "url": {
+          "$ref": "#/definitions/UrlPattern"
+        }
+      },
+      "required": [
+        "description"
+      ]
+    },
+    "funders": {
+      "title": "Funding agency information",
+      "type": "array",
+      "description": "Source of grants/awards that funded creation of all or part of the resource.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/definitions/Award"
+      }
+    },
     "relations": {
       "title": "Related resources",
-      "description": "A list of Relation objects representing resources related to a described resource",
-      "default": [],
       "type": "array",
+      "description": "Raw textual references (e.g., a bibligraphic citation) for publications and datasets related to this resource.",
       "items": {
-        "$ref": "#/definitions/Relation"
-      }
-    },
-    "additional_metadata": {
-      "title": "Additional metadata",
-      "description": "A dictionary containing key-value pair metadata associated with a resource",
-      "default": [],
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/AdditionalMetadata"
-      }
-    },
-    "rights": {
-      "title": "Rights",
-      "description": "An object containing information about rights held in and over a resource",
-      "required": [
-        "statement",
-        "url"
-      ],
-      "anyOf": [
-        {
-          "title": "Choose a License",
-          "required": [
-            "license"
-          ],
-          "default": {
-            "license": "Creative Commons Attribution CC BY",
-            "statement": "This resource is shared under the Creative Commons Attribution CC BY.",
-            "url": "http://creativecommons.org/licenses/by/4.0/"
+        "title": "Related Resource Metadata",
+        "description": "Metadata associated with a resource related to the resource being described.",
+        "type": "object",
+        "properties": {
+          "type": {
+            "title": "Relation Type",
+            "description": "The type of relationship that exists between the describe resource and a related resource.",
+            "enum": [
+              "The content of this resource can be executed by",
+              "The content of this resource was created by a related App or software program",
+              "This resource is described by",
+              "This resource conforms to established standard described by",
+              "This resource has another resource in another format",
+              "This resource is a different format of",
+              "This resource is required by",
+              "This resource requires",
+              "This resource is referenced by",
+              "The content of this resource references",
+              "The content of this resource is derived from"
+            ],
+            "type": "string"
           },
-          "anyOf": [
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution CC BY",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution CC BY"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution CC BY.",
-                  "const": "This resource is shared under the Creative Commons Attribution CC BY.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by/4.0/",
-                  "const": "http://creativecommons.org/licenses/by/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-ShareAlike CC BY-SA",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-ShareAlike CC BY-SA"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-ShareAlike CC BY-SA.",
-                  "const": "This resource is shared under the Creative Commons Attribution-ShareAlike CC BY-SA.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-sa/4.0/",
-                  "const": "http://creativecommons.org/licenses/by-sa/4.0/",
-                  "readOnly": true
-                }
-              }
-            }
-          ]
+          "value": {
+            "title": "Value",
+            "description": "String expressing the Full text citation, URL link for, or description of the related resource",
+            "maxLength": 500,
+            "type": "string"
+          }
         },
-        {
-          "title": "Custom License",
-          "description": "An object containing information about rights held in an over a resource",
-          "type": "object",
-          "properties": {
-            "statement": {
-              "title": "Statement",
-              "description": "A string containing the text of the license or rights statement",
-              "type": "string"
-            },
-            "url": {
-              "type": "string",
-              "title": "URL",
-              "description": "URL pointing to a description of the license or rights statement",
-              "minLength": 1,
-              "maxLength": 2047,
-              "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
-              "errorMessage": {
-                "pattern": "must match format \"url\""
-              }
-            }
+        "required": [
+          "type",
+          "value"
+        ]
+      }
+    },
+    "notes": {
+      "title": "Additional notes",
+      "type": "string",
+      "description": "Additional notes related to the resource."
+    },
+    "version": {
+      "title": "Version",
+      "type": "string",
+      "description": "A version tag string for the resource - e.g., v1.0.0. Mostly relevant for software and dataset uploads. Any string will be accepted, but semantically-versioned tag is recommended."
+    },
+    "url": {
+      "title": "Url",
+      "$ref": "#/definitions/UrlPattern"
+    },
+    "identifier": {
+      "title": "Identifier",
+      "type": "string",
+      "description": "A globally unique and persistent identifier for the submission."
+    },
+    "temporalCoverage": {
+      "title": "Temporal coverage",
+      "description": "The temporal coverage of the resource. The time period that it describes or applies to.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "title": "Name",
+          "description": "A string containing a name for the time interval.",
+          "type": "string"
+        },
+        "start": {
+          "title": "Start",
+          "description": "A datetime object containing the instant corresponding to the commencement of the time interval (ISO8601 formatted date) - YYYY-MM-DDTHH:MM.",
+          "type": "string",
+          "format": "date-time",
+          "options": {
+            "placeholder": "YYYY-MM-DDTHH:MM"
+          }
+        },
+        "end": {
+          "title": "End",
+          "description": "A datetime object containing the instant corresponding to the termination of the time interval (ISO8601 formatted date) - YYYY-MM-DDTHH:MM.",
+          "type": "string",
+          "format": "date-time",
+          "options": {
+            "placeholder": "YYYY-MM-DDTHH:MM"
           }
         }
-      ],
-      "errorMessage": {
-        "anyOf": "selected item is incomplete"
-      }
+      },
+      "required": [
+        "start",
+        "end"
+      ]
     },
-    "awards": {
-      "title": "Funding agency information",
-      "description": "A list of objects containing information about the funding agencies and awards associated with a resource",
-      "default": [],
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/AwardInfo"
-      }
-    },
-    "spatial_coverage": {
+    "spatialCoverage": {
       "title": "Spatial coverage",
-      "description": "An object containing information about the spatial topic of a resource, the spatial applicability of a resource, or jurisdiction under with a resource is relevant",
+      "description": "The place(s) that are the focus of the resource. The geospatial area that the resource describes, the spatial topic of a resource, the spatial applicability of a resource, or jurisdiction under with a resource is relevant.",
       "anyOf": [
         {
           "title": "Point Coverage Metadata",
-          "description": "A class used to represent geographic coverage metadata for a resource or aggregation expressed as a\npoint location",
+          "description": "Geographic coverage metadata for a resource or aggregation expressed as a point location",
           "type": "object",
           "properties": {
             "name": {
               "title": "Name",
-              "description": "A string containing a name for the place associated with the geographic coverage",
+              "description": "A string containing a name for the place associated with the geographic coverage.",
               "type": "string"
             },
             "east": {
@@ -199,9 +210,10 @@
             },
             "units": {
               "title": "Units",
-              "description": "The units applying to the unlabelled numeric values of north and east",
+              "description": "The units applying to the unlabelled numeric values of north and east.",
               "type": "string",
               "default": "Decimal degrees",
+              "const": "Decimal degrees",
               "readOnly": true
             },
             "projection": {
@@ -209,6 +221,7 @@
               "description": "The name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
               "type": "string",
               "default": "WGS 84 EPSG:4326",
+              "const": "WGS 84 EPSG:4326",
               "readOnly": true
             }
           },
@@ -219,12 +232,12 @@
         },
         {
           "title": "Box Coverage Metadata",
-          "description": "A class used to represent geographic coverage metadata for a resource or aggregation expressed as a\nlatitude-longitude bounding box",
+          "description": "Geographic coverage metadata for a resource expressed as a latitude-longitude bounding box.",
           "type": "object",
           "properties": {
             "name": {
               "title": "Name",
-              "description": "A string containing a name for the place associated with the geographic coverage",
+              "description": "A string containing a name for the place associated with the geographic coverage.",
               "type": "string"
             },
             "northlimit": {
@@ -257,9 +270,10 @@
             },
             "units": {
               "title": "Units",
-              "description": "A string containing the units applying to the unlabelled numeric values of northlimit, eastlimit, southlimit, and westlimit",
+              "description": "A string containing the units applying to the unlabelled numeric values of northlimit, eastlimit, southlimit, and westlimit.",
               "type": "string",
               "default": "Decimal degrees",
+              "const": "Decimal degrees",
               "readOnly": true
             },
             "projection": {
@@ -267,6 +281,7 @@
               "description": "A string containing the name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
               "type": "string",
               "default": "WGS 84 EPSG:4326",
+              "const": "WGS 84 EPSG:4326",
               "readOnly": true
             }
           },
@@ -282,34 +297,74 @@
         "anyOf": "selected item is incomplete"
       }
     },
-    "period_coverage": {
-      "title": "Temporal coverage",
-      "description": "An object containing information about the temporal topic or applicability of a resource",
-      "$ref": "#/definitions/PeriodCoverage"
+    "provider": {
+      "title": "Provider",
+      "type": "object",
+      "description": "The repository or organization that provides access to the resource.",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Provider Name",
+          "type": "string",
+          "description": "The name of the repository or organization that provides access to the resource."
+        },
+        "url": {
+          "$ref": "#/definitions/UrlPattern"
+        }
+      },
+      "required": [
+        "name",
+        "url"
+      ]
     },
-    "publisher": {
-      "title": "Publisher",
-      "description": "An object containing information about the publisher of a resource",
-      "allOf": [
+    "dateCreated": {
+      "title": "Date created",
+      "type": "string",
+      "format": "date-time",
+      "options": {
+        "placeholder": "YYYY-MM-DDTHH:MM"
+      },
+      "description": "The date on which the resource was originally created (ISO8601 formatted date) - YYYY-MM-DDTHH:MM."
+    },
+    "dateModified": {
+      "title": "Date modified",
+      "type": "string",
+      "format": "date-time",
+      "options": {
+        "placeholder": "YYYY-MM-DDTHH:MM"
+      },
+      "description": "The date on which the resource was last modified (ISO8601 formatted date) - YYYY-MM-DDTHH:MM."
+    },
+    "datePublished": {
+      "title": "Date published",
+      "description": "The date on which the resource was permanently published or first became available online. Where the full date is not available, provide the year.",
+      "anyOf": [
         {
-          "$ref": "#/definitions/Publisher"
+          "title": "Year",
+          "type": "integer",
+          "options": {
+            "placeholder": "YYYY"
+          },
+          "description": "Publication year (YYYY)."
+        },
+        {
+          "title": "Date",
+          "type": "string",
+          "format": "date-time",
+          "options": {
+            "placeholder": "YYYY-MM-DDTHH:MM"
+          },
+          "description": "ISO8601 formatted date (YYYY-MM-DDTHH:MM)."
         }
       ]
     },
-    "citation": {
-      "title": "Citation",
-      "description": "A string containing the biblilographic citation for a resource",
-      "type": "string",
-      "readOnly": true
+    "status": {
+      "title": "Data collection is ongoing",
+      "type": "boolean",
+      "description": "Indicate whether data collection is ongoing for this dataset",
+      "default": false
     }
   },
-  "required": [
-    "title",
-    "abstract",
-    "subjects",
-    "awards",
-    "rights"
-  ],
   "definitions": {
     "Creator": {
       "title": "Creator Metadata",
@@ -318,148 +373,145 @@
       "properties": {
         "name": {
           "title": "Name",
-          "description": "A string containing the name of the creator",
+          "description": "Full name of person or organization. Personal name format: family, given.",
           "maxLength": 100,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
-          }
-        },
-        "phone": {
-          "title": "Phone",
-          "description": "A string containing a phone number for the creator",
-          "maxLength": 25,
-          "type": "string",
-          "options": {
-            "placeholder": "Phone: e.g., (435) 797-2946"
-          }
-        },
-        "address": {
-          "title": "Address",
-          "description": "A string containing an address for the creator",
-          "maxLength": 250,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g., 8200 Old Main Hill, Logan, UT 84322-8200"
-          }
+          "type": "string"
         },
         "organization": {
           "title": "Organization",
           "description": "A string containing the name of the organization with which the creator is affiliated",
           "maxLength": 200,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g. 'Utah State University'"
-          }
+          "type": "string"
         },
         "email": {
           "title": "Email",
           "description": "A string containing an email address for the creator",
           "type": "string",
-          "format": "email",
+          "format": "email"
+        },
+        "orcid": {
+          "title": "ORCID",
+          "description": "ORCID identifier for creator.",
+          "type": "string",
+          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
           "options": {
-            "placeholder": "e.g. 'jeff.horsburgh@usu.edu'"
+            "placeholder": "e.g. '0000-0001-2345-6789'"
+          },
+          "errorMessage": {
+            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
           }
-        },
-        "homepage": {
-          "$ref": "#/definitions/UrlPattern"
-        },
-        "profile_url": {
-          "$ref": "#/definitions/ProfileUrlPattern"
         }
       },
       "required": [
-        "name"
+        "name",
+        "organization"
       ]
     },
     "Contributor": {
       "title": "Contributor Metadata",
-      "description": "A class used to represent the metadata associated with a contributor to a resource",
+      "description": "A class used to represent the metadata associated with a contributor to a resource.",
       "type": "object",
       "properties": {
         "name": {
           "title": "Name",
-          "description": "A string containing the name of the contributor",
-          "type": "string",
+          "description": "Full name of person or organization. Personal name format: family, given.",
           "maxLength": 100,
-          "options": {
-            "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
-          }
-        },
-        "phone": {
-          "title": "Phone",
-          "description": "A string containing a phone number for the contributor",
-          "maxLength": 25,
-          "type": "string",
-          "options": {
-            "placeholder": "Phone: e.g., (435) 797-2946"
-          }
-        },
-        "address": {
-          "title": "Address",
-          "description": "A string containing an address for the contributor",
-          "maxLength": 250,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g., 8200 Old Main Hill, Logan, UT 84322-8200"
-          }
+          "type": "string"
         },
         "organization": {
           "title": "Organization",
-          "description": "A string containing the name of the organization with which the contributor is affiliated",
+          "description": "A string containing the name of the organization with which the contributor is affiliated.",
           "maxLength": 200,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g. 'Utah State University'"
-          }
+          "type": "string"
         },
         "email": {
           "title": "Email",
-          "description": "A string containing an email address for the contributor",
+          "description": "A string containing an email address for the contributor.",
           "type": "string",
-          "format": "email",
+          "format": "email"
+        },
+        "orcid": {
+          "title": "ORCID",
+          "description": "ORCID identifier for contributor.",
+          "type": "string",
+          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
           "options": {
-            "placeholder": "e.g. 'jeff.horsburgh@usu.edu'"
+            "placeholder": "e.g. '0000-0001-2345-6789'"
+          },
+          "errorMessage": {
+            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
           }
-        },
-        "homepage": {
-          "$ref": "#/definitions/UrlPattern"
-        },
-        "profile_url": {
-          "$ref": "#/definitions/ProfileUrlPattern"
         }
       },
       "required": [
-        "name"
+        "name",
+        "organization"
       ]
+    },
+    "Award": {
+      "title": "Funding award metadata",
+      "type": "object",
+      "description": "Metadata associated with a funding award under which the resource was produced/created.",
+      "additionalProperties": false,
+      "properties": {
+        "fundingAgency": {
+          "title": "Funding agency name",
+          "type": "string",
+          "description": "Name of the agency or organization that funded the creation of the resource."
+        },
+        "awardNumber": {
+          "title": "Award number or identifier",
+          "type": "string",
+          "description": "A unique numeric or string identifer for the grant or project."
+        },
+        "awardName": {
+          "title": "Award name",
+          "type": "string",
+          "description": "The name or title of the grant or project."
+        },
+        "awardURL": {
+          "title": "Award URL",
+          "description": "A string containing a URL pointing to a website describing the award or funding agency.",
+          "$ref": "#/definitions/UrlPattern"
+        }
+      },
+      "required": [
+        "fundingAgency",
+        "awardName",
+        "awardNumber"
+      ]
+    },
+    "RelationType": {
+      "title": "Relation Type",
+      "description": "The type of relationship that exists between the describe resource and a related resource.",
+      "enum": [
+        "The content of this resource can be executed by",
+        "The content of this resource was created by a related App or software program",
+        "This resource is described by",
+        "This resource conforms to established standard described by",
+        "This resource has another resource in another format",
+        "This resource is a different format of",
+        "This resource is required by",
+        "This resource requires",
+        "This resource is referenced by",
+        "The content of this resource references",
+        "The content of this resource is derived from"
+      ],
+      "type": "string"
     },
     "Relation": {
       "title": "Related Resource Metadata",
-      "description": "A class used to represent the metadata associated with a resource related to the resource being described",
+      "description": "Metadata associated with a resource related to the resource being described.",
       "type": "object",
       "properties": {
         "type": {
-          "title": "RelationType",
-          "description": "",
-          "enum": [
-            "The content of this resource is part of",
-            "This resource includes",
-            "The content of this resource was created by a related App or software program",
-            "The content of this resource was created by",
-            "This resource updates and replaces a previous version",
-            "This resource has been replaced by a newer version",
-            "This resource is described by",
-            "This resource conforms to established standard described by",
-            "This resource has a related resource in another format",
-            "This resource is a different format of",
-            "This resource is required by",
-            "This resource requires",
-            "This resource is referenced by",
-            "The content of this resource references",
-            "This resource replaces",
-            "The content of this resource is derived from"
-          ],
-          "type": "string"
+          "title": "Relation type",
+          "description": "The type of relationship with the related resource",
+          "allOf": [
+            {
+              "$ref": "#/definitions/RelationType"
+            }
+          ]
         },
         "value": {
           "title": "Value",
@@ -473,129 +525,22 @@
         "value"
       ]
     },
-    "AdditionalMetadata": {
-      "title": "Key-Value",
-      "description": "A key-value pair",
-      "type": "object",
-      "properties": {
-        "key": {
-          "title": "Key",
-          "type": "string"
-        },
-        "value": {
-          "title": "Value",
-          "type": "string"
-        }
-      },
-      "required": [
-        "key",
-        "value"
-      ]
-    },
-    "AwardInfo": {
-      "title": "Funding Agency Metadata",
-      "description": "A class used to represent the metadata associated with funding agency credits for a resource",
-      "type": "object",
-      "properties": {
-        "funding_agency_name": {
-          "title": "Agency name",
-          "description": "A string containing the name of the funding agency or organization",
-          "type": "string"
-        },
-        "title": {
-          "title": "Award title",
-          "description": "A string containing the title of the project or award",
-          "type": "string"
-        },
-        "number": {
-          "title": "Award number",
-          "description": "A string containing the award number or other identifier",
-          "type": "string"
-        },
-        "funding_agency_url": {
-          "$ref": "#/definitions/UrlPattern"
-        }
-      },
-      "required": [
-        "funding_agency_name",
-        "number",
-        "title"
-      ]
-    },
-    "PeriodCoverage": {
-      "title": "Period coverage",
-      "description": "A class used to represent temporal coverage metadata for a resource or aggregation",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "A string containing a name for the time interval",
-          "type": "string"
-        },
-        "start": {
-          "title": "Start",
-          "description": "A datetime object containing the instant corresponding to the commencement of the time interval",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          }
-        },
-        "end": {
-          "title": "End",
-          "description": "A datetime object containing the instant corresponding to the termination of the time interval",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          },
-          "formatMinimum": {
-            "$data": "1/start"
-          }
-        }
-      },
-      "required": [
-        "start",
-        "end"
-      ]
-    },
-    "Publisher": {
-      "title": "Publisher Metadata",
-      "description": "A class used to represent the metadata associated with the publisher of a resource",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Publisher name",
-          "description": "A string containing the name of the publisher",
-          "maxLength": 200,
-          "type": "string"
-        },
-        "url": {
-          "title": "Publisher URL",
-          "description": "An object containing a URL that points to the publisher website",
-          "minLength": 1,
-          "maxLength": 2047,
-          "$ref": "#/definitions/UrlPattern"
-        }
-      },
-      "required": [
-        "name",
-        "url"
-      ]
-    },
     "UrlPattern": {
       "type": "string",
       "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
       "errorMessage": {
         "pattern": "must match format \"url\""
       }
-    },
-    "ProfileUrlPattern": {
-      "type": "string",
-      "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?hydroshare\\.org\\/user\\/\\d+\\/?$",
-      "errorMessage": {
-        "pattern": "must match profile link format. e.g. \"https://www.hydroshare.org/user/10/\""
-      }
     }
-  }
+  },
+  "required": [
+    "name",
+    "description",
+    "keywords",
+    "creators",
+    "funders",
+    "url",
+    "provider",
+    "datePublished"
+  ]
 }

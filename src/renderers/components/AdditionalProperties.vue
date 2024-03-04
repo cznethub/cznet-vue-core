@@ -5,20 +5,18 @@
         <v-toolbar-title>{{ additionalPropertiesTitle }}</v-toolbar-title>
         <v-spacer></v-spacer>
 
-        <v-hover v-slot="{ isHovering }">
-          <v-text-field
-            v-disabled-icon-focus
-            :required="true"
-            :class="styles.control.input"
-            :error-messages="newPropertyErrors"
-            v-model="newPropertyName"
-            :clearable="control.enabled && !isReadOnly"
-            :placeholder="placeholder"
-            :readonly="!control.enabled || isReadOnly"
-            :disabled="appliedOptions.isDisabled"
-            v-bind="vuetifyProps('v-text-field')"
-          ></v-text-field>
-        </v-hover>
+        <v-text-field
+          v-disabled-icon-focus
+          :required="true"
+          :class="styles.control.input"
+          :error-messages="newPropertyErrors"
+          v-model="newPropertyName"
+          :clearable="control.enabled && !isReadOnly"
+          :placeholder="placeholder"
+          :readonly="!control.enabled || isReadOnly"
+          :disabled="appliedOptions.isDisabled"
+          v-bind="vuetifyProps('v-text-field')"
+        ></v-text-field>
         <v-tooltip bottom>
           <template v-slot:activator="{ props }">
             <v-btn
@@ -104,7 +102,6 @@ import {
   VCardTitle,
   VCol,
   VContainer,
-  VHover,
   VIcon,
   VRow,
   VSpacer,
@@ -151,7 +148,6 @@ export default defineComponent({
     VContainer,
     VRow,
     VCol,
-    VHover,
   },
   directives: {
     DisabledIconFocus,

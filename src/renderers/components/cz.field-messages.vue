@@ -1,5 +1,5 @@
 <template>
-  <div v-if="description" class="text-subtitle-1 text-medium-emphasis">
+  <div v-if="description" class="text-subtitle-1 message--text">
     {{ description }}
   </div>
   <div v-if="errors" class="error--text">
@@ -19,3 +19,13 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.error--text {
+  color: rgb(var(--v-theme-error));
+}
+
+.message--text {
+  color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+}
+</style>

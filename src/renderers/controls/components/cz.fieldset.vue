@@ -1,28 +1,21 @@
 <template>
-  <div class="my-5">
-    <fieldset
-      :class="{
-        'cz-fieldset': !isFlat,
-        'is-borderless': isFlat,
-        'is-invalid': !!errors,
-        'is-readonly': readonly,
-        'is-disabled': !enabled,
-        'is-expanded': isAdded || !hasToggle,
-      }"
-    >
-      <template v-if="!isFlat">
-        <legend
-          v-if="computedLabel || title"
-          @click="show()"
-          :class="{ 'v-label--active': isAdded || !hasToggle }"
-          class="v-label"
-        >
-          {{ computedLabel || title }}
-        </legend>
+  <div>
+    <v-field v-bind="vFieldProps" :variant="isFlat ? 'plain' : 'outlined'">
+      <!-- CONTENT -->
+      <div v-if="isAdded || !hasToggle" class="pa-4">
+        <slot></slot>
+      </div>
 
+      <!-- LABEL -->
+      <template v-slot:label="{ label }">
+        <div @click="show">{{ label }}</div>
+      </template>
+
+      <!-- ACTIONS -->
+      <template v-slot:append-inner>
         <slot name="actions" :show="show" :hide="hide">
           <div v-if="hasToggle && enabled && !readonly">
-            <v-tooltip v-if="!isAdded" bottom transition="fade">
+            <v-tooltip v-if="!isAdded" transition="fade">
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon="mdi-plus"
@@ -39,7 +32,7 @@
               {{ `Add ${title}` }}
             </v-tooltip>
 
-            <v-tooltip v-else bottom transition="fade">
+            <v-tooltip v-else transition="fade">
               <template v-slot:activator="{ props }">
                 <v-btn
                   icon="mdi-minus"
@@ -58,37 +51,23 @@
           </div>
         </slot>
       </template>
+    </v-field>
 
-      <template v-if="isAdded || !hasToggle">
-        <div class="pt-4">
-          <slot></slot>
-        </div>
-      </template>
-    </fieldset>
-
-    <div
-      v-if="description"
-      class="text-subtitle-1 text-medium-emphasis my-2 px-2"
-    >
-      {{ description }}
-    </div>
-
-    <div
-      v-if="cleanedErrors"
-      class="text-subtitle-1 text-medium-emphasis error--text my-2 px-2"
-    >
-      {{ cleanedErrors }}
+    <!-- MESSAGES -->
+    <div class="v-messages">
+      <cz-field-messages :description="description" :errors="cleanedErrors" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { VBtn, VTooltip, VIcon } from 'vuetify/components';
+import { VBtn, VTooltip, VIcon, VTextField, VField } from 'vuetify/components';
+import CzFieldMessages from '../../components/cz.field-messages.vue';
 
 export default defineComponent({
   name: 'cz-fieldset',
-  components: { VTooltip, VBtn, VIcon },
+  components: { VTooltip, VBtn, VIcon, CzFieldMessages, VTextField, VField },
   setup() {
     const isAdded = ref(false);
 
@@ -146,79 +125,35 @@ export default defineComponent({
     cleanedErrors() {
       return this.errors?.replaceAll(`is a required property`, ``).trim() || '';
     },
+    /** @see https://vuetifyjs.com/en/api/v-field/#props */
+    vFieldProps() {
+      return {
+        label: this.computedLabel,
+        active: this.isAdded,
+        error: !!this.errors?.length,
+        disabled: this.readonly || !this.enabled,
+      };
+    },
   },
 });
 </script>
 
 <style scoped lang="scss">
-// https://stackoverflow.com/a/27660473/3288102
-fieldset,
-.cz-fieldset {
-  min-width: 0;
-}
+.v-field {
+  display: flex;
 
-.cz-fieldset {
-  background-color: #fff;
-  color: rgba(0, 0, 0, 0.87);
-  border: thin solid rgba(0, 0, 0, 0.12);
-  border-color: rgb(158, 158, 158);
-  border-radius: 4px;
-  padding: 1rem;
-  position: relative;
-  min-height: 2rem;
-
-  &.is-readonly:not(.is-expanded) {
-    background: rgba(0, 0, 0, 0.06);
-
-    legend {
-      background: transparent;
-    }
+  :deep(.v-field__field) {
+    display: block;
   }
 
-  &.is-invalid {
-    & > legend,
-    & > fieldset > legend {
-      color: #ff5252;
-    }
+  :deep(.v-field__append-inner) {
+    align-items: start;
   }
 
-  &.is-disabled legend {
-    color: rgba(0, 0, 0, 0.38) !important;
-  }
-
-  &:hover {
-    border-color: rgba(0, 0, 0, 0.6);
-  }
-
-  & > legend {
-    font-size: 16px;
-    letter-spacing: 0.0125em;
-    word-break: break-all;
-    color: rgba(0, 0, 0, 0.6);
-    background: #fff;
-    font-weight: normal;
-    padding: 0 0.25rem;
-    position: absolute;
-    left: 0.5rem;
-    top: 0.5rem;
-
-    &.v-label--active {
-      position: absolute;
-      cursor: default;
-      transform: translateY(-1.4rem) scale(1) !important;
-    }
-
-    &:not(.v-label--active) {
-      width: calc(100% - 5rem);
-      cursor: text;
-    }
-  }
-
-  :deep(.btn-add) {
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1;
+  :deep(.v-label.v-field-label:not(.v-field-label--floating)) {
+    pointer-events: auto;
+    cursor: text;
+    width: 100%;
   }
 }
 </style>

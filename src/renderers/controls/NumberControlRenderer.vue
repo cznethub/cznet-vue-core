@@ -5,31 +5,29 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-text-field
-        type="number"
-        :label="computedLabel"
-        :step="step"
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :class="styles.control.input"
-        :model-value="control.data"
-        :hint="control.description"
-        :max="control.schema.exclusiveMaximum"
-        :min="control.schema.exclusiveMinimum"
-        :error-messages="control.errors"
-        :clearable="control.enabled && !isReadOnly"
-        @input="onInputChange"
-        v-bind="vuetifyProps('v-text-field')"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-text-field>
-    </v-hover>
+    <v-text-field
+      type="number"
+      :label="computedLabel"
+      :step="step"
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :class="styles.control.input"
+      :model-value="control.data"
+      :hint="control.description"
+      :max="control.schema.exclusiveMaximum"
+      :min="control.schema.exclusiveMinimum"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      @update:model-value="onInputChange"
+      v-bind="vuetifyProps('v-text-field')"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-text-field>
   </control-wrapper>
 </template>
 
@@ -47,7 +45,7 @@ import {
   RendererProps,
 } from '@jsonforms/vue';
 import { useVuetifyControl } from '@/renderers/util/composition';
-import { VTextField, VHover } from 'vuetify/components';
+import { VTextField } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
@@ -55,7 +53,7 @@ const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
 const controlRenderer = defineComponent({
   name: 'number-control-renderer',
-  components: { VTextField, ControlWrapper, VHover, CzFieldMessages },
+  components: { VTextField, ControlWrapper, CzFieldMessages },
   props: {
     ...rendererProps<ControlElement>(),
   },

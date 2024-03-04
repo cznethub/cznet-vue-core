@@ -169,7 +169,10 @@
     </v-container>
     <cz-notifications />
   </v-app>
-  <div></div>
+  <link
+    href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+    rel="stylesheet"
+  />
 </template>
 
 <script lang="ts">
@@ -263,8 +266,8 @@ class App extends Vue {
     hideArraySummaryValidation: false,
     vuetify: {
       commonAttrs: {
-        dense: true,
-        outlined: true,
+        density: 'compact',
+        variant: 'outlined',
         'persistent-hint': true,
         'hide-details': false,
       },

@@ -27,7 +27,7 @@
           :prepend-inner-icon="pickerIcon"
           v-mask="mask"
           :model-value="inputValue"
-          @input="onInputChange"
+          @update:model-value="onInputChange"
         >
           <template v-slot:message>
             <cz-field-messages
@@ -54,19 +54,17 @@
           </v-tab>
         </v-tabs>
 
-        <v-card-text>
-          <v-window v-model="activeTab">
-            <v-window-item value="date">
-              <v-date-picker
-                :model-value="datePickerValue"
-                @update:model-value="onDatePickerValueChange"
-                ref="datePicker"
-                v-bind="vuetifyProps('v-date-picker')"
-                @input="activeTab = 'time'"
-              ></v-date-picker>
-            </v-window-item>
-            <v-window-item value="time">
-              <!-- <v-time-picker
+        <v-window v-model="activeTab">
+          <v-window-item value="date">
+            <v-date-picker
+              :model-value="datePickerValue"
+              @update:model-value="onDatePickerValueChange"
+              ref="datePicker"
+              v-bind="vuetifyProps('v-date-picker')"
+            ></v-date-picker>
+          </v-window-item>
+          <v-window-item value="time">
+            <!-- <v-time-picker
                 :model-value="timePickerValue"
                 @update:model-value="timePickerValue = $event as any"
                 ref="timePicker"
@@ -74,9 +72,8 @@
                 :use-seconds="useSeconds"
                 format="ampm"
               /> -->
-            </v-window-item>
-          </v-window>
-        </v-card-text>
+          </v-window-item>
+        </v-window>
 
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -311,8 +308,8 @@ const controlRenderer = defineComponent({
   },
   methods: {
     onDatePickerValueChange(value: any) {
-      console.log(value);
       this.datePickerValue = value;
+      this.activeTab = 'time';
     },
     onInputChange(value: string): void {
       const date = parseDateTime(value, this.dateTimeFormat);

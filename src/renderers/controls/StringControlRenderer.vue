@@ -5,72 +5,70 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-combobox
-        v-if="suggestions !== undefined"
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :class="styles.control.input"
-        :readonly="!control.enabled"
-        :placeholder="placeholder"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="control.enabled && !isReadOnly"
-        :maxlength="
-          appliedOptions.restrict ? control.schema.maxLength : undefined
-        "
-        :counter="
-          control.schema.maxLength !== undefined
-            ? control.schema.maxLength
-            : undefined
-        "
-        :model-value="control.data"
-        :items="suggestions"
-        v-bind="vuetifyProps('v-combobox')"
-        @input="onChange"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-combobox>
+    <v-combobox
+      v-if="suggestions !== undefined"
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :class="styles.control.input"
+      :readonly="!control.enabled"
+      :placeholder="placeholder"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :maxlength="
+        appliedOptions.restrict ? control.schema.maxLength : undefined
+      "
+      :counter="
+        control.schema.maxLength !== undefined
+          ? control.schema.maxLength
+          : undefined
+      "
+      :model-value="control.data"
+      :items="suggestions"
+      v-bind="vuetifyProps('v-combobox')"
+      @update:model-value="onChange"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-combobox>
 
-      <v-text-field
-        v-else
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :class="styles.control.input"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :model-value="control.data"
-        :maxlength="
-          appliedOptions.restrict ? control.schema.maxLength : undefined
-        "
-        :counter="
-          control.schema.maxLength !== undefined
-            ? control.schema.maxLength
-            : undefined
-        "
-        :clearable="control.enabled && !isReadOnly"
-        v-bind="vuetifyProps('v-text-field')"
-        @update:model-value="onChange"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-text-field>
-    </v-hover>
+    <v-text-field
+      v-else
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :class="styles.control.input"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :model-value="control.data"
+      :maxlength="
+        appliedOptions.restrict ? control.schema.maxLength : undefined
+      "
+      :counter="
+        control.schema.maxLength !== undefined
+          ? control.schema.maxLength
+          : undefined
+      "
+      :clearable="control.enabled && !isReadOnly"
+      v-bind="vuetifyProps('v-text-field')"
+      @update:model-value="onChange"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-text-field>
   </control-wrapper>
 </template>
 
@@ -90,7 +88,7 @@ import {
 import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
 import { isArray, every, isString } from 'lodash-es';
 import { default as ControlWrapper } from './ControlWrapper.vue';
-import { VTextField, VCombobox, VHover } from 'vuetify/components';
+import { VTextField, VCombobox } from 'vuetify/components';
 import czFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
@@ -101,7 +99,6 @@ const controlRenderer = defineComponent({
   components: {
     VTextField,
     VCombobox,
-    VHover,
     ControlWrapper,
     czFieldMessages,
   },

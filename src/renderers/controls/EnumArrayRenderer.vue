@@ -5,35 +5,33 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ isHovering }">
-      <v-select
-        @update:model-value="beforeChange"
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :class="styles.control.input"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="control.enabled && !isReadOnly"
-        :model-value="control.data"
-        :items="control.options"
-        v-bind="vuetifyProps(`v-select`)"
-        chips
-        small-chips
-        deletable-chips
-        item-title="label"
-        item-value="value"
-        multiple
-      >
-        <template v-slot:message>
-          <cz-field-messages
-            :description="control.description"
-            :errors="cleanedErrors"
-          />
-        </template>
-      </v-select>
-    </v-hover>
+    <v-select
+      @update:model-value="beforeChange"
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :class="styles.control.input"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :model-value="control.data"
+      :items="control.options"
+      v-bind="vuetifyProps(`v-select`)"
+      chips
+      small-chips
+      deletable-chips
+      item-title="label"
+      item-value="value"
+      multiple
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-select>
   </control-wrapper>
 </template>
 
@@ -52,7 +50,7 @@ import {
   uiTypeIs,
   composePaths,
 } from '@jsonforms/core';
-import { VContainer, VRow, VCol, VSelect, VHover } from 'vuetify/components';
+import { VContainer, VRow, VCol, VSelect } from 'vuetify/components';
 import {
   DispatchRenderer,
   rendererProps,
@@ -85,7 +83,6 @@ const controlRenderer = defineComponent({
     VRow,
     VCol,
     VSelect,
-    VHover,
     ControlWrapper,
     CzFieldMessages,
   },
