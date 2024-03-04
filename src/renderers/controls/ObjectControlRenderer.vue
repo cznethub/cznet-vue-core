@@ -14,7 +14,7 @@
         !appliedOptions.isReadOnly &&
         !appliedOptions.isDisabled
       "
-      :hasData="!noData"
+      :hasData="hasData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled || isReadOnly"
       :errors="control.errors"
@@ -131,10 +131,10 @@ const controlRenderer = defineComponent({
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.schema['options']?.flat;
+      return this.control.schema.options?.flat;
     },
-    noData(): boolean {
-      return !this.control.data;
+    hasData(): boolean {
+      return !!this.control.data;
     },
   },
 });

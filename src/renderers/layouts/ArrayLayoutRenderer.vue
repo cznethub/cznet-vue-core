@@ -78,6 +78,7 @@
                 >
                   {{ getItemLabel(element) }}
                 </div>
+                <v-spacer v-else />
 
                 <template
                   v-if="

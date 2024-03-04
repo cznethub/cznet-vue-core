@@ -2,7 +2,7 @@
   <div>
     <v-field v-bind="vFieldProps" :variant="isFlat ? 'plain' : 'outlined'">
       <!-- CONTENT -->
-      <div v-if="isAdded || !hasToggle" class="pa-4">
+      <div v-if="vFieldProps.active" class="pa-4">
         <slot></slot>
       </div>
 
@@ -129,7 +129,7 @@ export default defineComponent({
     vFieldProps() {
       return {
         label: this.computedLabel,
-        active: this.isAdded,
+        active: this.isAdded || !this.hasToggle,
         error: !!this.errors?.length,
         disabled: this.readonly || !this.enabled,
       };

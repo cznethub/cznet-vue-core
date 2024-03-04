@@ -21,7 +21,28 @@
   }
 }
 
-:not(.cz-fieldset) > .v-label--active {
-  font-size: 22px !important;
-  transform: translateY(-22px) scale(0.75) !important;
+/** 
+  Prevent active v-fields from marking their deeply nested elements as active
+  ================================================================================
+*/
+.v-field.v-field--active .v-label.v-field-label--floating {
+  visibility: hidden;
 }
+.v-field--active.v-field--variant-outlined .v-field__outline__notch::before {
+  opacity: 1;
+}
+.v-field--active .v-label.v-field-label {
+  visibility: unset;
+}
+
+
+.v-field.v-field--active > .v-field__outline > .v-field__outline__notch > .v-label.v-field-label--floating {
+  visibility: unset;
+}
+.v-field.v-field--active > .v-field__outline > .v-field__outline__notch::before {
+  opacity: 0;
+}
+.v-field--active >.v-field__field > .v-label.v-field-label {
+  visibility: hidden;
+}
+// ================================================================================

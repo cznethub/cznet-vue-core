@@ -115,6 +115,7 @@
             :schema="schema"
             :uischema="uischema"
             :errors.sync="errors"
+            @update:errors="onUpdateErrors"
             :isValid.sync="isValid"
             v-model="data"
             :config="config"
@@ -125,7 +126,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-menu :disabled="isValid" open-on-hover bottom left offset-y>
+          <v-menu open-on-hover bottom left offset-y>
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
@@ -151,18 +152,16 @@
               </div>
             </template>
 
-            <div class="white pa-4">
-              <ul
-                v-for="(error, index) of errors"
-                :key="index"
-                class="text-subtitle-1"
-              >
-                <li>
-                  <b>{{ error.title }}</b>
-                  {{ error.message }}.
-                </li>
-              </ul>
-            </div>
+            <v-card>
+              <v-card-text>
+                <ul class="text-subtitle-1 ml-4">
+                  <li v-for="(error, index) of errors" :key="index">
+                    <b>{{ error.title }}</b>
+                    {{ error.message }}.
+                  </li>
+                </ul>
+              </v-card-text>
+            </v-card>
           </v-menu>
         </v-card-actions>
       </v-card>
@@ -296,7 +295,6 @@ class App extends Vue {
   }
 
   onShowMetadata(item: any) {
-    console.log(item);
     this.selectedMetadata = item;
   }
 
@@ -306,6 +304,10 @@ class App extends Vue {
 
   submit() {
     console.log(this.data);
+  }
+
+  onUpdateErrors(errors: { title: string; message: string }[]) {
+    this.errors = errors;
   }
 
   // =======================

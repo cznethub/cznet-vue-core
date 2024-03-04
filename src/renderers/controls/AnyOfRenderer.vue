@@ -10,7 +10,7 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="!!isDropDown ? '' : desc"
       :hasToggle="hasToggle"
-      :hasData="!noData"
+      :hasData="hasData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
@@ -112,7 +112,7 @@ import {
   RendererProps,
   useJsonFormsAnyOfControl,
 } from '@jsonforms/vue';
-import { defineComponent, ref, toRaw } from 'vue';
+import { defineComponent } from 'vue';
 import {
   useVuetifyControl,
   useCombinatorChildErrors,
@@ -161,22 +161,16 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const input = useJsonFormsAnyOfControl(props);
     const tabData: { [key: number]: any } = {}; // Dictionary to store form state between tab changes
-    const isAdded = ref(false);
 
     return {
       ...useVuetifyControl(input),
       ...useCombinatorChildErrors(input, 'anyOf'),
-      isAdded,
       tabData,
     };
   },
   created() {
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
     this.prevSelectedIndex = this.selectedIndex;
-
-    if (this.control.data) {
-      this.isAdded = true;
-    }
   },
   computed: {
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -234,8 +228,8 @@ const controlRenderer = defineComponent({
         ? this.anyOfRenderInfos[this.selectedIndex].label
         : '';
     },
-    noData(): boolean {
-      return !this.control.data;
+    hasData(): boolean {
+      return !!this.control.data;
     },
   },
   methods: {
@@ -278,11 +272,6 @@ const controlRenderer = defineComponent({
             : undefined;
       }
       return val;
-    },
-    showForm() {
-      if (this.control.enabled) {
-        this.isAdded = true;
-      }
     },
     onHide() {
       this.handleChange(this.control.path, undefined);
