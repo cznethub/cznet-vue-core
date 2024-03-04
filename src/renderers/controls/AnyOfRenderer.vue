@@ -68,7 +68,7 @@
         <!-- this select change emits old selectedIndex -->
         <v-select
           :model-value="anyOfRenderInfos[selectedIndex]"
-          @update:model-value="handleTabChange"
+          @update:model-value="handleSelectChange"
           :items="anyOfRenderInfos"
           :label="title"
           :hint="selectHint"
@@ -176,8 +176,10 @@ const controlRenderer = defineComponent({
     }
   },
   mounted() {
+    // TODO: indexOfFittingSchema not getting the right value
     // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
+    this.prevSelectedIndex = this.selectedIndex;
   },
   computed: {
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -240,42 +242,45 @@ const controlRenderer = defineComponent({
     },
   },
   methods: {
-    handleTabChange(nextIndexOrLabel: any): void {
-      if (!this.control.enabled) {
-        return;
+    handleSelectChange(nextIndexOrLabel: any): void {
+      if (this.control.enabled) {
+        // Store form state in lookup before tab change.
+        // seletedIndex still has the previously selected index
+        this.tabData[this.selectedIndex] = this.control.data;
+
+        // Update to new value
+        if (typeof nextIndexOrLabel === 'number') {
+          this.selectedIndex = nextIndexOrLabel;
+        } else if (typeof nextIndexOrLabel === 'string') {
+          this.selectedIndex = this.anyOfRenderInfos.findIndex(
+            (info: CombinatorSubSchemaRenderInfo) =>
+              info.label === nextIndexOrLabel
+          );
+        }
+
+        this.handleChange(this.control.path, this.getValue());
       }
+    },
+    handleTabChange(_currentIndex: any): void {
+      this.tabData[this.prevSelectedIndex] = this.control.data;
+      this.prevSelectedIndex = this.selectedIndex;
 
-      // Store form state before tab change.
-      this.tabData[this.selectedIndex] = this.control.data;
-      this.selectedIndex = -1;
-
-      if (typeof nextIndexOrLabel === 'number') {
-        this.selectedIndex = nextIndexOrLabel;
-      } else if (typeof nextIndexOrLabel === 'string') {
-        this.selectedIndex = this.anyOfRenderInfos.findIndex(
-          (info: CombinatorSubSchemaRenderInfo) =>
-            info.label === nextIndexOrLabel
-        );
+      if (this.control.enabled) {
+        this.handleChange(this.control.path, this.getValue());
       }
-
+    },
+    getValue() {
       // If we had form data stored, restore it. Otherwise create default value.
-      if (this.tabData[this.selectedIndex]) {
-        console.log(
-          this.selectedIndex,
-          toRaw(this.tabData[this.selectedIndex])
-        );
-
-        this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
-      } else {
+      let val = this.tabData[this.selectedIndex];
+      if (!val) {
+        // Only create default values for objects and arrays.
         const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
-        const val =
+        val =
           schema.type === 'array' || schema.type === 'object'
             ? createDefaultValue(schema, this.control.rootSchema)
             : undefined;
-
-        // Only create default values for objects and arrays.
-        this.handleChange(this.control.path, val);
       }
+      return val;
     },
     showForm() {
       if (this.control.enabled) {

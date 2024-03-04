@@ -26,12 +26,12 @@
       />
 
       <template v-if="!isDropDown">
-        <v-tabs v-model="selectedIndex">
+        <!-- this tab change emits new selectedIndex -->
+        <v-tabs v-model="selectedIndex" @update:model-value="handleTabChange">
           <v-tab
             v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
             :key="`${control.path}-${oneOfIndex}`"
-            :model-value="`${control.path}-${oneOfIndex}`"
-            @change="handleTabChange(oneOfIndex)"
+            :value="oneOfIndex"
             :disabled="
               (appliedOptions.isViewMode ||
                 appliedOptions.isReadOnly ||
@@ -39,13 +39,16 @@
               selectedIndex !== oneOfIndex
             "
           >
-            {{ oneOfRenderInfo.uischema['label'] || oneOfRenderInfo.label }}
+            {{
+              oneOfRenderInfo.uischema.options?.label || oneOfRenderInfo.label
+            }}
           </v-tab>
         </v-tabs>
 
         <v-window v-model="selectedIndex">
           <v-window-item
             v-for="(oneOfRenderInfo, oneOfIndex) in oneOfRenderInfos"
+            :model-value="oneOfIndex"
             :key="`${control.path}-${oneOfIndex}`"
           >
             <dispatch-renderer
@@ -62,12 +65,13 @@
       </template>
 
       <template v-else>
+        <!-- this select change emits old selectedIndex -->
         <v-select
-          @update:model-value="handleTabChange"
+          :model-value="oneOfRenderInfos[selectedIndex]"
+          @update:model-value="handleSelectChange"
           :items="oneOfRenderInfos"
           :label="title"
           :hint="selectHint"
-          :model-value="oneOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
           :error-messages="control.errors"
@@ -108,7 +112,7 @@ import {
   RendererProps,
   useJsonFormsOneOfControl,
 } from '@jsonforms/vue';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, toRaw } from 'vue';
 import {
   useVuetifyControl,
   useCombinatorChildErrors,
@@ -132,7 +136,7 @@ import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: 'one-of-renderer',
+  name: 'any-of-renderer',
   components: {
     DispatchRenderer,
     CombinatorProperties,
@@ -236,37 +240,44 @@ const controlRenderer = defineComponent({
     },
   },
   methods: {
-    handleTabChange(nextIndexOrLabel: number | string): void {
-      if (!this.control.enabled) {
-        return;
+    handleSelectChange(nextIndexOrLabel: any): void {
+      if (this.control.enabled) {
+        // Store form state in lookup before tab change.
+        this.tabData[this.selectedIndex] = this.control.data;
+
+        if (typeof nextIndexOrLabel === 'number') {
+          this.selectedIndex = nextIndexOrLabel;
+        } else if (typeof nextIndexOrLabel === 'string') {
+          this.selectedIndex = this.oneOfRenderInfos.findIndex(
+            (info: CombinatorSubSchemaRenderInfo) =>
+              info.label === nextIndexOrLabel
+          );
+        }
+
+        this.handleChange(this.control.path, this.getValue());
       }
-
-      // Store form state before tab change.
-      this.$set(this.tabData, this.selectedIndex, this.control.data);
-      this.selectedIndex = -1;
-
-      if (typeof nextIndexOrLabel === 'number') {
-        this.selectedIndex = nextIndexOrLabel;
-      } else if (typeof nextIndexOrLabel === 'string') {
-        this.selectedIndex = this.oneOfRenderInfos.findIndex(
-          (info: CombinatorSubSchemaRenderInfo) =>
-            info.label === nextIndexOrLabel
-        );
+    },
+    handleTabChange(_currentIndex: any): void {
+      if (this.control.enabled) {
+        console.log(this.tabData);
+        this.handleChange(this.control.path, this.getValue());
+        // Store in lookup.
+        // TODO: we actually need to store before tab change
+        this.tabData[this.selectedIndex] = this.control.data;
       }
-
+    },
+    getValue() {
       // If we had form data stored, restore it. Otherwise create default value.
-      if (this.tabData[this.selectedIndex]) {
-        this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
-      } else {
-        const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
-        const val =
-          schema.type === 'array' || schema.type === 'object'
-            ? createDefaultValue(schema)
-            : undefined;
-
+      let val = this.tabData[this.selectedIndex];
+      if (!val) {
         // Only create default values for objects and arrays.
-        this.handleChange(this.control.path, val);
+        const schema = this.oneOfRenderInfos[this.selectedIndex].schema;
+        val =
+          schema.type === 'array' || schema.type === 'object'
+            ? createDefaultValue(schema, this.control.rootSchema)
+            : undefined;
       }
+      return val;
     },
     showForm() {
       if (this.control.enabled) {

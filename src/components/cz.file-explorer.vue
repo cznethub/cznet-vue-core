@@ -474,7 +474,7 @@
             </cz-drag-select>
           </drop>
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
 
         <div class="py-2 px-4" v-if="rootDirectory.children.length">
           <span>

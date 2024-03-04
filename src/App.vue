@@ -5,7 +5,7 @@
 
       <v-card class="my-5">
         <v-card-title>Notifications</v-card-title>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text>
           <v-btn class="mr-2" color="primary" @click="toast">Toast</v-btn>
           <v-btn color="primary" @click="openDialog">Open Dialog</v-btn>
@@ -14,7 +14,7 @@
 
       <v-card>
         <v-card-title>CzFileExplorer</v-card-title>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text class="d-flex">
           <v-checkbox
             label="isReadOnly"
@@ -30,7 +30,7 @@
             hide-details
           />
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
@@ -44,7 +44,7 @@
           </v-expansion-panels>
         </v-card-text>
 
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text>
           <cz-file-explorer
             :rootDirectory="rootDirectory"
@@ -73,7 +73,7 @@
 
       <v-card class="my-5">
         <v-card-title>CzForm</v-card-title>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text class="d-flex">
           <v-checkbox
             label="ReadOnly"
@@ -95,7 +95,7 @@
           />
         </v-card-text>
 
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
@@ -109,7 +109,7 @@
           </v-expansion-panels>
         </v-card-text>
 
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-text>
           <cz-form
             :schema="schema"
@@ -121,7 +121,7 @@
             ref="form"
           />
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
           <v-spacer></v-spacer>
 

@@ -345,6 +345,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
   ) as JsonFormsSubStates;
 
   const selectedIndex = ref(0);
+  const prevSelectedIndex = ref(0);
 
   watchEffect(() => {
     // Get child errors at this path and annotate them
@@ -386,6 +387,7 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
 
   return {
     selectedIndex,
+    prevSelectedIndex,
   };
 };
 
