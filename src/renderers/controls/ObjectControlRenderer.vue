@@ -22,6 +22,7 @@
       :computedLabel="computedLabel"
       :isFlat="isFlat"
       @hide="onHide"
+      @show="onShow"
       class="pb-5"
     >
       <dispatch-renderer
@@ -109,6 +110,13 @@ const controlRenderer = defineComponent({
   methods: {
     onHide() {
       this.handleChange(this.control.path, undefined);
+    },
+    onShow() {
+      if (!this.control.data) {
+        const defaultSchema = this.control.schema;
+        const val = createDefaultValue(defaultSchema, this.control.rootSchema);
+        this.handleChange(this.control.path, val);
+      }
     },
   },
   computed: {
