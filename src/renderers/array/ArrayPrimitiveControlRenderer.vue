@@ -24,6 +24,7 @@
       :placeholder="placeholder"
       :required="control.required"
       :clearable="control.enabled && !isReadOnly"
+      @click:clear="loadRequiredTags"
       closable-chips
       :items="suggestions"
       v-bind="vuetifyProps('v-combobox')"
@@ -39,7 +40,7 @@
           :closable="
             !(isRequired(item.value) || !control.enabled || isReadOnly)
           "
-          @click:close="remove(item.value)"
+          @click:close="removeTag(item.value)"
           size="small"
         >
           {{ item.value }}
@@ -110,23 +111,7 @@ const controlRenderer = defineComponent({
       this.onChange(this.tags);
     }
 
-    // @ts-ignore
-    const requiredValues = this.control.schema.contains?.enum;
-
-    if (requiredValues && this.control.data) {
-      // We need to check if existing values are required values with different casing. And if so, use the casing specified in required values.
-      const existingValues = this.control.data.filter(
-        (val: string) =>
-          !requiredValues.some(
-            (requiredVal: string) =>
-              requiredVal.toLowerCase().trim() === val.toLowerCase().trim()
-          )
-      );
-
-      // TODO: add the missing requried value to the submission in the repository. For now autopopulated in our forms.
-      this.tags = [...new Set([...requiredValues, ...existingValues])];
-      this.onChange(this.tags);
-    }
+    this.loadRequiredTags();
   },
   computed: {
     delimeters() {
@@ -167,13 +152,35 @@ const controlRenderer = defineComponent({
       this.tags = [...new Set(this.tags)];
       this.handleChange(this.control.path, this.tags);
     },
-    remove(item: string) {
+    removeTag(item: string) {
+      if (this.isRequired(item)) {
+        return;
+      }
       this.tags.splice(this.tags.indexOf(item), 1);
       this.handleChange(this.control.path, this.tags);
     },
     isRequired(item: string) {
       const schema = this.control.schema as JsonSchema7;
       return schema.contains && schema.contains.enum?.includes(item);
+    },
+    loadRequiredTags() {
+      // @ts-ignore
+      const requiredValues = this.control.schema.contains?.enum;
+
+      if (requiredValues && this.control.data) {
+        // We need to check if existing values are required values with different casing. And if so, use the casing specified in required values.
+        const existingValues = this.control.data.filter(
+          (val: string) =>
+            !requiredValues.some(
+              (requiredVal: string) =>
+                requiredVal.toLowerCase().trim() === val.toLowerCase().trim()
+            )
+        );
+
+        // TODO: add the missing requried value to the submission in the repository. For now autopopulated in our forms.
+        this.tags = [...new Set([...requiredValues, ...existingValues])];
+        this.onChange(this.tags);
+      }
     },
   },
 });
