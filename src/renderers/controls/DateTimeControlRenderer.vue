@@ -11,12 +11,11 @@
       :close-on-content-click="false"
       :return-value.sync="pickerValue"
       transition="scale-transition"
-      offset-y
-      :min-width="useTabLayout ? '290px' : '580px'"
       v-bind="vuetifyProps('v-menu')"
-      :disabled="!control.enabled || control.schema['readOnly']"
+      :disabled="!control.enabled || isReadOnly"
+      min-width="50px"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template v-slot:activator="{ props }">
         <v-text-field
           :id="control.id + '-input'"
           :class="styles.control.input"
@@ -24,94 +23,73 @@
           :hint="control.description"
           :required="control.required"
           :error-messages="control.errors"
-          v-bind="{ ...vuetifyProps(`v-select`), ...attrs }"
+          v-bind="{ ...vuetifyProps(`v-select`), ...props }"
           :prepend-inner-icon="pickerIcon"
           v-mask="mask"
-          :value="inputValue"
-          @input="onInputChange"
-          v-on="on"
+          :model-value="inputValue"
+          @update:model-value="onInputChange"
         >
           <template v-slot:message>
-            <div
-              v-if="control.description"
-              class="text-subtitle-1 text--secondary"
-            >
-              {{ control.description }}
-            </div>
-            <div v-if="cleanedErrors" class="v-messages error--text">
-              {{ cleanedErrors }}
-            </div>
+            <cz-field-messages
+              :description="control.description"
+              :errors="cleanedErrors"
+            />
           </template>
           <template slot="append">
-            <v-icon v-if="control.enabled" tabindex="-1" @click="clear"
-              >$clear</v-icon
-            >
+            <v-icon v-if="control.enabled" tabindex="-1" @click="clear">
+              $clear
+            </v-icon>
           </template>
         </v-text-field>
       </template>
 
       <v-card v-if="showMenu">
-        <v-tabs v-if="useTabLayout" v-model="activeTab">
-          <v-tab key="date" href="#date" class="primary--text">
+        <v-tabs v-model="activeTab" class="bg-primary-darken-1">
+          <v-tab value="date" href="#date" class="primary--text">
             <v-icon>mdi-calendar</v-icon>
           </v-tab>
-          <v-spacer></v-spacer>
-          <v-tab key="time" href="#time" class="primary--text">
+          <v-spacer />
+          <v-tab value="time" href="#time" class="primary--text">
             <v-icon>mdi-clock-outline</v-icon>
           </v-tab>
-
-          <v-tab-item value="date"
-            ><v-date-picker
-              v-if="showMenu"
-              v-model="datePickerValue"
-              ref="datePicker"
-              v-bind="vuetifyProps('v-date-picker')"
-              @input="activeTab = 'time'"
-            >
-            </v-date-picker>
-          </v-tab-item>
-          <v-tab-item value="time"
-            ><v-time-picker
-              v-model="timePickerValue"
-              ref="timePicker"
-              v-bind="vuetifyProps('v-time-picker')"
-              :use-seconds="useSeconds"
-              format="ampm"
-            ></v-time-picker>
-          </v-tab-item>
         </v-tabs>
-        <v-row no-gutters v-else>
-          <v-col min-width="290px" cols="auto">
+
+        <v-window v-model="activeTab">
+          <v-window-item value="date">
             <v-date-picker
-              v-if="showMenu"
-              v-model="datePickerValue"
+              :model-value="datePickerValue"
+              @update:model-value="onDatePickerValueChange"
+              color="primary"
               ref="datePicker"
               v-bind="vuetifyProps('v-date-picker')"
-            >
-            </v-date-picker>
-          </v-col>
-          <v-col min-width="290px" cols="auto">
-            <v-time-picker
-              v-model="timePickerValue"
-              ref="timePicker"
-              v-bind="vuetifyProps('v-time-picker')"
-              :use-seconds="useSeconds"
-              format="ampm"
-            ></v-time-picker>
-          </v-col>
-        </v-row>
+              header="Select date"
+              tile
+            ></v-date-picker>
+          </v-window-item>
+          <v-window-item value="time">
+            <!-- <v-time-picker
+                :model-value="timePickerValue"
+                @update:model-value="timePickerValue = $event as any"
+                ref="timePicker"
+                v-bind="vuetifyProps('v-time-picker')"
+                :use-seconds="useSeconds"
+                format="ampm"
+              /> -->
+          </v-window-item>
+        </v-window>
+
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="showMenu = false">
+          <v-btn variant="text" @click="showMenu = false">
             {{ cancelLabel }}
           </v-btn>
-          <v-btn
+          <!-- <v-btn
             :disabled="!datePickerValue || !timePickerValue"
             color="primary"
             @click="okHandler"
           >
             {{ okLabel }}
-          </v-btn>
+          </v-btn> -->
         </v-card-actions>
       </v-card>
     </v-menu>
@@ -124,47 +102,48 @@ import {
   isDateTimeControl,
   JsonFormsRendererRegistryEntry,
   rankWith,
-} from "@jsonforms/core";
-import { defineComponent, ref } from "vue";
+} from '@jsonforms/core';
+import { defineComponent, ref } from 'vue';
 import {
   rendererProps,
   RendererProps,
   useJsonFormsControl,
-} from "@jsonforms/vue2";
+} from '@jsonforms/vue';
 import {
   parseDateTime,
   useTranslator,
   useVuetifyControl,
-} from "@/renderers/util";
-import { VueMaskDirective as Mask } from "v-mask";
-import dayjs from "dayjs";
+} from '@/renderers/util';
+import { VueMaskDirective as Mask } from 'v-mask';
+import dayjs from 'dayjs';
 import {
   VBtn,
   VDatePicker,
-  VTimePicker,
+  // VTimePicker,
   VIcon,
   VMenu,
   VTabs,
   VTab,
-  VTabItem,
   VSpacer,
   VTextField,
   VCard,
   VCardActions,
   VRow,
   VCol,
-} from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
+import { useDisplay } from 'vuetify/lib/framework.mjs';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const JSON_SCHEMA_DATE_TIME_FORMATS = [
-  "YYYY-MM-DDTHH:mm:ss.SSSZ",
+  'YYYY-MM-DDTHH:mm:ss.SSSZ',
   // 'YYYY-MM-DDTHH:mm:ss.SSS',
   // 'YYYY-MM-DDTHH:mm:ssZ',
   // 'YYYY-MM-DDTHH:mm:ss',
 ];
 
 const controlRenderer = defineComponent({
-  name: "datetime-control-renderer",
+  name: 'datetime-control-renderer',
   directives: { Mask },
   components: {
     VTextField,
@@ -174,35 +153,44 @@ const controlRenderer = defineComponent({
     VSpacer,
     VTabs,
     VTab,
-    VTabItem,
     VBtn,
     VCard,
     VCardActions,
     VRow,
     VCol,
-    VTimePicker,
+    // VTimePicker,
     ControlWrapper,
+    CzFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
     const t = useTranslator();
+    const breakpoints = useDisplay();
     const showMenu = ref(false);
-    const activeTab = ref("date");
+    const activeTab = ref('date');
     const mask = ref<((value: string) => (string | RegExp)[]) | undefined>(
       undefined
     );
     const adaptValue = (value: any) => value || undefined;
 
     const control = useVuetifyControl(useJsonFormsControl(props), adaptValue);
-    return { ...control, showMenu, mask, t, adaptValue, activeTab };
+    return {
+      ...control,
+      showMenu,
+      mask,
+      t,
+      adaptValue,
+      activeTab,
+      smAndDown: breakpoints.smAndDown,
+    };
   },
   watch: {
     showMenu(show) {
       if (!show) {
         // menu is closing then reset the activeTab
-        this.activeTab = "date";
+        this.activeTab = 'date';
       }
     },
     isFocused(newFocus) {
@@ -215,24 +203,24 @@ const controlRenderer = defineComponent({
   },
   computed: {
     applyMask(): boolean {
-      return typeof this.appliedOptions.mask == "boolean"
+      return typeof this.appliedOptions.mask == 'boolean'
         ? this.appliedOptions.mask
         : true;
     },
     pickerIcon(): string {
-      return typeof this.appliedOptions.pickerIcon == "string"
+      return typeof this.appliedOptions.pickerIcon == 'string'
         ? this.appliedOptions.pickerIcon
-        : "mdi-calendar-clock";
+        : 'mdi-calendar-clock';
     },
     useTabLayout(): boolean {
-      if (this.$vuetify.breakpoint.smAndDown) {
+      if (this.smAndDown) {
         return true;
       }
       return false;
     },
     // Display format
     dateTimeFormat(): string {
-      return "YYYY-MM-DDTHH:mm";
+      return 'YYYY-MM-DDTHH:mm';
     },
     dateTimeSaveFormat(): string {
       // @ts-ignore
@@ -246,7 +234,7 @@ const controlRenderer = defineComponent({
       ];
     },
     useSeconds(): boolean {
-      return this.dateTimeFormat.includes("s") ? true : false;
+      return this.dateTimeFormat.includes('s') ? true : false;
     },
     inputValue(): string | undefined {
       const value = this.control.data;
@@ -254,15 +242,14 @@ const controlRenderer = defineComponent({
       return date ? date.format(this.dateTimeFormat) : value;
     },
     datePickerValue: {
-      get(): string | undefined {
+      get(): Date | undefined {
         const value = this.control.data;
-
         const date = parseDateTime(value, this.formats);
         // show only valid values
-        return date ? date.format("YYYY-MM-DD") : undefined;
+        return date?.toDate() || undefined;
       },
-      set(val: string) {
-        this.onPickerChange(val, this.timePickerValue);
+      set(date: Date) {
+        this.onPickerChange(date, this.timePickerValue);
       },
     },
     timePickerValue: {
@@ -273,8 +260,8 @@ const controlRenderer = defineComponent({
         // show only valid values
         return time
           ? this.useSeconds
-            ? time.format("HH:mm:ss")
-            : time.format("HH:mm")
+            ? time.format('HH:mm:ss')
+            : time.format('HH:mm')
           : undefined;
       },
       set(val: string) {
@@ -288,11 +275,11 @@ const controlRenderer = defineComponent({
         const dateTime = parseDateTime(value, this.formats);
         // show only valid values
         return dateTime
-          ? dateTime.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+          ? dateTime.format(JSON_SCHEMA_DATE_TIME_FORMATS[0])
           : undefined;
       },
       set(val: string) {
-        const dateTime = parseDateTime(val, "YYYY-MM-DDTHH:mm:ss.SSSZ");
+        const dateTime = parseDateTime(val, JSON_SCHEMA_DATE_TIME_FORMATS[0]);
         if (dateTime) {
           this.onChange(dateTime.format(this.dateTimeSaveFormat));
         }
@@ -300,29 +287,33 @@ const controlRenderer = defineComponent({
     },
     clearLabel(): string {
       const label =
-        typeof this.appliedOptions.clearLabel == "string"
+        typeof this.appliedOptions.clearLabel == 'string'
           ? this.appliedOptions.clearLabel
-          : "Clear";
+          : 'Clear';
 
       return this.t(label, label);
     },
     cancelLabel(): string {
       const label =
-        typeof this.appliedOptions.cancelLabel == "string"
+        typeof this.appliedOptions.cancelLabel == 'string'
           ? this.appliedOptions.cancelLabel
-          : "Cancel";
+          : 'Close';
 
       return this.t(label, label);
     },
     okLabel(): string {
       const label =
-        typeof this.appliedOptions.okLabel == "string"
+        typeof this.appliedOptions.okLabel == 'string'
           ? this.appliedOptions.okLabel
-          : "OK";
+          : 'OK';
       return this.t(label, label);
     },
   },
   methods: {
+    onDatePickerValueChange(value: any) {
+      this.datePickerValue = value;
+      // this.activeTab = 'time'; // TODO: enable after implementing time picker
+    },
     onInputChange(value: string): void {
       const date = parseDateTime(value, this.dateTimeFormat);
       const newdata = date ? date.format(this.dateTimeSaveFormat) : value;
@@ -331,25 +322,25 @@ const controlRenderer = defineComponent({
         this.onChange(newdata);
       }
     },
-    onPickerChange(dateValue?: string, timeValue?: string): void {
-      const date = parseDateTime(dateValue, "YYYY-MM-DD");
+    onPickerChange(dateValue?: Date, timeValue?: string): void {
+      const date = dayjs(dateValue);
       const time = parseDateTime(
-        timeValue ?? (this.useSeconds ? "00:00:00" : "00:00"),
-        this.useSeconds ? "HH:mm:ss" : "HH:mm"
+        timeValue ?? (this.useSeconds ? '00:00:00' : '00:00'),
+        this.useSeconds ? 'HH:mm:ss' : 'HH:mm'
       );
       if (date && time) {
-        const dateTimeString = `${date.format("YYYY-MM-DD")}T${time.format(
-          "HH:mm:ss.SSSZ"
+        const dateTimeString = `${date.format('YYYY-MM-DD')}T${time.format(
+          'HH:mm:ss.SSSZ'
         )}`;
         const dateTime = parseDateTime(
           dateTimeString,
-          "YYYY-MM-DDTHH:mm:ss.SSSZ"
+          JSON_SCHEMA_DATE_TIME_FORMATS[0]
         );
         this.onChange(dateTime!.format(this.dateTimeSaveFormat));
       }
     },
     okHandler(): void {
-      (this.$refs.menu as any).save(this.pickerValue);
+      // (this.$refs.menu as any).save(this.pickerValue);
       this.showMenu = false;
     },
     clear(): void {
@@ -367,61 +358,61 @@ const controlRenderer = defineComponent({
 
       let result: (string | RegExp)[] = [];
       for (const part of parts) {
-        if (!part || part === "") {
+        if (!part || part === '') {
           continue;
         }
         if (index > value.length) {
           break;
         }
-        if (part == "YYYY") {
+        if (part == 'YYYY') {
           result.push(/[0-9]/);
           result.push(/[0-9]/);
           result.push(/[0-9]/);
           result.push(/[0-9]/);
           index += 4;
-        } else if (part == "YY") {
+        } else if (part == 'YY') {
           result.push(/[0-9]/);
           result.push(/[0-9]/);
           index += 2;
-        } else if (part == "M") {
+        } else if (part == 'M') {
           result.push(/[1]/);
-          if (value.charAt(index) === "1") {
+          if (value.charAt(index) === '1') {
             if (
-              value.charAt(index + 1) == "0" ||
-              value.charAt(index + 1) == "1" ||
-              value.charAt(index + 1) == "2"
+              value.charAt(index + 1) == '0' ||
+              value.charAt(index + 1) == '1' ||
+              value.charAt(index + 1) == '2'
             ) {
               result.push(/[0-2]/);
               index += 1;
-            } else if (value.charAt(index + 1) === "") {
+            } else if (value.charAt(index + 1) === '') {
               result.push(/[0-2]?/);
             }
           }
           index += 1;
-        } else if (part == "MM") {
+        } else if (part == 'MM') {
           result.push(/[0-1]/);
-          result.push(value.charAt(index) === "0" ? /[1-9]/ : /[0-2]/);
+          result.push(value.charAt(index) === '0' ? /[1-9]/ : /[0-2]/);
           index += 2;
-        } else if (part == "MMM") {
+        } else if (part == 'MMM') {
           let increment = 0;
           for (let position = 0; position <= 2; position++) {
             let regex: string | undefined = undefined;
             for (let i = 0; i <= 11; i++) {
-              const month = dayjs().month(i).format("MMM");
+              const month = dayjs().month(i).format('MMM');
               if (
                 value.charAt(index + position) === month.charAt(position) ||
-                value.charAt(index + position) === ""
+                value.charAt(index + position) === ''
               ) {
                 if (regex === undefined) {
-                  regex = "(";
+                  regex = '(';
                 } else {
-                  regex += "|";
+                  regex += '|';
                 }
                 regex += month.charAt(position);
               }
             }
             if (regex) {
-              regex += ")";
+              regex += ')';
               result.push(new RegExp(regex));
               increment++;
             } else {
@@ -429,13 +420,13 @@ const controlRenderer = defineComponent({
             }
           }
           index += increment;
-        } else if (part == "MMMM") {
+        } else if (part == 'MMMM') {
           let increment = 0;
           let maxLength = 0;
           let months: string[] = [];
 
           for (let i = 0; i <= 11; i++) {
-            const month = dayjs().month(i).format("MMMM");
+            const month = dayjs().month(i).format('MMMM');
             months.push(month);
             if (month.length > maxLength) {
               maxLength = month.length;
@@ -448,18 +439,18 @@ const controlRenderer = defineComponent({
               const month = months[i];
               if (
                 value.charAt(index + position) == month.charAt(position) ||
-                value.charAt(index + position) === ""
+                value.charAt(index + position) === ''
               ) {
                 if (regex === undefined) {
-                  regex = "(";
+                  regex = '(';
                 } else {
-                  regex += "|";
+                  regex += '|';
                 }
                 regex += month.charAt(position);
               }
             }
             if (regex) {
-              regex += ")";
+              regex += ')';
               result.push(new RegExp(regex));
               increment++;
             } else {
@@ -467,201 +458,201 @@ const controlRenderer = defineComponent({
             }
           }
           index += increment;
-        } else if (part == "D") {
+        } else if (part == 'D') {
           result.push(/[1-3]/);
           if (
-            value.charAt(index) === "1" ||
-            value.charAt(index) === "2" ||
-            value.charAt(index) === "3"
+            value.charAt(index) === '1' ||
+            value.charAt(index) === '2' ||
+            value.charAt(index) === '3'
           ) {
-            if (value.charAt(index) === "3") {
+            if (value.charAt(index) === '3') {
               if (
-                value.charAt(index + 1) === "0" ||
-                value.charAt(index + 1) === "1"
+                value.charAt(index + 1) === '0' ||
+                value.charAt(index + 1) === '1'
               ) {
                 result.push(/[0-1]/);
                 index += 1;
-              } else if (value.charAt(index + 1) === "") {
+              } else if (value.charAt(index + 1) === '') {
                 result.push(/[0-1]?/);
               }
             } else {
               if (
-                value.charAt(index + 1) === "0" ||
-                value.charAt(index + 1) === "1" ||
-                value.charAt(index + 1) === "2" ||
-                value.charAt(index + 1) === "3" ||
-                value.charAt(index + 1) === "4" ||
-                value.charAt(index + 1) === "5" ||
-                value.charAt(index + 1) === "6" ||
-                value.charAt(index + 1) === "7" ||
-                value.charAt(index + 1) === "8" ||
-                value.charAt(index + 1) === "9"
+                value.charAt(index + 1) === '0' ||
+                value.charAt(index + 1) === '1' ||
+                value.charAt(index + 1) === '2' ||
+                value.charAt(index + 1) === '3' ||
+                value.charAt(index + 1) === '4' ||
+                value.charAt(index + 1) === '5' ||
+                value.charAt(index + 1) === '6' ||
+                value.charAt(index + 1) === '7' ||
+                value.charAt(index + 1) === '8' ||
+                value.charAt(index + 1) === '9'
               ) {
                 result.push(/[0-9]/);
                 index += 1;
-              } else if (value.charAt(index + 1) === "") {
+              } else if (value.charAt(index + 1) === '') {
                 result.push(/[0-9]?/);
               }
             }
           }
           index += 1;
-        } else if (part == "DD") {
+        } else if (part == 'DD') {
           result.push(/[0-3]/);
           result.push(
-            value.charAt(index) === "3"
+            value.charAt(index) === '3'
               ? /[0-1]/
-              : value.charAt(index) === "0"
-              ? /[1-9]/
-              : /[0-9]/
+              : value.charAt(index) === '0'
+                ? /[1-9]/
+                : /[0-9]/
           );
           index += 2;
-        } else if (part == "H") {
+        } else if (part == 'H') {
           result.push(/[0-9]/);
-          if (value.charAt(index) === "2") {
+          if (value.charAt(index) === '2') {
             if (
-              value.charAt(index + 1) === "0" ||
-              value.charAt(index + 1) === "1" ||
-              value.charAt(index + 1) === "2" ||
-              value.charAt(index + 1) === "3"
+              value.charAt(index + 1) === '0' ||
+              value.charAt(index + 1) === '1' ||
+              value.charAt(index + 1) === '2' ||
+              value.charAt(index + 1) === '3'
             ) {
               result.push(/[0-3]/);
               index += 1;
-            } else if (value.charAt(index + 1) === "") {
+            } else if (value.charAt(index + 1) === '') {
               result.push(/[0-3]?/);
             }
-          } else if (value.charAt(index) === "1") {
+          } else if (value.charAt(index) === '1') {
             if (
-              value.charAt(index + 1) === "0" ||
-              value.charAt(index + 1) === "1" ||
-              value.charAt(index + 1) === "2" ||
-              value.charAt(index + 1) === "3" ||
-              value.charAt(index + 1) === "4" ||
-              value.charAt(index + 1) === "5" ||
-              value.charAt(index + 1) === "6" ||
-              value.charAt(index + 1) === "7" ||
-              value.charAt(index + 1) === "8" ||
-              value.charAt(index + 1) === "9"
+              value.charAt(index + 1) === '0' ||
+              value.charAt(index + 1) === '1' ||
+              value.charAt(index + 1) === '2' ||
+              value.charAt(index + 1) === '3' ||
+              value.charAt(index + 1) === '4' ||
+              value.charAt(index + 1) === '5' ||
+              value.charAt(index + 1) === '6' ||
+              value.charAt(index + 1) === '7' ||
+              value.charAt(index + 1) === '8' ||
+              value.charAt(index + 1) === '9'
             ) {
               result.push(/[0-9]/);
               index += 1;
-            } else if (value.charAt(index + 1) === "") {
+            } else if (value.charAt(index + 1) === '') {
               result.push(/[0-9]?/);
             }
           }
           index += 1;
-        } else if (part == "HH") {
+        } else if (part == 'HH') {
           result.push(/[0-2]/);
-          if (value.charAt(index) === "0" || value.charAt(index) === "1") {
+          if (value.charAt(index) === '0' || value.charAt(index) === '1') {
             result.push(/[0-9]/);
-          } else if (value.charAt(index) === "2") {
+          } else if (value.charAt(index) === '2') {
             result.push(/[0-3]/);
           }
           index += 2;
-        } else if (part == "h") {
+        } else if (part == 'h') {
           result.push(/[1-9]/);
-          if (value.charAt(index) === "1") {
+          if (value.charAt(index) === '1') {
             if (
-              value.charAt(index + 1) == "0" ||
-              value.charAt(index + 1) == "1" ||
-              value.charAt(index + 1) == "2"
+              value.charAt(index + 1) == '0' ||
+              value.charAt(index + 1) == '1' ||
+              value.charAt(index + 1) == '2'
             ) {
               result.push(/[0-2]/);
               index += 1;
-            } else if (value.charAt(index + 1) === "") {
+            } else if (value.charAt(index + 1) === '') {
               result.push(/[0-2]?/);
             }
           }
           index += 1;
-        } else if (part == "hh") {
+        } else if (part == 'hh') {
           result.push(/[0-1]/);
-          result.push(value.charAt(index) === "0" ? /[1-9]/ : /[0-2]/);
+          result.push(value.charAt(index) === '0' ? /[1-9]/ : /[0-2]/);
           index += 2;
-        } else if (part == "m") {
+        } else if (part == 'm') {
           result.push(/[0-9]/);
           if (
-            value.charAt(index) === "1" ||
-            value.charAt(index) === "2" ||
-            value.charAt(index) === "3" ||
-            value.charAt(index) === "4" ||
-            value.charAt(index) === "5"
+            value.charAt(index) === '1' ||
+            value.charAt(index) === '2' ||
+            value.charAt(index) === '3' ||
+            value.charAt(index) === '4' ||
+            value.charAt(index) === '5'
           ) {
             if (
-              value.charAt(index + 1) === "0" ||
-              value.charAt(index + 1) === "1" ||
-              value.charAt(index + 1) === "2" ||
-              value.charAt(index + 1) === "3" ||
-              value.charAt(index + 1) === "4" ||
-              value.charAt(index + 1) === "5" ||
-              value.charAt(index + 1) === "6" ||
-              value.charAt(index + 1) === "7" ||
-              value.charAt(index + 1) === "8" ||
-              value.charAt(index + 1) === "9"
+              value.charAt(index + 1) === '0' ||
+              value.charAt(index + 1) === '1' ||
+              value.charAt(index + 1) === '2' ||
+              value.charAt(index + 1) === '3' ||
+              value.charAt(index + 1) === '4' ||
+              value.charAt(index + 1) === '5' ||
+              value.charAt(index + 1) === '6' ||
+              value.charAt(index + 1) === '7' ||
+              value.charAt(index + 1) === '8' ||
+              value.charAt(index + 1) === '9'
             ) {
               result.push(/[0-9]/);
               index += 1;
-            } else if (value.charAt(index + 1) === "") {
+            } else if (value.charAt(index + 1) === '') {
               result.push(/[0-9]?/);
             }
           }
           index += 1;
-        } else if (part == "mm") {
+        } else if (part == 'mm') {
           result.push(/[0-5]/);
           result.push(/[0-9]/);
           index += 2;
-        } else if (part == "s") {
+        } else if (part == 's') {
           result.push(/[0-9]/);
           if (
-            value.charAt(index) === "1" ||
-            value.charAt(index) === "2" ||
-            value.charAt(index) === "3" ||
-            value.charAt(index) === "4" ||
-            value.charAt(index) === "5"
+            value.charAt(index) === '1' ||
+            value.charAt(index) === '2' ||
+            value.charAt(index) === '3' ||
+            value.charAt(index) === '4' ||
+            value.charAt(index) === '5'
           ) {
             if (
-              value.charAt(index + 1) === "0" ||
-              value.charAt(index + 1) === "1" ||
-              value.charAt(index + 1) === "2" ||
-              value.charAt(index + 1) === "3" ||
-              value.charAt(index + 1) === "4" ||
-              value.charAt(index + 1) === "5" ||
-              value.charAt(index + 1) === "6" ||
-              value.charAt(index + 1) === "7" ||
-              value.charAt(index + 1) === "8" ||
-              value.charAt(index + 1) === "9"
+              value.charAt(index + 1) === '0' ||
+              value.charAt(index + 1) === '1' ||
+              value.charAt(index + 1) === '2' ||
+              value.charAt(index + 1) === '3' ||
+              value.charAt(index + 1) === '4' ||
+              value.charAt(index + 1) === '5' ||
+              value.charAt(index + 1) === '6' ||
+              value.charAt(index + 1) === '7' ||
+              value.charAt(index + 1) === '8' ||
+              value.charAt(index + 1) === '9'
             ) {
               result.push(/[0-9]/);
               index += 1;
-            } else if (value.charAt(index + 1) === "") {
+            } else if (value.charAt(index + 1) === '') {
               result.push(/[0-9]?/);
             }
           }
           index += 1;
-        } else if (part == "ss") {
+        } else if (part == 'ss') {
           result.push(/[0-5]/);
           result.push(/[0-9]/);
           index += 2;
-        } else if (part == "a") {
+        } else if (part == 'a') {
           result.push(/a|p/);
-          result.push("m");
+          result.push('m');
           index += 2;
-        } else if (part == "A") {
+        } else if (part == 'A') {
           result.push(/A|P/);
-          result.push("M");
+          result.push('M');
           index += 2;
-        } else if (part == "Z") {
+        } else if (part == 'Z') {
           //GMT-12 to GMT+14
           result.push(/\+|-/);
           result.push(/[0-1]/);
-          if (value.charAt(index + 1) === "0") {
+          if (value.charAt(index + 1) === '0') {
             result.push(/[0-9]/);
-          } else if (value.charAt(index + 1) === "1") {
-            result.push(value.charAt(index) === "+" ? /[0-4]/ : /[0-2]/);
+          } else if (value.charAt(index + 1) === '1') {
+            result.push(value.charAt(index) === '+' ? /[0-4]/ : /[0-2]/);
           }
-          result.push(":");
+          result.push(':');
           result.push(/[0-5]/);
           result.push(/[0-9]/);
           index += 6;
-        } else if (part == "SSS") {
+        } else if (part == 'SSS') {
           result.push(/[0-9]/);
           result.push(/[0-9]/);
           result.push(/[0-9]/);
@@ -685,16 +676,4 @@ export const entry: JsonFormsRendererRegistryEntry = {
 };
 </script>
 
-<style lang="scss" scoped>
-.v-picker::v-deep {
-  border-radius: 0px;
-
-  .v-picker__title {
-    min-height: 102px;
-  }
-}
-
-::v-deep.v-card__actions {
-  border-top: 1px solid #ddd;
-}
-</style>
+<style lang="scss" scoped></style>

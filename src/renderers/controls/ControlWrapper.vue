@@ -5,11 +5,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { Styles } from "../styles";
+import { defineComponent, PropType } from 'vue';
+import { Styles } from '../styles';
 
 export default defineComponent({
-  name: "control-wrapper",
+  name: 'control-wrapper',
   props: {
     id: {
       required: true as const,

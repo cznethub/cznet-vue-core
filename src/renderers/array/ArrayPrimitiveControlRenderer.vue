@@ -5,63 +5,55 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
-      <v-combobox
-        v-model="tags"
-        @input="onTagsChange"
-        :label="computedLabel"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :hint="control.description"
-        :delimiters="delimeters"
-        :error-messages="control.errors"
-        :menu-props="{ openOnClick: false }"
-        small-chips
-        multiple
-        no-filter
-        :id="control.id + '-input'"
-        :class="styles.control.input"
-        :placeholder="placeholder"
-        :required="control.required"
-        :clearable="hover && !(!control.enabled || control.schema['readOnly'])"
-        :value="control.data"
-        :items="control.options"
-        v-bind="vuetifyProps('v-combobox')"
-        item-text="label"
-        item-value="value"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-      >
-        <template v-slot:selection="{ attrs, item }">
-          <v-chip
-            v-bind="attrs"
-            :readonly="!control.enabled || control.schema['readOnly']"
-            :disabled="appliedOptions.isDisabled"
-            :close="
-              !(
-                isRequired(item) ||
-                !control.enabled ||
-                control.schema['readOnly']
-              )
-            "
-            small
-            @click:close="remove(item)"
-          >
-            {{ item }}
-          </v-chip>
-        </template>
-        <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
-        </template>
-      </v-combobox>
-    </v-hover>
+    <v-combobox
+      v-model="tags"
+      @update:model-value="onTagsChange"
+      :label="computedLabel"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :hint="control.description"
+      :delimiters="delimeters"
+      :error-messages="control.errors"
+      :menu-props="{ openOnClick: false }"
+      small-chips
+      multiple
+      no-filter
+      chips
+      hide-details="auto"
+      :id="control.id + '-input'"
+      :class="styles.control.input"
+      :placeholder="placeholder"
+      :required="control.required"
+      :clearable="control.enabled && !isReadOnly"
+      @click:clear="loadRequiredTags"
+      closable-chips
+      :items="suggestions"
+      v-bind="vuetifyProps('v-combobox')"
+      item-text="label"
+      item-value="value"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    >
+      <template v-slot:chip="{ item }">
+        <v-chip
+          :readonly="!control.enabled || isReadOnly"
+          :disabled="appliedOptions.isDisabled"
+          :closable="
+            !(isRequired(item.value) || !control.enabled || isReadOnly)
+          "
+          @click:close="removeTag(item.value)"
+          size="small"
+        >
+          {{ item.value }}
+        </v-chip>
+      </template>
+
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-combobox>
   </control-wrapper>
 </template>
 
@@ -71,34 +63,37 @@ import {
   ControlElement,
   isPrimitiveArrayControl,
   JsonFormsRendererRegistryEntry,
+  JsonSchema7,
   not,
   rankWith,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
-import { rendererProps, useJsonFormsControl } from "@jsonforms/vue2";
-import { VHover, VCombobox, VChip } from "vuetify/lib";
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { default as ControlWrapper } from "../controls/ControlWrapper.vue";
+  UISchemaElement,
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
+import { rendererProps, useJsonFormsControl } from '@jsonforms/vue';
+import { VCombobox, VChip } from 'vuetify/components';
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
+import { isArray, every, isString } from 'lodash-es';
+import czFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
-  name: "array-primitive-control-renderer",
+  name: 'array-primitive-control-renderer',
   components: {
-    VHover,
     VCombobox,
     VChip,
     ControlWrapper,
+    czFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
   },
   setup(props: any) {
     const tags: string[] = [];
-
     return {
       tags,
       ...useVuetifyControl(
         useJsonFormsControl(props),
-        (value) => value || undefined
+        value => value || undefined
       ),
     };
   },
@@ -116,43 +111,39 @@ const controlRenderer = defineComponent({
       this.onChange(this.tags);
     }
 
-    // @ts-ignore
-    const requiredValues = this.control.schema.contains?.enum;
-
-    if (requiredValues && this.control.data) {
-      // We need to check if existing values are required values with different casing. And if so, use the casing specified in required values.
-      const existingValues = this.control.data.filter(
-        (val) =>
-          !requiredValues.some(
-            (requiredVal) =>
-              requiredVal.toLowerCase().trim() === val.toLowerCase().trim()
-          )
-      );
-      // TODO: add the missing requried value to the submission in the repository. For now autopopulated in our forms.
-      this.tags = [...new Set([...requiredValues, ...existingValues])];
-      this.onChange(this.tags);
-    }
+    this.loadRequiredTags();
   },
   computed: {
     delimeters() {
       // @ts-ignore
       return this.control.schema.options?.delimeter === false
         ? undefined
-        : [","];
+        : [','];
+    },
+    suggestions(): string[] | undefined {
+      // TODO: modify schema files to use options from uischema
+      const suggestions = this.control.uischema.options?.suggestion;
+
+      if (
+        suggestions === undefined ||
+        !isArray(suggestions) ||
+        !every(suggestions, isString)
+      ) {
+        // check for incorrect data
+        return undefined;
+      }
+      return suggestions;
     },
   },
   methods: {
-    onTagsChange() {
+    onTagsChange(tags: string[]) {
+      this.tags = tags;
       // Prevent inserting duplicates and trim values
-      this.tags = this.tags
-        .filter((tag) => !!tag.trim())
-        .map((tag) => tag.trim());
+      this.tags = this.tags.filter(tag => !!tag.trim()).map(tag => tag.trim());
 
       // pre-process to remove duplicates of different casing
       this.tags = this.tags.reduce((acc, curr, _prev) => {
-        if (
-          !acc.some((tag) => curr.toLowerCase() === tag.toLocaleLowerCase())
-        ) {
+        if (!acc.some(tag => curr.toLowerCase() === tag.toLocaleLowerCase())) {
           acc.push(curr);
         }
         return acc;
@@ -161,23 +152,41 @@ const controlRenderer = defineComponent({
       this.tags = [...new Set(this.tags)];
       this.handleChange(this.control.path, this.tags);
     },
-    remove(item: string) {
+    removeTag(item: string) {
+      if (this.isRequired(item)) {
+        return;
+      }
       this.tags.splice(this.tags.indexOf(item), 1);
-      this.onTagsChange();
+      this.handleChange(this.control.path, this.tags);
     },
     isRequired(item: string) {
-      return (
-        // @ts-ignore
-        this.control.schema.contains &&
-        // @ts-ignore
-        this.control.schema.contains.enum.includes(item)
-      );
+      const schema = this.control.schema as JsonSchema7;
+      return schema.contains && schema.contains.enum?.includes(item);
+    },
+    loadRequiredTags() {
+      // @ts-ignore
+      const requiredValues = this.control.schema.contains?.enum;
+
+      if (requiredValues && this.control.data) {
+        // We need to check if existing values are required values with different casing. And if so, use the casing specified in required values.
+        const existingValues = this.control.data.filter(
+          (val: string) =>
+            !requiredValues.some(
+              (requiredVal: string) =>
+                requiredVal.toLowerCase().trim() === val.toLowerCase().trim()
+            )
+        );
+
+        // TODO: add the missing requried value to the submission in the repository. For now autopopulated in our forms.
+        this.tags = [...new Set([...requiredValues, ...existingValues])];
+        this.onChange(this.tags);
+      }
     },
   },
 });
 export default controlRenderer;
 
-const useArrayLayout = (uiSchema) => {
+const useArrayLayout = (uiSchema: UISchemaElement) => {
   return uiSchema.options?.useArrayLayout;
 };
 
@@ -188,7 +197,7 @@ export const entry: JsonFormsRendererRegistryEntry = {
 </script>
 
 <style lang="scss" scoped>
-::v-deep .v-input__append-inner {
+:deep(.v-input__append-inner) {
   display: none !important;
 }
 </style>

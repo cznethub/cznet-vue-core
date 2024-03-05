@@ -1,30 +1,51 @@
-import "@mdi/font/css/materialdesignicons.css";
-import Vue from "vue";
-import Vuetify from "vuetify/lib/framework";
-import colors from "vuetify/lib/util/colors";
+import '@mdi/font/css/materialdesignicons.css';
 
-Vue.use(Vuetify);
+// Vuetify
+import 'vuetify/styles';
+import { ThemeDefinition, createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
 
-export default new Vuetify({
+const lightTheme: ThemeDefinition = {
+  dark: false,
+  colors: {
+    // primary: colors.blue.darken2,
+    // secondary: colors.blueGrey,
+    // accent: colors.blue,
+    // error: colors.red.accent3,
+    // success: colors.teal.accent4,
+    // info: colors.blueGrey,
+    // navbar: colors.blueGrey.lighten4,
+  },
+};
+
+const darkTheme: ThemeDefinition = {
+  dark: true,
+  colors: {
+    // primary: colors.blueGrey,
+    // secondary: colors.teal.darken1,
+    // accent: colors.amber,
+    // error: colors.red.accent3,
+    // success: colors.teal.accent4,
+    // info: colors.blueGrey,
+  },
+};
+
+const vuetify = createVuetify({
+  components,
+  directives,
   theme: {
+    defaultTheme: 'lightTheme',
     themes: {
-      light: {
-        primary: colors.blue.darken2,
-        secondary: colors.blueGrey,
-        accent: colors.blue,
-        error: colors.red.accent3,
-        success: colors.teal.accent4,
-        info: colors.blueGrey,
-        navbar: colors.blueGrey.lighten4,
-      },
-      dark: {
-        primary: colors.blueGrey,
-        secondary: colors.teal.darken1,
-        accent: colors.amber,
-        error: colors.red.accent3,
-        success: colors.teal.accent4,
-        info: colors.blueGrey,
-      },
+      lightTheme,
+      darkTheme,
+    },
+    variations: {
+      colors: ['primary', 'secondary'],
+      lighten: 4,
+      darken: 4,
     },
   },
 });
+
+export default vuetify;

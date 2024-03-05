@@ -1,9 +1,11 @@
+import { JsonSchema } from '@jsonforms/core';
+
 export interface IToast {
   message: string;
   duration?: number;
-  position?: "center" | "left";
+  position?: 'center' | 'left';
   isInfinite?: boolean;
-  type?: "success" | "error" | "info" | "default";
+  type?: 'success' | 'error' | 'info' | 'default';
   // isPersistent?: boolean // Currently has no effect
 }
 

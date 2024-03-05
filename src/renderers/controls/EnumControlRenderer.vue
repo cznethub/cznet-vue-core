@@ -5,37 +5,30 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
-      <v-select
-        @change="onChange"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="hover && !control.schema.readOnly"
-        :value="control.data"
-        :items="control.options"
-        v-bind="vuetifyProps('v-select')"
-        item-text="label"
-        item-value="value"
-      >
-        <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
-        </template>
-      </v-select>
-    </v-hover>
+    <v-select
+      @update:model-value="onChange"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :model-value="control.data"
+      :items="control.options"
+      v-bind="vuetifyProps('v-select')"
+      item-title="label"
+      item-value="value"
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-select>
   </control-wrapper>
 </template>
 
@@ -45,23 +38,24 @@ import {
   JsonFormsRendererRegistryEntry,
   rankWith,
   isEnumControl,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   rendererProps,
   useJsonFormsEnumControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { useDefaults, useVuetifyControl } from "@/renderers/util/composition";
-import { VSelect, VHover } from "vuetify/lib";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
+import { VSelect } from 'vuetify/components';
+import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const controlRenderer = defineComponent({
-  name: "enum-control-renderer",
+  name: 'enum-control-renderer',
   components: {
     VSelect,
-    VHover,
     ControlWrapper,
+    CzFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -69,7 +63,7 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsEnumControl(props);
     useDefaults(control);
-    return useVuetifyControl(control, (value) => value || undefined);
+    return useVuetifyControl(control, value => value || undefined);
   },
 });
 

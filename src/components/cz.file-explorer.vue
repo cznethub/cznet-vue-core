@@ -1,19 +1,17 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center has-bg-light-gray primary lighten-4 files-container--included flex-wrap gap-1"
+      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1"
     >
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
-        <template v-slot:activator="{ on, attrs }">
+        <template v-slot:activator="{ props }">
           <v-btn
             @click="newFolder"
-            class="mr-4"
-            small
-            icon
-            v-on="on"
-            v-bind="attrs"
-            ><v-icon>mdi-folder</v-icon></v-btn
-          >
+            icon="mdi-folder"
+            size="small"
+            variant="text"
+            v-bind="props"
+          ></v-btn>
         </template>
         New Folder
       </v-tooltip>
@@ -23,18 +21,15 @@
       <div v-if="!isReadOnly">
         <template>
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <v-btn
                 @click="selectAll"
                 :disabled="!rootDirectory.children.length"
-                class="mr-1"
-                icon
-                small
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-select</v-icon>
-              </v-btn>
+                icon="mdi-select"
+                size="small"
+                variant="text"
+                v-bind="props"
+              ></v-btn>
             </template>
             <span>Select All</span>
           </v-tooltip>
@@ -42,13 +37,13 @@
 
         <!-- <template>
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <v-btn
                 @click="unselectAll"
                 icon
-                small
+                size="small"
                 :disabled="!selected.length"
-                v-on="on"
+                v-bind="props"
                 v-bind="attrs"
               >
                 <v-icon>mdi-checkbox-blank-off-outline</v-icon>
@@ -61,33 +56,29 @@
 
         <template v-if="hasFolders">
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <v-btn
                 @click="cut"
                 :disabled="!canCutSelected"
-                class="mr-1"
-                icon
-                small
-                v-on="on"
-                v-bind="attrs"
-                ><v-icon>mdi-content-cut</v-icon></v-btn
-              >
+                icon="mdi-content-cut"
+                size="small"
+                variant="text"
+                v-bind="props"
+              ></v-btn>
             </template>
             Cut
           </v-tooltip>
 
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <v-btn
                 @click="onPaste"
                 :disabled="!canPaste"
-                icon
-                small
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-content-paste</v-icon>
-              </v-btn>
+                icon="mdi-content-paste"
+                size="small"
+                variant="text"
+                v-bind="props"
+              />
             </template>
             Paste
           </v-tooltip>
@@ -96,32 +87,29 @@
 
         <template v-if="!isReadOnly">
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ on, attrs }">
+            <template v-slot:activator="{ props }">
               <v-btn
                 @click="deleteSelected"
-                icon
-                small
+                icon="mdi-delete"
+                size="small"
+                variant="text"
                 :disabled="isDeleting || !selected.length"
-                v-on="on"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
+                v-bind="props"
+              ></v-btn>
             </template>
             <span>Discard</span>
           </v-tooltip>
         </template>
       </div>
 
-      <v-spacer></v-spacer>
+      <v-spacer />
 
       <v-text-field
         v-model="search"
-        rounded
         label="Search by file or folder name..."
-        dense
-        solo
-        flat
+        rounded
+        density="compact"
+        variant="outlined"
         hide-details
         clearable
         clear-icon="mdi-close-circle-outline"
@@ -133,25 +121,25 @@
         <v-btn
           @click="discardAll"
           :disabled="!isSomeNotUploaded"
-          small
           depressed
           class="default"
         >
-          <v-icon class="mr-2" small color="error"
-            >mdi-cloud-cancel-outline</v-icon
-          >
+          <v-icon class="mr-2" size="small" color="error">
+            mdi-cloud-cancel-outline
+          </v-icon>
           Discard All
         </v-btn>
       </template>
     </v-sheet>
 
+    <v-divider outlined></v-divider>
     <v-card-text style="min-height: 10rem">
       <slot name="prepend"></slot>
 
       <v-menu v-model="showMenu" v-bind="menuAttrs" absolute offset-y>
         <v-list
           v-if="showMenuItem"
-          width="200"
+          width="auto"
           class="files-container--included"
         >
           <template v-if="!isReadOnly">
@@ -160,10 +148,10 @@
               v-if="isFolder(showMenuItem) && hasFolders"
               @click.stop="newFolder"
             >
-              <v-list-item-title
-                ><v-icon color="primary" small>mdi-folder-outline</v-icon>
-                Create new folder</v-list-item-title
-              >
+              <v-list-item-title>
+                <v-icon color="primary" class="mr-2">mdi-folder-outline</v-icon>
+                Create new folder
+              </v-list-item-title>
             </v-list-item>
 
             <!-- RENAME -->
@@ -172,27 +160,29 @@
               @click.stop="renameItem(showMenuItem)"
               :disabled="showMenuItem.isRenaming"
             >
-              <v-list-item-title
-                ><v-icon
+              <v-list-item-title>
+                <v-icon
+                  class="mr-2"
                   :class="{ 'text--disabled': showMenuItem.isRenaming }"
-                  small
-                  >mdi-pencil-outline</v-icon
                 >
-                Rename</v-list-item-title
-              >
+                  mdi-pencil-outline
+                </v-icon>
+                Rename
+              </v-list-item-title>
             </v-list-item>
 
             <template v-if="hasFolders">
               <!-- CUT -->
               <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
-                <v-list-item-title
-                  ><v-icon
+                <v-list-item-title>
+                  <v-icon
+                    class="mr-2"
                     :class="{ 'text--disabled': !canCutItem(showMenuItem) }"
-                    small
-                    >mdi-content-cut</v-icon
                   >
-                  Cut</v-list-item-title
-                >
+                    mdi-content-cut
+                  </v-icon>
+                  Cut
+                </v-list-item-title>
               </v-list-item>
 
               <!-- PASTE -->
@@ -201,45 +191,56 @@
                 @click="onPaste"
                 :disabled="!canPasteOnFolder(showMenuItem)"
               >
-                <v-list-item-title
-                  ><v-icon
-                    small
+                <v-list-item-title>
+                  <v-icon
+                    class="mr-2"
                     :class="{
                       'text--disabled': !canPasteOnFolder(showMenuItem),
                     }"
-                    >mdi-content-paste</v-icon
                   >
-                  Paste</v-list-item-title
-                >
+                    mdi-content-paste
+                  </v-icon>
+                  Paste
+                </v-list-item-title>
               </v-list-item>
             </template>
 
             <!-- DISCARD -->
             <v-list-item @click="deleteSelected" :disabled="isDeleting">
               <v-list-item-title v-if="showMenuItem.isUploaded">
-                <v-icon small :class="{ 'text--disabled': isDeleting }"
-                  >mdi-cloud-remove-outline</v-icon
+                <v-icon
+                  class="mr-2"
+                  color="error lighten-2"
+                  :class="{ 'text--disabled': isDeleting }"
                 >
+                  mdi-cloud-remove-outline
+                </v-icon>
                 Delete
               </v-list-item-title>
               <v-list-item-title v-else>
-                <v-icon :class="{ 'text--disabled': isDeleting }" small
-                  >mdi-delete-outline</v-icon
+                <v-icon
+                  class="mr-2"
+                  color="error lighten-2"
+                  :class="{ 'text--disabled': isDeleting }"
                 >
+                  mdi-delete-outline
+                </v-icon>
                 Discard
               </v-list-item-title>
             </v-list-item>
           </template>
 
           <!-- VIEW METADATA -->
-          <template v-if="hasFileMetadata(showMenuItem)">
+          <template v-if="hasFileMetadata?.(showMenuItem)">
             <v-divider v-if="!isReadOnly"></v-divider>
 
             <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
-              <v-list-item-title
-                ><v-icon small>mdi-text-box-search-outline</v-icon> View
-                metadata</v-list-item-title
-              >
+              <v-list-item-title>
+                <v-icon class="mr-2" color="orange">
+                  mdi-text-box-search-outline
+                </v-icon>
+                View metadata
+              </v-list-item-title>
             </v-list-item>
           </template>
         </v-list>
@@ -247,12 +248,12 @@
 
       <v-card
         flat
-        outlined
+        variant="outlined"
         v-if="rootDirectory.children.length"
         class="mb-4 files-container-card"
         :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
       >
-        <v-card-text class="files-container" style="height: 15rem">
+        <v-card-text class="files-container">
           <drop
             @drop="onDropMove($event, rootDirectory)"
             @dragenter.exact="isRootDragging = true"
@@ -301,7 +302,7 @@
                         :disabled="item.isDisabled"
                         :color="item.isCutting ? 'grey' : folderColor"
                       >
-                        {{ open ? "mdi-folder-open" : "mdi-folder" }}
+                        {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
                       </v-icon>
                       <v-icon
                         v-else
@@ -310,8 +311,8 @@
                         :color="item.isCutting ? 'grey' : ''"
                       >
                         {{
-                          fileIcons[item.name.split(".").pop()] ||
-                          fileIcons["default"]
+                          fileIcons[item.name.split('.').pop()] ||
+                          fileIcons['default']
                         }}
                       </v-icon>
                     </template>
@@ -338,22 +339,21 @@
                           <v-text-field
                             v-if="item.isRenaming"
                             class="ml-3"
-                            @change="onRenamed(item, $event)"
+                            @update:model-value="onRenamed(item, $event)"
                             @keydown.enter="item.isRenaming = false"
                             @click.exact="onItemClick($event, item)"
                             @click.ctrl.exact="onItemCtrlClick($event, item)"
                             @click.meta.exact="onItemCtrlClick($event, item)"
                             @click.shift.exact="onItemShiftClick($event, item)"
                             @click:append="item.isRenaming = false"
-                            :value="item.name"
+                            :model-value="item.name"
                             v-click-outside="onClickOutside"
                             append-icon="mdi-cancel"
-                            dense
-                            outlined
+                            density="compact"
+                            variant="outlined"
                             hide-details="auto"
                             autofocus
-                          >
-                          </v-text-field>
+                          ></v-text-field>
 
                           <v-row
                             v-else
@@ -362,7 +362,7 @@
                             @click.ctrl.exact="onItemCtrlClick($event, item)"
                             @click.meta.exact="onItemCtrlClick($event, item)"
                             @click.shift.exact="onItemShiftClick($event, item)"
-                            :class="{ 'text--secondary': item.isCutting }"
+                            :class="{ 'text-medium-emphasis': item.isCutting }"
                             class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column"
                           >
                             <v-col
@@ -373,15 +373,15 @@
                               </div>
                               <div
                                 v-if="item.file"
-                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text--secondary"
+                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
                               >
-                                {{ item.file.size | prettyBytes(2, false) }}
+                                {{ prettyBytes(item.file.size) }}
                               </div>
                               <div
                                 v-else-if="item.uploadedSize"
-                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text--secondary"
+                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
                               >
-                                {{ item.uploadedSize | prettyBytes(2, false) }}
+                                {{ prettyBytes(item.uploadedSize) }}
                               </div>
                             </v-col>
                           </v-row>
@@ -394,9 +394,13 @@
                           v-if="item.isUploaded"
                           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
-                          <v-icon class="text--disabled" title="uploaded" small
-                            >mdi-cloud-check</v-icon
+                          <v-icon
+                            class="text--disabled"
+                            title="uploaded"
+                            size="small"
                           >
+                            mdi-cloud-check
+                          </v-icon>
                         </v-col>
                         <v-col
                           v-if="canRetryUpload(item)"
@@ -406,7 +410,8 @@
                             color="info"
                             @click="retryUpload(item)"
                             :disabled="item.isDisabled"
-                            small
+                            size="small"
+                            variant="text"
                             depressed
                           >
                             <v-icon left>mdi-cloud-upload</v-icon>
@@ -415,11 +420,11 @@
                         </v-col>
                         <v-col
                           v-if="showFileWarnings(item)"
-                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text--secondary align-center"
+                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text-medium-emphasis align-center"
                         >
                           <v-menu open-on-hover bottom left offset-y>
-                            <template v-slot:activator="{ on, attrs }">
-                              <div v-bind="attrs" v-on="on">
+                            <template v-slot:activator="{ props }">
+                              <div v-bind="props">
                                 <v-icon
                                   :color="
                                     isFileInvalid(item) ||
@@ -427,8 +432,9 @@
                                       ? 'error'
                                       : 'warning'
                                   "
-                                  >mdi-alert-circle</v-icon
                                 >
+                                  mdi-alert-circle
+                                </v-icon>
                               </div>
                             </template>
                             <div class="pa-4 has-bg-white">
@@ -453,35 +459,33 @@
                                 </li>
                                 <li v-if="isFileTooBig(item)">
                                   Files cannot be larger than
-                                  <b>{{
-                                    maxUploadSizePerFile | prettyBytes(2, false)
-                                  }}</b
-                                  >.
+                                  <b>{{ prettyBytes(maxUploadSizePerFile) }}</b>
+                                  .
                                 </li>
                               </ul>
                             </div>
                           </v-menu>
                         </v-col>
                         <v-col v-if="item.isDisabled">
-                          <v-icon small>fas fa-circle-notch fa-spin</v-icon>
+                          <v-icon color="primary lighten-2" small>
+                            fas fa-circle-notch fa-spin
+                          </v-icon>
                         </v-col>
                       </v-row>
                     </template>
                   </v-treeview>
                 </v-col>
-                <v-col v-if="$vuetify.breakpoint.smAndUp"></v-col>
+                <v-col v-if="breakpoints.smAndUp"></v-col>
               </v-row>
             </cz-drag-select>
           </drop>
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
 
         <div class="py-2 px-4" v-if="rootDirectory.children.length">
-          <span
-            >{{ allFiles.length }} file{{
-              allFiles.length === 1 ? "" : "s"
-            }}</span
-          >
+          <span>
+            {{ allFiles.length }} file{{ allFiles.length === 1 ? '' : 's' }}
+          </span>
           <v-divider class="mx-4" vertical></v-divider>
           <span
             v-if="totalUploadSize"
@@ -490,17 +494,16 @@
                 ? 'red--text text--lighten-1 font-weight-bold'
                 : ''
             "
-            >{{ totalUploadSize | prettyBytes(2, false) }}
+          >
+            {{ prettyBytes(totalUploadSize) }}
           </span>
 
           <template v-if="selected.length">
             <v-divider class="mx-4" vertical></v-divider>
-            <span class="text-subtitle-2"
-              >{{ selected.length }} item{{
-                selected.length !== 1 ? "s" : ""
-              }}
-              selected</span
-            >
+            <span class="text-subtitle-2">
+              {{ selected.length }} item{{ selected.length !== 1 ? 's' : '' }}
+              selected
+            </span>
           </template>
 
           <v-menu
@@ -510,15 +513,15 @@
             right
             offset-y
           >
-            <template v-slot:activator="{ on, attrs }">
-              <div class="ml-4 d-inline-block" v-bind="attrs" v-on="on">
+            <template v-slot:activator="{ props }">
+              <div class="ml-4 d-inline-block" v-bind="props">
                 <v-icon color="error">mdi-alert-circle</v-icon>
               </div>
             </template>
 
             <div class="pa-4 has-bg-white text-subtitle-1">
               The total upload size cannot exceed
-              <b>{{ maxTotalUploadSize | prettyBytes(2, false) }}</b>
+              <b>{{ prettyBytes(maxTotalUploadSize) }}</b>
             </div>
           </v-menu>
         </div>
@@ -526,9 +529,9 @@
 
       <v-card
         flat
-        outlined
+        variant="outlined"
         v-else-if="!rootDirectory.children.length"
-        class="pa-2 text-body-1 text--secondary mb-2"
+        class="pa-2 text-body-1 text-medium-emphasis mb-2"
       >
         <v-card-text class="text-center">
           No files have been included in this submission.
@@ -538,8 +541,7 @@
       <v-alert
         v-if="hasTooManyFiles"
         class="text-subtitle-1"
-        border="left"
-        colored-border
+        border="start"
         type="error"
         elevation="1"
       >
@@ -558,13 +560,12 @@
         v-else-if="!isReadOnly"
         class="upload-drop-area files-container--included"
       >
-        <b-upload
+        <!-- <b-upload
           type="file"
           multiple
           drag-drop
           expanded
           v-model="dropFiles"
-          class="has-bg-light-gray"
         >
           <v-alert
             class="ma-4 has-cursor-pointer transparent"
@@ -573,24 +574,31 @@
             colored-border
             icon="mdi-paperclip"
           >
-            <span class="text-body-1"
-              >Drop your files here or click to upload.</span
-            >
+            <span class="text-body-1">
+              Drop your files here or click to upload.
+            </span>
           </v-alert>
-        </b-upload>
+        </b-upload> -->
       </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script lang="ts">
-import { Component, Watch, Prop, Vue, Ref } from "vue-property-decorator";
-import { IFolder, IFile } from "@/types";
-import { default as Notifications } from "@/models/notifications";
-import { FILE_ICONS } from "@/constants";
-import { setReactive } from "@/utils";
-import { Drag, Drop, DropMask } from "vue-easy-dnd";
-import CzDragSelect from "@/components/cz.drag-select.vue";
+import {
+  Component,
+  Vue,
+  toNative,
+  Prop,
+  Ref,
+  Watch,
+} from 'vue-facing-decorator';
+import { IFolder, IFile } from '@/types';
+import { default as Notifications } from '@/models/notifications';
+import { FILE_ICONS } from '@/constants';
+// @ts-ignore
+import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
+import CzDragSelect from '@/components/cz.drag-select.vue';
 
 import {
   VCard,
@@ -604,17 +612,22 @@ import {
   VMenu,
   VRow,
   VCol,
-  VTreeview,
+  // VTreeview,
   VBtn,
   VIcon,
   VList,
   VListItem,
   VListItemTitle,
-  ClickOutside,
-} from "vuetify/lib";
+  VAlert,
+} from 'vuetify/components';
+import { useDisplay } from 'vuetify';
+
+import { ClickOutside } from 'vuetify/directives';
+
+import prettyBytes from 'pretty-bytes';
 
 @Component({
-  name: "cz-file-explorer",
+  name: 'cz-file-explorer',
   components: {
     VCard,
     VCardText,
@@ -627,7 +640,7 @@ import {
     VMenu,
     VRow,
     VCol,
-    VTreeview,
+    // VTreeview,
     VBtn,
     VIcon,
     VList,
@@ -637,17 +650,18 @@ import {
     Drop,
     DropMask,
     CzDragSelect,
+    VAlert,
   },
   directives: { ClickOutside },
-  filters: {},
+  emits: ['showMetadata', 'input'],
 })
-export default class CzFileExplorer extends Vue {
+class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
   @Prop({ required: true }) rootDirectory!: IFolder;
   @Prop() maxNumberOfFiles!: number;
   @Prop() maxTotalUploadSize!: number;
   @Prop() maxUploadSizePerFile!: number;
-  @Prop({ default: "primary lighten-2" }) folderColor!: boolean;
+  @Prop({ default: 'primary lighten-2' }) folderColor!: string;
   /** If specified, will only allow upload of listed file types */
   @Prop() supportedFileTypes!: string[];
   /** A regular expression to test validity of file names */
@@ -660,46 +674,46 @@ export default class CzFileExplorer extends Vue {
   /** A function to check if an item has metadata that can be displayed using the
    * 'View file metadata' context menu item
    * */
-  @Prop({ default: (_item: IFile | IFolder, _newPath) => () => false })
+  @Prop()
   hasFileMetadata?: (_item: IFile | IFolder) => Promise<boolean>;
 
   /** Asynchronous function to run when renaming files or folders */
-  @Prop()
-  renameFileOrFolder?: (
+  @Prop() renameFileOrFolder?: (
     _item: IFile | IFolder,
     _newPath: string
   ) => Promise<boolean>;
 
   /** Asynchronous function to run when deleting files or folders */
-  @Prop({ default: (_item: IFile | IFolder) => () => true })
-  deleteFileOrFolder?: (item: IFile | IFolder) => Promise<boolean>;
+  @Prop() deleteFileOrFolder?: (item: IFile | IFolder) => Promise<boolean>;
 
   /** Asynchronous function to run when uploading files or creating folders
    * @returns An boolean array indicating if the file was uploaded successfully
    */
-  @Prop({ default: (_items: IFile[] | IFolder[]) => () => [true] })
-  upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
+  @Prop() upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
 
-  @Ref("tree") tree!: InstanceType<typeof VTreeview> & any;
+  @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
-  protected fileIcons = FILE_ICONS;
-  protected open: (IFolder | IFile)[] = [];
-  protected selected: (IFolder | IFile)[] = [];
-  protected dropFiles: File[] = [];
-  protected isDeleting = false;
-  protected fileReleaseDate = null;
-  protected shiftAnchor: IFolder | IFile | null = null;
-  protected search = "";
-  protected showMenu = false;
-  protected showMenuItem: IFolder | IFile | null = null;
-  protected keyCounter = 0;
-  protected ignoreNextClick = false;
-  protected isDragMoving = false;
-  protected isRootDragging = false;
+  breakpoints: any = useDisplay();
+
+  fileIcons = FILE_ICONS;
+  open: (IFolder | IFile)[] = [];
+  selected: (IFolder | IFile)[] = [];
+  dropFiles: File[] = [];
+  isDeleting = false;
+  fileReleaseDate = null;
+  shiftAnchor: IFolder | IFile | null = null;
+  search = '';
+  showMenu = false;
+  showMenuItem: IFolder | IFile | null = null;
+  keyCounter = 0;
+  ignoreNextClick = false;
+  isDragMoving = false;
+  isRootDragging = false;
+  prettyBytes = prettyBytes;
 
   menuAttrs = {
-    "position-x": 0,
-    "position-y": 0,
+    'position-x': 0,
+    'position-y': 0,
   };
 
   public get hasInvalidFilesToUpload() {
@@ -712,39 +726,39 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected get isSomeNotUploaded() {
-    return this.allFiles.some((i) => !i.isUploaded);
+  get isSomeNotUploaded() {
+    return this.allFiles.some(i => !i.isUploaded);
   }
 
-  protected get allFiles(): IFile[] {
+  get allFiles(): IFile[] {
     return this.allItems.filter((item: IFile | IFolder) => {
       return !this.isFolder(item);
     });
   }
 
-  protected get hasTooManyFiles() {
+  get hasTooManyFiles() {
     if (!this.maxNumberOfFiles) {
       return false;
     }
 
     const validFiles = this.allItems.filter(
-      (item) => !this.isFileInvalid(item as IFile)
+      item => !this.isFileInvalid(item as IFile)
     );
     return validFiles.length > this.maxNumberOfFiles;
   }
 
-  protected get isTotalUploadSizeTooBig() {
+  get isTotalUploadSizeTooBig() {
     if (!this.maxTotalUploadSize) {
       return false;
     }
     return this.totalUploadSize > this.maxTotalUploadSize;
   }
 
-  protected get itemsToCut(): (IFile | IFolder)[] {
+  get itemsToCut(): (IFile | IFolder)[] {
     return this._itemsToCutRecursive(this.rootDirectory);
   }
 
-  protected get activeDirectoryItem(): IFolder | IFile {
+  get activeDirectoryItem(): IFolder | IFile {
     if (this.selected.length !== 1) {
       return this.rootDirectory;
     } else {
@@ -752,7 +766,7 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected get canPaste() {
+  get canPaste() {
     const isValidTarget = this.selected.length <= 1;
     const areItemsValid =
       this.itemsToCut.length > 0 &&
@@ -761,44 +775,44 @@ export default class CzFileExplorer extends Vue {
     return isValidTarget && areItemsValid;
   }
 
-  protected onDragSelect(selectedKeys: number[]) {
+  onDragSelect(selectedKeys: number[]) {
     this.unselectAll();
-    const selectedItems = selectedKeys.map((key) => {
+    const selectedItems = selectedKeys.map(key => {
       return this.tree.nodes[key].item;
     });
     this.select(selectedItems);
   }
 
-  protected onDragEnd() {
+  onDragEnd() {
     this.ignoreNextClick = true;
   }
 
-  protected onDragStart() {
+  onDragStart() {
     this.unselectAll();
   }
 
-  protected canPasteOnFolder(item: IFolder) {
+  canPasteOnFolder(item: IFile | IFolder) {
     return (
       this.itemsToCut.length > 0 &&
       !this.itemsToCut.includes(item) &&
-      this.itemsToCut.some((i) => this.getParent(i) !== item)
+      this.itemsToCut.some(i => this.getParent(i) !== item)
     );
   }
 
-  protected get canCutSelected() {
+  get canCutSelected() {
     return this.selected.length;
   }
 
-  protected canCutItem(item: IFile | IFolder) {
+  canCutItem(item: IFile | IFolder) {
     return this.hasFolders && !item.isCutting;
   }
 
-  protected get allItems(): IFile[] {
+  get allItems(): IFile[] {
     return this._getDirectoryItems(this.rootDirectory);
   }
 
-  protected get filter() {
-    return (item, search, textKey) => {
+  get filter() {
+    return (item: any, search: string, textKey: string) => {
       return (
         item[textKey]
           .trim()
@@ -809,9 +823,9 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** @return total size of files uploaded and valid files pending to upload */
-  protected get totalUploadSize(): number {
+  get totalUploadSize(): number {
     const validFiles = this.allItems.filter(
-      (item) => !this.isFileInvalid(item as IFile)
+      item => !this.isFileInvalid(item as IFile)
     );
 
     return validFiles.reduce((acc: number, file: IFile) => {
@@ -825,7 +839,7 @@ export default class CzFileExplorer extends Vue {
     this._annotateDirectory(this.rootDirectory);
   }
 
-  protected generateNewKey(): number {
+  generateNewKey(): number {
     const newKey = this.keyCounter++;
     if (this.tree && this.tree.nodes[newKey]) {
       // This key already exists, try the next one.
@@ -834,7 +848,7 @@ export default class CzFileExplorer extends Vue {
     return newKey;
   }
 
-  protected show(event: MouseEvent, item: IFile | IFolder | null) {
+  show(event: MouseEvent, item: IFile | IFolder | null) {
     // TODO: right click will erase the previous selection and only select the current item
     // Find a way to prevent this behaviour
     if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
@@ -847,8 +861,8 @@ export default class CzFileExplorer extends Vue {
     }
     this.shiftAnchor = item;
     this.showMenu = false;
-    this.menuAttrs["position-x"] = event.clientX;
-    this.menuAttrs["position-y"] = event.clientY;
+    this.menuAttrs['position-x'] = event.clientX;
+    this.menuAttrs['position-y'] = event.clientY;
     this.$nextTick(() => {
       this.showMenu = true;
       this.showMenuItem = item;
@@ -867,36 +881,55 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  @Watch("rootDirectory.children", { deep: true })
-  protected onInput() {
+  @Watch('rootDirectory.children', { deep: true })
+  onInput() {
     const updatedItems = this._getDirectoryItems(this.rootDirectory);
     const validItems = updatedItems.filter(
-      (item) => !this.isFileInvalid(item as IFile)
+      item => !this.isFileInvalid(item as IFile)
     );
-    this.$emit("input", validItems);
+    this.$emit('input', validItems);
   }
 
-  protected retryUpload(item: IFile) {
+  retryUpload(item: IFile) {
+    this.select([this.getParent(item)]);
     this.onDeleteFileOrFolder(item);
+
+    const nameOverrides: { [index: number]: string } = {};
+
+    // If the file that failed to upload was renamed after, use the new file name
+    if (item.file && item.file.name !== item.name) {
+      nameOverrides[0] = item.name;
+    }
+
     if (item.file) {
-      this.onFilesDropped([item.file]);
+      this.onFilesDropped([item.file], [], nameOverrides);
     }
   }
 
-  @Watch("dropFiles")
-  protected async onFilesDropped(newFiles: File[]) {
+  /**
+   * @param nameOverrides A key - value dictionary where the key is the index of the file in the `newFiles` array and the value is the new file name.
+   * */
+  @Watch('dropFiles')
+  async onFilesDropped(
+    newFiles: File[],
+    _oldFiles: File[],
+    nameOverrides?: { [index: string]: string }
+  ) {
     if (!newFiles.length) {
       return;
     }
     const targetFolder: IFolder = this.activeDirectoryItem.hasOwnProperty(
-      "children"
+      'children'
     )
       ? (this.activeDirectoryItem as IFolder)
       : this.getParent(this.activeDirectoryItem);
 
-    const addedFiles = newFiles.map((file, _index) => {
+    const addedFiles = newFiles.map((file, index) => {
       const newItem = {
-        name: this._getAvailableName(file.name, targetFolder),
+        name: this._getAvailableName(
+          nameOverrides?.[index] || file.name,
+          targetFolder
+        ),
         key: this.generateNewKey(),
         file: file,
       } as IFile;
@@ -907,83 +940,88 @@ export default class CzFileExplorer extends Vue {
 
     this._openRecursive(targetFolder);
 
-    const validFiles = addedFiles.filter((f) => !this.isFileInvalid(f));
+    const validFiles = addedFiles.filter(f => !this.isFileInvalid(f));
     if (
       this.upload &&
       validFiles.length &&
       !this.hasTooManyFiles &&
       !this.isTotalUploadSizeTooBig
     ) {
-      validFiles.map((f) => this._toggleItemDisabled(f, true));
+      validFiles.map(f => this._toggleItemDisabled(f, true));
       try {
         const responses = await this.upload(validFiles);
         responses.map((wasUploaded, index) => {
           validFiles[index].isUploaded = wasUploaded;
         });
-      } catch (e) {
+      } catch (e: any) {
+        e.map((wasUploaded: boolean, index: number) => {
+          validFiles[index].isUploaded = wasUploaded;
+        });
       } finally {
-        validFiles.map((f) => this._toggleItemDisabled(f, false));
+        validFiles.map(f => this._toggleItemDisabled(f, false));
       }
     }
     this.dropFiles = [];
   }
 
-  protected selectAll() {
+  selectAll() {
     this.select(this.allItems);
   }
 
   /** Returns an item path string. I.e: "Some Folder/readme.txt" */
-  protected getPathString(item: IFolder | IFile) {
+  getPathString(item: IFolder | IFile) {
     if (item === this.rootDirectory) {
-      return "";
+      return '';
     }
 
     const parentKeys = this.tree.getParents(item.key);
-    const parentNames = parentKeys.map((p) => this.tree.nodes[p].item.name);
-    return [...parentNames.reverse(), item.name].join("/");
+    const parentNames = parentKeys.map(
+      (p: string) => this.tree.nodes[p].item.name
+    );
+    return [...parentNames.reverse(), item.name].join('/');
   }
 
-  protected isFolder(item: IFile | IFolder) {
-    return item.hasOwnProperty("children");
+  isFolder(item: IFile | IFolder) {
+    return item.hasOwnProperty('children');
   }
 
-  protected isSelected(item: IFolder | IFile) {
+  isSelected(item: IFolder | IFile) {
     return this.selected.includes(item);
   }
 
-  protected select(items: (IFolder | IFile)[]) {
+  select(items: (IFolder | IFile)[]) {
     this.selected = [...new Set([...this.selected, ...items])];
   }
 
-  protected unselect(item: IFolder | IFile) {
+  unselect(item: IFolder | IFile) {
     const index = this.selected.indexOf(item);
     if (index >= 0) {
       this.selected.splice(index, 1);
     }
   }
 
-  protected unselectAll() {
+  unselectAll() {
     this.selected = [];
   }
 
-  protected cut() {
+  cut() {
     this.uncutAll();
 
-    this.selected.map((item) => {
+    this.selected.map(item => {
       if (item) {
-        setReactive(item, "isCutting", true);
+        item.isCutting = true;
       }
     });
   }
 
-  protected uncutAll() {
-    this.itemsToCut.map((item) => {
+  uncutAll() {
+    this.itemsToCut.map(item => {
       item.isCutting = false;
     });
   }
 
   /** Paste the selected files inside the directory where the file was dropped */
-  protected async onDropMove(event, dropTarget) {
+  async onDropMove(event: DnDEvent, dropTarget: IFolder) {
     const targetFolder = this.isFolder(dropTarget)
       ? dropTarget
       : this.getParent(dropTarget);
@@ -995,7 +1033,7 @@ export default class CzFileExplorer extends Vue {
     await this._handlePaste(targetFolder, this.selected);
   }
 
-  protected onDropDiscard(event) {
+  onDropDiscard(event: DnDEvent) {
     if (!this.isSelected(event.data)) {
       this.unselectAll();
       this.select([event.data]);
@@ -1004,7 +1042,7 @@ export default class CzFileExplorer extends Vue {
   }
 
   /** Paste the selected files inside the selected folder */
-  protected async onPaste() {
+  async onPaste() {
     const targetFolder: IFolder = this.isFolder(this.activeDirectoryItem)
       ? (this.activeDirectoryItem as IFolder)
       : this.getParent(this.activeDirectoryItem);
@@ -1024,14 +1062,14 @@ export default class CzFileExplorer extends Vue {
 
     const wasPasted = await Promise.allSettled(pastePromises);
 
-    if (wasPasted.some((r) => r.status === "fulfilled" && r.value)) {
+    if (wasPasted.some(r => r.status === 'fulfilled' && r.value)) {
       this.unselectAll();
       this.uncutAll();
     }
   }
 
   // TODO: currently not propagating correctly
-  // protected _closeIfEmpty(item: IFolder) {
+  // _closeIfEmpty(item: IFolder) {
   //   if (!item.children.length) {
   //     const index = this.open.indexOf(item);
   //     if (index >= 0) {
@@ -1050,7 +1088,7 @@ export default class CzFileExplorer extends Vue {
       item.name = this._getAvailableName(item.name, targetFolder);
       targetFolder.children.push(item);
       targetFolder.children = targetFolder.children.sort((_a, b) => {
-        return b.hasOwnProperty("children") ? 1 : -1;
+        return b.hasOwnProperty('children') ? 1 : -1;
       });
     });
   }
@@ -1064,8 +1102,8 @@ export default class CzFileExplorer extends Vue {
     const itemPathString = this.getPathString(item);
 
     const newPath = [targetPathString, item.name]
-      .filter((s) => s.length)
-      .join("/");
+      .filter(s => s.length)
+      .join('/');
 
     // Can't move a parent folder to a path inside itself
     if (newPath.startsWith(itemPathString)) {
@@ -1087,13 +1125,13 @@ export default class CzFileExplorer extends Vue {
     return wasMoved;
   }
 
-  protected canRenameItem(item: IFile | IFolder) {
+  canRenameItem(item: IFile | IFolder) {
     return item.isUploaded
       ? this.renameFileOrFolder && !item.isDisabled
       : !item.isDisabled;
   }
 
-  protected onItemClick(event: MouseEvent, item: IFolder | IFile) {
+  onItemClick(event: MouseEvent, item: IFolder | IFile) {
     const wasOnlyOneSelected =
       this.isSelected(item) && this.selected.length == 1;
     this.unselectAll();
@@ -1105,14 +1143,14 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected onItemCtrlClick(event: MouseEvent, item: IFolder | IFile) {
+  onItemCtrlClick(event: MouseEvent, item: IFolder | IFile) {
     this.toggleSelect(item);
     this.shiftAnchor = item;
     event.stopPropagation();
   }
 
-  protected getParent(item: IFile | IFolder): IFolder {
-    if (item.key !== undefined) {
+  getParent(item: IFile | IFolder): IFolder {
+    if (item.key !== undefined && this.tree.nodes.hasOwnProperty(item.key)) {
       const parentKey = this.tree.getParents(item.key)[0];
       const parentNode = this.tree.nodes[parentKey];
       return parentNode?.item || this.rootDirectory;
@@ -1121,7 +1159,7 @@ export default class CzFileExplorer extends Vue {
     return this.rootDirectory;
   }
 
-  protected onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
+  onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
     const parent = this.getParent(item);
     const itemIndex = parent.children.indexOf(item);
     const anchorIndex = this.shiftAnchor
@@ -1141,7 +1179,7 @@ export default class CzFileExplorer extends Vue {
     event.stopPropagation();
   }
 
-  protected toggleSelect(item: IFolder | IFile) {
+  toggleSelect(item: IFolder | IFile) {
     if (this.isSelected(item)) {
       this.unselect(item);
     } else {
@@ -1149,24 +1187,24 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected renameItem(item: IFile | IFolder) {
+  renameItem(item: IFile | IFolder) {
     this._clearRenaming(this.rootDirectory);
-    setReactive(item, "isRenaming", true);
+    item.isRenaming = true;
     this.showMenu = false;
     this.showMenuItem = null;
   }
 
-  protected isFileExtensionValid(file: IFile) {
+  isFileExtensionValid(file: IFile) {
     if (!this.supportedFileTypes) {
       return true;
     }
 
     const nameWithoutExtension = this._getFileNameWithoutExtension(file.name);
-    const extention = file.name.replace(nameWithoutExtension, "");
+    const extention = file.name.replace(nameWithoutExtension, '');
     return this.supportedFileTypes.includes(extention);
   }
 
-  protected isFileNameValid(file: IFile) {
+  isFileNameValid(file: IFile) {
     if (!this.fileNameRegex) {
       return true;
     }
@@ -1175,15 +1213,15 @@ export default class CzFileExplorer extends Vue {
     return isValid;
   }
 
-  protected isFileInvalid(file: IFile) {
+  isFileInvalid(file: IFile) {
     return !this.isFileExtensionValid(file) || this.isFileTooBig(file);
   }
 
-  protected hasFileWarnings(file: IFile) {
+  hasFileWarnings(file: IFile) {
     return !this.isFileNameValid(file);
   }
 
-  protected isFileTooBig(file: IFile) {
+  isFileTooBig(file: IFile) {
     if (!this.maxUploadSizePerFile) {
       return false;
     }
@@ -1191,7 +1229,7 @@ export default class CzFileExplorer extends Vue {
     return file.file?.size && file.file?.size > this.maxUploadSizePerFile;
   }
 
-  protected canRetryUpload(item: IFile) {
+  canRetryUpload(item: IFile) {
     return (
       item.file &&
       !this.hasTooManyFiles &&
@@ -1201,11 +1239,11 @@ export default class CzFileExplorer extends Vue {
     );
   }
 
-  protected couldNotUploadFile(item: IFile) {
+  couldNotUploadFile(item: IFile) {
     return item.isUploaded === false && this.hasTooManyFiles;
   }
 
-  protected showFileWarnings(item: IFile) {
+  showFileWarnings(item: IFile) {
     return (
       !this.isFolder(item) &&
       (this.isFileInvalid(item) ||
@@ -1214,7 +1252,7 @@ export default class CzFileExplorer extends Vue {
     );
   }
 
-  protected async onRenamed(item: IFile | IFolder, name: string) {
+  async onRenamed(item: IFile | IFolder, name: string) {
     if (name.trim()) {
       const newName = this._getAvailableName(
         name,
@@ -1237,16 +1275,17 @@ export default class CzFileExplorer extends Vue {
       }
     }
 
-    setReactive(item, "isRenaming", false);
+    item.isRenaming = false;
   }
 
-  protected async deleteSelected() {
+  async deleteSelected() {
     Notifications.openDialog({
-      title: "Remove files?",
-      content: "Are you sure you want to remove the selected files?",
-      confirmText: "Remove",
-      cancelText: "Cancel",
-      contentClass: "files-container--included",
+      title: 'Remove files?',
+      content: 'Are you sure you want to remove the selected files?',
+      confirmText: 'Remove',
+      confirmTextColor: 'error',
+      cancelText: 'Cancel',
+      contentClass: 'files-container--included',
       isPersistent: true,
       onConfirm: async () => {
         this._deleteSelected();
@@ -1304,16 +1343,16 @@ export default class CzFileExplorer extends Vue {
   }
 
   private _toggleItemDisabled(item: IFolder | IFile, isDisabled: boolean) {
-    setReactive(item, "isDisabled", isDisabled);
+    item.isDisabled = isDisabled;
     if (this.isFolder(item)) {
-      (item as IFolder).children.map((item) => {
-        setReactive(item, "isDisabled", isDisabled);
-        this._toggleItemDisabled(item as IFolder, isDisabled);
+      (item as IFolder).children.map(i => {
+        i.isDisabled = isDisabled;
+        this._toggleItemDisabled(i as IFolder, isDisabled);
       });
     }
   }
 
-  protected onClickOutside() {
+  onClickOutside() {
     if (this.ignoreNextClick) {
       this.ignoreNextClick = false;
     } else {
@@ -1321,24 +1360,26 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  protected include() {
+  include() {
     return [
-      ...document.getElementsByClassName("files-container--included"),
-      ...document.getElementsByClassName("v-overlay"),
+      ...Array.from(
+        document.getElementsByClassName('files-container--included')
+      ),
+      ...Array.from(document.getElementsByClassName('v-overlay')),
     ];
   }
 
-  protected discardAll() {
+  discardAll() {
     Notifications.openDialog({
-      title: "Discard all files?",
-      content: "Are you sure you want to remove all files staged for upload?",
-      confirmText: "Discard",
-      confirmTextColor: "error",
-      cancelText: "Cancel",
+      title: 'Discard all files?',
+      content: 'Are you sure you want to remove all files staged for upload?',
+      confirmText: 'Discard',
+      confirmTextColor: 'error',
+      cancelText: 'Cancel',
       isPersistent: true,
       onConfirm: async () => {
         this.rootDirectory.children = this.rootDirectory.children.filter(
-          (i) => i.isUploaded
+          i => i.isUploaded
         );
         this.selected = [];
         this.open = [];
@@ -1346,14 +1387,14 @@ export default class CzFileExplorer extends Vue {
     });
   }
 
-  protected async newFolder() {
+  async newFolder() {
     if (!this.hasFolders) {
       return;
     }
 
     this._clearRenaming(this.rootDirectory);
     const newFolder = {
-      name: "New folder",
+      name: 'New folder',
       children: [],
       isRenaming: false,
       isCutting: false,
@@ -1371,7 +1412,7 @@ export default class CzFileExplorer extends Vue {
     this._openRecursive(targetFolder);
     targetFolder.children.push(newFolder);
     targetFolder.children = targetFolder.children.sort((_a, b) => {
-      return b.hasOwnProperty("children") ? 1 : -1;
+      return b.hasOwnProperty('children') ? 1 : -1;
     });
     if (this.upload) {
       this._toggleItemDisabled(newFolder, true);
@@ -1438,7 +1479,7 @@ export default class CzFileExplorer extends Vue {
 
     while (nameAlreadyExists) {
       const nameWithoutExtension = this._getFileNameWithoutExtension(fileName);
-      const extention = fileName.replace(nameWithoutExtension, "");
+      const extention = fileName.replace(nameWithoutExtension, '');
 
       availableName = `${nameWithoutExtension} (${counter})${extention}`;
       nameAlreadyExists = parent.children.some((item: IFile | IFolder) => {
@@ -1451,12 +1492,12 @@ export default class CzFileExplorer extends Vue {
   }
 
   private _getFileNameWithoutExtension(fileName: string) {
-    return fileName.replace(/\.[^/.]+$/, "");
+    return fileName.replace(/\.[^/.]+$/, '');
   }
 
   /** Sets `isRenaming` property of all files and folders inside the directory to `false` */
   private _clearRenaming(item: IFile | IFolder) {
-    setReactive(item, "isRenaming", false);
+    item.isRenaming = false;
     if (this.isFolder(item)) {
       (item as IFolder).children.map(this._clearRenaming);
     }
@@ -1464,7 +1505,7 @@ export default class CzFileExplorer extends Vue {
 
   /** Returns all files inside the given folder */
   private _getDirectoryItems(item: IFolder): IFile[] {
-    const childFolders = item.children.filter((i) =>
+    const childFolders = item.children.filter(i =>
       this.isFolder(i)
     ) as IFolder[];
 
@@ -1478,21 +1519,23 @@ export default class CzFileExplorer extends Vue {
   }
 
   private _itemsToCutRecursive(item: IFolder): (IFile | IFolder)[] {
-    const childFolders = item.children.filter((i) =>
+    const childFolders = item.children.filter(i =>
       this.isFolder(i)
     ) as IFolder[];
 
     return [
-      ...item.children.filter((f) => f.isCutting),
+      ...item.children.filter(f => f.isCutting),
       ...childFolders
-        .filter((f) => f.children.length)
-        .map((f) => this._itemsToCutRecursive(f))
+        .filter(f => f.children.length)
+        .map(f => this._itemsToCutRecursive(f))
         .reduce((acc, curr) => {
           return [...acc, ...curr];
         }, []),
     ];
   }
 }
+
+export default toNative(CzFileExplorer);
 </script>
 
 <style lang="scss" scoped>
@@ -1500,6 +1543,7 @@ export default class CzFileExplorer extends Vue {
   border: 1px dashed #ddd;
   border-radius: 0.5rem;
   cursor: pointer;
+  min-height: 5rem;
 
   &,
   .upload {
@@ -1510,11 +1554,11 @@ export default class CzFileExplorer extends Vue {
     }
   }
 
-  ::v-deep input[type="file"] {
+  :deep(input[type='file']) {
     display: none;
   }
 
-  ::v-deep .upload-draggable.is-hovered {
+  :deep(.upload-draggable.is-hovered) {
     background: lightgray;
   }
 }
@@ -1535,12 +1579,16 @@ export default class CzFileExplorer extends Vue {
   }
 }
 
-.files-container-card.border-dash {
-  border: 1px dashed !important;
+.files-container-card {
   border-color: rgba(0, 0, 0, 0.25) !important;
+
+  &.border-dash {
+    border: 1px dashed !important;
+  }
 }
 
 .files-container {
+  height: 15rem;
   overflow: auto;
   resize: vertical;
 }

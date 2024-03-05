@@ -5,40 +5,33 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
-    <v-hover v-slot="{ hover }">
-      <v-select
-        @change="beforeChange"
-        :id="control.id + '-input'"
-        :data-id="computedLabel.replaceAll(` `, ``)"
-        :class="styles.control.input"
-        :label="computedLabel"
-        :hint="control.description"
-        :required="control.required"
-        :error-messages="control.errors"
-        :clearable="hover && !control.schema.readOnly"
-        :value="control.data"
-        :items="control.options"
-        v-bind="vuetifyProps(`v-select`)"
-        chips
-        small-chips
-        deletable-chips
-        item-text="label"
-        item-value="value"
-        multiple
-      >
-        <template v-slot:message>
-          <div
-            v-if="control.description"
-            class="text-subtitle-1 text--secondary"
-          >
-            {{ control.description }}
-          </div>
-          <div v-if="cleanedErrors" class="v-messages error--text">
-            {{ cleanedErrors }}
-          </div>
-        </template>
-      </v-select>
-    </v-hover>
+    <v-select
+      @update:model-value="beforeChange"
+      :id="control.id + '-input'"
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :class="styles.control.input"
+      :label="computedLabel"
+      :hint="control.description"
+      :required="control.required"
+      :error-messages="control.errors"
+      :clearable="control.enabled && !isReadOnly"
+      :model-value="control.data"
+      :items="control.options"
+      v-bind="vuetifyProps(`v-select`)"
+      chips
+      small-chips
+      deletable-chips
+      item-title="label"
+      item-value="value"
+      multiple
+    >
+      <template v-slot:message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-select>
   </control-wrapper>
 </template>
 
@@ -56,8 +49,8 @@ import {
   schemaSubPathMatches,
   uiTypeIs,
   composePaths,
-} from "@jsonforms/core";
-import { VContainer, VRow, VCol, VSelect, VHover } from "vuetify/lib";
+} from '@jsonforms/core';
+import { VContainer, VRow, VCol, VSelect } from 'vuetify/components';
 import {
   DispatchRenderer,
   rendererProps,
@@ -65,10 +58,11 @@ import {
   useControl,
   ControlProps,
   useJsonFormsControl,
-} from "@jsonforms/vue2";
-import { defineComponent } from "vue";
-import { useVuetifyBasicControl } from "@/renderers/util/composition";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { defineComponent } from 'vue';
+import { useVuetifyBasicControl } from '@/renderers/util/composition';
+import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 //TODO: move into JsonForm Vue project under src/components/jsonFormsCompositions.ts
 const useJsonFormsMultiEnumControl = (props: ControlProps) => {
@@ -79,18 +73,18 @@ const useJsonFormsMultiEnumControl = (props: ControlProps) => {
   );
 };
 
-import { useVuetifyControl } from "@/renderers/util/composition";
+import { useVuetifyControl } from '@/renderers/util/composition';
 
 const controlRenderer = defineComponent({
-  name: "enum-array-renderer",
+  name: 'enum-array-renderer',
   components: {
     DispatchRenderer,
     VContainer,
     VRow,
     VCol,
     VSelect,
-    VHover,
     ControlWrapper,
+    CzFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -99,7 +93,7 @@ const controlRenderer = defineComponent({
     return {
       ...useVuetifyControl(
         useJsonFormsControl(props),
-        (value) => value || undefined
+        value => value || undefined
       ), // Needed for handleChange and onChange function
       ...useVuetifyBasicControl(useJsonFormsMultiEnumControl(props)),
     };
@@ -110,7 +104,7 @@ const controlRenderer = defineComponent({
     },
     composePaths,
     // If value changed to an empty array, we need to set the data to undefined in order to trigger validation errors
-    beforeChange(items) {
+    beforeChange(items: string[]) {
       if (!items.length) {
         this.handleChange(this.control.path, undefined);
       } else {
@@ -130,22 +124,22 @@ const hasOneOfItems = (schema: JsonSchema): boolean =>
   });
 
 const hasEnumItems = (schema: JsonSchema): boolean =>
-  schema.type === "string" && schema.enum !== undefined;
+  schema.type === 'string' && schema.enum !== undefined;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
   tester: rankWith(
     5,
     and(
-      uiTypeIs("Control"),
+      uiTypeIs('Control'),
       and(
         schemaMatches(
-          (schema) =>
-            hasType(schema, "array") &&
+          schema =>
+            hasType(schema, 'array') &&
             !Array.isArray(schema.items) &&
             schema.uniqueItems === true
         ),
-        schemaSubPathMatches("items", (schema) => {
+        schemaSubPathMatches('items', schema => {
           return hasOneOfItems(schema) || hasEnumItems(schema);
         })
       )

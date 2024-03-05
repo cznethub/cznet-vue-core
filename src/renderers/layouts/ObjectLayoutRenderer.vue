@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-for="(element, index) in layout.uischema.elements"
+      v-for="(element, index) in elements"
       :data-id="`group-${index}`"
       :key="`${layout.path}-${index}`"
       :class="styles.group.item"
@@ -26,18 +26,18 @@ import {
   and,
   isLayout,
   uiTypeIs,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+} from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsLayout,
-} from "@jsonforms/vue2";
-import { useVuetifyLayout } from "@/renderers/util/composition";
+} from '@jsonforms/vue';
+import { useVuetifyLayout } from '@/renderers/util/composition';
 
 const layoutRenderer = defineComponent({
-  name: "object-layout-renderer",
+  name: 'object-layout-renderer',
   components: {
     DispatchRenderer,
   },
@@ -47,12 +47,18 @@ const layoutRenderer = defineComponent({
   setup(props: RendererProps<Layout>) {
     return useVuetifyLayout(useJsonFormsLayout(props));
   },
+  computed: {
+    elements() {
+      // @ts-ignore
+      return this.layout.uischema.elements;
+    },
+  },
 });
 
 export default layoutRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: layoutRenderer,
-  tester: rankWith(3, and(isLayout, uiTypeIs("Object"))),
+  tester: rankWith(3, and(isLayout, uiTypeIs('Object'))),
 };
 </script>

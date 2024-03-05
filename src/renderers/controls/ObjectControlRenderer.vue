@@ -14,14 +14,15 @@
         !appliedOptions.isReadOnly &&
         !appliedOptions.isDisabled
       "
-      :hasData="!noData"
+      :hasData="hasData"
       :enabled="!appliedOptions.isDisabled"
-      :readonly="!control.enabled || control.schema['readOnly']"
+      :readonly="!control.enabled || isReadOnly"
       :errors="control.errors"
       :title="control.schema.title"
       :computedLabel="computedLabel"
       :isFlat="isFlat"
       @hide="onHide"
+      @show="onShow"
       class="pb-5"
     >
       <dispatch-renderer
@@ -40,29 +41,29 @@
 <script lang="ts">
 import {
   ControlElement,
+  createDefaultValue,
   findUISchema,
   Generate,
   isObjectControl,
   JsonFormsRendererRegistryEntry,
   rankWith,
   UISchemaElement,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsControlWithDetail,
-} from "@jsonforms/vue2";
-import cloneDeep from "lodash/cloneDeep";
-import { useNested, useVuetifyControl } from "@/renderers/util/composition";
-import { defineComponent } from "vue";
-// import { isEqual } from "lodash";
-import { VBtn, VIcon, VTooltip } from "vuetify/lib";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from '@jsonforms/vue';
+import { cloneDeep } from 'lodash-es';
+import { useNested, useVuetifyControl } from '@/renderers/util/composition';
+import { defineComponent } from 'vue';
+import { VBtn, VIcon, VTooltip } from 'vuetify/components';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "object-renderer",
+  name: 'object-control-renderer',
   components: {
     DispatchRenderer,
     VBtn,
@@ -76,7 +77,7 @@ const controlRenderer = defineComponent({
   },
   setup(props: RendererProps<ControlElement>) {
     const control = useVuetifyControl(useJsonFormsControlWithDetail(props));
-    const nested = useNested("object");
+    const nested = useNested('object');
     return {
       ...control,
       input: control,
@@ -97,15 +98,31 @@ const controlRenderer = defineComponent({
   //     }
   //   },
   // },
+  created() {
+    if (!this.control.data && !this.hasToggle) {
+      const val = createDefaultValue(
+        this.control.schema,
+        this.control.rootSchema
+      );
+      this.handleChange(this.control.path, val);
+    }
+  },
   methods: {
     onHide() {
       this.handleChange(this.control.path, undefined);
+    },
+    onShow() {
+      if (!this.control.data) {
+        const defaultSchema = this.control.schema;
+        const val = createDefaultValue(defaultSchema, this.control.rootSchema);
+        this.handleChange(this.control.path, val);
+      }
     },
   },
   computed: {
     detailUiSchema(): UISchemaElement {
       const uiSchemaGenerator = () => {
-        const uiSchema = Generate.uiSchema(this.control.schema, "Object");
+        const uiSchema = Generate.uiSchema(this.control.schema, 'Object');
         return uiSchema;
       };
       let result = findUISchema(
@@ -123,7 +140,7 @@ const controlRenderer = defineComponent({
           ...result.options,
           bare: true,
           alignLeft:
-            this.nested.level >= 4 || this.nested.parentElement === "array",
+            this.nested.level >= 4 || this.nested.parentElement === 'array',
         };
       }
       return result;
@@ -132,10 +149,10 @@ const controlRenderer = defineComponent({
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.schema["options"]?.flat;
+      return this.control.schema.options?.flat;
     },
-    noData(): boolean {
-      return !this.control.data;
+    hasData(): boolean {
+      return !!this.control.data;
     },
   },
 });

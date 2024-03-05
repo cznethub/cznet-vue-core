@@ -10,7 +10,7 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="!!isDropDown ? '' : desc"
       :hasToggle="hasToggle"
-      :hasData="!noData"
+      :hasData="hasData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
@@ -26,25 +26,35 @@
       />
 
       <template v-if="!isDropDown">
-        <v-tabs v-model="selectedIndex">
+        <!-- this tab change emits new selectedIndex -->
+        <v-tabs
+          v-model="selectedIndex"
+          @update:model-value="handleTabChange"
+          selected-class="selected-tab"
+        >
           <v-tab
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
             :key="`${control.path}-${anyOfIndex}`"
-            @change="handleTabChange(anyOfIndex)"
+            :value="anyOfIndex"
             :disabled="
               (appliedOptions.isViewMode ||
                 appliedOptions.isReadOnly ||
                 appliedOptions.isDisabled) &&
               selectedIndex !== anyOfIndex
             "
+            density="compact"
+            variant="elevated"
           >
-            {{ anyOfRenderInfo.uischema["label"] || anyOfRenderInfo.label }}
+            {{
+              anyOfRenderInfo.uischema.options?.label || anyOfRenderInfo.label
+            }}
           </v-tab>
         </v-tabs>
 
-        <v-tabs-items v-model="selectedIndex">
-          <v-tab-item
+        <v-window v-model="selectedIndex">
+          <v-window-item
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
+            :model-value="anyOfIndex"
             :key="`${control.path}-${anyOfIndex}`"
           >
             <dispatch-renderer
@@ -56,24 +66,26 @@
               :cells="control.cells"
               :enabled="control.enabled"
             />
-          </v-tab-item>
-        </v-tabs-items>
+          </v-window-item>
+        </v-window>
       </template>
 
       <template v-else>
+        <!-- this select change emits old selectedIndex -->
         <v-select
-          @change="handleTabChange"
+          :model-value="anyOfRenderInfos[selectedIndex]"
+          @update:model-value="handleSelectChange"
           :items="anyOfRenderInfos"
           :label="title"
           :hint="selectHint"
-          :value="anyOfRenderInfos[selectedIndex]"
           :data-id="computedLabel.replaceAll(` `, ``)"
           :required="control.required"
           :error-messages="control.errors"
           v-bind="vuetifyProps('v-select')"
-          item-text="label"
-          >{{ currentLabel }}</v-select
+          item-title="label"
         >
+          {{ currentLabel }}
+        </v-select>
 
         <dispatch-renderer
           v-if="selectedIndex >= 0 && anyOfRenderInfos[selectedIndex]"
@@ -99,18 +111,18 @@ import {
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
   isAnyOfControl,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsAnyOfControl,
-} from "@jsonforms/vue2";
-import { defineComponent, ref } from "vue";
+} from '@jsonforms/vue';
+import { defineComponent } from 'vue';
 import {
   useVuetifyControl,
   useCombinatorChildErrors,
-} from "@/renderers/util/composition";
+} from '@/renderers/util/composition';
 import {
   VDialog,
   VCard,
@@ -121,18 +133,16 @@ import {
   VBtn,
   VTabs,
   VTab,
-  VTabsItems,
-  VTabItem,
   VTooltip,
   VIcon,
   VSelect,
-} from "vuetify/lib";
-import CombinatorProperties from "../components/CombinatorProperties.vue";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+} from 'vuetify/components';
+import CombinatorProperties from '../components/CombinatorProperties.vue';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "any-of-renderer",
+  name: 'any-of-renderer',
   components: {
     DispatchRenderer,
     CombinatorProperties,
@@ -145,8 +155,6 @@ const controlRenderer = defineComponent({
     VBtn,
     VTabs,
     VTab,
-    VTabsItems,
-    VTabItem,
     VTooltip,
     VIcon,
     CzFieldset,
@@ -159,23 +167,16 @@ const controlRenderer = defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const input = useJsonFormsAnyOfControl(props);
     const tabData: { [key: number]: any } = {}; // Dictionary to store form state between tab changes
-    const isAdded = ref(false);
 
     return {
       ...useVuetifyControl(input),
-      ...useCombinatorChildErrors(input, "anyOf"),
-      isAdded,
+      ...useCombinatorChildErrors(input, 'anyOf'),
       tabData,
     };
   },
   created() {
-    if (this.control.data) {
-      this.isAdded = true;
-    }
-  },
-  mounted() {
-    // indexOfFittingSchema is only populated after mounted hook
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
+    this.prevSelectedIndex = this.selectedIndex;
   },
   computed: {
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
@@ -183,7 +184,7 @@ const controlRenderer = defineComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.control.schema.anyOf!,
         this.control.rootSchema,
-        "anyOf",
+        'anyOf',
         this.control.uischema,
         this.control.path,
         this.control.uischemas
@@ -197,13 +198,13 @@ const controlRenderer = defineComponent({
           i.uischema;
       });
 
-      return result.filter((info) => info.uischema);
+      return result.filter(info => info.uischema);
     },
     hasToggle() {
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      return this.control.uischema["options"]?.flat;
+      return this.control.uischema['options']?.flat;
     },
     isDropDown(): boolean {
       // @ts-ignore
@@ -212,7 +213,7 @@ const controlRenderer = defineComponent({
     title(): string {
       return (
         // @ts-ignore
-        this.control.uischema?.options?.title || this.control.schema.title || ""
+        this.control.uischema?.options?.title || this.control.schema.title || ''
       );
     },
     desc(): string {
@@ -222,7 +223,7 @@ const controlRenderer = defineComponent({
         this.control.uischema?.options?.description ||
         this.appliedOptions.description ||
         this.anyOfRenderInfos[this.selectedIndex].schema.description ||
-        ""
+        ''
       );
     },
     selectHint(): string {
@@ -231,49 +232,52 @@ const controlRenderer = defineComponent({
     currentLabel(): string {
       return this.selectedIndex >= 0
         ? this.anyOfRenderInfos[this.selectedIndex].label
-        : "";
+        : '';
     },
-    noData(): boolean {
-      return !this.control.data;
+    hasData(): boolean {
+      return !!this.control.data;
     },
   },
   methods: {
-    handleTabChange(nextIndexOrLabel: number | string): void {
-      if (!this.control.enabled) {
-        return;
-      }
+    handleSelectChange(nextIndexOrLabel: any): void {
+      if (this.control.enabled) {
+        // Store form state in lookup before tab change.
+        // seletedIndex still has the previously selected index
+        this.tabData[this.selectedIndex] = this.control.data;
 
-      // Store form state before tab change.
-      this.$set(this.tabData, this.selectedIndex, this.control.data);
-      this.selectedIndex = -1;
+        // Update to new value
+        if (typeof nextIndexOrLabel === 'number') {
+          this.selectedIndex = nextIndexOrLabel;
+        } else if (typeof nextIndexOrLabel === 'string') {
+          this.selectedIndex = this.anyOfRenderInfos.findIndex(
+            (info: CombinatorSubSchemaRenderInfo) =>
+              info.label === nextIndexOrLabel
+          );
+        }
 
-      if (typeof nextIndexOrLabel === "number") {
-        this.selectedIndex = nextIndexOrLabel;
-      } else if (typeof nextIndexOrLabel === "string") {
-        this.selectedIndex = this.anyOfRenderInfos.findIndex(
-          (info: CombinatorSubSchemaRenderInfo) =>
-            info.label === nextIndexOrLabel
-        );
-      }
-
-      // If we had form data stored, restore it. Otherwise create default value.
-      if (this.tabData[this.selectedIndex]) {
-        this.handleChange(this.control.path, this.tabData[this.selectedIndex]);
-      } else {
-        const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
-        const val =
-          schema.type === "array" || schema.type === "object"
-            ? createDefaultValue(schema)
-            : undefined;
-
-        // Only create default values for objects and arrays.
-        this.handleChange(this.control.path, val);
+        this.handleChange(this.control.path, this.getValue());
       }
     },
-    showForm() {
+    handleTabChange(_currentIndex: any): void {
+      this.tabData[this.prevSelectedIndex] = this.control.data;
+      this.prevSelectedIndex = this.selectedIndex;
+
       if (this.control.enabled) {
-        this.isAdded = true;
+        this.handleChange(this.control.path, this.getValue());
       }
+    },
+    getValue() {
+      // If we had form data stored, restore it. Otherwise create default value.
+      let val = this.tabData[this.selectedIndex];
+      if (!val) {
+        // Only create default values for objects and arrays.
+        const schema = this.anyOfRenderInfos[this.selectedIndex].schema;
+        val =
+          schema.type === 'array' || schema.type === 'object'
+            ? createDefaultValue(schema, this.control.rootSchema)
+            : undefined;
+      }
+      return val;
     },
     onHide() {
       this.handleChange(this.control.path, undefined);
@@ -288,3 +292,9 @@ export const entry: JsonFormsRendererRegistryEntry = {
   tester: rankWith(3, isAnyOfControl),
 };
 </script>
+
+<style scoped lang="scss">
+.selected-tab {
+  background-color: #eee;
+}
+</style>

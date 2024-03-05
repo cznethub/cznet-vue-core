@@ -16,10 +16,10 @@
       :data-id="computedLabel.replaceAll(` `, ``)"
       :class="styles.control.input"
       :required="control.required"
-      :value="control.data"
+      :model-value="control.data"
       row
       v-bind="vuetifyProps('v-radio-group')"
-      @change="onChange"
+      @update:model-value="onChange"
       @focus="isFocused = true"
       @blur="isFocused = false"
     >
@@ -28,7 +28,7 @@
         v-bind="vuetifyProps(`v-radio[${o.value}]`)"
         :key="o.value"
         :label="o.label"
-        :value="o.value"
+        :model-value="o.value"
       ></v-radio>
     </v-radio-group>
   </cz-fieldset>
@@ -42,20 +42,20 @@ import {
   isEnumControl,
   optionIs,
   and,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 import {
   rendererProps,
   useJsonFormsEnumControl,
   RendererProps,
-} from "@jsonforms/vue2";
-import { VRadioGroup, VRadio, VLabel } from "vuetify/lib";
+} from '@jsonforms/vue';
+import { VRadioGroup, VRadio, VLabel } from 'vuetify/components';
 
-import { useVuetifyControl } from "@/renderers/util/composition";
-import { defineComponent } from "vue";
-import { default as CzFieldset } from "../controls/components/CzFieldset.vue";
+import { useVuetifyControl } from '@/renderers/util/composition';
+import { defineComponent } from 'vue';
+import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 
 const controlRenderer = defineComponent({
-  name: "radio-group-control-renderer",
+  name: 'radio-group-control-renderer',
   components: {
     VRadioGroup,
     VRadio,
@@ -74,6 +74,6 @@ export default controlRenderer;
 
 export const entry: JsonFormsRendererRegistryEntry = {
   renderer: controlRenderer,
-  tester: rankWith(20, and(isEnumControl, optionIs("format", "radio"))),
+  tester: rankWith(20, and(isEnumControl, optionIs('format', 'radio'))),
 };
 </script>

@@ -19,9 +19,11 @@
     >
       <template v-slot:actions="{ show }">
         <v-tooltip bottom transition="fade">
-          <template v-slot:activator="{ on: onTooltip }">
+          <template v-slot:activator="{ props }">
             <v-btn
-              icon
+              icon="mdi-plus"
+              variant="text"
+              size="small"
               color="primary"
               @click="
                 addButtonClick();
@@ -30,7 +32,7 @@
               :class="styles.arrayList.addButton"
               class="btn-add"
               :aria-label="`Add to ${control.label}`"
-              v-on="onTooltip"
+              v-bind="props"
               :disabled="
                 !control.enabled ||
                 (appliedOptions.restrict &&
@@ -38,9 +40,7 @@
                   control.data &&
                   control.data.length >= maxItems)
               "
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
+            ></v-btn>
           </template>
           {{ `Add to ${control.label}` }}
         </v-tooltip>
@@ -57,9 +57,9 @@
         <v-card-text class="pa-0">
           <v-container justify-space-around align-content-center>
             <v-row justify="center">
-              <v-simple-table
+              <v-table
                 class="array-container flex"
-                v-bind="vuetifyProps('v-simple-table')"
+                v-bind="vuetifyProps('v-table')"
               >
                 <thead v-if="control.schema.type === 'object'">
                   <tr>
@@ -123,56 +123,49 @@
                     >
                       <div class="pt-5 fill-height">
                         <v-tooltip bottom>
-                          <template v-slot:activator="{ on: onTooltip }">
+                          <template v-slot:activator="{ props }">
                             <v-btn
-                              v-on="onTooltip"
+                              v-bind="props"
                               v-if="appliedOptions.showSortButtons"
-                              fab
-                              text
+                              variant="text"
+                              icon="mdi-arrow-up"
                               elevation="0"
-                              small
+                              size="small"
                               aria-label="Up"
                               :disabled="index <= 0 || !control.enabled"
                               :class="styles.arrayList.itemMoveUp"
                               @click.native="moveUpClick($event, index)"
-                            >
-                              <v-icon class="notranslate">mdi-arrow-up</v-icon>
-                            </v-btn>
+                            ></v-btn>
                           </template>
                           Move Up
                         </v-tooltip>
                         <v-tooltip bottom>
-                          <template v-slot:activator="{ on: onTooltip }">
+                          <template v-slot:activator="{ props }">
                             <v-btn
-                              v-on="onTooltip"
+                              v-bind="props"
                               v-if="appliedOptions.showSortButtons"
-                              fab
-                              text
+                              variant="text"
                               elevation="0"
-                              small
+                              size="small"
+                              icon="mdi-arrow-down"
                               aria-label="Down"
                               :disabled="
                                 index >= dataLength - 1 || !control.enabled
                               "
                               :class="styles.arrayList.itemMoveDown"
                               @click.native="moveDownClick($event, index)"
-                            >
-                              <v-icon class="notranslate"
-                                >mdi-arrow-down</v-icon
-                              >
-                            </v-btn>
+                            ></v-btn>
                           </template>
                           Move Down
                         </v-tooltip>
                         <v-tooltip bottom>
-                          <template v-slot:activator="{ on: onTooltip }">
+                          <template v-slot:activator="{ props }">
                             <v-btn
-                              v-on="onTooltip"
-                              fab
-                              text
+                              v-bind="props"
+                              variant="text"
                               elevation="0"
-                              small
                               aria-label="Remove"
+                              icon="mdi-delete"
                               :class="styles.arrayList.itemDelete"
                               :disabled="
                                 !control.enabled ||
@@ -183,9 +176,7 @@
                                   dataLength <= arraySchema.minItems)
                               "
                               @click.native="removeItemsClick($event, [index])"
-                            >
-                              <v-icon class="notranslate">mdi-delete</v-icon>
-                            </v-btn>
+                            ></v-btn>
                           </template>
                           Remove
                         </v-tooltip>
@@ -193,7 +184,7 @@
                     </td>
                   </tr>
                 </tbody>
-              </v-simple-table>
+              </v-table>
             </v-row>
           </v-container>
           <v-container v-if="dataLength === 0" :class="styles.arrayList.noData">
@@ -221,9 +212,10 @@ import {
   or,
   and,
   VerticalLayout,
-} from "@jsonforms/core";
-import startCase from "lodash/startCase";
-import { defineComponent, ref } from "vue";
+  UISchemaElement,
+} from '@jsonforms/core';
+import { startCase } from 'lodash-es';
+import { defineComponent, ref } from 'vue';
 import {
   DispatchCell,
   DispatchRenderer,
@@ -231,8 +223,8 @@ import {
   useJsonFormsArrayControl,
   RendererProps,
   useJsonFormsControl,
-} from "@jsonforms/vue2";
-import { useVuetifyArrayControl } from "@/renderers/util";
+} from '@jsonforms/vue';
+import { useVuetifyArrayControl } from '@/renderers/util';
 import {
   VCard,
   VCardTitle,
@@ -247,14 +239,14 @@ import {
   VBtn,
   VAvatar,
   VSpacer,
-  VSimpleTable,
-} from "vuetify/lib";
-import { isEqual } from "lodash";
-import { default as CzFieldset } from "./components/CzFieldset.vue";
-import { default as ControlWrapper } from "./ControlWrapper.vue";
+  VTable,
+} from 'vuetify/components';
+import { isEqual } from 'lodash-es';
+import { default as CzFieldset } from './components/cz.fieldset.vue';
+import { default as ControlWrapper } from './ControlWrapper.vue';
 
 const controlRenderer = defineComponent({
-  name: "array-control-renderer",
+  name: 'array-control-renderer',
   components: {
     DispatchCell,
     DispatchRenderer,
@@ -271,7 +263,7 @@ const controlRenderer = defineComponent({
     VBtn,
     VSpacer,
     VContainer,
-    VSimpleTable,
+    VTable,
     CzFieldset,
     ControlWrapper,
   },
@@ -310,14 +302,14 @@ const controlRenderer = defineComponent({
   },
   created() {
     // @ts-ignore
-    const requiredItems = this.control.schema.contains?.enum || [];
+    const requiredItems: string[] = this.control.schema.contains?.enum || [];
 
-    requiredItems.map((item) => {
+    requiredItems.map(item => {
       if (!this.control.data) {
         this.control.data = [];
       }
       // We must use isEqual to compare objects instead of Arra.includes
-      const isIncluded = this.control.data.some((existingItem) =>
+      const isIncluded = this.control.data.some((existingItem: any) =>
         isEqual(item, existingItem)
       );
       if (!isIncluded) {
@@ -326,7 +318,7 @@ const controlRenderer = defineComponent({
     });
 
     if (this.control.schema.default && !this.control.data) {
-      this.control.schema.default.map((item) => {
+      this.control.schema.default.map((item: any) => {
         this.addItem(this.control.path, item)();
       });
     }
@@ -337,7 +329,7 @@ const controlRenderer = defineComponent({
     addButtonClick() {
       this.addItem(
         this.control.path,
-        createDefaultValue(this.control.schema)
+        createDefaultValue(this.control.schema, this.control.rootSchema)
       )();
     },
     moveUpClick(event: Event, toMove: number): void {
@@ -348,7 +340,7 @@ const controlRenderer = defineComponent({
       event.stopPropagation();
       this.moveDown?.(this.control.path, toMove)();
     },
-    removeItemsClick(event, toDelete: number[]): void {
+    removeItemsClick(event: MouseEvent, toDelete: number[]): void {
       event.stopPropagation();
       this.removeItems?.(this.control.path, toDelete)();
       if (this.control.data.length === 0) {
@@ -359,10 +351,10 @@ const controlRenderer = defineComponent({
     },
     getValidColumnProps(scopedSchema: JsonSchema) {
       if (
-        scopedSchema.type === "object" &&
-        typeof scopedSchema.properties === "object"
+        scopedSchema.type === 'object' &&
+        typeof scopedSchema.properties === 'object'
       ) {
-        return Object.keys(scopedSchema.properties).filter((prop) => {
+        return Object.keys(scopedSchema.properties).filter(prop => {
           const resolvedUiSchema = this.resolveUiSchema(prop);
           const rule = resolvedUiSchema.rule?.effect;
           const condition = resolvedUiSchema.rule?.condition;
@@ -373,13 +365,13 @@ const controlRenderer = defineComponent({
               Object.keys(condition).length === 0 &&
               condition.constructor === Object;
 
-            return !(isEmptyCondition && rule === "HIDE");
+            return !(isEmptyCondition && rule === 'HIDE');
           }
           return true;
         });
       }
       // primitives
-      return [""];
+      return [''];
     },
     title(prop: string) {
       return this.control.schema.properties?.[prop]?.title ?? startCase(prop);
@@ -387,7 +379,7 @@ const controlRenderer = defineComponent({
     resolveUiSchema(propName: string) {
       // We expect controls using `useTableLayout` option to be primitive types or non-nested object type.
       // Non-nested objects are expected to have a simple VerticalLayout uischema.
-      if (this.control.schema.type === "object") {
+      if (this.control.schema.type === 'object') {
         const foundUISchema = findUISchema(
           this.control.uischemas,
           this.control.schema,
@@ -400,7 +392,7 @@ const controlRenderer = defineComponent({
 
         const detailUISchema = foundUISchema.elements.find(
           // @ts-ignore
-          (el) => el.scope === `#/properties/${propName}`
+          el => el.scope === `#/properties/${propName}`
         );
 
         if (detailUISchema) {
@@ -411,15 +403,15 @@ const controlRenderer = defineComponent({
       // Create the schema
       return this.control.schema.properties
         ? this.controlWithoutLabel(`#/properties/${propName}`)
-        : this.controlWithLabel("#");
+        : this.controlWithLabel('#');
     },
     controlWithoutLabel(scope: string): ControlElement {
-      return { type: "Control", scope, label: false };
+      return { type: 'Control', scope, label: false };
     },
     controlWithLabel(scope: string): ControlElement {
       return {
         scope,
-        type: "Control",
+        type: 'Control',
         label: this.control.schema.title
           ? `${this.control.schema.title}*`
           : false,
@@ -427,8 +419,8 @@ const controlRenderer = defineComponent({
         description: this.control.schema.description || false,
       };
     },
-    isRequired(item) {
-      const count = this.control.data.filter((i) => {
+    isRequired(item: any) {
+      const count = this.control.data.filter((i: any) => {
         return isEqual(i, item);
       }).length;
 
@@ -437,14 +429,14 @@ const controlRenderer = defineComponent({
       }
 
       // @ts-ignore
-      return this.control.schema.contains?.enum?.some((requiredItem) =>
+      return this.control.schema.contains?.enum?.some(requiredItem =>
         isEqual(item, requiredItem)
       );
     },
   },
 });
 
-const useTableLayout = (uiSchema) => {
+const useTableLayout = (uiSchema: UISchemaElement) => {
   return uiSchema.options?.useTableLayout;
 };
 
@@ -460,7 +452,7 @@ export const entry: JsonFormsRendererRegistryEntry = {
 </script>
 
 <style lang="scss" scoped>
-::v-deep table {
+:deep(table) {
   table-layout: fixed;
 }
 
@@ -480,16 +472,16 @@ export const entry: JsonFormsRendererRegistryEntry = {
   text-align: center;
 }
 
-.array-container tbody tr td {
-  // border-bottom: none !important;
-}
+// .array-container tbody tr td {
+//   // border-bottom: none !important;
+// }
 
 .array-container tbody tr td .container {
   padding: 0;
   margin: 0;
 }
 
-::v-deep .array-container .v-label {
+:deep(.array-container .v-label) {
   background-color: transparent !important;
 }
 </style>
