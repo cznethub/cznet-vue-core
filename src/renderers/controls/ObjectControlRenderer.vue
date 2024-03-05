@@ -40,6 +40,7 @@
 <script lang="ts">
 import {
   ControlElement,
+  createDefaultValue,
   findUISchema,
   Generate,
   isObjectControl,
@@ -96,6 +97,15 @@ const controlRenderer = defineComponent({
   //     }
   //   },
   // },
+  created() {
+    if (!this.control.data && !this.hasToggle) {
+      const val = createDefaultValue(
+        this.control.schema,
+        this.control.rootSchema
+      );
+      this.handleChange(this.control.path, val);
+    }
+  },
   methods: {
     onHide() {
       this.handleChange(this.control.path, undefined);
