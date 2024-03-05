@@ -44,7 +44,7 @@
       </template>
 
       <v-card v-if="showMenu">
-        <v-tabs v-model="activeTab">
+        <v-tabs v-model="activeTab" class="bg-primary-darken-1">
           <v-tab value="date" href="#date" class="primary--text">
             <v-icon>mdi-calendar</v-icon>
           </v-tab>
@@ -59,8 +59,11 @@
             <v-date-picker
               :model-value="datePickerValue"
               @update:model-value="onDatePickerValueChange"
+              color="primary"
               ref="datePicker"
               v-bind="vuetifyProps('v-date-picker')"
+              header="Select date"
+              tile
             ></v-date-picker>
           </v-window-item>
           <v-window-item value="time">
@@ -309,7 +312,7 @@ const controlRenderer = defineComponent({
   methods: {
     onDatePickerValueChange(value: any) {
       this.datePickerValue = value;
-      this.activeTab = 'time';
+      // this.activeTab = 'time'; // TODO: enable after implementing time picker
     },
     onInputChange(value: string): void {
       const date = parseDateTime(value, this.dateTimeFormat);

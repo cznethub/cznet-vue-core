@@ -201,7 +201,12 @@
             <v-spacer></v-spacer>
 
             <v-btn variant="text" @click="suggestToDelete = null">Cancel</v-btn>
-            <v-btn variant="text" ref="confirm" @click="onRemoveItem">
+            <v-btn
+              variant="text"
+              color="error"
+              ref="confirm"
+              @click="onRemoveItem"
+            >
               Delete
             </v-btn>
           </v-card-actions>

@@ -40,6 +40,11 @@ const vuetify = createVuetify({
       lightTheme,
       darkTheme,
     },
+    variations: {
+      colors: ['primary', 'secondary'],
+      lighten: 4,
+      darken: 4,
+    },
   },
 });
 

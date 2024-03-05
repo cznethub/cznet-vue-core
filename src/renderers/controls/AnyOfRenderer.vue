@@ -27,7 +27,11 @@
 
       <template v-if="!isDropDown">
         <!-- this tab change emits new selectedIndex -->
-        <v-tabs v-model="selectedIndex" @update:model-value="handleTabChange">
+        <v-tabs
+          v-model="selectedIndex"
+          @update:model-value="handleTabChange"
+          selected-class="selected-tab"
+        >
           <v-tab
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
             :key="`${control.path}-${anyOfIndex}`"
@@ -288,3 +292,9 @@ export const entry: JsonFormsRendererRegistryEntry = {
   tester: rankWith(3, isAnyOfControl),
 };
 </script>
+
+<style scoped lang="scss">
+.selected-tab {
+  background-color: #eee;
+}
+</style>
