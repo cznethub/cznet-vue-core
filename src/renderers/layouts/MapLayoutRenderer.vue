@@ -177,8 +177,8 @@ const layoutRenderer = defineComponent({
           if (!boxStr) {
             return false;
           }
-          const segments = boxStr.trim().split(' ');
-          return segments.length === 4 && segments.some(s => !isNaN(s));
+          const segments: string[] = boxStr.trim().split(' ');
+          return segments.length === 4 && segments.some(s => !isNaN(+s));
         } else {
           return (
             !isNaN(this.control.data[this.inputFields.northlimit]) &&
@@ -358,7 +358,7 @@ const layoutRenderer = defineComponent({
             const segments = this.control.data[this.inputFields.box]
               .trim()
               .split(' ')
-              .map(s => +s);
+              .map((s: string) => +s);
             bounds = {
               north: segments[0],
               east: segments[1],

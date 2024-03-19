@@ -384,7 +384,8 @@ const controlRenderer = defineComponent({
     addButtonClick() {
       const combinatorSchema = this.isCombinatorSchema(this.control.schema);
       const defaultSchema = combinatorSchema
-        ? this.control.schema[combinatorSchema]?.[0]
+        ? // @ts-ignore
+          this.control.schema[combinatorSchema]?.[0]
         : this.control.schema;
 
       /**

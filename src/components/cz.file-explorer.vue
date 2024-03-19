@@ -104,18 +104,6 @@
 
       <v-spacer />
 
-      <v-text-field
-        v-model="search"
-        label="Search by file or folder name..."
-        rounded
-        density="compact"
-        variant="outlined"
-        hide-details
-        clearable
-        clear-icon="mdi-close-circle-outline"
-        prepend-inner-icon="mdi-magnify"
-      />
-
       <template v-if="rootDirectory.children.length && !isReadOnly">
         <v-spacer></v-spacer>
         <v-btn
@@ -253,6 +241,18 @@
         class="mb-4 files-container-card"
         :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
       >
+        <v-card-text>
+          <v-text-field
+            v-model="search"
+            label="Search by file or folder name..."
+            density="compact"
+            variant="outlined"
+            hide-details
+            clearable
+            clear-icon="mdi-close-circle-outline"
+            prepend-inner-icon="mdi-magnify"
+          />
+        </v-card-text>
         <v-card-text class="files-container">
           <drop
             @drop="onDropMove($event, rootDirectory)"
@@ -286,13 +286,14 @@
                     multiple-active
                     transition
                     item-key="key"
+                    item-title="name"
                     dense
                     tag="span"
                     open-on-click
                     class="files-container--included"
                     ref="tree"
                   >
-                    <template v-slot:prepend="{ item, open }">
+                    <template #prepend="{ item, open }">
                       <v-icon
                         v-if="isFolder(item)"
                         @click.exact="onItemClick($event, item)"
@@ -316,7 +317,8 @@
                         }}
                       </v-icon>
                     </template>
-                    <template v-slot:label="{ item }">
+
+                    <template #title="{ item }">
                       <drop
                         :key="item.key"
                         @drop="onDropMove($event, item)"
@@ -388,7 +390,8 @@
                         </drag>
                       </drop>
                     </template>
-                    <template v-slot:append="{ item }">
+
+                    <template #append="{ item }">
                       <v-row v-if="!item.isRenaming">
                         <v-col
                           v-if="item.isUploaded"
@@ -612,7 +615,6 @@ import {
   VMenu,
   VRow,
   VCol,
-  // VTreeview,
   VBtn,
   VIcon,
   VList,
@@ -620,6 +622,7 @@ import {
   VListItemTitle,
   VAlert,
 } from 'vuetify/components';
+import { VTreeview } from 'vuetify/labs/VTreeview';
 import { useDisplay } from 'vuetify';
 
 import { ClickOutside } from 'vuetify/directives';
@@ -640,7 +643,7 @@ import prettyBytes from 'pretty-bytes';
     VMenu,
     VRow,
     VCol,
-    // VTreeview,
+    VTreeview,
     VBtn,
     VIcon,
     VList,
@@ -691,6 +694,7 @@ class CzFileExplorer extends Vue {
    */
   @Prop() upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
 
+  // @ts-ignore - waiting for treeview component from vuetify team
   @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
   breakpoints: any = useDisplay();

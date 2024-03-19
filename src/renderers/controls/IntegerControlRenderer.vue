@@ -7,7 +7,7 @@
   >
     <v-text-field
       type="number"
-      @change.native="beforeChange($event)"
+      @update:model-value="beforeChange"
       :step="step"
       :id="control.id + '-input'"
       :class="styles.control.input"
@@ -72,11 +72,11 @@ const controlRenderer = defineComponent({
   },
   methods: {
     // If value changed to an empty string, we need to set the data to undefined in order to trigger validation error
-    beforeChange(event) {
-      if (event.target.value === null || event.target.value.trim() === '') {
+    beforeChange(value: string) {
+      if (value === null || value.trim() === '') {
         this.handleChange(this.control.path, undefined);
       } else {
-        this.onChange(event.target.value);
+        this.onChange(value);
       }
     },
   },

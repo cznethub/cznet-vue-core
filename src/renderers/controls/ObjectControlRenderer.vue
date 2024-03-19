@@ -149,6 +149,7 @@ const controlRenderer = defineComponent({
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
+      // @ts-ignore
       return this.control.schema.options?.flat;
     },
     hasData(): boolean {
