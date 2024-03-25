@@ -124,7 +124,7 @@
     <v-card-text style="min-height: 10rem">
       <slot name="prepend"></slot>
 
-      <v-menu v-model="showMenu" v-bind="menuAttrs" absolute offset-y>
+      <v-menu v-model="showMenu" v-bind="menuAttrs" contained offset-y>
         <v-list
           v-if="showMenuItem"
           width="auto"
@@ -265,33 +265,43 @@
               @update:model-value="onDragSelect"
               @endDrag="onDragEnd"
               @startDrag="onDragStart"
+              :disabled="isDragMoving"
               class="root-drag-select"
             >
               <v-row class="flex-grow-1">
                 <!-- TODO: find a way to have a context menu in the empty area -->
-                <!-- @contextmenu="show($event, null)" -->
+                <!-- @click.right.exact.prevent="show($event, null)" -->
 
                 <v-col
                   :cols="11"
                   v-click-outside="{ handler: onClickOutside, include }"
                 >
+                  <!-- FOR DEBUGGING PURPOSES -->
+                  <!-- <div>
+                    <div>{{ selected }}</div>
+                    <div>{{ opened }}</div>
+                  </div> -->
+
+                  <!-- TODO: most of these properties are currently not working properly
+                  @see https://github.com/vuetifyjs/vuetify/issues/19400
+                  @see https://github.com/vuetifyjs/vuetify/issues/19404 
+                  @see https://github.com/vuetifyjs/vuetify/issues/19441 -->
                   <v-treeview
+                    ref="tree"
                     :items="rootDirectory.children"
-                    v-model:opened="opened"
                     v-model:activated="selected"
+                    v-model:opened="opened"
                     :search="search"
                     :filter="filter"
                     return-object
-                    multiple-active
                     transition
                     item-disabled="isDisabled"
-                    item-key="key"
+                    item-value="key"
                     item-title="name"
                     density="comfortable"
-                    tag="span"
                     class="files-container--included"
-                    ref="tree"
                     activatable
+                    active-strategy="independent"
                     open-on-click
                   >
                     <template #prepend="{ item }">
@@ -362,19 +372,23 @@
 
                           <v-row
                             v-else
-                            @contextmenu.prevent="show($event, item)"
+                            @click.right.exact.prevent="show($event, item)"
                             @click.exact="onItemClick($event, item)"
                             @click.ctrl.exact="onItemCtrlClick($event, item)"
                             @click.meta.exact="onItemCtrlClick($event, item)"
                             @click.shift.exact="onItemShiftClick($event, item)"
-                            :class="{ 'text-medium-emphasis': item.isCutting }"
+                            :class="{
+                              'text-medium-emphasis': item.isCutting,
+                            }"
                             class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column"
                           >
                             <v-col
                               class="d-flex flex-column flex-sm-row align-start align-sm-center pa-0"
                             >
                               <div class="item-name flex-grow-1 flex-shrink-1">
-                                <span :title="item.name">{{ item.name }}</span>
+                                <span :title="item.name">
+                                  {{ item.name }}
+                                </span>
                               </div>
                               <div
                                 v-if="(item as IFile).file"
@@ -469,7 +483,9 @@
                                 </li>
                                 <li v-if="isFileTooBig(item as IFile)">
                                   Files cannot be larger than
-                                  <b>{{ prettyBytes(maxUploadSizePerFile) }}</b>
+                                  <b>
+                                    {{ prettyBytes(maxUploadSizePerFile) }}
+                                  </b>
                                   .
                                 </li>
                               </ul>
@@ -707,7 +723,7 @@ class CzFileExplorer extends Vue {
   breakpoints: any = useDisplay();
 
   fileIcons = FILE_ICONS;
-  opened: (IFolder | IFile)[] = [];
+  opened: number[] = [];
   selected: number[] = [];
   dropFiles: File[] = [];
   isDeleting = false;
@@ -722,9 +738,10 @@ class CzFileExplorer extends Vue {
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
-  menuAttrs = {
-    'position-x': 0,
-    'position-y': 0,
+  menuAttrs: Record<any, any> = {
+    // 'position-x': 0,
+    // 'position-y': 0,
+    target: null,
   };
 
   public get hasInvalidFilesToUpload() {
@@ -791,16 +808,15 @@ class CzFileExplorer extends Vue {
   }
 
   onDragSelect(selectedKeys: string[]) {
-    // console.log('dragselect');
-    // this.unselectAll();
-    // const selectedItems: (IFile | IFolder)[] = [];
-    // selectedKeys.forEach(key => {
-    //   const item = this.getItemById(+key);
-    //   if (item) {
-    //     selectedItems.push(item);
-    //   }
-    // });
-    // this.select(selectedItems);
+    this.unselectAll();
+    const selectedItems: (IFile | IFolder)[] = [];
+    selectedKeys.forEach(key => {
+      const item = this.getItemById(+key);
+      if (item) {
+        selectedItems.push(item);
+      }
+    });
+    this.select(selectedItems);
   }
 
   onDragEnd() {
@@ -808,7 +824,7 @@ class CzFileExplorer extends Vue {
   }
 
   onDragStart() {
-    // this.unselectAll();
+    this.unselectAll();
   }
 
   canPasteOnFolder(item: IFile | IFolder) {
@@ -861,6 +877,7 @@ class CzFileExplorer extends Vue {
 
   generateNewKey(): number {
     const newKey = this.keyCounter++;
+    // TODO
     if (this.tree && this.tree.nodes[newKey]) {
       // This key already exists, try the next one.
       return this.generateNewKey();
@@ -879,10 +896,13 @@ class CzFileExplorer extends Vue {
       this.unselectAll();
       this.select([item]);
     }
+
     this.shiftAnchor = item;
     this.showMenu = false;
-    this.menuAttrs['position-x'] = event.clientX;
-    this.menuAttrs['position-y'] = event.clientY;
+    // this.menuAttrs['position-x'] = event.clientX;
+    // this.menuAttrs['position-y'] = event.clientY;
+    this.menuAttrs['attach'] = event.target;
+    this.menuAttrs['target'] = [event.clientX, event.clientY];
     this.$nextTick(() => {
       this.showMenu = true;
       this.showMenuItem = item;
@@ -994,6 +1014,7 @@ class CzFileExplorer extends Vue {
       return '';
     }
 
+    // TODO: tree methods no longer exposed
     const parentKeys = this.tree.getParents(item.key);
     const parentNames = parentKeys.map(
       (p: string) => this.tree.nodes[p].item.name
@@ -1011,7 +1032,7 @@ class CzFileExplorer extends Vue {
 
   select(items: (IFolder | IFile)[]) {
     this.selected = [
-      ...new Set([...this.selected, ...items.map(i => i.key as number)]),
+      ...new Set([...this.selected, ...items.map(i => +i.key as number)]),
     ];
   }
 
@@ -1023,7 +1044,6 @@ class CzFileExplorer extends Vue {
   }
 
   unselectAll() {
-    console.log('unselect all');
     this.selected = [];
   }
 
@@ -1049,6 +1069,7 @@ class CzFileExplorer extends Vue {
     const targetFolder = this.isFolder(dropTarget)
       ? dropTarget
       : this.getParent(dropTarget);
+
     if (!this.isSelected(event.data)) {
       this.unselectAll();
       this.select([event.data]);
@@ -1475,12 +1496,12 @@ class CzFileExplorer extends Vue {
     }
 
     if (this.isFolder(item)) {
-      this.opened = [...new Set([...this.opened, item])];
+      this.opened = [...new Set([...this.opened, item.key])];
     }
 
     const parent = this.getParent(item);
     if (parent) {
-      this.opened = [...new Set([...this.opened, parent])];
+      this.opened = [...new Set([...this.opened, parent.key])];
       this._openRecursive(parent);
     }
   }

@@ -42,6 +42,7 @@ const collisionCheck = (node1: DOMRect, node2: DOMRect) =>
 })
 class CzDragSelect extends Vue {
   @Prop({ required: true }) attribute!: string;
+  @Prop({ default: false }) disabled!: boolean;
   box: HTMLDivElement = document.createElement('div');
   start: Point = { x: 0, y: 0 };
   end: Point = { x: 0, y: 0 };
@@ -118,6 +119,7 @@ class CzDragSelect extends Vue {
 
     this.box.style.top = this.start.y + 'px';
     this.box.style.left = this.start.x + 'px';
+    this.box.style.zIndex = '2';
 
     this.$el.prepend(this.box);
 
@@ -126,6 +128,9 @@ class CzDragSelect extends Vue {
   }
 
   drag(event: MouseEvent | Touch) {
+    if (this.disabled) {
+      return;
+    }
     this.end = this.getCoordinates(event);
     const dimensions = getDimensions(this.start, this.end);
 
@@ -139,6 +144,10 @@ class CzDragSelect extends Vue {
     this.box.style.height = dimensions.height + 'px';
 
     this.intersection();
+
+    // setTimeout(() => {
+    //   debugger;
+    // }, 1000);
   }
 
   endDrag(_event: MouseEvent | TouchEvent) {
