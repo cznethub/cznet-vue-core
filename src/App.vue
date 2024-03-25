@@ -206,7 +206,7 @@ class App extends Vue {
   selectedMetadata: any = false;
 
   /** Example folder/file tree structure */
-  rootDirectory: IFolder = {
+  rootDirectory = {
     name: 'root',
     /** Folders have a `children` property */
     children: [
@@ -222,7 +222,7 @@ class App extends Vue {
                   {
                     name: 'deeply nested file.txt',
                     file: { size: 2637468 },
-                  } as IFile,
+                  },
                 ],
               },
             ],
@@ -230,11 +230,11 @@ class App extends Vue {
           {
             name: 'readme.txt',
             file: { size: 12000 },
-          } as IFile,
+          },
           {
             name: 'presentation.ppt',
             file: { size: 1237468 },
-          } as IFile,
+          },
         ],
       },
       {
@@ -245,11 +245,11 @@ class App extends Vue {
         name: 'logs.txt',
         isUploaded: true, // IMPORTANT: indicates that asynchronous operations will run on this file
         file: { size: 8421 },
-      } as IFile,
+      },
       {
         name: 'landscape.png',
         file: { size: 2637468 },
-      } as IFile,
+      },
     ],
   };
 

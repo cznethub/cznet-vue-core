@@ -262,7 +262,7 @@
           >
             <cz-drag-select
               attribute="customAttribute"
-              @change="onDragSelect"
+              @update:model-value="onDragSelect"
               @endDrag="onDragEnd"
               @startDrag="onDragStart"
               class="root-drag-select"
@@ -276,24 +276,25 @@
                   v-click-outside="{ handler: onClickOutside, include }"
                 >
                   <v-treeview
-                    item-disabled="isDisabled"
                     :items="rootDirectory.children"
-                    :open.sync="open"
-                    :active.sync="selected"
+                    v-model:opened="opened"
+                    v-model:activated="selected"
                     :search="search"
                     :filter="filter"
                     return-object
                     multiple-active
                     transition
+                    item-disabled="isDisabled"
                     item-key="key"
                     item-title="name"
-                    dense
+                    density="comfortable"
                     tag="span"
-                    open-on-click
                     class="files-container--included"
                     ref="tree"
+                    activatable
+                    open-on-click
                   >
-                    <template #prepend="{ item, open }">
+                    <template #prepend="{ item }">
                       <v-icon
                         v-if="isFolder(item)"
                         @click.exact="onItemClick($event, item)"
@@ -303,7 +304,9 @@
                         :disabled="item.isDisabled"
                         :color="item.isCutting ? 'grey' : folderColor"
                       >
-                        {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+                        {{
+                          opened[item.key] ? 'mdi-folder-open' : 'mdi-folder'
+                        }}
                       </v-icon>
                       <v-icon
                         v-else
@@ -312,7 +315,7 @@
                         :color="item.isCutting ? 'grey' : ''"
                       >
                         {{
-                          fileIcons[item.name.split('.').pop()] ||
+                          fileIcons[item.name.split('.').pop() || ''] ||
                           fileIcons['default']
                         }}
                       </v-icon>
@@ -321,7 +324,7 @@
                     <template #title="{ item }">
                       <drop
                         :key="item.key"
-                        @drop="onDropMove($event, item)"
+                        @drop="onDropMove($event, item as IFolder)"
                         :customAttribute="item.key"
                       >
                         <drag
@@ -368,22 +371,26 @@
                             class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column"
                           >
                             <v-col
-                              class="d-flex flex-column flex-sm-row align-start align-sm-center"
+                              class="d-flex flex-column flex-sm-row align-start align-sm-center pa-0"
                             >
                               <div class="item-name flex-grow-1 flex-shrink-1">
                                 <span :title="item.name">{{ item.name }}</span>
                               </div>
                               <div
-                                v-if="item.file"
+                                v-if="(item as IFile).file"
                                 class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
                               >
-                                {{ prettyBytes(item.file.size) }}
+                                {{
+                                  prettyBytes((item as IFile).file?.size || 0)
+                                }}
                               </div>
                               <div
-                                v-else-if="item.uploadedSize"
+                                v-else-if="(item as IFile).uploadedSize"
                                 class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
                               >
-                                {{ prettyBytes(item.uploadedSize) }}
+                                {{
+                                  prettyBytes((item as IFile).uploadedSize || 0)
+                                }}
                               </div>
                             </v-col>
                           </v-row>
@@ -406,12 +413,12 @@
                           </v-icon>
                         </v-col>
                         <v-col
-                          v-if="canRetryUpload(item)"
+                          v-if="canRetryUpload(item as IFile)"
                           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
                           <v-btn
                             color="info"
-                            @click="retryUpload(item)"
+                            @click="retryUpload(item as IFile)"
                             :disabled="item.isDisabled"
                             size="small"
                             variant="text"
@@ -422,7 +429,7 @@
                           </v-btn>
                         </v-col>
                         <v-col
-                          v-if="showFileWarnings(item)"
+                          v-if="showFileWarnings(item as IFile)"
                           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text-medium-emphasis align-center"
                         >
                           <v-menu open-on-hover bottom left offset-y>
@@ -430,8 +437,8 @@
                               <div v-bind="props">
                                 <v-icon
                                   :color="
-                                    isFileInvalid(item) ||
-                                    couldNotUploadFile(item)
+                                    isFileInvalid(item as IFile) ||
+                                    couldNotUploadFile(item as IFile)
                                       ? 'error'
                                       : 'warning'
                                   "
@@ -443,24 +450,24 @@
                             <div class="pa-4 has-bg-white">
                               <div
                                 v-if="
-                                  isFileInvalid(item) ||
-                                  couldNotUploadFile(item)
+                                  isFileInvalid(item as IFile) ||
+                                  couldNotUploadFile(item as IFile)
                                 "
                                 class="text-body-2 mb-4"
                               >
                                 <b>This file cannot be uploaded</b>
                               </div>
                               <ul class="text-subtitle-1">
-                                <li v-if="couldNotUploadFile(item)">
+                                <li v-if="couldNotUploadFile(item as IFile)">
                                   Maximum number of files exceeded.
                                 </li>
-                                <li v-if="!isFileExtensionValid(item)">
+                                <li v-if="!isFileExtensionValid(item as IFile)">
                                   This file extension is not allowed for upload.
                                 </li>
-                                <li v-if="!isFileNameValid(item)">
+                                <li v-if="!isFileNameValid(item as IFile)">
                                   This file name contains invalid characters.
                                 </li>
-                                <li v-if="isFileTooBig(item)">
+                                <li v-if="isFileTooBig(item as IFile)">
                                   Files cannot be larger than
                                   <b>{{ prettyBytes(maxUploadSizePerFile) }}</b>
                                   .
@@ -700,8 +707,8 @@ class CzFileExplorer extends Vue {
   breakpoints: any = useDisplay();
 
   fileIcons = FILE_ICONS;
-  open: (IFolder | IFile)[] = [];
-  selected: (IFolder | IFile)[] = [];
+  opened: (IFolder | IFile)[] = [];
+  selected: number[] = [];
   dropFiles: File[] = [];
   isDeleting = false;
   fileReleaseDate = null;
@@ -766,7 +773,7 @@ class CzFileExplorer extends Vue {
     if (this.selected.length !== 1) {
       return this.rootDirectory;
     } else {
-      return this.selected[0];
+      return this.getItemById(this.selected[0]) || this.rootDirectory;
     }
   }
 
@@ -779,12 +786,21 @@ class CzFileExplorer extends Vue {
     return isValidTarget && areItemsValid;
   }
 
-  onDragSelect(selectedKeys: number[]) {
-    this.unselectAll();
-    const selectedItems = selectedKeys.map(key => {
-      return this.tree.nodes[key].item;
-    });
-    this.select(selectedItems);
+  getItemById(id: number) {
+    return this.allItems.find(item => item.key === id);
+  }
+
+  onDragSelect(selectedKeys: string[]) {
+    // console.log('dragselect');
+    // this.unselectAll();
+    // const selectedItems: (IFile | IFolder)[] = [];
+    // selectedKeys.forEach(key => {
+    //   const item = this.getItemById(+key);
+    //   if (item) {
+    //     selectedItems.push(item);
+    //   }
+    // });
+    // this.select(selectedItems);
   }
 
   onDragEnd() {
@@ -792,7 +808,7 @@ class CzFileExplorer extends Vue {
   }
 
   onDragStart() {
-    this.unselectAll();
+    // this.unselectAll();
   }
 
   canPasteOnFolder(item: IFile | IFolder) {
@@ -852,7 +868,7 @@ class CzFileExplorer extends Vue {
     return newKey;
   }
 
-  show(event: MouseEvent, item: IFile | IFolder | null) {
+  show(event: MouseEvent, item: (IFile | IFolder) | null) {
     // TODO: right click will erase the previous selection and only select the current item
     // Find a way to prevent this behaviour
     if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
@@ -990,28 +1006,32 @@ class CzFileExplorer extends Vue {
   }
 
   isSelected(item: IFolder | IFile) {
-    return this.selected.includes(item);
+    return this.selected.includes(item.key);
   }
 
   select(items: (IFolder | IFile)[]) {
-    this.selected = [...new Set([...this.selected, ...items])];
+    this.selected = [
+      ...new Set([...this.selected, ...items.map(i => i.key as number)]),
+    ];
   }
 
   unselect(item: IFolder | IFile) {
-    const index = this.selected.indexOf(item);
+    const index = this.selected.indexOf(item.key as number);
     if (index >= 0) {
       this.selected.splice(index, 1);
     }
   }
 
   unselectAll() {
+    console.log('unselect all');
     this.selected = [];
   }
 
   cut() {
     this.uncutAll();
 
-    this.selected.map(item => {
+    this.selected.map(key => {
+      const item = this.getItemById(key);
       if (item) {
         item.isCutting = true;
       }
@@ -1051,10 +1071,13 @@ class CzFileExplorer extends Vue {
       ? (this.activeDirectoryItem as IFolder)
       : this.getParent(this.activeDirectoryItem);
 
-    await this._handlePaste(targetFolder, this.itemsToCut);
+    await this._handlePaste(
+      targetFolder,
+      this.itemsToCut.map(i => i.key)
+    );
   }
 
-  private async _handlePaste(target: IFolder, items: (IFile | IFolder)[]) {
+  private async _handlePaste(target: IFolder, items: number[]) {
     const itemsToMove = [...items]; // We make a copy because the original can change during iteration below
     const pastePromises: Promise<boolean>[] = [];
 
@@ -1097,11 +1120,14 @@ class CzFileExplorer extends Vue {
     });
   }
 
-  private async _paste(
-    item: IFile | IFolder,
-    targetFolder: IFolder
-  ): Promise<boolean> {
+  private async _paste(key: number, targetFolder: IFolder): Promise<boolean> {
     let wasMoved = false;
+    const item = this.getItemById(key);
+
+    if (!item) {
+      return false;
+    }
+
     const targetPathString = this.getPathString(targetFolder);
     const itemPathString = this.getPathString(item);
 
@@ -1154,11 +1180,12 @@ class CzFileExplorer extends Vue {
   }
 
   getParent(item: IFile | IFolder): IFolder {
-    if (item.key !== undefined && this.tree.nodes.hasOwnProperty(item.key)) {
-      const parentKey = this.tree.getParents(item.key)[0];
-      const parentNode = this.tree.nodes[parentKey];
-      return parentNode?.item || this.rootDirectory;
-    }
+    // TODO
+    // if (item.key !== undefined) {
+    //   const parentKey = this.tree.getParents(item.key)[0];
+    //   const parentNode = this.tree.nodes[parentKey];
+    //   return parentNode?.item || this.rootDirectory;
+    // }
 
     return this.rootDirectory;
   }
@@ -1303,12 +1330,14 @@ class CzFileExplorer extends Vue {
 
     // First, disable all items to delete
     for (let i = 0; i < reversedSelected.length; i++) {
-      const item = reversedSelected[i];
-      this._toggleItemDisabled(item, true);
+      const item = this.getItemById(reversedSelected[i]);
+      if (item) {
+        this._toggleItemDisabled(item, true);
+      }
     }
 
     for (let i = 0; i < reversedSelected.length; i++) {
-      const item = reversedSelected[i];
+      const item = this.getItemById(reversedSelected[i]);
 
       if (item) {
         if (item === this.shiftAnchor) {
@@ -1386,7 +1415,7 @@ class CzFileExplorer extends Vue {
           i => i.isUploaded
         );
         this.selected = [];
-        this.open = [];
+        this.opened = [];
       },
     });
   }
@@ -1446,12 +1475,12 @@ class CzFileExplorer extends Vue {
     }
 
     if (this.isFolder(item)) {
-      this.open = [...new Set([...this.open, item])];
+      this.opened = [...new Set([...this.opened, item])];
     }
 
     const parent = this.getParent(item);
     if (parent) {
-      this.open = [...new Set([...this.open, parent])];
+      this.opened = [...new Set([...this.opened, parent])];
       this._openRecursive(parent);
     }
   }
