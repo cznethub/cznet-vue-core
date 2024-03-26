@@ -1,8 +1,11 @@
 import '@mdi/font/css/materialdesignicons.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 // Vuetify
 import 'vuetify/styles';
 import { ThemeDefinition, createVuetify } from 'vuetify';
+import { aliases as fa_aliases, fa } from 'vuetify/iconsets/fa';
+import { aliases as md_aliases, mdi } from 'vuetify/iconsets/mdi';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 
@@ -44,6 +47,17 @@ const vuetify = createVuetify({
       colors: ['primary', 'secondary'],
       lighten: 4,
       darken: 4,
+    },
+  },
+  icons: {
+    defaultSet: 'mdi',
+    aliases: {
+      ...fa_aliases,
+      ...md_aliases,
+    },
+    sets: {
+      mdi,
+      fa,
     },
   },
 });

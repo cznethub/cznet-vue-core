@@ -325,7 +325,7 @@
                         v-else
                         @click.ctrl.exact="onItemCtrlClick($event, item)"
                         :disabled="item.isDisabled"
-                        :color="item.isCutting ? 'grey' : ''"
+                        :color="item.isCutting || item.isDisabled ? 'grey' : ''"
                       >
                         {{
                           fileIcons[item.name.split('.').pop() || ''] ||
@@ -381,7 +381,8 @@
                             @click.meta.exact="onItemCtrlClick($event, item)"
                             @click.shift.exact="onItemShiftClick($event, item)"
                             :class="{
-                              'text-medium-emphasis': item.isCutting,
+                              'text-medium-emphasis':
+                                item.isCutting || item.isDisabled,
                             }"
                             class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column"
                           >
@@ -496,9 +497,11 @@
                           </v-menu>
                         </v-col>
                         <v-col v-if="item.isDisabled">
-                          <v-icon color="primary lighten-2" small>
-                            fas fa-circle-notch fa-spin
-                          </v-icon>
+                          <v-icon
+                            color="primary lighten-2"
+                            icon="fa:fas fa-circle-notch fa-spin"
+                            small
+                          />
                         </v-col>
                       </v-row>
                     </template>
