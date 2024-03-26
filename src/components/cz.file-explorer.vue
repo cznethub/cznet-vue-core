@@ -301,6 +301,7 @@
                     density="comfortable"
                     class="files-container--included"
                     activatable
+                    selectable
                     active-strategy="independent"
                     open-on-click
                   >
@@ -315,7 +316,9 @@
                         :color="item.isCutting ? 'grey' : folderColor"
                       >
                         {{
-                          opened[item.key] ? 'mdi-folder-open' : 'mdi-folder'
+                          opened.includes(item.key)
+                            ? 'mdi-folder-open'
+                            : 'mdi-folder'
                         }}
                       </v-icon>
                       <v-icon
@@ -372,7 +375,7 @@
 
                           <v-row
                             v-else
-                            @click.right.exact.prevent="show($event, item)"
+                            @click.right.exact="show($event, item)"
                             @click.exact="onItemClick($event, item)"
                             @click.ctrl.exact="onItemCtrlClick($event, item)"
                             @click.meta.exact="onItemCtrlClick($event, item)"
@@ -717,8 +720,7 @@ class CzFileExplorer extends Vue {
    */
   @Prop() upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
 
-  // @ts-ignore - waiting for treeview component from vuetify team
-  @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
+  // @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
   breakpoints: any = useDisplay();
 
@@ -745,12 +747,8 @@ class CzFileExplorer extends Vue {
   };
 
   public get hasInvalidFilesToUpload() {
-    return this.allItems.some((item: IFile | IFolder) => {
-      return (
-        !this.isFolder(item) &&
-        !(item as IFile).isUploaded &&
-        this.isFileInvalid(item as IFile)
-      );
+    return this.allFiles.some((item: IFile) => {
+      return !item.isUploaded && this.isFileInvalid(item as IFile);
     });
   }
 
@@ -761,7 +759,13 @@ class CzFileExplorer extends Vue {
   get allFiles(): IFile[] {
     return this.allItems.filter((item: IFile | IFolder) => {
       return !this.isFolder(item);
-    });
+    }) as IFile[];
+  }
+
+  get allFolders(): IFolder[] {
+    return this.allItems.filter((item: IFile | IFolder) => {
+      return this.isFolder(item);
+    }) as IFolder[];
   }
 
   get hasTooManyFiles() {
@@ -843,7 +847,7 @@ class CzFileExplorer extends Vue {
     return this.hasFolders && !item.isCutting;
   }
 
-  get allItems(): IFile[] {
+  get allItems(): (IFile | IFolder)[] {
     return this._getDirectoryItems(this.rootDirectory);
   }
 
@@ -860,9 +864,7 @@ class CzFileExplorer extends Vue {
 
   /** @return total size of files uploaded and valid files pending to upload */
   get totalUploadSize(): number {
-    const validFiles = this.allItems.filter(
-      item => !this.isFileInvalid(item as IFile)
-    );
+    const validFiles = this.allFiles.filter(item => !this.isFileInvalid(item));
 
     return validFiles.reduce((acc: number, file: IFile) => {
       const currentFileSize = file.file?.size || file.uploadedSize || 0;
@@ -878,7 +880,7 @@ class CzFileExplorer extends Vue {
   generateNewKey(): number {
     const newKey = this.keyCounter++;
     // TODO
-    if (this.tree && this.tree.nodes[newKey]) {
+    if (this.allItems.some(i => i.key === newKey)) {
       // This key already exists, try the next one.
       return this.generateNewKey();
     }
@@ -1008,18 +1010,35 @@ class CzFileExplorer extends Vue {
     this.select(this.allItems);
   }
 
+  getParent(item: IFile | IFolder): IFolder {
+    return (
+      this.allFolders.find(folder => folder.children?.includes(item)) ||
+      this.rootDirectory
+    );
+  }
+
   /** Returns an item path string. I.e: "Some Folder/readme.txt" */
   getPathString(item: IFolder | IFile) {
     if (item === this.rootDirectory) {
       return '';
     }
 
-    // TODO: tree methods no longer exposed
-    const parentKeys = this.tree.getParents(item.key);
-    const parentNames = parentKeys.map(
-      (p: string) => this.tree.nodes[p].item.name
-    );
-    return [...parentNames.reverse(), item.name].join('/');
+    const paths = [item];
+
+    while (paths[paths.length - 1] !== this.rootDirectory) {
+      const lastParent = paths[paths.length - 1];
+      const parent = this.getParent(lastParent);
+      if (parent !== this.rootDirectory) {
+        paths.push(parent);
+      } else {
+        break;
+      }
+    }
+
+    return paths
+      .reverse()
+      .map(i => i.name)
+      .join('/');
   }
 
   isFolder(item: IFile | IFolder) {
@@ -1106,6 +1125,7 @@ class CzFileExplorer extends Vue {
       const item = itemsToMove[i];
       pastePromises.push(this._paste(item, target));
     }
+
     this._openRecursive(target);
 
     const wasPasted = await Promise.allSettled(pastePromises);
@@ -1198,17 +1218,6 @@ class CzFileExplorer extends Vue {
     this.toggleSelect(item);
     this.shiftAnchor = item;
     event.stopPropagation();
-  }
-
-  getParent(item: IFile | IFolder): IFolder {
-    // TODO
-    // if (item.key !== undefined) {
-    //   const parentKey = this.tree.getParents(item.key)[0];
-    //   const parentNode = this.tree.nodes[parentKey];
-    //   return parentNode?.item || this.rootDirectory;
-    // }
-
-    return this.rootDirectory;
   }
 
   onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
@@ -1500,7 +1509,7 @@ class CzFileExplorer extends Vue {
     }
 
     const parent = this.getParent(item);
-    if (parent) {
+    if (parent && parent !== this.rootDirectory) {
       this.opened = [...new Set([...this.opened, parent.key])];
       this._openRecursive(parent);
     }
