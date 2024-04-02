@@ -61,10 +61,8 @@
                 class="text-subtitle-1 mb-4"
                 border="start"
                 colored-border
-                type="info"
-                elevation="1"
               >
-                You can prepend content to this area
+                You can prepend content to this area.
               </v-alert>
             </template>
           </cz-file-explorer>

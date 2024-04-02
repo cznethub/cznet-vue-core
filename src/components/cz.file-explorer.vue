@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1"
+      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1 bg-primary-lighten-4"
     >
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
         <template v-slot:activator="{ props }">
@@ -375,7 +375,7 @@
 
                           <v-row
                             v-else
-                            @click.right.exact="show($event, item)"
+                            @click.right.exact.prevent="show($event, item)"
                             @click.exact="onItemClick($event, item)"
                             @click.ctrl.exact="onItemCtrlClick($event, item)"
                             @click.meta.exact="onItemCtrlClick($event, item)"
@@ -423,7 +423,7 @@
                           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
                         >
                           <v-icon
-                            class="text--disabled"
+                            class="text-medium-emphasis"
                             title="uploaded"
                             size="small"
                           >
