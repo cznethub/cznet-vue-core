@@ -277,10 +277,10 @@
                   v-click-outside="{ handler: onClickOutside, include }"
                 >
                   <!-- FOR DEBUGGING PURPOSES -->
-                  <!-- <div>
-                    <div>{{ selected }}</div>
-                    <div>{{ opened }}</div>
-                  </div> -->
+                  <div>
+                    <div>Selected: {{ selected }}</div>
+                    <div>Opened: {{ opened }}</div>
+                  </div>
 
                   <!-- TODO: most of these properties are currently not working properly
                   @see https://github.com/vuetifyjs/vuetify/issues/19400
@@ -294,14 +294,12 @@
                     :search="search"
                     :filter="filter"
                     return-object
-                    transition
                     item-disabled="isDisabled"
                     item-value="key"
                     item-title="name"
                     density="comfortable"
                     class="files-container--included"
                     activatable
-                    selectable
                     active-strategy="independent"
                     open-on-click
                   >
@@ -1419,11 +1417,7 @@ class CzFileExplorer extends Vue {
   }
 
   onClickOutside() {
-    if (this.ignoreNextClick) {
-      this.ignoreNextClick = false;
-    } else {
-      this.unselectAll();
-    }
+    this.ignoreNextClick ? (this.ignoreNextClick = false) : this.unselectAll();
   }
 
   include() {

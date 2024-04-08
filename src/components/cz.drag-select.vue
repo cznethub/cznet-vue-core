@@ -38,7 +38,7 @@ const collisionCheck = (node1: DOMRect, node2: DOMRect) =>
 @Component({
   components: {},
   name: 'cz-drag-select',
-  emits: ['endDrag', 'update:modelValue', 'startDrag'],
+  emits: ['update:modelValue', 'drag', 'startDrag', 'endDrag'],
 })
 class CzDragSelect extends Vue {
   @Prop({ required: true }) attribute!: string;
@@ -49,6 +49,7 @@ class CzDragSelect extends Vue {
   children: Element[] = [];
   intersected: string[] = [];
   containerRect: DOMRect = new DOMRect();
+  isDragging = false;
 
   @Watch('intersected', { deep: true })
   onIntersected(val: string) {
@@ -122,14 +123,15 @@ class CzDragSelect extends Vue {
     this.box.style.zIndex = '2';
 
     this.$el.prepend(this.box);
-
-    this.intersection();
-    this.$emit('startDrag');
   }
 
   drag(event: MouseEvent | Touch) {
     if (this.disabled) {
       return;
+    }
+    if (this.end === this.start) {
+      this.$emit('startDrag');
+      this.isDragging = true;
     }
     this.end = this.getCoordinates(event);
     const dimensions = getDimensions(this.start, this.end);
@@ -144,10 +146,7 @@ class CzDragSelect extends Vue {
     this.box.style.height = dimensions.height + 'px';
 
     this.intersection();
-
-    // setTimeout(() => {
-    //   debugger;
-    // }, 1000);
+    this.$emit('drag');
   }
 
   endDrag(_event: MouseEvent | TouchEvent) {
@@ -161,7 +160,10 @@ class CzDragSelect extends Vue {
     document.removeEventListener('touchmove', this.touchMove);
 
     this.box.remove();
-    this.$emit('endDrag');
+    if (this.isDragging) {
+      this.$emit('endDrag');
+      this.isDragging = false;
+    }
   }
 
   unmounted() {
