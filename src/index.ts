@@ -3,7 +3,6 @@ import CzNotifications from './components/cz.notifications.vue';
 import CzDragSelect from './components/cz.drag-select.vue';
 import CzForm from './components/cz.form.vue';
 import CzFileExplorer from './components/cz.file-explorer.vue';
-import { App } from 'vue';
 
 const components: Record<string, any> = {
   CzNotifications,
@@ -13,10 +12,10 @@ const components: Record<string, any> = {
 };
 
 const CzNet = {
-  install: (app: App<any>) => {
-    // configure the app
+  install: (app: any) => {
     Object.keys(components).forEach(name => {
-      app.component(name, components[name]);
+      // app.component(name, components[name]);
+      app.use(components[name]);
     });
   },
 };

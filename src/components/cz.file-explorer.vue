@@ -277,10 +277,10 @@
                   v-click-outside="{ handler: onClickOutside, include }"
                 >
                   <!-- FOR DEBUGGING PURPOSES -->
-                  <div>
+                  <!-- <div>
                     <div>Selected: {{ selected }}</div>
                     <div>Opened: {{ opened }}</div>
-                  </div>
+                  </div> -->
 
                   <!-- TODO: most of these properties are currently not working properly
                   @see https://github.com/vuetifyjs/vuetify/issues/19400

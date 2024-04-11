@@ -1,14 +1,13 @@
 <template>
   <v-container
     v-if="layout.visible"
-    class="pa-0"
+    fill-height
+    :class="`${styles.verticalLayout.root}`"
     v-bind="vuetifyProps('v-container')"
   >
     <v-row
-      v-for="(element, index) in elements"
-      :data-id="`vertical-${index}`"
+      v-for="(element, index) in layout.uischema.elements"
       :key="`${layout.path}-${index}`"
-      no-gutters
       v-bind="vuetifyProps(`v-row[${index}]`)"
     >
       <v-col
@@ -59,12 +58,6 @@ const layoutRenderer = defineComponent({
   },
   setup(props: RendererProps<Layout>) {
     return useVuetifyLayout(useJsonFormsLayout(props));
-  },
-  computed: {
-    elements() {
-      // @ts-ignore
-      return this.layout.uischema.elements;
-    },
   },
 });
 

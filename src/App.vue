@@ -173,7 +173,6 @@
 </template>
 
 <script lang="ts">
-import CzDragSelect from './components/cz.drag-select.vue';
 import { Component, Vue, toNative, Ref } from 'vue-facing-decorator';
 import czNotifications from './components/cz.notifications.vue';
 import Notifications from './models/notifications';
@@ -189,7 +188,7 @@ import czForm from './components/cz.form.vue';
 // const initialData = {};
 
 @Component({
-  components: { CzDragSelect, czNotifications, CzFileExplorer, czForm },
+  components: { czNotifications, CzFileExplorer, czForm },
   name: 'App',
 })
 class App extends Vue {

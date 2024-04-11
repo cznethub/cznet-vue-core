@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import packageJson from './package.json';
 
 export default defineConfig(({ mode }) => {
   const isProd = mode === 'prod';
@@ -14,15 +15,29 @@ export default defineConfig(({ mode }) => {
         entry: resolve(__dirname, 'src/index.ts'),
         name: '@cznethub/cznet-vue-core',
         fileName: 'index',
-        formats: ['es', 'cjs', 'umd'],
+        formats: [
+          'esm',
+          // 'es',
+          'cjs',
+          // 'umd',
+        ],
       },
+      sourcemap: true,
       rollupOptions: {
         /**
          * DESC:
          * make sure to externalize deps that shouldn't be bundled
          * into your library
          */
-        external: ['vue', 'vue-demi', 'vuetify'],
+        external: [
+          ...Object.keys(packageJson.dependencies),
+          ...Object.keys(packageJson.peerDependencies),
+          'vue',
+          'vuetify/components',
+          '@mdi/font',
+          'vue-facing-decorator',
+          /^dayjs\/.*/,
+        ],
         output: {
           /**
            * DESC:
@@ -31,8 +46,9 @@ export default defineConfig(({ mode }) => {
            */
           globals: {
             vue: 'Vue',
-            'vue-demi': 'VueDemi',
             vuetify: 'Vuetify',
+            'vuetify/components': 'Vuetify',
+            'vue-facing-decorator': 'vueFacingDecorator',
           },
         },
       },
@@ -45,9 +61,6 @@ export default defineConfig(({ mode }) => {
      * DESC:
      * dependency pre-bundling
      */
-    optimizeDeps = {
-      exclude: ['vue-demi'],
-    };
   }
 
   let test = {};
@@ -60,7 +73,7 @@ export default defineConfig(({ mode }) => {
       include: ['test/**/*.test.ts'],
       environment: 'happy-dom',
       deps: {
-        inline: ['@vue', 'vue-demi'],
+        inline: ['@vue'],
       },
       coverage: {
         reporter: ['text', 'text-summary', 'lcov'],
@@ -69,7 +82,18 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [vue()],
+    plugins: [
+      vue({
+        template: {
+          compilerOptions: {
+            // ...
+          },
+          transformAssetUrls: {
+            // ...
+          },
+        },
+      }),
+    ],
     optimizeDeps,
     build,
     test,
