@@ -43,9 +43,6 @@ import {
   ControlElement,
   createCombinatorRenderInfos,
   findMatchingUISchema,
-  isAllOfControl,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
   UISchemaElement,
 } from '@jsonforms/core';
 import {
@@ -59,7 +56,7 @@ import { useVuetifyControl } from '@/renderers/util/composition';
 import { VDivider } from 'vuetify/components';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'all-of-renderer',
   components: {
     DispatchRenderer,
@@ -113,11 +110,4 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isAllOfControl),
-};
 </script>

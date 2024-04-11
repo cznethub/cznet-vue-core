@@ -32,12 +32,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  isNumberControl,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent, ref, unref } from 'vue';
 import {
   rendererProps,
@@ -51,7 +46,7 @@ import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const NUMBER_REGEX_TEST = /^[+-]?\d+([.]\d+)?([eE][+-]?\d+)?$/;
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'number-control-renderer',
   components: { VTextField, ControlWrapper, CzFieldMessages },
   props: {
@@ -125,13 +120,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isNumberControl),
-};
 </script>
 
 <style lang="scss" scoped>

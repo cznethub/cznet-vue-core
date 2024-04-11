@@ -73,12 +73,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  isStringControl,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   rendererProps,
@@ -91,7 +86,7 @@ import { default as ControlWrapper } from './ControlWrapper.vue';
 import { VTextField, VCombobox } from 'vuetify/components';
 import czFieldMessages from '../components/cz.field-messages.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'string-control-renderer',
   props: {
     ...rendererProps<ControlElement>(),
@@ -127,13 +122,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isStringControl),
-};
 </script>
 
 <style lang="scss" scoped></style>

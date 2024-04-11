@@ -218,10 +218,7 @@
 
 <script lang="ts">
 import {
-  JsonFormsRendererRegistryEntry,
   ControlElement,
-  rankWith,
-  isObjectArrayWithNesting,
   composePaths,
   createDefaultValue,
   UISchemaElement,
@@ -229,8 +226,6 @@ import {
   Resolve,
   JsonSchema,
   getControlPath,
-  or,
-  isObjectArrayControl,
 } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
@@ -272,7 +267,7 @@ import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'array-layout-renderer',
   components: {
     DispatchRenderer,
@@ -451,20 +446,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-const useArrayLayout = (uiSchema: UISchemaElement) => {
-  return uiSchema.options?.useArrayLayout;
-};
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(
-    4,
-    or(isObjectArrayControl, isObjectArrayWithNesting, useArrayLayout)
-  ),
-};
 </script>
 
 <style scoped>

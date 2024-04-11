@@ -58,16 +58,7 @@
 </template>
 
 <script lang="ts">
-import {
-  and,
-  ControlElement,
-  isPrimitiveArrayControl,
-  JsonFormsRendererRegistryEntry,
-  JsonSchema7,
-  not,
-  rankWith,
-  UISchemaElement,
-} from '@jsonforms/core';
+import { and, ControlElement, JsonSchema7 } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import { rendererProps, useJsonFormsControl } from '@jsonforms/vue';
 import { VCombobox, VChip } from 'vuetify/components';
@@ -75,8 +66,7 @@ import { useVuetifyControl } from '@/renderers/util/composition';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 import { isArray, every, isString } from 'lodash-es';
 import czFieldMessages from '../components/cz.field-messages.vue';
-
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'array-primitive-control-renderer',
   components: {
     VCombobox,
@@ -184,16 +174,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-export default controlRenderer;
-
-const useArrayLayout = (uiSchema: UISchemaElement) => {
-  return uiSchema.options?.useArrayLayout;
-};
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(4, and(not(useArrayLayout), isPrimitiveArrayControl)),
-};
 </script>
 
 <style lang="scss" scoped>

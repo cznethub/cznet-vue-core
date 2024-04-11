@@ -31,12 +31,7 @@
 </template>
 
 <script lang="ts">
-import {
-  uiTypeIs,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  ControlElement,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
@@ -410,10 +405,6 @@ const layoutRenderer = defineComponent({
 });
 
 export default layoutRenderer;
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: layoutRenderer,
-  tester: rankWith(2, uiTypeIs('MapLayout')),
-};
 </script>
 
 <style lang="scss" scoped>

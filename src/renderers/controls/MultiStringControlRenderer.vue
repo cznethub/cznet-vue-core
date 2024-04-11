@@ -37,14 +37,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  isStringControl,
-  isMultiLineControl,
-  and,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   rendererProps,
@@ -56,7 +49,7 @@ import { VTextarea } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'multi-string-control-renderer',
   components: { VTextarea, ControlWrapper, CzFieldMessages },
   props: {
@@ -86,11 +79,4 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(4, and(isStringControl, isMultiLineControl)),
-};
 </script>

@@ -29,13 +29,7 @@
 </template>
 
 <script lang="ts">
-import {
-  uiTypeIs,
-  JsonFormsRendererRegistryEntry,
-  Layout,
-  rankWith,
-} from '@jsonforms/core';
-import { defineComponent } from 'vue';
+import { Layout } from '@jsonforms/core';
 import {
   DispatchRenderer,
   rendererProps,
@@ -44,8 +38,9 @@ import {
 } from '@jsonforms/vue';
 import { useVuetifyLayout } from '@/renderers/util/composition';
 import { VContainer, VRow, VCol } from 'vuetify/components';
+import { defineComponent } from 'vue';
 
-const layoutRenderer = defineComponent({
+export default defineComponent({
   name: 'vertical-layout-renderer',
   components: {
     DispatchRenderer,
@@ -60,10 +55,4 @@ const layoutRenderer = defineComponent({
     return useVuetifyLayout(useJsonFormsLayout(props));
   },
 });
-
-export default layoutRenderer;
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: layoutRenderer,
-  tester: rankWith(2, uiTypeIs('VerticalLayout')),
-};
 </script>

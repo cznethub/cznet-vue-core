@@ -97,12 +97,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  isDateTimeControl,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent, ref } from 'vue';
 import {
   rendererProps,
@@ -142,7 +137,7 @@ const JSON_SCHEMA_DATE_TIME_FORMATS = [
   // 'YYYY-MM-DDTHH:mm:ss',
 ];
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'datetime-control-renderer',
   directives: { Mask },
   components: {
@@ -667,13 +662,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isDateTimeControl),
-};
 </script>
 
 <style lang="scss" scoped></style>

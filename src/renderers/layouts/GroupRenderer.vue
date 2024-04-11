@@ -38,14 +38,7 @@
 </template>
 
 <script lang="ts">
-import {
-  JsonFormsRendererRegistryEntry,
-  Layout,
-  rankWith,
-  and,
-  isLayout,
-  uiTypeIs,
-} from '@jsonforms/core';
+import { Layout } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
@@ -56,7 +49,7 @@ import {
 import { useVuetifyLayout } from '@/renderers/util/composition';
 import { VCard, VCardText, VCardTitle, VDivider } from 'vuetify/components';
 
-const layoutRenderer = defineComponent({
+export default defineComponent({
   name: 'group-renderer',
   components: {
     DispatchRenderer,
@@ -78,13 +71,6 @@ const layoutRenderer = defineComponent({
     },
   },
 });
-
-export default layoutRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: layoutRenderer,
-  tester: rankWith(3, and(isLayout, uiTypeIs('Group'))),
-};
 </script>
 
 <style lang="scss" scoped>

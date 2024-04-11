@@ -60,6 +60,7 @@ const vuetify = createVuetify({
       fa,
     },
   },
+  defaults: {},
 });
 
 export default vuetify;

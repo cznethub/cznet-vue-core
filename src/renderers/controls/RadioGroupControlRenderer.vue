@@ -35,14 +35,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  isEnumControl,
-  optionIs,
-  and,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import {
   rendererProps,
   useJsonFormsEnumControl,
@@ -54,7 +47,7 @@ import { useVuetifyControl } from '@/renderers/util/composition';
 import { defineComponent } from 'vue';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'radio-group-control-renderer',
   components: {
     VRadioGroup,
@@ -69,11 +62,4 @@ const controlRenderer = defineComponent({
     return useVuetifyControl(useJsonFormsEnumControl(props));
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(20, and(isEnumControl, optionIs('format', 'radio'))),
-};
 </script>

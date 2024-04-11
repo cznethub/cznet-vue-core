@@ -1,55 +1,224 @@
-import { JsonFormsRendererRegistryEntry } from "@jsonforms/core";
+import {
+  JsonFormsRendererRegistryEntry,
+  JsonSchema,
+  UISchemaElement,
+  and,
+  hasType,
+  isAllOfControl,
+  isAnyOfControl,
+  isBooleanControl,
+  isDateControl,
+  isDateTimeControl,
+  isEnumControl,
+  isIntegerControl,
+  isLayout,
+  isMultiLineControl,
+  isNumberControl,
+  isObjectArrayControl,
+  isObjectArrayWithNesting,
+  isObjectControl,
+  isOneOfControl,
+  isOneOfEnumControl,
+  isPrimitiveArrayControl,
+  isStringControl,
+  not,
+  optionIs,
+  or,
+  rankWith,
+  schemaMatches,
+  schemaSubPathMatches,
+  uiTypeIs,
+} from '@jsonforms/core';
 
-import { entry as groupRenderer } from "./layouts/GroupRenderer.vue";
-import { entry as numberControlRenderer } from "./controls/NumberControlRenderer.vue";
-import { entry as stringControlRenderer } from "./controls/StringControlRenderer.vue";
-import { entry as multiStringControlRenderer } from "./controls/MultiStringControlRenderer.vue";
-import { entry as dateControlRenderer } from "./controls/DateControlRenderer.vue";
-import { entry as dateTimeControlRenderer } from "./controls/DateTimeControlRenderer.vue";
-import { entry as objectControlRenderer } from "./controls/ObjectControlRenderer.vue";
-import { entry as enumControlRenderer } from "./controls/EnumControlRenderer.vue";
-import { entry as arrayPrimitiveControlRenderer } from "./array/ArrayPrimitiveControlRenderer.vue";
-import { entry as anyOfRenderer } from "./controls/AnyOfRenderer.vue";
-import { entry as allOfRenderer } from "./controls/AllOfRenderer.vue";
-import { entry as radioGroupControlRenderer } from "./controls/RadioGroupControlRenderer.vue";
-import { entry as verticalLayoutRenderer } from "./layouts/VerticalLayoutRenderer.vue";
-import { entry as horizontalLayoutRenderer } from "./layouts/HorizontalLayoutRenderer.vue";
-import { entry as integerControlRenderer } from "./controls/IntegerControlRenderer.vue";
-import { entry as anyOfStringOrEnumControlRenderer } from "./controls/AnyOfStringOrEnumControlRenderer.vue";
-import { entry as enumArrayRenderer } from "./controls/EnumArrayRenderer.vue";
-import { entry as oneOfRenderer } from "./controls/OneOfRenderer.vue";
-import { entry as oneOfEnumControlRenderer } from "./controls/OneOfEnumControlRenderer.vue";
-import { entry as arrayLayoutRenderer } from "./layouts/ArrayLayoutRenderer.vue";
-import { entry as arrayControlRenderer } from "./controls/ArrayControlRenderer.vue";
-import { entry as booleanControlRenderer } from "./controls/BooleanControlRenderer.vue";
-import { entry as mapLayoutRenderer } from "./layouts/MapLayoutRenderer.vue";
-import { entry as objectLayoutRenderer } from "./layouts/ObjectLayoutRenderer.vue";
+import groupRenderer from './layouts/GroupRenderer.vue';
+import numberControlRenderer from './controls/NumberControlRenderer.vue';
+import stringControlRenderer from './controls/StringControlRenderer.vue';
+import multiStringControlRenderer from './controls/MultiStringControlRenderer.vue';
+import dateControlRenderer from './controls/DateControlRenderer.vue';
+import dateTimeControlRenderer from './controls/DateTimeControlRenderer.vue';
+import objectControlRenderer from './controls/ObjectControlRenderer.vue';
+import enumControlRenderer from './controls/EnumControlRenderer.vue';
+import arrayPrimitiveControlRenderer from './array/ArrayPrimitiveControlRenderer.vue';
+import anyOfRenderer from './controls/AnyOfRenderer.vue';
+import allOfRenderer from './controls/AllOfRenderer.vue';
+import radioGroupControlRenderer from './controls/RadioGroupControlRenderer.vue';
+import verticalLayoutRenderer from './layouts/VerticalLayoutRenderer.vue';
+import horizontalLayoutRenderer from './layouts/HorizontalLayoutRenderer.vue';
+import integerControlRenderer from './controls/IntegerControlRenderer.vue';
+import anyOfStringOrEnumControlRenderer from './controls/AnyOfStringOrEnumControlRenderer.vue';
+import enumArrayRenderer from './controls/EnumArrayRenderer.vue';
+import oneOfRenderer from './controls/OneOfRenderer.vue';
+import oneOfEnumControlRenderer from './controls/OneOfEnumControlRenderer.vue';
+import arrayLayoutRenderer from './layouts/ArrayLayoutRenderer.vue';
+import arrayControlRenderer from './controls/ArrayControlRenderer.vue';
+import booleanControlRenderer from './controls/BooleanControlRenderer.vue';
+import mapLayoutRenderer from './layouts/MapLayoutRenderer.vue';
+import objectLayoutRenderer from './layouts/ObjectLayoutRenderer.vue';
 
+const hasOneOfItems = (schema: JsonSchema): boolean =>
+  schema.oneOf !== undefined &&
+  schema.oneOf.length > 0 &&
+  (schema.oneOf as JsonSchema[]).every((entry: JsonSchema) => {
+    return entry.const !== undefined;
+  });
+
+const hasEnumItems = (schema: JsonSchema): boolean =>
+  schema.type === 'string' && schema.enum !== undefined;
+
+const useArrayLayout = (uiSchema: UISchemaElement) => {
+  return uiSchema.options?.useArrayLayout;
+};
+
+const useTableLayout = (uiSchema: UISchemaElement) => {
+  return uiSchema.options?.useTableLayout;
+};
+
+export const findEnumSchema = (schemas: JsonSchema[]) =>
+  schemas.find(
+    s => s.enum !== undefined && (s.type === 'string' || s.type === undefined)
+  );
+const findTextSchema = (schemas: JsonSchema[]) =>
+  schemas.find(s => s.type === 'string' && s.enum === undefined);
+
+const hasEnumAndText = (schemas: JsonSchema[]): boolean => {
+  // idea: map to type,enum and check that all types are string and at least one item is of type enum,
+  const enumSchema = findEnumSchema(schemas);
+  const stringSchema = findTextSchema(schemas);
+  const remainingSchemas = schemas.filter(
+    s => s !== enumSchema || s !== stringSchema
+  );
+  const wrongType = remainingSchemas.find(s => s.type && s.type !== 'string');
+  return !!enumSchema && !!stringSchema && !wrongType;
+};
+const simpleAnyOf = and(
+  uiTypeIs('Control'),
+  schemaMatches(
+    schema => Array.isArray(schema.anyOf) && hasEnumAndText(schema.anyOf)
+  )
+);
+
+/**
+ * @see https://github.com/eclipsesource/jsonforms/issues/1744#issuecomment-2044488336
+ */
 export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
-  enumControlRenderer,
-  enumArrayRenderer,
-  arrayPrimitiveControlRenderer,
-  groupRenderer,
-  numberControlRenderer,
-  stringControlRenderer,
-  multiStringControlRenderer,
-  dateControlRenderer,
-  dateTimeControlRenderer,
-  objectControlRenderer,
-  anyOfRenderer,
-  oneOfRenderer,
-  oneOfEnumControlRenderer,
-  allOfRenderer,
-  radioGroupControlRenderer,
-  verticalLayoutRenderer,
-  horizontalLayoutRenderer,
-  mapLayoutRenderer,
-  arrayLayoutRenderer,
-  arrayControlRenderer,
-  integerControlRenderer,
-  anyOfStringOrEnumControlRenderer,
-  booleanControlRenderer,
-  objectLayoutRenderer,
+  {
+    renderer: enumControlRenderer,
+    tester: rankWith(3, isEnumControl),
+  },
+  {
+    renderer: enumArrayRenderer,
+    tester: rankWith(
+      5,
+      and(
+        uiTypeIs('Control'),
+        and(
+          schemaMatches(
+            schema =>
+              hasType(schema, 'array') &&
+              !Array.isArray(schema.items) &&
+              schema.uniqueItems === true
+          ),
+          schemaSubPathMatches('items', schema => {
+            return hasOneOfItems(schema) || hasEnumItems(schema);
+          })
+        )
+      )
+    ),
+  },
+  {
+    renderer: arrayPrimitiveControlRenderer,
+    tester: rankWith(4, and(not(useArrayLayout), isPrimitiveArrayControl)),
+  },
+  {
+    renderer: groupRenderer,
+    tester: rankWith(3, and(isLayout, uiTypeIs('Group'))),
+  },
+  {
+    renderer: numberControlRenderer,
+    tester: rankWith(2, isNumberControl),
+  },
+  {
+    renderer: stringControlRenderer,
+    tester: rankWith(2, isStringControl),
+  },
+  {
+    renderer: multiStringControlRenderer,
+    tester: rankWith(4, and(isStringControl, isMultiLineControl)),
+  },
+  {
+    renderer: dateControlRenderer,
+    tester: rankWith(3, isDateControl),
+  },
+  {
+    renderer: dateTimeControlRenderer,
+    tester: rankWith(3, isDateTimeControl),
+  },
+  {
+    renderer: objectControlRenderer,
+    tester: rankWith(2, isObjectControl),
+  },
+  {
+    renderer: anyOfRenderer,
+    tester: rankWith(3, isAnyOfControl),
+  },
+  {
+    renderer: oneOfRenderer,
+    tester: rankWith(3, isOneOfControl),
+  },
+  {
+    renderer: oneOfEnumControlRenderer,
+    tester: rankWith(5, isOneOfEnumControl),
+  },
+  {
+    renderer: allOfRenderer,
+    tester: rankWith(3, isAllOfControl),
+  },
+  {
+    renderer: radioGroupControlRenderer,
+    tester: rankWith(20, and(isEnumControl, optionIs('format', 'radio'))),
+  },
+  {
+    renderer: verticalLayoutRenderer,
+    tester: rankWith(2, uiTypeIs('VerticalLayout')),
+  },
+  {
+    renderer: horizontalLayoutRenderer,
+    tester: rankWith(2, uiTypeIs('HorizontalLayout')),
+  },
+  {
+    renderer: mapLayoutRenderer,
+    tester: rankWith(2, uiTypeIs('MapLayout')),
+  },
+  {
+    renderer: arrayLayoutRenderer,
+    tester: rankWith(
+      4,
+      or(isObjectArrayControl, isObjectArrayWithNesting, useArrayLayout)
+    ),
+  },
+  {
+    renderer: arrayControlRenderer,
+    tester: rankWith(
+      5,
+      and(useTableLayout, or(isPrimitiveArrayControl, isObjectArrayControl))
+    ),
+  },
+  {
+    renderer: integerControlRenderer,
+    tester: rankWith(2, isIntegerControl),
+  },
+  {
+    renderer: anyOfStringOrEnumControlRenderer,
+    tester: rankWith(2, simpleAnyOf),
+  },
+  {
+    renderer: booleanControlRenderer,
+    tester: rankWith(1, isBooleanControl),
+  },
+  {
+    renderer: objectLayoutRenderer,
+    tester: rankWith(3, and(isLayout, uiTypeIs('Object'))),
+  },
 ];
 
 export const extendedCzRenderers = [...CzRenderers] as any[];

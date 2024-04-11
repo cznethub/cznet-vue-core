@@ -37,17 +37,9 @@
 
 <script lang="ts">
 import {
-  and,
   ControlElement,
-  hasType,
-  JsonFormsRendererRegistryEntry,
-  JsonSchema,
   mapDispatchToMultiEnumProps,
   mapStateToMultiEnumControlProps,
-  rankWith,
-  schemaMatches,
-  schemaSubPathMatches,
-  uiTypeIs,
   composePaths,
 } from '@jsonforms/core';
 import { VContainer, VRow, VCol, VSelect } from 'vuetify/components';
@@ -75,7 +67,7 @@ const useJsonFormsMultiEnumControl = (props: ControlProps) => {
 
 import { useVuetifyControl } from '@/renderers/util/composition';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'enum-array-renderer',
   components: {
     DispatchRenderer,
@@ -113,37 +105,4 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-const hasOneOfItems = (schema: JsonSchema): boolean =>
-  schema.oneOf !== undefined &&
-  schema.oneOf.length > 0 &&
-  (schema.oneOf as JsonSchema[]).every((entry: JsonSchema) => {
-    return entry.const !== undefined;
-  });
-
-const hasEnumItems = (schema: JsonSchema): boolean =>
-  schema.type === 'string' && schema.enum !== undefined;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(
-    5,
-    and(
-      uiTypeIs('Control'),
-      and(
-        schemaMatches(
-          schema =>
-            hasType(schema, 'array') &&
-            !Array.isArray(schema.items) &&
-            schema.uniqueItems === true
-        ),
-        schemaSubPathMatches('items', schema => {
-          return hasOneOfItems(schema) || hasEnumItems(schema);
-        })
-      )
-    )
-  ),
-};
 </script>

@@ -34,15 +34,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  and,
-  uiTypeIs,
-  schemaMatches,
-  JsonSchema,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   rendererProps,
@@ -53,8 +45,9 @@ import { useVuetifyControl } from '@/renderers/util/composition';
 import { VCombobox } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { DisabledIconFocus } from './directives';
+import { findEnumSchema } from '../renderer';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'anyof-string-or-enum-control-renderer',
   components: {
     VCombobox,
@@ -80,35 +73,4 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-const findEnumSchema = (schemas: JsonSchema[]) =>
-  schemas.find(
-    s => s.enum !== undefined && (s.type === 'string' || s.type === undefined)
-  );
-const findTextSchema = (schemas: JsonSchema[]) =>
-  schemas.find(s => s.type === 'string' && s.enum === undefined);
-
-const hasEnumAndText = (schemas: JsonSchema[]): boolean => {
-  // idea: map to type,enum and check that all types are string and at least one item is of type enum,
-  const enumSchema = findEnumSchema(schemas);
-  const stringSchema = findTextSchema(schemas);
-  const remainingSchemas = schemas.filter(
-    s => s !== enumSchema || s !== stringSchema
-  );
-  const wrongType = remainingSchemas.find(s => s.type && s.type !== 'string');
-  return !!enumSchema && !!stringSchema && !wrongType;
-};
-const simpleAnyOf = and(
-  uiTypeIs('Control'),
-  schemaMatches(
-    schema => Array.isArray(schema.anyOf) && hasEnumAndText(schema.anyOf)
-  )
-);
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, simpleAnyOf),
-};
 </script>

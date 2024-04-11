@@ -24,12 +24,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  isBooleanControl,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   rendererProps,
@@ -40,7 +35,7 @@ import { useDefaults, useVuetifyControl } from '@/renderers/util/composition';
 import { VCheckbox } from 'vuetify/components';
 import czFieldMessages from '../components/cz.field-messages.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'boolean-control-renderer',
   components: {
     VCheckbox,
@@ -55,11 +50,4 @@ const controlRenderer = defineComponent({
     return useVuetifyControl(control, newValue => newValue || false);
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(1, isBooleanControl),
-};
 </script>

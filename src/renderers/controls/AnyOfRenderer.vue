@@ -106,11 +106,8 @@
 import {
   ControlElement,
   createCombinatorRenderInfos,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
   createDefaultValue,
   CombinatorSubSchemaRenderInfo,
-  isAnyOfControl,
 } from '@jsonforms/core';
 import {
   DispatchRenderer,
@@ -141,7 +138,7 @@ import CombinatorProperties from '../components/CombinatorProperties.vue';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'any-of-renderer',
   components: {
     DispatchRenderer,
@@ -284,13 +281,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isAnyOfControl),
-};
 </script>
 
 <style scoped lang="scss">

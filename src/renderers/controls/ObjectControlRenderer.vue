@@ -44,9 +44,6 @@ import {
   createDefaultValue,
   findUISchema,
   Generate,
-  isObjectControl,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
   UISchemaElement,
 } from '@jsonforms/core';
 import {
@@ -62,7 +59,7 @@ import { VBtn, VIcon, VTooltip } from 'vuetify/components';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'object-control-renderer',
   components: {
     DispatchRenderer,
@@ -157,9 +154,4 @@ const controlRenderer = defineComponent({
     },
   },
 });
-export default controlRenderer;
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(2, isObjectControl),
-};
 </script>

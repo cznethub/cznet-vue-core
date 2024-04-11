@@ -198,21 +198,13 @@
 
 <script lang="ts">
 import {
-  isObjectArrayControl,
-  isPrimitiveArrayControl,
-  JsonFormsRendererRegistryEntry,
-  // UISchemaElement,
   findUISchema,
-  rankWith,
   composePaths,
   createDefaultValue,
   ControlElement,
   JsonSchema,
   Resolve,
-  or,
-  and,
   VerticalLayout,
-  UISchemaElement,
 } from '@jsonforms/core';
 import { startCase } from 'lodash-es';
 import { defineComponent, ref } from 'vue';
@@ -245,7 +237,7 @@ import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'array-control-renderer',
   components: {
     DispatchCell,
@@ -435,20 +427,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-const useTableLayout = (uiSchema: UISchemaElement) => {
-  return uiSchema.options?.useTableLayout;
-};
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(
-    5,
-    and(useTableLayout, or(isPrimitiveArrayControl, isObjectArrayControl))
-  ),
-};
 </script>
 
 <style lang="scss" scoped>

@@ -33,12 +33,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  JsonFormsRendererRegistryEntry,
-  rankWith,
-  isEnumControl,
-} from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   rendererProps,
@@ -50,7 +45,7 @@ import { VSelect } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'enum-control-renderer',
   components: {
     VSelect,
@@ -66,10 +61,4 @@ const controlRenderer = defineComponent({
     return useVuetifyControl(control, value => value || undefined);
   },
 });
-
-export default controlRenderer;
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isEnumControl),
-};
 </script>

@@ -24,12 +24,7 @@
 </template>
 
 <script lang="ts">
-import {
-  uiTypeIs,
-  JsonFormsRendererRegistryEntry,
-  Layout,
-  rankWith,
-} from '@jsonforms/core';
+import { Layout } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
@@ -62,8 +57,4 @@ const layoutRenderer = defineComponent({
 });
 
 export default layoutRenderer;
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: layoutRenderer,
-  tester: rankWith(2, uiTypeIs('HorizontalLayout')),
-};
 </script>

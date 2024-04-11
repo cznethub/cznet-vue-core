@@ -68,14 +68,7 @@
 </template>
 
 <script lang="ts">
-import {
-  ControlElement,
-  isDateControl,
-  JsonFormsRendererRegistryEntry,
-  JsonSchema,
-  // JsonSchema,
-  rankWith,
-} from '@jsonforms/core';
+import { ControlElement, JsonSchema } from '@jsonforms/core';
 import { defineComponent, ref } from 'vue';
 
 import {
@@ -110,7 +103,7 @@ type MinMaxFormat =
     }
   | 'today';
 
-const controlRenderer = defineComponent({
+export default defineComponent({
   name: 'date-control-renderer',
   directives: { Mask },
   props: {
@@ -500,13 +493,6 @@ const controlRenderer = defineComponent({
     },
   },
 });
-
-export default controlRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: controlRenderer,
-  tester: rankWith(3, isDateControl),
-};
 </script>
 
 <style lang="scss" scoped>
