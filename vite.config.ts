@@ -2,6 +2,7 @@ import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import packageJson from './package.json';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(({ mode }) => {
   const isProd = mode === 'prod';
@@ -15,12 +16,6 @@ export default defineConfig(({ mode }) => {
         entry: resolve(__dirname, 'src/index.ts'),
         name: '@cznethub/cznet-vue-core',
         fileName: 'index',
-        formats: [
-          'esm',
-          // 'es',
-          'cjs',
-          // 'umd',
-        ],
       },
       sourcemap: true,
       rollupOptions: {
@@ -33,10 +28,8 @@ export default defineConfig(({ mode }) => {
           ...Object.keys(packageJson.dependencies),
           ...Object.keys(packageJson.peerDependencies),
           'vue',
-          'vuetify/components',
-          '@mdi/font',
-          'vue-facing-decorator',
-          /^dayjs\/.*/,
+          /^vuetify\/.*/,
+          'lodash-es',
         ],
         output: {
           /**
@@ -45,17 +38,18 @@ export default defineConfig(({ mode }) => {
            * for externalized deps
            */
           globals: {
-            vue: 'Vue',
-            vuetify: 'Vuetify',
-            'vuetify/components': 'Vuetify',
-            'vue-facing-decorator': 'vueFacingDecorator',
+            // vue: 'Vue',
+            // vuetify: 'Vuetify',
+            // 'vue-facing-decorator': 'vueFacingDecorator',
           },
         },
       },
     };
   }
 
-  let optimizeDeps = {};
+  let optimizeDeps = {
+    include: ['@jsonforms/core', '@jsonforms/vue', 'ajv'],
+  };
   if (isDev) {
     /**
      * DESC:
@@ -93,6 +87,7 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
+      visualizer(),
     ],
     optimizeDeps,
     build,

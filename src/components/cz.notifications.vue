@@ -25,6 +25,7 @@
       :contentClass="dialog.contentClass"
       :persistent="dialog.isPersistent"
       width="500"
+      :retainFocus="true"
     >
       <v-card>
         <v-card-title>{{ dialog.title }}</v-card-title>
