@@ -49,12 +49,10 @@
 
       <v-container v-if="!noData" justify-space-around align-content-center>
         <v-row justify="center">
-          <v-expansion-panels focusable multiple flat>
+          <v-expansion-panels focusable multiple>
             <v-expansion-panel
               v-for="(element, index) in control.data"
-              :key="`${control.path}-${index}`"
               :class="styles.arrayList.item"
-              v-model="panels"
             >
               <v-expansion-panel-title :class="styles.arrayList.itemHeader">
                 <div
@@ -163,7 +161,7 @@
               </v-expansion-panel-title>
               <v-expansion-panel-text
                 :class="styles.arrayList.itemContent"
-                class="pa-0 pt-4"
+                class="pa-0"
               >
                 <dispatch-renderer
                   :schema="control.schema"
@@ -455,5 +453,9 @@ export default defineComponent({
 
 .v-expansion-panel {
   border: thin solid rgba(0, 0, 0, 0.12);
+}
+
+:deep(.v-expansion-panel-text__wrapper) {
+  padding: 0;
 }
 </style>

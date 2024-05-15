@@ -131,6 +131,7 @@
                 class="d-flex form-controls flex-column flex-sm-row"
               >
                 <v-badge
+                  :model-value="!isValid"
                   bordered
                   color="error"
                   icon="mdi-exclamation-thick"

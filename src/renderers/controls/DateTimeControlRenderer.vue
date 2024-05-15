@@ -67,14 +67,17 @@
             ></v-date-picker>
           </v-window-item>
           <v-window-item value="time">
-            <!-- <v-time-picker
-                :model-value="timePickerValue"
-                @update:model-value="timePickerValue = $event as any"
-                ref="timePicker"
-                v-bind="vuetifyProps('v-time-picker')"
-                :use-seconds="useSeconds"
-                format="ampm"
-              /> -->
+            <v-time-picker
+              :model-value="timePickerValue"
+              @update:model-value="timePickerValue = $event"
+              color="primary"
+              ref="timePicker"
+              v-bind="vuetifyProps('v-time-picker')"
+              :use-seconds="useSeconds"
+              ampm-in-title
+              format="ampm"
+              scrollable
+            />
           </v-window-item>
         </v-window>
 
@@ -114,7 +117,6 @@ import dayjs from 'dayjs';
 import {
   VBtn,
   VDatePicker,
-  // VTimePicker,
   VIcon,
   VMenu,
   VTabs,
@@ -126,6 +128,7 @@ import {
   VRow,
   VCol,
 } from 'vuetify/components';
+import { VTimePicker } from 'vuetify/labs/VTimePicker';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { useDisplay } from 'vuetify/lib/framework.mjs';
 import CzFieldMessages from '../components/cz.field-messages.vue';
@@ -153,7 +156,7 @@ export default defineComponent({
     VCardActions,
     VRow,
     VCol,
-    // VTimePicker,
+    VTimePicker,
     ControlWrapper,
     CzFieldMessages,
   },
@@ -307,7 +310,7 @@ export default defineComponent({
   methods: {
     onDatePickerValueChange(value: any) {
       this.datePickerValue = value;
-      // this.activeTab = 'time'; // TODO: enable after implementing time picker
+      this.activeTab = 'time';
     },
     onInputChange(value: string): void {
       const date = parseDateTime(value, this.dateTimeFormat);

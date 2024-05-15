@@ -12,6 +12,7 @@
     >
       <v-col
         cols="12"
+        class="py-0"
         :class="styles.verticalLayout.item"
         v-bind="vuetifyProps('v-col')"
       >

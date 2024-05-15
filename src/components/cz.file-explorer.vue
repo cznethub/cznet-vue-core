@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1 bg-primary-lighten-4"
+      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1"
     >
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
         <template v-slot:activator="{ props }">
@@ -110,7 +110,7 @@
           @click="discardAll"
           :disabled="!isSomeNotUploaded"
           depressed
-          class="default"
+          variant="elevated"
         >
           <v-icon class="mr-2" size="small" color="error">
             mdi-cloud-cancel-outline
@@ -227,7 +227,7 @@
                 <v-icon class="mr-2" color="orange">
                   mdi-text-box-search-outline
                 </v-icon>
-                View metadata
+                View details
               </v-list-item-title>
             </v-list-item>
           </template>
