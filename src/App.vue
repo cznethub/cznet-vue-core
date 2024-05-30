@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="bg-grey-lighten-4">
     <v-container>
       <div class="text-h5 text-center">CZNet Vue 3 core components</div>
 
@@ -175,7 +175,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative, Ref } from 'vue-facing-decorator';
-import czNotifications from './components/cz.notifications.vue';
+import CzNotifications from './components/cz.notifications.vue';
 import Notifications from './models/notifications';
 import { Config, IFolder, IFile } from '@/types';
 import { stringify } from '@/utils';
@@ -184,16 +184,16 @@ import CzFileExplorer from './components/cz.file-explorer.vue';
 import schema from './schemas/schema.json';
 import uischema from './schemas/uischema.json';
 import initialData from './schemas/test-dataset.json';
-import czForm from './components/cz.form.vue';
+import CzForm from './components/cz.form.vue';
 
 // const initialData = {};
 
 @Component({
-  components: { czNotifications, CzFileExplorer, czForm },
+  components: { CzNotifications, CzFileExplorer, CzForm },
   name: 'App',
 })
 class App extends Vue {
-  @Ref('form') form!: InstanceType<typeof czForm>;
+  @Ref('form') form!: InstanceType<typeof CzForm>;
 
   schema: { [key: string]: any } = schema;
   uischema: { [key: string]: any } = uischema;

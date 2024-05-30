@@ -282,10 +282,6 @@
                     <div>Opened: {{ opened }}</div>
                   </div> -->
 
-                  <!-- TODO: most of these properties are currently not working properly
-                  @see https://github.com/vuetifyjs/vuetify/issues/19400
-                  @see https://github.com/vuetifyjs/vuetify/issues/19404 
-                  @see https://github.com/vuetifyjs/vuetify/issues/19441 -->
                   <v-treeview
                     ref="tree"
                     :items="rootDirectory.children"
@@ -294,16 +290,15 @@
                     :search="search"
                     :filter="filter"
                     return-object
-                    item-disabled="isDisabled"
                     item-value="key"
                     item-title="name"
                     density="comfortable"
                     class="files-container--included"
                     activatable
-                    active-strategy="independent"
-                    open-on-click
+                    :active-strategy="customActiveStrategy"
                   >
-                    <template #prepend="{ item }">
+                    <!-- TODO: prepend slot not working for items with children -->
+                    <!-- <template #prepend="{ item }">
                       <v-icon
                         v-if="isFolder(item)"
                         @click.exact="onItemClick($event, item)"
@@ -330,8 +325,7 @@
                           fileIcons['default']
                         }}
                       </v-icon>
-                    </template>
-
+                    </template> -->
                     <template #title="{ item }">
                       <drop
                         :key="item.key"
@@ -357,10 +351,6 @@
                             class="ml-3"
                             @update:model-value="onRenamed(item, $event)"
                             @keydown.enter="item.isRenaming = false"
-                            @click.exact="onItemClick($event, item)"
-                            @click.ctrl.exact="onItemCtrlClick($event, item)"
-                            @click.meta.exact="onItemCtrlClick($event, item)"
-                            @click.shift.exact="onItemShiftClick($event, item)"
                             @click:append="item.isRenaming = false"
                             :model-value="item.name"
                             v-click-outside="onClickOutside"
@@ -374,19 +364,44 @@
                           <v-row
                             v-else
                             @click.right.exact.prevent="show($event, item)"
-                            @click.exact="onItemClick($event, item)"
-                            @click.ctrl.exact="onItemCtrlClick($event, item)"
-                            @click.meta.exact="onItemCtrlClick($event, item)"
-                            @click.shift.exact="onItemShiftClick($event, item)"
                             :class="{
                               'text-medium-emphasis':
                                 item.isCutting || item.isDisabled,
                             }"
-                            class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column"
+                            class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column cursor-pointer"
                           >
                             <v-col
                               class="d-flex flex-column flex-sm-row align-start align-sm-center pa-0"
                             >
+                              <v-icon
+                                v-if="isFolder(item)"
+                                class="mr-2"
+                                :disabled="item.isDisabled"
+                                :color="item.isCutting ? 'grey' : folderColor"
+                              >
+                                {{
+                                  opened.includes(item.key)
+                                    ? 'mdi-folder-open'
+                                    : 'mdi-folder'
+                                }}
+                              </v-icon>
+
+                              <v-icon
+                                v-else
+                                class="mr-2"
+                                :disabled="item.isDisabled"
+                                :color="
+                                  item.isCutting || item.isDisabled
+                                    ? 'grey'
+                                    : ''
+                                "
+                              >
+                                {{
+                                  fileIcons[item.name.split('.').pop() || ''] ||
+                                  fileIcons['default']
+                                }}
+                              </v-icon>
+
                               <div class="item-name flex-grow-1 flex-shrink-1">
                                 <span :title="item.name">
                                   {{ item.name }}
@@ -615,14 +630,7 @@
 </template>
 
 <script lang="ts">
-import {
-  Component,
-  Vue,
-  toNative,
-  Prop,
-  Ref,
-  Watch,
-} from 'vue-facing-decorator';
+import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
 import { IFolder, IFile } from '@/types';
 import { default as Notifications } from '@/models/notifications';
 import { FILE_ICONS } from '@/constants';
@@ -741,6 +749,70 @@ class CzFileExplorer extends Vue {
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
+  customActiveStrategy = (mandatory?: boolean) => {
+    const strategy = {
+      activate: ({ id, value, activated, event }) => {
+        const item = this.getItemById(id as number);
+        if (!item) {
+          return;
+        }
+
+        event?.ctrlKey
+          ? this._onItemCtrlClick(item, activated)
+          : event?.shiftKey
+            ? this._onItemShiftClick(item, activated)
+            : this._onItemClick(item, activated);
+
+        return activated;
+      },
+      in: (v: number[], _children: any, _parents: any) => {
+        console.log('in');
+        return new Set(v);
+      },
+      out: (v: Set<number>) => {
+        return Array.from(v);
+      },
+    };
+
+    return strategy;
+  };
+
+  private _onItemClick(item: IFolder | IFile, activated: Set<number>) {
+    activated.clear();
+    activated.add(+item.key);
+    if (this.isFolder(item)) {
+      this.open([item]);
+    }
+    this.shiftAnchor = item;
+  }
+
+  private _onItemCtrlClick(item: IFolder | IFile, activated: Set<number>) {
+    if (activated.has(+item.key)) {
+      activated.delete(+item.key);
+    } else {
+      activated.add(+item.key);
+    }
+    this.shiftAnchor = item;
+  }
+
+  private _onItemShiftClick(item: IFolder | IFile, activated: Set<number>) {
+    const parent = this.getParent(item);
+    const itemIndex = parent.children.indexOf(item);
+    const anchorIndex = this.shiftAnchor
+      ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
+      : 0;
+
+    this.unselectAll();
+
+    const first = Math.min(itemIndex, anchorIndex);
+    const last = Math.max(itemIndex, anchorIndex);
+    const itemsToSelect: (IFolder | IFile)[] = [];
+
+    for (let i = first; i <= last; i++) {
+      activated.add(parent.children[i].key);
+    }
+  }
+
   menuAttrs: Record<any, any> = {
     // 'position-x': 0,
     // 'position-y': 0,
@@ -826,6 +898,9 @@ class CzFileExplorer extends Vue {
 
   onDragEnd() {
     this.ignoreNextClick = true;
+    setTimeout(() => {
+      this.ignoreNextClick = false;
+    }, 100);
   }
 
   onDragStart() {
@@ -1056,6 +1131,12 @@ class CzFileExplorer extends Vue {
     ];
   }
 
+  open(items: (IFolder | IFile)[]) {
+    this.opened = [
+      ...new Set([...this.opened, ...items.map(i => +i.key as number)]),
+    ];
+  }
+
   unselect(item: IFolder | IFile) {
     const index = this.selected.indexOf(item.key as number);
     if (index >= 0) {
@@ -1201,44 +1282,6 @@ class CzFileExplorer extends Vue {
     return item.isUploaded
       ? this.renameFileOrFolder && !item.isDisabled
       : !item.isDisabled;
-  }
-
-  onItemClick(event: MouseEvent, item: IFolder | IFile) {
-    const wasOnlyOneSelected =
-      this.isSelected(item) && this.selected.length == 1;
-    this.unselectAll();
-    this.select([item]);
-    this.shiftAnchor = item;
-
-    if (!wasOnlyOneSelected) {
-      event.stopPropagation();
-    }
-  }
-
-  onItemCtrlClick(event: MouseEvent, item: IFolder | IFile) {
-    this.toggleSelect(item);
-    this.shiftAnchor = item;
-    event.stopPropagation();
-  }
-
-  onItemShiftClick(event: MouseEvent, item: IFolder | IFile) {
-    const parent = this.getParent(item);
-    const itemIndex = parent.children.indexOf(item);
-    const anchorIndex = this.shiftAnchor
-      ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
-      : 0;
-
-    this.unselectAll();
-
-    const first = Math.min(itemIndex, anchorIndex);
-    const last = Math.max(itemIndex, anchorIndex);
-    const itemsToSelect: (IFolder | IFile)[] = [];
-
-    for (let i = first; i <= last; i++) {
-      itemsToSelect.push(parent.children[i]);
-    }
-    this.select(itemsToSelect);
-    event.stopPropagation();
   }
 
   toggleSelect(item: IFolder | IFile) {
