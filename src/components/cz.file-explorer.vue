@@ -258,15 +258,14 @@
             @drop="onDropMove($event, rootDirectory)"
             @dragenter.exact="isRootDragging = true"
             @dragleave.exact="isRootDragging = false"
-            class="full-height"
+            class="fill-height"
           >
             <cz-drag-select
               attribute="customAttribute"
               @update:model-value="onDragSelect"
               @endDrag="onDragEnd"
-              @startDrag="onDragStart"
+              @startDrag="unselectAll"
               :disabled="isDragMoving"
-              class="root-drag-select"
             >
               <v-row class="flex-grow-1">
                 <!-- TODO: find a way to have a context menu in the empty area -->
@@ -297,35 +296,6 @@
                     activatable
                     :active-strategy="customActiveStrategy"
                   >
-                    <!-- TODO: prepend slot not working for items with children -->
-                    <!-- <template #prepend="{ item }">
-                      <v-icon
-                        v-if="isFolder(item)"
-                        @click.exact="onItemClick($event, item)"
-                        @click.ctrl.exact="onItemCtrlClick($event, item)"
-                        @click.meta.exact="onItemCtrlClick($event, item)"
-                        @click.shift.exact="onItemShiftClick($event, item)"
-                        :disabled="item.isDisabled"
-                        :color="item.isCutting ? 'grey' : folderColor"
-                      >
-                        {{
-                          opened.includes(item.key)
-                            ? 'mdi-folder-open'
-                            : 'mdi-folder'
-                        }}
-                      </v-icon>
-                      <v-icon
-                        v-else
-                        @click.ctrl.exact="onItemCtrlClick($event, item)"
-                        :disabled="item.isDisabled"
-                        :color="item.isCutting || item.isDisabled ? 'grey' : ''"
-                      >
-                        {{
-                          fileIcons[item.name.split('.').pop() || ''] ||
-                          fileIcons['default']
-                        }}
-                      </v-icon>
-                    </template> -->
                     <template #title="{ item }">
                       <drop
                         :key="item.key"
@@ -338,10 +308,7 @@
                             !hasFolders || item.isRenaming || isReadOnly
                           "
                           :data="item"
-                          @dragstart="
-                            isDragMoving = true;
-                            isRootDragging = false;
-                          "
+                          @dragstart="onDragStart"
                           @dragend="isDragMoving = false"
                           drag-class="drag-ghost"
                           go-back
@@ -359,72 +326,15 @@
                             variant="outlined"
                             hide-details="auto"
                             autofocus
-                          ></v-text-field>
+                          />
 
-                          <v-row
+                          <cz-file-explorer-item
                             v-else
                             @click.right.exact.prevent="show($event, item)"
-                            :class="{
-                              'text-medium-emphasis':
-                                item.isCutting || item.isDisabled,
-                            }"
-                            class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column cursor-pointer"
-                          >
-                            <v-col
-                              class="d-flex flex-column flex-sm-row align-start align-sm-center pa-0"
-                            >
-                              <v-icon
-                                v-if="isFolder(item)"
-                                class="mr-2"
-                                :disabled="item.isDisabled"
-                                :color="item.isCutting ? 'grey' : folderColor"
-                              >
-                                {{
-                                  opened.includes(item.key)
-                                    ? 'mdi-folder-open'
-                                    : 'mdi-folder'
-                                }}
-                              </v-icon>
-
-                              <v-icon
-                                v-else
-                                class="mr-2"
-                                :disabled="item.isDisabled"
-                                :color="
-                                  item.isCutting || item.isDisabled
-                                    ? 'grey'
-                                    : ''
-                                "
-                              >
-                                {{
-                                  fileIcons[item.name.split('.').pop() || ''] ||
-                                  fileIcons['default']
-                                }}
-                              </v-icon>
-
-                              <div class="item-name flex-grow-1 flex-shrink-1">
-                                <span :title="item.name">
-                                  {{ item.name }}
-                                </span>
-                              </div>
-                              <div
-                                v-if="(item as IFile).file"
-                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
-                              >
-                                {{
-                                  prettyBytes((item as IFile).file?.size || 0)
-                                }}
-                              </div>
-                              <div
-                                v-else-if="(item as IFile).uploadedSize"
-                                class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
-                              >
-                                {{
-                                  prettyBytes((item as IFile).uploadedSize || 0)
-                                }}
-                              </div>
-                            </v-col>
-                          </v-row>
+                            :item="item"
+                            :isOpen="opened.includes(item.key)"
+                            :folderColor="folderColor"
+                          />
                         </drag>
                       </drop>
                     </template>
@@ -633,10 +543,10 @@
 import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
 import { IFolder, IFile } from '@/types';
 import { default as Notifications } from '@/models/notifications';
-import { FILE_ICONS } from '@/constants';
 // @ts-ignore
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
 import CzDragSelect from '@/components/cz.drag-select.vue';
+import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
 
 import {
   VCard,
@@ -688,6 +598,7 @@ import prettyBytes from 'pretty-bytes';
     Drop,
     DropMask,
     CzDragSelect,
+    CzFileExplorerItem,
     VAlert,
   },
   directives: { ClickOutside },
@@ -732,8 +643,6 @@ class CzFileExplorer extends Vue {
   // @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
   breakpoints: any = useDisplay();
-
-  fileIcons = FILE_ICONS;
   opened: number[] = [];
   selected: number[] = [];
   dropFiles: File[] = [];
@@ -749,7 +658,45 @@ class CzFileExplorer extends Vue {
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
-  customActiveStrategy = (mandatory?: boolean) => {
+  customActiveStrategy = (_mandatory?: boolean) => {
+    const onItemClick = (item: IFolder | IFile, activated: Set<number>) => {
+      activated.clear();
+      activated.add(+item.key);
+      if (this.isFolder(item)) {
+        this.open([item]);
+      }
+      this.shiftAnchor = item;
+    };
+
+    const onItemCtrlClick = (item: IFolder | IFile, activated: Set<number>) => {
+      if (activated.has(+item.key)) {
+        activated.delete(+item.key);
+      } else {
+        activated.add(+item.key);
+      }
+      this.shiftAnchor = item;
+    };
+
+    const onItemShiftClick = (
+      item: IFolder | IFile,
+      activated: Set<number>
+    ) => {
+      const parent = this.getParent(item);
+      const itemIndex = parent.children.indexOf(item);
+      const anchorIndex = this.shiftAnchor
+        ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
+        : 0;
+
+      activated.clear();
+
+      const first = Math.min(itemIndex, anchorIndex);
+      const last = Math.max(itemIndex, anchorIndex);
+
+      for (let i = first; i <= last; i++) {
+        activated.add(parent.children[i].key);
+      }
+    };
+
     const strategy = {
       activate: ({ id, value, activated, event }) => {
         const item = this.getItemById(id as number);
@@ -758,15 +705,14 @@ class CzFileExplorer extends Vue {
         }
 
         event?.ctrlKey
-          ? this._onItemCtrlClick(item, activated)
+          ? onItemCtrlClick(item, activated)
           : event?.shiftKey
-            ? this._onItemShiftClick(item, activated)
-            : this._onItemClick(item, activated);
+            ? onItemShiftClick(item, activated)
+            : onItemClick(item, activated);
 
         return activated;
       },
       in: (v: number[], _children: any, _parents: any) => {
-        console.log('in');
         return new Set(v);
       },
       out: (v: Set<number>) => {
@@ -776,42 +722,6 @@ class CzFileExplorer extends Vue {
 
     return strategy;
   };
-
-  private _onItemClick(item: IFolder | IFile, activated: Set<number>) {
-    activated.clear();
-    activated.add(+item.key);
-    if (this.isFolder(item)) {
-      this.open([item]);
-    }
-    this.shiftAnchor = item;
-  }
-
-  private _onItemCtrlClick(item: IFolder | IFile, activated: Set<number>) {
-    if (activated.has(+item.key)) {
-      activated.delete(+item.key);
-    } else {
-      activated.add(+item.key);
-    }
-    this.shiftAnchor = item;
-  }
-
-  private _onItemShiftClick(item: IFolder | IFile, activated: Set<number>) {
-    const parent = this.getParent(item);
-    const itemIndex = parent.children.indexOf(item);
-    const anchorIndex = this.shiftAnchor
-      ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
-      : 0;
-
-    this.unselectAll();
-
-    const first = Math.min(itemIndex, anchorIndex);
-    const last = Math.max(itemIndex, anchorIndex);
-    const itemsToSelect: (IFolder | IFile)[] = [];
-
-    for (let i = first; i <= last; i++) {
-      activated.add(parent.children[i].key);
-    }
-  }
 
   menuAttrs: Record<any, any> = {
     // 'position-x': 0,
@@ -880,19 +790,31 @@ class CzFileExplorer extends Vue {
     return isValidTarget && areItemsValid;
   }
 
+  get selectedItems() {
+    return this.selected.map(key => this.getItemById(+key)).filter(i => i) as (
+      | IFile
+      | IFolder
+    )[];
+  }
+
   getItemById(id: number) {
     return this.allItems.find(item => item.key === id);
   }
 
+  onDragStart() {
+    this.isDragMoving = true;
+    this.isRootDragging = false;
+
+    setTimeout(() => {
+      // debugger;
+    }, 300);
+  }
+
   onDragSelect(selectedKeys: string[]) {
     this.unselectAll();
-    const selectedItems: (IFile | IFolder)[] = [];
-    selectedKeys.forEach(key => {
-      const item = this.getItemById(+key);
-      if (item) {
-        selectedItems.push(item);
-      }
-    });
+    const selectedItems = selectedKeys
+      .map(key => this.getItemById(+key))
+      .filter(i => i) as (IFile | IFolder)[];
     this.select(selectedItems);
   }
 
@@ -901,10 +823,6 @@ class CzFileExplorer extends Vue {
     setTimeout(() => {
       this.ignoreNextClick = false;
     }, 100);
-  }
-
-  onDragStart() {
-    this.unselectAll();
   }
 
   canPasteOnFolder(item: IFile | IFolder) {
@@ -1696,25 +1614,13 @@ export default toNative(CzFileExplorer);
   resize: vertical;
 }
 
-.root-drag-select {
+.cz-drag-select {
   min-height: 100%;
-}
-
-.full-height {
-  height: 100%;
-}
-
-.item-row {
-  .item-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-basis: fit-content;
-    max-width: 100%;
-  }
 }
 
 .drag-ghost {
   background: white !important;
   border: 1px solid #ddd !important;
+  height: 3rem !important;
 }
 </style>

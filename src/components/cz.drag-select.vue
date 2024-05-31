@@ -1,14 +1,5 @@
 <template>
-  <div
-    id="container"
-    ref="container"
-    style="
-      position: relative;
-      user-select: none;
-      overflow: hidden;
-      touch-action: none;
-    "
-  >
+  <div ref="container" class="cz-drag-select">
     <slot v-bind="{ selected: intersected }" />
   </div>
 </template>
@@ -130,8 +121,13 @@ class CzDragSelect extends Vue {
       return;
     }
     if (this.end === this.start) {
-      this.$emit('startDrag');
-      this.isDragging = true;
+      // TODO: find srcElement for touch events
+      if (event.srcElement === this.$el) {
+        this.$emit('startDrag', event);
+        this.isDragging = true;
+      } else {
+        return;
+      }
     }
     this.end = this.getCoordinates(event);
     const dimensions = getDimensions(this.start, this.end);
@@ -177,4 +173,11 @@ class CzDragSelect extends Vue {
 export default toNative(CzDragSelect);
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.cz-drag-select {
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+  touch-action: none;
+}
+</style>
