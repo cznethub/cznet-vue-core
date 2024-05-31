@@ -251,7 +251,7 @@
             prepend-inner-icon="mdi-magnify"
           />
         </v-card-text>
-        <v-card-text class="files-container">
+        <v-card-text class="files-container pt-0">
           <drop
             @drop="onDropMove($event, rootDirectory)"
             @dragenter.exact="isRootDragging = true"
@@ -308,6 +308,7 @@
                           @dragend="isDragMoving = false"
                           drag-class="drag-ghost"
                           go-back
+                          :class="{ highlight: item.highlight }"
                         >
                           <v-text-field
                             v-if="item.isRenaming"
@@ -407,7 +408,10 @@
                     </template>
                   </v-treeview>
                 </v-col>
-                <v-col v-if="breakpoints.smAndUp"></v-col>
+                <v-col
+                  v-if="breakpoints.smAndUp"
+                  class="drag-select--included"
+                ></v-col>
               </v-row>
             </cz-drag-select>
           </drop>
@@ -780,10 +784,6 @@ class CzFileExplorer extends Vue {
   onDragStart() {
     this.isDragMoving = true;
     this.isRootDragging = false;
-
-    setTimeout(() => {
-      // debugger;
-    }, 300);
   }
 
   onDragSelect(selectedKeys: string[]) {
@@ -1129,6 +1129,10 @@ class CzFileExplorer extends Vue {
       targetFolder.children = targetFolder.children.sort((_a, b) => {
         return b.hasOwnProperty('children') ? 1 : -1;
       });
+      item.highlight = true;
+      setTimeout(() => {
+        item.highlight = false;
+      }, 2500);
     });
   }
 
@@ -1609,6 +1613,20 @@ export default toNative(CzFileExplorer);
       .dnd-drag {
         height: 100%;
       }
+    }
+  }
+
+  .dnd-drag.highlight {
+    animation: highlight 2s linear forwards;
+  }
+
+  @keyframes highlight {
+    from {
+      background-color: #ddd;
+    }
+
+    to {
+      background-color: initial;
     }
   }
 }

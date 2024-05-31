@@ -50,6 +50,7 @@ export interface IFile {
   uploadedSize?: number;
   key: number;
   file: File | null;
+  highlight?: boolean;
 }
 
 export interface IFolder {
@@ -61,4 +62,5 @@ export interface IFolder {
   isUploaded?: boolean | undefined;
   key: number;
   children: (IFile | IFolder)[];
+  highlight?: boolean;
 }

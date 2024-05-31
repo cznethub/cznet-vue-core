@@ -122,7 +122,10 @@ class CzDragSelect extends Vue {
     }
     if (this.end === this.start) {
       // TODO: find srcElement for touch events
-      if (event.srcElement === this.$el) {
+      if (
+        event.srcElement === this.$el ||
+        event.srcElement.classList.contains('drag-select--included')
+      ) {
         this.$emit('startDrag', event);
         this.isDragging = true;
       } else {
