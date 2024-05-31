@@ -124,7 +124,7 @@
     <v-card-text style="min-height: 10rem">
       <slot name="prepend"></slot>
 
-      <v-menu v-model="showMenu" v-bind="menuAttrs" contained offset-y>
+      <v-menu v-model="showMenu" v-bind="menuAttrs" offset-y :attach="true">
         <v-list
           v-if="showMenuItem"
           width="auto"
@@ -218,7 +218,7 @@
             </v-list-item>
           </template>
 
-          <!-- VIEW METADATA -->
+          <!-- VIEW DETAILS -->
           <template v-if="hasFileMetadata?.(showMenuItem)">
             <v-divider v-if="!isReadOnly"></v-divider>
 
@@ -334,99 +334,80 @@
                             :item="item"
                             :isOpen="opened.includes(item.key)"
                             :folderColor="folderColor"
-                          />
+                            :fileColor="fileColor"
+                            :canRetryUpload="canRetryUpload(item)"
+                            @retry-upload="retryUpload(item as IFile)"
+                          >
+                            <template #warnings>
+                              <v-menu
+                                v-if="showFileWarnings(item as IFile)"
+                                open-on-hover
+                                bottom
+                                left
+                                offset-y
+                              >
+                                <template v-slot:activator="{ props }">
+                                  <div v-bind="props">
+                                    <v-icon
+                                      :color="
+                                        isFileInvalid(item as IFile) ||
+                                        couldNotUploadFile(item as IFile)
+                                          ? 'error'
+                                          : 'warning'
+                                      "
+                                    >
+                                      mdi-alert-circle
+                                    </v-icon>
+                                  </div>
+                                </template>
+                                <v-card>
+                                  <v-card-text>
+                                    <div
+                                      v-if="
+                                        isFileInvalid(item as IFile) ||
+                                        couldNotUploadFile(item as IFile)
+                                      "
+                                      class="text-body-1"
+                                    >
+                                      <b>This file cannot be uploaded</b>
+                                    </div>
+                                    <ul class="text-subtitle-1 ml-4">
+                                      <li
+                                        v-if="couldNotUploadFile(item as IFile)"
+                                      >
+                                        Maximum number of files exceeded.
+                                      </li>
+                                      <li
+                                        v-if="
+                                          !isFileExtensionValid(item as IFile)
+                                        "
+                                      >
+                                        This file extension is not allowed for
+                                        upload.
+                                      </li>
+                                      <li
+                                        v-if="!isFileNameValid(item as IFile)"
+                                      >
+                                        This file name contains invalid
+                                        characters.
+                                      </li>
+                                      <li v-if="isFileTooBig(item as IFile)">
+                                        Files cannot be larger than
+                                        <b>
+                                          {{
+                                            prettyBytes(maxUploadSizePerFile)
+                                          }}
+                                        </b>
+                                        .
+                                      </li>
+                                    </ul>
+                                  </v-card-text>
+                                </v-card>
+                              </v-menu>
+                            </template>
+                          </cz-file-explorer-item>
                         </drag>
                       </drop>
-                    </template>
-
-                    <template #append="{ item }">
-                      <v-row v-if="!item.isRenaming">
-                        <v-col
-                          v-if="item.isUploaded"
-                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
-                        >
-                          <v-icon
-                            class="text-medium-emphasis"
-                            title="uploaded"
-                            size="small"
-                          >
-                            mdi-cloud-check
-                          </v-icon>
-                        </v-col>
-                        <v-col
-                          v-if="canRetryUpload(item as IFile)"
-                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
-                        >
-                          <v-btn
-                            color="info"
-                            @click="retryUpload(item as IFile)"
-                            :disabled="item.isDisabled"
-                            size="small"
-                            variant="text"
-                            depressed
-                          >
-                            <v-icon left>mdi-cloud-upload</v-icon>
-                            Retry
-                          </v-btn>
-                        </v-col>
-                        <v-col
-                          v-if="showFileWarnings(item as IFile)"
-                          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text-medium-emphasis align-center"
-                        >
-                          <v-menu open-on-hover bottom left offset-y>
-                            <template v-slot:activator="{ props }">
-                              <div v-bind="props">
-                                <v-icon
-                                  :color="
-                                    isFileInvalid(item as IFile) ||
-                                    couldNotUploadFile(item as IFile)
-                                      ? 'error'
-                                      : 'warning'
-                                  "
-                                >
-                                  mdi-alert-circle
-                                </v-icon>
-                              </div>
-                            </template>
-                            <div class="pa-4 has-bg-white">
-                              <div
-                                v-if="
-                                  isFileInvalid(item as IFile) ||
-                                  couldNotUploadFile(item as IFile)
-                                "
-                                class="text-body-2 mb-4"
-                              >
-                                <b>This file cannot be uploaded</b>
-                              </div>
-                              <ul class="text-subtitle-1">
-                                <li v-if="couldNotUploadFile(item as IFile)">
-                                  Maximum number of files exceeded.
-                                </li>
-                                <li v-if="!isFileExtensionValid(item as IFile)">
-                                  This file extension is not allowed for upload.
-                                </li>
-                                <li v-if="!isFileNameValid(item as IFile)">
-                                  This file name contains invalid characters.
-                                </li>
-                                <li v-if="isFileTooBig(item as IFile)">
-                                  Files cannot be larger than
-                                  <b>
-                                    {{ prettyBytes(maxUploadSizePerFile) }}
-                                  </b>
-                                  .
-                                </li>
-                              </ul>
-                            </div>
-                          </v-menu>
-                        </v-col>
-                        <v-col v-if="item.isDisabled">
-                          <v-icon
-                            color="primary lighten-2"
-                            icon="fa:fas fa-circle-notch fa-spin"
-                            small
-                          />
-                        </v-col>
-                      </v-row>
                     </template>
                   </v-treeview>
                 </v-col>
@@ -569,9 +550,7 @@ import {
 } from 'vuetify/components';
 import { VTreeview } from 'vuetify/labs/VTreeview';
 import { useDisplay } from 'vuetify';
-
 import { ClickOutside } from 'vuetify/directives';
-
 import prettyBytes from 'pretty-bytes';
 
 @Component({
@@ -611,6 +590,7 @@ class CzFileExplorer extends Vue {
   @Prop() maxTotalUploadSize!: number;
   @Prop() maxUploadSizePerFile!: number;
   @Prop({ default: 'primary lighten-2' }) folderColor!: string;
+  @Prop({ default: 'secondary lighten-1' }) fileColor!: string;
   /** If specified, will only allow upload of listed file types */
   @Prop() supportedFileTypes!: string[];
   /** A regular expression to test validity of file names */
@@ -882,8 +862,6 @@ class CzFileExplorer extends Vue {
   }
 
   show(event: MouseEvent, item: (IFile | IFolder) | null) {
-    // TODO: right click will erase the previous selection and only select the current item
-    // Find a way to prevent this behaviour
     if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
       return false;
     }
@@ -1252,9 +1230,10 @@ class CzFileExplorer extends Vue {
     return file.file?.size && file.file?.size > this.maxUploadSizePerFile;
   }
 
-  canRetryUpload(item: IFile) {
+  canRetryUpload(item: IFile | IFolder) {
     return (
-      item.file &&
+      !this.isFolder(item) &&
+      (item as IFile).file &&
       !this.hasTooManyFiles &&
       !this.isFolder(item) &&
       !this.isFileInvalid(item as IFile) &&
@@ -1622,5 +1601,22 @@ export default toNative(CzFileExplorer);
   background: white !important;
   border: 1px solid #ddd !important;
   height: 3rem !important;
+}
+
+// Make the item content span the full height to enable controls in the entire area
+:deep(.v-treeview) {
+  .v-list-item.v-treeview-item {
+    padding-top: 0;
+    padding-bottom: 0;
+    & > .v-list-item__content {
+      height: 100%;
+
+      .v-list-item-title,
+      .dnd-drop,
+      .dnd-drag {
+        height: 100%;
+      }
+    }
+  }
 }
 </style>
