@@ -125,17 +125,10 @@
       <slot name="prepend"></slot>
 
       <v-menu v-model="showMenu" v-bind="menuAttrs" offset-y :attach="true">
-        <v-list
-          v-if="showMenuItem"
-          width="auto"
-          class="files-container--included"
-        >
+        <v-list width="auto" class="files-container--included">
           <template v-if="!isReadOnly">
             <!-- CREATE NEW FOLDER -->
-            <v-list-item
-              v-if="isFolder(showMenuItem) && hasFolders"
-              @click.stop="newFolder"
-            >
+            <v-list-item v-if="hasFolders" @click.stop="newFolder">
               <v-list-item-title>
                 <v-icon color="primary" class="mr-2">mdi-folder-outline</v-icon>
                 Create new folder
@@ -144,7 +137,7 @@
 
             <!-- RENAME -->
             <v-list-item
-              v-if="canRenameItem(showMenuItem)"
+              v-if="!!showMenuItem && canRenameItem(showMenuItem)"
               @click.stop="renameItem(showMenuItem)"
               :disabled="showMenuItem.isRenaming"
             >
@@ -161,11 +154,11 @@
 
             <template v-if="hasFolders">
               <!-- CUT -->
-              <v-list-item @click="cut" :disabled="!canCutItem(showMenuItem)">
+              <v-list-item v-if="showMenuItem" @click="cut">
                 <v-list-item-title>
                   <v-icon
                     class="mr-2"
-                    :class="{ 'text--disabled': !canCutItem(showMenuItem) }"
+                    :class="{ 'text--disabled': showMenuItem.isCutting }"
                   >
                     mdi-content-cut
                   </v-icon>
@@ -175,15 +168,16 @@
 
               <!-- PASTE -->
               <v-list-item
-                v-if="isFolder(showMenuItem)"
+                v-if="!showMenuItem || isFolder(showMenuItem)"
                 @click="onPaste"
-                :disabled="!canPasteOnFolder(showMenuItem)"
+                :disabled="!!showMenuItem && !canPasteOnFolder(showMenuItem)"
               >
                 <v-list-item-title>
                   <v-icon
                     class="mr-2"
                     :class="{
-                      'text--disabled': !canPasteOnFolder(showMenuItem),
+                      'text--disabled':
+                        !!showMenuItem && !canPasteOnFolder(showMenuItem),
                     }"
                   >
                     mdi-content-paste
@@ -194,8 +188,12 @@
             </template>
 
             <!-- DISCARD -->
-            <v-list-item @click="deleteSelected" :disabled="isDeleting">
-              <v-list-item-title v-if="showMenuItem.isUploaded">
+            <v-list-item
+              v-if="showMenuItem"
+              @click="deleteSelected"
+              :disabled="isDeleting"
+            >
+              <v-list-item-title v-if="showMenuItem?.isUploaded">
                 <v-icon
                   class="mr-2"
                   color="error lighten-2"
@@ -219,7 +217,7 @@
           </template>
 
           <!-- VIEW DETAILS -->
-          <template v-if="hasFileMetadata?.(showMenuItem)">
+          <template v-if="showMenuItem && hasFileMetadata?.(showMenuItem)">
             <v-divider v-if="!isReadOnly"></v-divider>
 
             <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
@@ -266,11 +264,9 @@
               @endDrag="onDragEnd"
               @startDrag="unselectAll"
               :disabled="isDragMoving"
+              @click.right.exact="show($event, null)"
             >
               <v-row class="flex-grow-1">
-                <!-- TODO: find a way to have a context menu in the empty area -->
-                <!-- @click.right.exact.prevent="show($event, null)" -->
-
                 <v-col
                   :cols="11"
                   v-click-outside="{ handler: onClickOutside, include }"
@@ -817,10 +813,6 @@ class CzFileExplorer extends Vue {
     return this.selected.length;
   }
 
-  canCutItem(item: IFile | IFolder) {
-    return this.hasFolders && !item.isCutting;
-  }
-
   get allItems(): (IFile | IFolder)[] {
     return this._getDirectoryItems(this.rootDirectory);
   }
@@ -853,7 +845,6 @@ class CzFileExplorer extends Vue {
 
   generateNewKey(): number {
     const newKey = this.keyCounter++;
-    // TODO
     if (this.allItems.some(i => i.key === newKey)) {
       // This key already exists, try the next one.
       return this.generateNewKey();
@@ -881,6 +872,8 @@ class CzFileExplorer extends Vue {
       this.showMenu = true;
       this.showMenuItem = item;
     });
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   /** Traverse the file structure and annotate keys. */
