@@ -170,7 +170,10 @@
               <v-list-item
                 v-if="!showMenuItem || isFolder(showMenuItem)"
                 @click="onPaste"
-                :disabled="!!showMenuItem && !canPasteOnFolder(showMenuItem)"
+                :disabled="
+                  (!!showMenuItem && !canPasteOnFolder(showMenuItem)) ||
+                  (!showMenuItem && !canPasteOnFolder(rootDirectory))
+                "
               >
                 <v-list-item-title>
                   <v-icon
@@ -220,7 +223,7 @@
           <template v-if="showMenuItem && hasFileMetadata?.(showMenuItem)">
             <v-divider v-if="!isReadOnly"></v-divider>
 
-            <v-list-item @click.stop="$emit('showMetadata', showMenuItem)">
+            <v-list-item @click.stop="$emit('show-metadata', showMenuItem)">
               <v-list-item-title>
                 <v-icon class="mr-2" color="orange">
                   mdi-text-box-search-outline
@@ -251,7 +254,7 @@
             prepend-inner-icon="mdi-magnify"
           />
         </v-card-text>
-        <v-card-text class="files-container pt-0">
+        <v-card-text class="files-container py-0 pr-0">
           <drop
             @drop="onDropMove($event, rootDirectory)"
             @dragenter.exact="isRootDragging = true"
@@ -271,12 +274,6 @@
                   :cols="11"
                   v-click-outside="{ handler: onClickOutside, include }"
                 >
-                  <!-- FOR DEBUGGING PURPOSES -->
-                  <!-- <div>
-                    <div>Selected: {{ selected }}</div>
-                    <div>Opened: {{ opened }}</div>
-                  </div> -->
-
                   <v-treeview
                     ref="tree"
                     :items="rootDirectory.children"
@@ -328,12 +325,12 @@
                           <cz-file-explorer-item
                             v-else
                             @click.right.exact.prevent="show($event, item)"
+                            @retry-upload="retryUpload(item as IFile)"
                             :item="item"
                             :isOpen="opened.includes(item.key)"
                             :folderColor="folderColor"
                             :fileColor="fileColor"
                             :canRetryUpload="canRetryUpload(item)"
-                            @retry-upload="retryUpload(item as IFile)"
                           >
                             <template #warnings>
                               <v-menu
@@ -348,7 +345,7 @@
                                     <v-icon
                                       :color="
                                         isFileInvalid(item as IFile) ||
-                                        couldNotUploadFile(item as IFile)
+                                        item.isUploaded === false
                                           ? 'error'
                                           : 'warning'
                                       "
@@ -357,21 +354,25 @@
                                     </v-icon>
                                   </div>
                                 </template>
+
                                 <v-card>
                                   <v-card-text>
                                     <div
-                                      v-if="
-                                        isFileInvalid(item as IFile) ||
-                                        couldNotUploadFile(item as IFile)
-                                      "
+                                      v-if="isFileInvalid(item as IFile)"
                                       class="text-body-1"
                                     >
                                       <b>This file cannot be uploaded</b>
                                     </div>
+
+                                    <div
+                                      v-else-if="item.isUploaded === false"
+                                      class="text-body-1"
+                                    >
+                                      <b>This file failed to upload</b>
+                                    </div>
+
                                     <ul class="text-subtitle-1 ml-4">
-                                      <li
-                                        v-if="couldNotUploadFile(item as IFile)"
-                                      >
+                                      <li v-if="hasTooManyFiles">
                                         Maximum number of files exceeded.
                                       </li>
                                       <li
@@ -388,7 +389,7 @@
                                         This file name contains invalid
                                         characters.
                                       </li>
-                                      <li v-if="isFileTooBig(item as IFile)">
+                                      <li v-if="isFileTooLarge(item as IFile)">
                                         Files cannot be larger than
                                         <b>
                                           {{
@@ -455,10 +456,12 @@
               </div>
             </template>
 
-            <div class="pa-4 has-bg-white text-subtitle-1">
-              The total upload size cannot exceed
-              <b>{{ prettyBytes(maxTotalUploadSize) }}</b>
-            </div>
+            <v-card class="text-subtitle-1">
+              <v-card-text>
+                The total upload size cannot exceed
+                <b>{{ prettyBytes(maxTotalUploadSize) }}</b>
+              </v-card-text>
+            </v-card>
           </v-menu>
         </div>
       </v-card>
@@ -476,10 +479,11 @@
 
       <v-alert
         v-if="hasTooManyFiles"
-        class="text-subtitle-1"
+        class="text-subtitle-1 mb-4"
         border="start"
         type="error"
-        elevation="1"
+        colored-border
+        variant="outlined"
       >
         The maximum number of files cannot exceed
         <b>{{ maxNumberOfFiles }}</b>
@@ -488,33 +492,31 @@
       <drop
         @drop="onDropDiscard($event)"
         v-if="isDragMoving && !isReadOnly"
-        class="discard-area d-flex align-center justify-center error lighten-5 files-container--included transition-swing"
+        class="discard-area d-flex align-center justify-center files-container--included transition-swing"
       >
-        <v-icon class="mr-2" x-large>mdi-delete-outline</v-icon>
+        <v-icon color="error" class="mr-2" size="x-large">
+          mdi-delete-outline
+        </v-icon>
       </drop>
       <div
         v-else-if="!isReadOnly"
         class="upload-drop-area files-container--included"
       >
-        <!-- <b-upload
+        <b-upload
           type="file"
           multiple
           drag-drop
           expanded
           v-model="dropFiles"
+          class="fill-height d-block"
         >
-          <v-alert
-            class="ma-4 has-cursor-pointer transparent"
-            type="info"
-            prominent
-            colored-border
-            icon="mdi-paperclip"
-          >
-            <span class="text-body-1">
-              Drop your files here or click to upload.
-            </span>
+          <v-alert variant="plain" class="fill-height">
+            <v-alert-title class="text-body-1">
+              <v-icon class="mr-2" size="x-large" icon="mdi-paperclip"></v-icon>
+              Drop your files here or click to upload
+            </v-alert-title>
           </v-alert>
-        </b-upload> -->
+        </b-upload>
       </div>
     </v-card-text>
   </v-card>
@@ -581,7 +583,7 @@ import prettyBytes from 'pretty-bytes';
     VAlert,
   },
   directives: { ClickOutside },
-  emits: ['showMetadata', 'input'],
+  emits: ['show-metadata'],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -888,35 +890,10 @@ class CzFileExplorer extends Vue {
     }
   }
 
-  @Watch('rootDirectory.children', { deep: true })
-  onInput() {
-    const updatedItems = this._getDirectoryItems(this.rootDirectory);
-    const validItems = updatedItems.filter(
-      item => !this.isFileInvalid(item as IFile)
-    );
-    this.$emit('input', validItems);
-  }
-
-  retryUpload(item: IFile) {
-    this.select([this.getParent(item)]);
-    this.onDeleteFileOrFolder(item);
-
-    const nameOverrides: { [index: number]: string } = {};
-
-    // If the file that failed to upload was renamed after, use the new file name
-    if (item.file && item.file.name !== item.name) {
-      nameOverrides[0] = item.name;
-    }
-
-    if (item.file) {
-      this.onFilesDropped([item.file], [], nameOverrides);
-    }
-  }
-
   /**
    * @param nameOverrides A key - value dictionary where the key is the index of the file in the `newFiles` array and the value is the new file name.
    * */
-  @Watch('dropFiles')
+  @Watch('dropFiles', { deep: true })
   async onFilesDropped(
     newFiles: File[],
     _oldFiles: File[],
@@ -941,34 +918,59 @@ class CzFileExplorer extends Vue {
         file: file,
       } as IFile;
 
-      targetFolder.children.push(newItem);
-      return newItem;
+      // Important: we need to return the proxy that is created after push operation so we don't break reactivity
+      const itemIndex = targetFolder.children.push(newItem);
+      return targetFolder.children[itemIndex - 1] as IFile;
     });
 
     this._openRecursive(targetFolder);
 
     const validFiles = addedFiles.filter(f => !this.isFileInvalid(f));
+
+    // Flag invalid files
+    const invalidFiles = addedFiles.filter(f => this.isFileInvalid(f));
+    invalidFiles.forEach(f => (f.isUploaded = false));
+
     if (
       this.upload &&
       validFiles.length &&
       !this.hasTooManyFiles &&
       !this.isTotalUploadSizeTooBig
     ) {
-      validFiles.map(f => this._toggleItemDisabled(f, true));
+      validFiles.forEach(f => this._toggleItemDisabled(f, true));
       try {
         const responses = await this.upload(validFiles);
-        responses.map((wasUploaded, index) => {
+        responses.forEach((wasUploaded, index) => {
           validFiles[index].isUploaded = wasUploaded;
         });
       } catch (e: any) {
-        e.map((wasUploaded: boolean, index: number) => {
+        e.forEach((wasUploaded: boolean, index: number) => {
           validFiles[index].isUploaded = wasUploaded;
         });
       } finally {
-        validFiles.map(f => this._toggleItemDisabled(f, false));
+        validFiles.forEach(f => this._toggleItemDisabled(f, false));
       }
+    } else {
+      // Flag valid files because they could not be uploaded
+      validFiles.forEach(f => (f.isUploaded = false));
     }
     this.dropFiles = [];
+  }
+
+  retryUpload(item: IFile) {
+    this.select([this.getParent(item)]);
+    this.onDeleteFileOrFolder(item);
+
+    const nameOverrides: { [index: number]: string } = {};
+
+    // If the file that failed to upload was renamed after, use the new file name
+    if (item.file && item.file.name !== item.name) {
+      nameOverrides[0] = item.name;
+    }
+
+    if (item.file) {
+      this.onFilesDropped([item.file], [], nameOverrides);
+    }
   }
 
   selectAll() {
@@ -1107,15 +1109,14 @@ class CzFileExplorer extends Vue {
     }
   }
 
-  // TODO: currently not propagating correctly
-  // _closeIfEmpty(item: IFolder) {
-  //   if (!item.children.length) {
-  //     const index = this.open.indexOf(item);
-  //     if (index >= 0) {
-  //       this.open.splice(index, 1);
-  //     }
-  //   }
-  // }
+  private _closeIfEmpty(item: IFolder) {
+    if (!item.children.length) {
+      const index = this.opened.indexOf(item.key);
+      if (index >= 0) {
+        this.opened.splice(index, 1);
+      }
+    }
+  }
 
   /** Move an item to the target folder inside the Treeview structure */
   private _moveItem(item: IFolder | IFile, targetFolder: IFolder) {
@@ -1212,14 +1213,14 @@ class CzFileExplorer extends Vue {
   }
 
   isFileInvalid(file: IFile) {
-    return !this.isFileExtensionValid(file) || this.isFileTooBig(file);
+    return (
+      !this.isFileExtensionValid(file) ||
+      this.isFileTooLarge(file) ||
+      !this.isFileNameValid(file)
+    );
   }
 
-  hasFileWarnings(file: IFile) {
-    return !this.isFileNameValid(file);
-  }
-
-  isFileTooBig(file: IFile) {
+  isFileTooLarge(file: IFile) {
     if (!this.maxUploadSizePerFile) {
       return false;
     }
@@ -1238,16 +1239,10 @@ class CzFileExplorer extends Vue {
     );
   }
 
-  couldNotUploadFile(item: IFile) {
-    return item.isUploaded === false && this.hasTooManyFiles;
-  }
-
   showFileWarnings(item: IFile) {
     return (
       !this.isFolder(item) &&
-      (this.isFileInvalid(item) ||
-        this.hasFileWarnings(item) ||
-        this.couldNotUploadFile(item))
+      ((!!this.upload && item.isUploaded === false) || this.isFileInvalid(item))
     );
   }
 
@@ -1346,7 +1341,7 @@ class CzFileExplorer extends Vue {
   private _toggleItemDisabled(item: IFolder | IFile, isDisabled: boolean) {
     item.isDisabled = isDisabled;
     if (this.isFolder(item)) {
-      (item as IFolder).children.map(i => {
+      (item as IFolder).children.forEach(i => {
         i.isDisabled = isDisabled;
         this._toggleItemDisabled(i as IFolder, isDisabled);
       });
@@ -1459,7 +1454,7 @@ class CzFileExplorer extends Vue {
 
     if (index >= 0) {
       parent.children.splice(index, 1);
-      // this._closeIfEmpty(parent);
+      this._closeIfEmpty(parent);
     }
   }
 
@@ -1537,10 +1532,10 @@ export default toNative(CzFileExplorer);
 
 <style lang="scss" scoped>
 .upload-drop-area {
-  border: 1px dashed #ddd;
+  border: 1px dashed rgba(0, 0, 0, 0.25);
   border-radius: 0.5rem;
   cursor: pointer;
-  min-height: 5rem;
+  height: 7rem;
 
   &,
   .upload {
@@ -1558,21 +1553,22 @@ export default toNative(CzFileExplorer);
   :deep(.upload-draggable.is-hovered) {
     background: lightgray;
   }
+
+  :deep(.upload-draggable) {
+    height: 100%;
+  }
 }
 
 .discard-area {
-  height: 7.0625rem;
+  height: 7rem;
   border-radius: 0.5rem;
   cursor: pointer;
   opacity: 0.45;
+  border: 1px dashed;
+  border-color: red !important;
 
-  &.error.lighten-5 {
-    border: 1px dashed !important;
-    border-color: rgba(0, 0, 0, 0.25) !important;
-
-    &:hover {
-      opacity: 1 !important;
-    }
+  &:hover {
+    opacity: 1 !important;
   }
 }
 

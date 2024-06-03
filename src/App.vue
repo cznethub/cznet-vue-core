@@ -316,8 +316,8 @@ class App extends Vue {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
         _resolve(_items.map(_i => true));
-        // _reject(_items.map((_i) => false));
-      }, 2000);
+        // _reject(_items.map(_i => false));
+      }, 500);
     });
   }
 
@@ -326,7 +326,7 @@ class App extends Vue {
       setTimeout(() => {
         _resolve(true);
         // _reject(false);
-      }, 2000);
+      }, 500);
     });
   }
 
@@ -335,7 +335,7 @@ class App extends Vue {
       setTimeout(() => {
         _resolve(true);
         // _reject(false);
-      }, 2000);
+      }, 500);
     });
   }
 }

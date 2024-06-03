@@ -57,6 +57,12 @@
             mdi-cloud-check
           </v-icon>
         </v-col>
+
+        <v-col
+          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text-medium-emphasis align-center"
+        >
+          <slot name="warnings" />
+        </v-col>
         <v-col
           v-if="canRetryUpload"
           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
@@ -66,18 +72,12 @@
             @click="$emit('retry-upload')"
             :disabled="item.isDisabled"
             size="small"
-            variant="text"
+            variant="outlined"
             depressed
           >
-            <v-icon left>mdi-cloud-upload</v-icon>
+            <v-icon left class="mr-1">mdi-cloud-upload</v-icon>
             Retry
           </v-btn>
-        </v-col>
-
-        <v-col
-          class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 text-caption text-medium-emphasis align-center"
-        >
-          <slot name="warnings"></slot>
         </v-col>
 
         <v-col v-if="item.isDisabled">
