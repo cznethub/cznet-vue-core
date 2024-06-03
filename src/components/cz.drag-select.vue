@@ -59,19 +59,26 @@ class CzDragSelect extends Vue {
     this.box.style.borderRadius = '2px';
 
     this.$el.addEventListener('mousedown', this.startDrag, true);
-    this.$el.addEventListener('touchstart', this.touchStart);
+    this.$el.addEventListener('touchstart', this.startDrag, true);
 
     document.addEventListener('mouseup', this.endDrag, true);
     document.addEventListener('touchend', this.endDrag, true);
   }
 
-  getCoordinates(event: MouseEvent | Touch) {
+  getCoordinates(event: MouseEvent | TouchEvent) {
     this.containerRect = this.$el.getBoundingClientRect();
 
-    return {
-      x: event.clientX - this.containerRect.left,
-      y: event.clientY - this.containerRect.top,
-    };
+    if (event instanceof TouchEvent) {
+      return {
+        x: event.targetTouches[0].clientX - this.containerRect.left,
+        y: event.targetTouches[0].clientY - this.containerRect.top,
+      };
+    } else {
+      return {
+        x: event.clientX - this.containerRect.left,
+        y: event.clientY - this.containerRect.top,
+      };
+    }
   }
 
   intersection() {
@@ -88,16 +95,6 @@ class CzDragSelect extends Vue {
     }
   }
 
-  touchStart(event: any) {
-    event.preventDefault();
-    this.startDrag(event.touches[0]);
-  }
-
-  touchMove(event: TouchEvent) {
-    event.preventDefault();
-    this.drag(event.touches[0]);
-  }
-
   startDrag(event: MouseEvent) {
     this.containerRect = this.$el.getBoundingClientRect();
     this.children = Array.from(
@@ -107,7 +104,7 @@ class CzDragSelect extends Vue {
     this.end = this.start;
 
     document.addEventListener('mousemove', this.drag);
-    document.addEventListener('touchmove', this.touchMove);
+    document.addEventListener('touchmove', this.drag);
 
     this.box.style.top = this.start.y + 'px';
     this.box.style.left = this.start.x + 'px';
@@ -116,15 +113,15 @@ class CzDragSelect extends Vue {
     this.$el.prepend(this.box);
   }
 
-  drag(event: MouseEvent | Touch) {
+  drag(event: MouseEvent | TouchEvent) {
     if (this.disabled) {
       return;
     }
     if (this.end === this.start) {
-      // TODO: find srcElement for touch events
       if (
-        event.srcElement === this.$el ||
-        event.srcElement.classList.contains('drag-select--included')
+        event.target === this.$el ||
+        // @ts-ignore
+        event.target?.classList.contains('drag-select--included')
       ) {
         this.$emit('startDrag', event);
         this.isDragging = true;
@@ -156,7 +153,7 @@ class CzDragSelect extends Vue {
     this.box.style.height = '0px';
 
     document.removeEventListener('mousemove', this.drag);
-    document.removeEventListener('touchmove', this.touchMove);
+    document.removeEventListener('touchmove', this.drag);
 
     this.box.remove();
     if (this.isDragging) {
@@ -167,7 +164,7 @@ class CzDragSelect extends Vue {
 
   unmounted() {
     this.$el.removeEventListener('mousedown', this.startDrag);
-    this.$el.removeEventListener('touchstart', this.touchStart);
+    this.$el.removeEventListener('touchstart', this.startDrag);
     document.removeEventListener('mouseup', this.endDrag);
     document.removeEventListener('touchend', this.endDrag);
   }

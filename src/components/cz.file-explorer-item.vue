@@ -5,9 +5,7 @@
     }"
     class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column cursor-pointer fill-height align-center"
   >
-    <v-col
-      class="d-flex flex-column flex-sm-row align-start align-sm-center pa-0"
-    >
+    <v-col class="d-flex flex-row align-center pa-0">
       <v-icon
         v-if="isFolder(item)"
         class="mr-2"
@@ -36,14 +34,14 @@
 
       <div
         v-if="(item as IFile).file"
-        class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
+        class="flex-grow-0 flex-shrink-0 mx-3 pa-0 text-caption text-medium-emphasis"
       >
         {{ prettyBytes((item as IFile).file?.size || 0) }}
       </div>
 
       <div
         v-else-if="(item as IFile).uploadedSize"
-        class="flex-grow-0 flex-shrink-0 mx-0 mx-sm-3 pa-0 text-caption text-medium-emphasis"
+        class="flex-grow-0 flex-shrink-0 mx-3 pa-0 text-caption text-medium-emphasis"
       >
         {{ prettyBytes((item as IFile).uploadedSize || 0) }}
       </div>
