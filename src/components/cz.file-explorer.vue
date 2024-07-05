@@ -718,7 +718,7 @@ class CzFileExplorer extends Vue {
   }
 
   get isSomeNotUploaded() {
-    return this.allFiles.some(i => !i.isUploaded);
+    return this.allItems.some(i => !i.isUploaded);
   }
 
   get allFiles(): IFile[] {
@@ -1404,7 +1404,7 @@ class CzFileExplorer extends Vue {
       children: [],
       // isRenaming: false,
       // isCutting: false,
-      // isDisabled: false,
+      isDisabled: false,
       key: this.generateNewKey(),
     } as IFolder;
 
@@ -1427,8 +1427,10 @@ class CzFileExplorer extends Vue {
         wasUploaded = response[0];
       } catch (e) {
         wasUploaded = false;
+        // Workaround for isDisabled not propagating below
+        this._deleteItem(newFolder);
       } finally {
-        // TODO: not propagating
+        // TODO: not propagating if error caught above
         this._toggleItemDisabled(newFolder, false);
       }
     }
@@ -1438,8 +1440,6 @@ class CzFileExplorer extends Vue {
       this.$nextTick(() => {
         this._openRecursive(newFolder);
       });
-    } else {
-      this._deleteItem(newFolder);
     }
   }
 
