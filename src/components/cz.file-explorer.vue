@@ -1,7 +1,7 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1"
+      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1 bg-grey-lighten-4"
     >
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
         <template v-slot:activator="{ props }">
@@ -470,7 +470,7 @@
         flat
         variant="outlined"
         v-else-if="!rootDirectory.children.length"
-        class="pa-2 text-body-1 text-medium-emphasis mb-2"
+        class="pa-2 text-body-1 text-medium-emphasis mb-2 border-grey"
       >
         <v-card-text class="text-center">
           No files have been included in this submission.
@@ -779,6 +779,18 @@ class CzFileExplorer extends Vue {
     )[];
   }
 
+  @Watch('rootDirectory.children', { deep: true })
+  protected onInput() {
+    const items = this._getDirectoryItems(this.rootDirectory) as (
+      | IFile
+      | IFolder
+    )[];
+    // Update paths
+    items.forEach(i => (i.path = this.getPathString(i)));
+    const validItems = items.filter(item => !this.isFileInvalid(item as IFile));
+    this.$emit('update:valid-items', validItems);
+  }
+
   getItemById(id: number) {
     return this.allItems.find(item => item.key === id);
   }
@@ -937,6 +949,7 @@ class CzFileExplorer extends Vue {
       !this.hasTooManyFiles &&
       !this.isTotalUploadSizeTooBig
     ) {
+      // Attempt to upload the valid files
       validFiles.forEach(f => this._toggleItemDisabled(f, true));
       try {
         const responses = await this.upload(validFiles);
@@ -1231,6 +1244,7 @@ class CzFileExplorer extends Vue {
   canRetryUpload(item: IFile | IFolder) {
     return (
       !this.isFolder(item) &&
+      this.upload &&
       (item as IFile).file &&
       !this.hasTooManyFiles &&
       !this.isFolder(item) &&
@@ -1388,9 +1402,9 @@ class CzFileExplorer extends Vue {
     const newFolder = {
       name: 'New folder',
       children: [],
-      isRenaming: false,
-      isCutting: false,
-      isDisabled: false,
+      // isRenaming: false,
+      // isCutting: false,
+      // isDisabled: false,
       key: this.generateNewKey(),
     } as IFolder;
 
@@ -1496,7 +1510,7 @@ class CzFileExplorer extends Vue {
   }
 
   /** Returns all files inside the given folder */
-  private _getDirectoryItems(item: IFolder): IFile[] {
+  private _getDirectoryItems(item: IFolder): (IFile | IFolder)[] {
     const childFolders = item.children.filter(i =>
       this.isFolder(i)
     ) as IFolder[];
@@ -1507,7 +1521,7 @@ class CzFileExplorer extends Vue {
       nestedItems.push(...newItems);
     }
 
-    return [...item.children, ...nestedItems] as IFile[];
+    return [...item.children, ...nestedItems];
   }
 
   private _itemsToCutRecursive(item: IFolder): (IFile | IFolder)[] {
@@ -1531,6 +1545,10 @@ export default toNative(CzFileExplorer);
 </script>
 
 <style lang="scss" scoped>
+.border-grey {
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
 .upload-drop-area {
   border: 1px dashed rgba(0, 0, 0, 0.25);
   border-radius: 0.5rem;

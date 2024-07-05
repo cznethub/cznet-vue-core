@@ -50,6 +50,7 @@
             :rootDirectory="rootDirectory"
             :hasFolders="fileExplorerConfig.hasFolders"
             :isReadOnly="fileExplorerConfig.isReadOnly"
+            v-model:valid-items="validItems"
             :hasFileMetadata="() => true"
             @showMetadata="onShowMetadata($event)"
             :renameFileOrFolder="renameFileOrFolderMock"
@@ -202,6 +203,7 @@ class App extends Vue {
   data = initialData;
   stringify = stringify;
   selectedMetadata: any = false;
+  validItems = [];
 
   /** Example folder/file tree structure */
   rootDirectory = {

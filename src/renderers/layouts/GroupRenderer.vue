@@ -6,7 +6,7 @@
     v-if="layout.visible"
     :data-id="generateId"
   >
-    <v-card-title class="grey lighten-4">
+    <v-card-title class="bg-grey-lighten-4">
       <div class="text-overline">
         {{ computedLabel }}
       </div>

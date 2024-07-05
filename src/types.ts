@@ -51,6 +51,7 @@ export interface IFile {
   key: number;
   file: File | null;
   highlight?: boolean;
+  path?: string;
 }
 
 export interface IFolder {
@@ -63,4 +64,5 @@ export interface IFolder {
   key: number;
   children: (IFile | IFolder)[];
   highlight?: boolean;
+  path?: string;
 }
