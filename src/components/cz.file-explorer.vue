@@ -583,7 +583,7 @@ import prettyBytes from 'pretty-bytes';
     VAlert,
   },
   directives: { ClickOutside },
-  emits: ['show-metadata'],
+  emits: ['show-metadata', 'update:valid-items'],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -1414,7 +1414,7 @@ class CzFileExplorer extends Vue {
 
     newFolder.name = this._getAvailableName(newFolder.name, targetFolder);
 
-    let wasUploaded = true;
+    let wasUploaded = false;
     this._openRecursive(targetFolder);
     targetFolder.children.push(newFolder);
     targetFolder.children = targetFolder.children.sort((_a, b) => {
@@ -1428,6 +1428,7 @@ class CzFileExplorer extends Vue {
       } catch (e) {
         wasUploaded = false;
       } finally {
+        // TODO: not propagating
         this._toggleItemDisabled(newFolder, false);
       }
     }
