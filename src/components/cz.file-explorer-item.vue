@@ -51,7 +51,7 @@
           v-if="item.isUploaded"
           class="d-flex flex-grow-0 flex-shrink-0 ma-3 ml-2 pa-0 align-center"
         >
-          <v-icon class="text-medium-emphasis" title="uploaded" size="small">
+          <v-icon class="text-disabled" title="uploaded" size="small">
             mdi-cloud-check
           </v-icon>
         </v-col>
