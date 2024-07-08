@@ -310,7 +310,7 @@
                           <v-text-field
                             v-if="item.isRenaming"
                             class="ml-3"
-                            @update:model-value="onRenamed(item, $event)"
+                            @change="onRename(item, $event)"
                             @keydown.enter="item.isRenaming = false"
                             @click:append="item.isRenaming = false"
                             :model-value="item.name"
@@ -320,6 +320,7 @@
                             variant="outlined"
                             hide-details="auto"
                             autofocus
+                            clearable
                           />
 
                           <cz-file-explorer-item
@@ -785,8 +786,6 @@ class CzFileExplorer extends Vue {
       | IFile
       | IFolder
     )[];
-    // Update paths
-    items.forEach(i => (i.path = this.getPathString(i)));
     const validItems = items.filter(item => !this.isFileInvalid(item as IFile));
     this.$emit('update:valid-items', validItems);
   }
@@ -1146,7 +1145,7 @@ class CzFileExplorer extends Vue {
       item.highlight = true;
       setTimeout(() => {
         item.highlight = false;
-      }, 2500);
+      }, 2000);
     });
   }
 
@@ -1260,8 +1259,9 @@ class CzFileExplorer extends Vue {
     );
   }
 
-  async onRenamed(item: IFile | IFolder, name: string) {
-    if (name.trim()) {
+  async onRename(item: IFile | IFolder, event: Event) {
+    const name = (event.target as InstanceType<typeof VTextField>).value.trim();
+    if (name) {
       const newName = this._getAvailableName(
         name,
         this.getParent(item),

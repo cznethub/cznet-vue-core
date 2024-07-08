@@ -78,13 +78,13 @@
           </v-btn>
         </v-col>
 
-        <v-col v-if="item.isDisabled">
-          <v-icon
-            color="primary lighten-2"
-            icon="fa:fas fa-circle-notch fa-spin"
-            small
-          />
-        </v-col>
+        <v-icon
+          v-if="item.isDisabled"
+          color="primary-lighten-2"
+          icon="fa:fas fa-circle-notch fa-spin"
+          size="small"
+          class="mr-1"
+        />
       </template>
     </v-col>
   </v-row>
@@ -109,8 +109,8 @@ import prettyBytes from 'pretty-bytes';
 })
 class CzFileExplorerItem extends Vue {
   @Prop({ required: true }) item!: IFile | IFolder;
-  @Prop({ default: 'primary lighten-2' }) folderColor!: string;
-  @Prop({ default: 'primary lighten-3' }) fileColor!: string;
+  @Prop({ default: 'primary-lighten-2' }) folderColor!: string;
+  @Prop({ default: 'primary-lighten-3' }) fileColor!: string;
   @Prop() isOpen!: boolean;
   @Prop() canRetryUpload!: boolean;
   prettyBytes = prettyBytes;
