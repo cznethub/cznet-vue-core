@@ -1,14 +1,5 @@
 <template>
-  <div
-    id="container"
-    ref="container"
-    style="
-      position: relative;
-      user-select: none;
-      overflow: hidden;
-      touch-action: none;
-    "
-  >
+  <div ref="container" class="cz-drag-select">
     <slot v-bind="{ selected: intersected }" />
   </div>
 </template>
@@ -17,12 +8,19 @@
 /**
  *  Adapted from https://github.com/andi23rosca/drag-select-vue
  */
-import { Component, Watch, Prop, Vue } from "vue-property-decorator";
-const getDimensions = (p1, p2) => ({
+
+import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+const getDimensions = (p1: Point, p2: Point) => ({
   width: Math.abs(p1.x - p2.x),
   height: Math.abs(p1.y - p2.y),
 });
-const collisionCheck = (node1, node2) =>
+const collisionCheck = (node1: DOMRect, node2: DOMRect) =>
   node1.left < node2.left + node2.width &&
   node1.left + node1.width > node2.left &&
   node1.top < node2.top + node2.height &&
@@ -30,16 +28,23 @@ const collisionCheck = (node1, node2) =>
 
 @Component({
   components: {},
-  name: "cz-drag-select",
+  name: 'cz-drag-select',
+  emits: ['update:modelValue', 'drag', 'startDrag', 'endDrag'],
 })
-export default class CzDragSelect extends Vue {
+class CzDragSelect extends Vue {
   @Prop({ required: true }) attribute!: string;
+  @Prop({ default: false }) disabled!: boolean;
+  box: HTMLDivElement = document.createElement('div');
+  start: Point = { x: 0, y: 0 };
+  end: Point = { x: 0, y: 0 };
+  children: Element[] = [];
+  intersected: string[] = [];
+  containerRect: DOMRect = new DOMRect();
+  isDragging = false;
 
-  intersected: any[] = [];
-
-  @Watch("intersected")
-  onIntersected(val) {
-    this.$emit("change", val);
+  @Watch('intersected', { deep: true })
+  onIntersected(val: string) {
+    this.$emit('update:modelValue', val);
   }
 
   clearSelected() {
@@ -47,110 +52,132 @@ export default class CzDragSelect extends Vue {
   }
 
   mounted() {
-    const container = this.$el;
-    const self = this;
+    this.box.setAttribute('data-drag-box-component', '');
+    this.box.style.position = 'absolute';
+    this.box.classList.add('bg-primary-lighten-4');
+    this.box.style.opacity = '0.4';
+    this.box.style.borderRadius = '2px';
 
-    let containerRect = container.getBoundingClientRect();
+    this.$el.addEventListener('mousedown', this.startDrag, true);
+    this.$el.addEventListener('touchstart', this.startDrag, true);
 
-    const getCoords = (e) => ({
-      x: e.clientX - containerRect.left,
-      y: e.clientY - containerRect.top,
-    });
+    document.addEventListener('mouseup', this.endDrag, true);
+    document.addEventListener('touchend', this.endDrag, true);
+  }
 
-    let children;
+  getCoordinates(event: MouseEvent | TouchEvent) {
+    this.containerRect = this.$el.getBoundingClientRect();
 
-    const box = document.createElement("div");
-    box.setAttribute("data-drag-box-component", "");
-    box.style.position = "absolute";
-    box.classList.add("primary", "lighten-4");
-    box.style.opacity = "0.4";
-    box.style.borderRadius = "2px";
+    if (event instanceof TouchEvent) {
+      return {
+        x: event.targetTouches[0].clientX - this.containerRect.left,
+        y: event.targetTouches[0].clientY - this.containerRect.top,
+      };
+    } else {
+      return {
+        x: event.clientX - this.containerRect.left,
+        y: event.clientY - this.containerRect.top,
+      };
+    }
+  }
 
-    let start = { x: 0, y: 0 };
-    let end = { x: 0, y: 0 };
+  intersection() {
+    const rect = this.box.getBoundingClientRect();
+    const intersected = this.children
+      .filter(c => collisionCheck(rect, c.getBoundingClientRect()))
+      .map(c => c.getAttribute(this.attribute) as string);
 
-    function intersection() {
-      const rect = box.getBoundingClientRect();
-      const intersected = children
-        .filter((c) => collisionCheck(rect, c.getBoundingClientRect()))
-        .map((c) => c.getAttribute(self.attribute));
+    if (
+      intersected.length !== this.intersected.length ||
+      intersected.some(i => !this.intersected.includes(i))
+    ) {
+      this.intersected = intersected;
+    }
+  }
 
+  startDrag(event: MouseEvent) {
+    this.containerRect = this.$el.getBoundingClientRect();
+    this.children = Array.from(
+      this.$el.querySelectorAll(`[${this.attribute}]`)
+    );
+    this.start = this.getCoordinates(event);
+    this.end = this.start;
+
+    document.addEventListener('mousemove', this.drag);
+    document.addEventListener('touchmove', this.drag);
+
+    this.box.style.top = this.start.y + 'px';
+    this.box.style.left = this.start.x + 'px';
+    this.box.style.zIndex = '2';
+
+    this.$el.prepend(this.box);
+  }
+
+  drag(event: MouseEvent | TouchEvent) {
+    if (this.disabled) {
+      return;
+    }
+    if (this.end === this.start) {
       if (
-        intersected.length !== self.intersected.length ||
-        intersected.some((i) => !self.intersected.includes(i))
+        event.target === this.$el ||
+        // @ts-ignore
+        event.target?.classList.contains('drag-select--included')
       ) {
-        self.intersected = intersected;
+        this.$emit('startDrag', event);
+        this.isDragging = true;
+      } else {
+        return;
       }
     }
+    this.end = this.getCoordinates(event);
+    const dimensions = getDimensions(this.start, this.end);
 
-    function touchStart(e) {
-      e.preventDefault();
-      startDrag(e.touches[0]);
+    if (this.end.x < this.start.x) {
+      this.box.style.left = this.end.x + 'px';
     }
-    function touchMove(e) {
-      e.preventDefault();
-      drag(e.touches[0]);
+    if (this.end.y < this.start.y) {
+      this.box.style.top = this.end.y + 'px';
     }
+    this.box.style.width = dimensions.width + 'px';
+    this.box.style.height = dimensions.height + 'px';
 
-    function startDrag(e) {
-      containerRect = container.getBoundingClientRect();
-      children = Array.from(container.querySelectorAll(`[${self.attribute}]`));
-      start = getCoords(e);
-      end = start;
-      document.addEventListener("mousemove", drag);
-      document.addEventListener("touchmove", touchMove);
+    this.intersection();
+    this.$emit('drag');
+  }
 
-      box.style.top = start.y + "px";
-      box.style.left = start.x + "px";
+  endDrag(_event: MouseEvent | TouchEvent) {
+    this.start = { x: 0, y: 0 };
+    this.end = { x: 0, y: 0 };
 
-      container.prepend(box);
-      intersection();
-      self.$emit("startDrag");
+    this.box.style.width = '0px';
+    this.box.style.height = '0px';
+
+    document.removeEventListener('mousemove', this.drag);
+    document.removeEventListener('touchmove', this.drag);
+
+    this.box.remove();
+    if (this.isDragging) {
+      this.$emit('endDrag');
+      this.isDragging = false;
     }
+  }
 
-    function drag(e) {
-      end = getCoords(e);
-      const dimensions = getDimensions(start, end);
-
-      if (end.x < start.x) {
-        box.style.left = end.x + "px";
-      }
-      if (end.y < start.y) {
-        box.style.top = end.y + "px";
-      }
-      box.style.width = dimensions.width + "px";
-      box.style.height = dimensions.height + "px";
-
-      intersection();
-    }
-
-    function endDrag() {
-      start = { x: 0, y: 0 };
-      end = { x: 0, y: 0 };
-
-      box.style.width = "0px";
-      box.style.height = "0px";
-
-      document.removeEventListener("mousemove", drag);
-      document.removeEventListener("touchmove", touchMove);
-      box.remove();
-      self.$emit("endDrag");
-    }
-
-    container.addEventListener("mousedown", startDrag);
-    container.addEventListener("touchstart", touchStart);
-
-    document.addEventListener("mouseup", endDrag);
-    document.addEventListener("touchend", endDrag);
-
-    this.$once("on:destroy", () => {
-      container.removeEventListener("mousedown", startDrag);
-      container.removeEventListener("touchstart", touchStart);
-      document.removeEventListener("mouseup", endDrag);
-      document.removeEventListener("touchend", endDrag);
-    });
+  unmounted() {
+    this.$el.removeEventListener('mousedown', this.startDrag);
+    this.$el.removeEventListener('touchstart', this.startDrag);
+    document.removeEventListener('mouseup', this.endDrag);
+    document.removeEventListener('touchend', this.endDrag);
   }
 }
+
+export default toNative(CzDragSelect);
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.cz-drag-select {
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+  touch-action: none;
+}
+</style>

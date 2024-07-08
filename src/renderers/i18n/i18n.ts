@@ -1,7 +1,5 @@
 import { Translator } from '@jsonforms/core';
-import get from 'lodash/get';
-import template from 'lodash/template';
-import memoize from 'lodash/memoize';
+import { get, template, memoize } from 'lodash-es';
 
 export const createTranslator = (
   locale: string,

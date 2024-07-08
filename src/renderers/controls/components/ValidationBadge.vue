@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-tooltip bottom v-if="errors.length > 0">
-      <template v-slot:activator="{ on: onTooltip }">
+      <template v-slot:activator="{ props }">
         <v-badge
           :color="color"
           :bordered="bordered"
@@ -13,7 +13,7 @@
           <template v-slot:badge>
             {{ errors.length }}
           </template>
-          <div v-on="onTooltip"><slot></slot></div>
+          <div v-bind="props"><slot></slot></div>
         </v-badge>
       </template>
 
@@ -30,18 +30,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue";
-import { VBadge, VTooltip } from "vuetify/lib";
-import { ErrorObject } from "ajv";
-import findIndex from "lodash/findIndex";
+import { defineComponent, PropType } from 'vue';
+import { VBadge, VTooltip } from 'vuetify/components';
+import { ErrorObject } from 'ajv';
+import { findIndex } from 'lodash-es';
 import {
   createControlElement,
   createLabelDescriptionFrom,
   JsonSchema,
-} from "@jsonforms/core";
+} from '@jsonforms/core';
 
 export default defineComponent({
-  name: "validation-badge",
+  name: 'validation-badge',
   components: {
     VBadge,
     VTooltip,
@@ -57,7 +57,7 @@ export default defineComponent({
     },
     color: {
       type: String,
-      default: "error",
+      default: 'error',
     },
     inline: {
       type: Boolean,

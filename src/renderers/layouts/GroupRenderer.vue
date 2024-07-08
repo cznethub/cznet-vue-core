@@ -1,25 +1,25 @@
 <template>
   <v-card
     elevation="0"
-    outlined
-    class="my-5"
+    variant="outlined"
+    class="cz-group my-5"
     v-if="layout.visible"
     :data-id="generateId"
   >
-    <v-card-title class="grey lighten-4">
+    <v-card-title class="bg-grey-lighten-4">
       <div class="text-overline">
         {{ computedLabel }}
       </div>
-      <div class="text-subtitle-1 text--secondary">
-        {{ layout.uischema["description"] }}
+      <div class="text-subtitle-1 text-medium-emphasis">
+        {{ layout.uischema.description }}
       </div>
     </v-card-title>
 
-    <v-divider></v-divider>
+    <v-divider />
 
     <v-card-text>
       <div
-        v-for="(element, index) in layout.uischema['elements']"
+        v-for="(element, index) in layout.uischema.elements"
         :data-id="`group-${index}`"
         :key="`${layout.path}-${index}`"
         :class="styles.group.item"
@@ -38,26 +38,19 @@
 </template>
 
 <script lang="ts">
-import {
-  JsonFormsRendererRegistryEntry,
-  Layout,
-  rankWith,
-  and,
-  isLayout,
-  uiTypeIs,
-} from "@jsonforms/core";
-import { defineComponent } from "vue";
+import { Layout } from '@jsonforms/core';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
   RendererProps,
   useJsonFormsLayout,
-} from "@jsonforms/vue2";
-import { useVuetifyLayout } from "@/renderers/util/composition";
-import { VCard, VCardText, VCardTitle, VDivider } from "vuetify/lib";
+} from '@jsonforms/vue';
+import { useVuetifyLayout } from '@/renderers/util/composition';
+import { VCard, VCardText, VCardTitle, VDivider } from 'vuetify/components';
 
-const layoutRenderer = defineComponent({
-  name: "group-renderer",
+export default defineComponent({
+  name: 'group-renderer',
   components: {
     DispatchRenderer,
     VCard,
@@ -74,17 +67,14 @@ const layoutRenderer = defineComponent({
   computed: {
     generateId(): string {
       // @ts-ignore
-      return `group-${this.layout.uischema.label?.replaceAll(" ", "")}`;
+      return `group-${this.layout.uischema.label?.replaceAll(' ', '')}`;
     },
   },
 });
-
-export default layoutRenderer;
-
-export const entry: JsonFormsRendererRegistryEntry = {
-  renderer: layoutRenderer,
-  tester: rankWith(3, and(isLayout, uiTypeIs("Group"))),
-};
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.cz-group {
+  border: thin solid #ababab;
+}
+</style>

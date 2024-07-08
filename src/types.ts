@@ -1,9 +1,11 @@
+import { JsonSchema } from '@jsonforms/core';
+
 export interface IToast {
   message: string;
   duration?: number;
-  position?: "center" | "left";
+  position?: 'center' | 'left';
   isInfinite?: boolean;
-  type?: "success" | "error" | "info" | "default";
+  type?: 'success' | 'error' | 'info' | 'default';
   // isPersistent?: boolean // Currently has no effect
 }
 
@@ -46,8 +48,10 @@ export interface IFile {
   isDisabled?: boolean;
   isUploaded: boolean | undefined;
   uploadedSize?: number;
-  key?: number;
+  key: number;
   file: File | null;
+  highlight?: boolean;
+  path?: string;
 }
 
 export interface IFolder {
@@ -57,6 +61,8 @@ export interface IFolder {
   isCutting?: boolean;
   isDisabled?: boolean;
   isUploaded?: boolean | undefined;
-  key?: number;
+  key: number;
   children: (IFile | IFolder)[];
+  highlight?: boolean;
+  path?: string;
 }
