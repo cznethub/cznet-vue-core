@@ -23,7 +23,7 @@
           :hint="control.description"
           :required="control.required"
           :error-messages="control.errors"
-          v-bind="{ ...vuetifyProps(`v-select`), ...props }"
+          v-bind="{ ...vuetifyProps(`v-text-field`), ...props }"
           :prepend-inner-icon="pickerIcon"
           v-mask="mask"
           :model-value="inputValue"

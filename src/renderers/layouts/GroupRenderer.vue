@@ -77,4 +77,8 @@ export default defineComponent({
 .cz-group {
   border: thin solid #ababab;
 }
+
+.v-card-title {
+  white-space: normal;
+}
 </style>

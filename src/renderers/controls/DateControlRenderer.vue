@@ -25,6 +25,8 @@
           :hint="control.description"
           :required="control.required"
           :error-messages="control.errors"
+          clearable
+          @click:clear="clear"
           prepend-inner-icon="mdi-calendar"
           v-mask="mask"
           :model-value="inputValue"
@@ -45,24 +47,32 @@
         </v-text-field>
       </template>
 
-      <v-date-picker
-        v-if="showMenu"
-        v-model="pickerValue"
-        ref="picker"
-        v-bind="vuetifyProps('v-date-picker')"
-        :min="minDate"
-        :max="maxDate"
-        :type="pickerType"
-        @click:year="onYear"
-      >
-        <v-spacer></v-spacer>
-        <v-btn variant="text" @click="showMenu = false">
-          {{ cancelLabel }}
-        </v-btn>
-        <v-btn :disabled="!pickerValue" color="primary" @click="okHandler">
-          {{ okLabel }}
-        </v-btn>
-      </v-date-picker>
+      <v-card v-if="showMenu">
+        <v-date-picker
+          v-if="pickerType === 'date'"
+          :model-value="pickerValue"
+          @update:model-value="onDatePickerValueChange"
+          v-bind="vuetifyProps('v-date-picker')"
+          color="primary"
+          header="Select date"
+          tile
+          :min="minDate"
+          :max="maxDate"
+        />
+        <!-- <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showMenu = false">
+            {{ cancelLabel }}
+          </v-btn>
+          <v-btn
+            :disabled="!pickerValue"
+            color="primary"
+            @click="okHandler"
+          >
+            {{ okLabel }}
+          </v-btn>
+        </v-card-actions> -->
+      </v-card>
     </v-menu>
   </control-wrapper>
 </template>
@@ -212,25 +222,18 @@ export default defineComponent({
       }
     },
     inputValue(): string | undefined {
-      const value = this.control.data;
-      const date = parseDateTime(
-        typeof value === 'number' ? value.toString() : value,
-        this.formats
-      );
-      return date ? date.format(this.dateFormat) : value;
+      const date = parseDateTime(this.control.data);
+      return date ? date.format(this.dateFormat) : this.control.data;
     },
     pickerValue: {
-      get(): string | undefined {
+      get(): Date | undefined {
         const value = this.control.data;
-        const date = parseDateTime(
-          typeof value === 'number' ? value.toString() : value,
-          this.formats
-        );
+        const date = parseDateTime(value, this.formats);
         // show only valid values
-        return date ? date.format('YYYY-MM-DD') : undefined;
+        return date?.toDate() || undefined;
       },
-      set(val: string): void {
-        this.onPickerChange(val);
+      set(date: Date) {
+        this.onPickerChange(date);
       },
     },
     clearLabel(): string {
@@ -258,6 +261,15 @@ export default defineComponent({
     },
   },
   methods: {
+    onDatePickerValueChange(value: any) {
+      this.pickerValue = value;
+    },
+    onYearPickerChange(year: any): void {
+      const date = dayjs().year(year);
+      const dateString = date.format('YYYY');
+      const dateTime = parseDateTime(dateString, 'YYYY');
+      this.onChange(dateTime!.format(this.dateSaveFormat));
+    },
     getDateFromOption(option: MinMaxFormat) {
       if (option) {
         const now = dayjs();
@@ -282,36 +294,20 @@ export default defineComponent({
     },
     onInputChange(value: string): void {
       const date = parseDateTime(value, this.dateFormat);
-      let newdata: string | number = date
-        ? date.format(this.dateSaveFormat)
-        : value;
-      // if only numbers and the target is number type then convert (this will support when we want year as an integer/number)
-      if (
-        (this.control.schema.type === 'integer' ||
-          this.control.schema.type === 'number') &&
-        /^[\d]*$/.test(newdata)
-      ) {
-        newdata = parseInt(value, 10) || newdata;
-      }
+      const newdata = date ? date.format(this.dateSaveFormat) : value;
       if (this.adaptValue(newdata) !== this.control.data) {
         // only invoke onChange when values are different since v-mask is also listening on input which lead to loop
         this.onChange(newdata);
       }
     },
-    onPickerChange(value: string): void {
-      const date = parseDateTime(value, 'YYYY-MM-DD');
-      let newdata: string | number = date
-        ? date.format(this.dateSaveFormat)
-        : value;
-      // check if is is only year and the target type is number or integer
-      if (
-        (this.control.schema.type === 'integer' ||
-          this.control.schema.type === 'number') &&
-        /^[\d]*$/.test(newdata)
-      ) {
-        newdata = parseInt(value, 10) || newdata;
+    onPickerChange(dateValue?: Date): void {
+      const date = dayjs(dateValue);
+
+      if (date) {
+        const dateString = date.format('YYYY-MM-DD');
+        const dateTime = parseDateTime(dateString, 'YYYY-MM-DD');
+        this.onChange(dateTime!.format(this.dateSaveFormat));
       }
-      this.onChange(newdata);
     },
     clear(): void {
       this.mask = undefined;
@@ -320,11 +316,6 @@ export default defineComponent({
     okHandler(): void {
       (this.$refs.menu as any).save(this.pickerValue);
       this.showMenu = false;
-    },
-    onYear(year: number): void {
-      if (this.pickerType === 'year') {
-        this.pickerValue = `${year}`;
-      }
     },
     maskFunction(value: string): (string | RegExp)[] {
       const format = this.dateFormat;

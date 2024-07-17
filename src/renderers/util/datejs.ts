@@ -10,7 +10,7 @@ dayjs.extend(timezone);
 
 export const parseDateTime = (
   data: string | null | undefined,
-  format: string | string[] | undefined
+  format?: string | string[]
 ): dayjs.Dayjs | null => {
   if (!data) {
     return null;
