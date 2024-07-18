@@ -100,7 +100,7 @@
     "typescript": "latest",
     "vite": "^5.3.4",
     "vitest": "^2.0.3",
-    "vue": "^3.4.31",
+    "vue": "^3.4.32",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.0.26"
   },
