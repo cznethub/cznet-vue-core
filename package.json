@@ -96,7 +96,7 @@
     "stylelint": "^16.7.0",
     "stylelint-config-recommended-scss": "^14.1.0",
     "stylelint-config-recommended-vue": "^1.5.0",
-    "taze": "^0.15.2",
+    "taze": "^0.16.1",
     "typescript": "latest",
     "vite": "^5.3.4",
     "vitest": "^2.0.3",
