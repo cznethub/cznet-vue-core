@@ -99,7 +99,7 @@
     "taze": "^0.16.1",
     "typescript": "latest",
     "vite": "^5.3.4",
-    "vitest": "^2.0.3",
+    "vitest": "^2.0.4",
     "vue": "^3.4.33",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.0.26"
