@@ -11,10 +11,10 @@
     :model-value="control.data"
     v-bind="vuetifyProps('v-checkbox')"
     @update:model-value="onChange"
-    @focus="isFocused = true"
+    @update:focused="isFocused = $event"
     @blur="isFocused = false"
   >
-    <template v-slot:message>
+    <template #message>
       <cz-field-messages
         :description="control.description"
         :errors="cleanedErrors"

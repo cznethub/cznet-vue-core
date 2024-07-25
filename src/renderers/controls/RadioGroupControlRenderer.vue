@@ -17,10 +17,11 @@
       :class="styles.control.input"
       :required="control.required"
       :model-value="control.data"
-      row
+      inline
       v-bind="vuetifyProps('v-radio-group')"
+      hide-details
       @update:model-value="onChange"
-      @focus="isFocused = true"
+      @update:focused="isFocused = $event"
       @blur="isFocused = false"
     >
       <v-radio
@@ -28,7 +29,8 @@
         v-bind="vuetifyProps(`v-radio[${o.value}]`)"
         :key="o.value"
         :label="o.label"
-        :model-value="o.value"
+        :value="o.value"
+        class="mr-4"
       ></v-radio>
     </v-radio-group>
   </cz-fieldset>
@@ -43,7 +45,7 @@ import {
 } from '@jsonforms/vue';
 import { VRadioGroup, VRadio, VLabel } from 'vuetify/components';
 
-import { useVuetifyControl } from '@/renderers/util/composition';
+import { useVuetifyControl, useDefaults } from '@/renderers/util/composition';
 import { defineComponent } from 'vue';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 
@@ -59,7 +61,7 @@ export default defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVuetifyControl(useJsonFormsEnumControl(props));
+    return useDefaults(useVuetifyControl(useJsonFormsEnumControl(props)));
   },
 });
 </script>

@@ -21,7 +21,7 @@
       @update:model-value="onInputChange"
       v-bind="vuetifyProps('v-text-field')"
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"

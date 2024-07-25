@@ -4,7 +4,7 @@
       class="pa-4 d-flex align-center files-container--included flex-wrap gap-1 bg-grey-lighten-4"
     >
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <v-btn
             @click="newFolder"
             icon="mdi-folder"
@@ -21,7 +21,7 @@
       <div v-if="!isReadOnly">
         <template>
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn
                 @click="selectAll"
                 :disabled="!rootDirectory.children.length"
@@ -37,7 +37,7 @@
 
         <!-- <template>
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn
                 @click="unselectAll"
                 icon
@@ -56,7 +56,7 @@
 
         <template v-if="hasFolders">
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn
                 @click="cut"
                 :disabled="!canCutSelected"
@@ -70,7 +70,7 @@
           </v-tooltip>
 
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn
                 @click="onPaste"
                 :disabled="!canPaste"
@@ -87,7 +87,7 @@
 
         <template v-if="!isReadOnly">
           <v-tooltip bottom transition="fade">
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn
                 @click="deleteSelected"
                 icon="mdi-delete"
@@ -341,7 +341,7 @@
                                 left
                                 offset-y
                               >
-                                <template v-slot:activator="{ props }">
+                                <template #activator="{ props }">
                                   <div v-bind="props">
                                     <v-icon
                                       :color="
@@ -451,7 +451,7 @@
             right
             offset-y
           >
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <div class="ml-4 d-inline-block" v-bind="props">
                 <v-icon color="error">mdi-alert-circle</v-icon>
               </div>
@@ -681,6 +681,7 @@ class CzFileExplorer extends Vue {
     };
 
     const strategy = {
+      // @ts-ignore
       activate: ({ id, value, activated, event }) => {
         const item = this.getItemById(id as number);
         if (!item) {

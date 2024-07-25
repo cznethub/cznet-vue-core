@@ -18,7 +18,7 @@
           v-bind="vuetifyProps('v-text-field')"
         ></v-text-field>
         <v-tooltip bottom>
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
               variant="text"
@@ -52,7 +52,7 @@
         </v-col>
         <v-col v-if="control.enabled" class="shrink">
           <v-tooltip bottom>
-            <template v-slot:activator="{ props }">
+            <template #activator="{ props }">
               <v-btn
                 v-bind="props"
                 variant="text"

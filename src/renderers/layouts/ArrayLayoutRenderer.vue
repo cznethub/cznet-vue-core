@@ -17,9 +17,9 @@
       @show="noData && control.enabled ? addButtonClick() : null"
       ref="fieldset"
     >
-      <template v-if="control.enabled" v-slot:actions="{ show }">
+      <template v-if="control.enabled" #actions="{ show }">
         <v-tooltip bottom transition="fade">
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
               size="x-small"
@@ -92,7 +92,7 @@
                   >
                     <div align-self="center" class="flex-grow-0 flex-shrink-0">
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ props }">
+                        <template #activator="{ props }">
                           <v-btn
                             v-bind="props"
                             variant="text"
@@ -110,7 +110,7 @@
                     </div>
                     <div align-self="center" class="flex-grow-0 flex-shrink-0">
                       <v-tooltip bottom>
-                        <template v-slot:activator="{ props }">
+                        <template #activator="{ props }">
                           <v-btn
                             v-bind="props"
                             icon="mdi-arrow-down"
@@ -134,7 +134,7 @@
 
                   <div align-self="center" class="flex-grow-0 flex-shrink-0">
                     <v-tooltip bottom>
-                      <template v-slot:activator="{ props }">
+                      <template #activator="{ props }">
                         <v-btn
                           v-bind="props"
                           variant="text"

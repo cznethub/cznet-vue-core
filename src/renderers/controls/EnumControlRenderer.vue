@@ -7,7 +7,7 @@
   >
     <v-select
       @update:model-value="onChange"
-      @focus="isFocused = true"
+      @update:focused="isFocused = $event"
       @blur="isFocused = false"
       :id="control.id + '-input'"
       :data-id="computedLabel.replaceAll(` `, ``)"
@@ -22,7 +22,7 @@
       item-title="label"
       item-value="value"
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"

@@ -16,7 +16,7 @@
       v-bind="vuetifyProps('v-menu')"
       :disabled="appliedOptions.isDisabled || !control.enabled || isReadOnly"
     >
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-text-field
           :id="control.id + '-input'"
           :class="styles.control.input"
@@ -25,7 +25,12 @@
           :hint="control.description"
           :required="control.required"
           :error-messages="control.errors"
-          clearable
+          :disabled="
+            appliedOptions.isDisabled || !control.enabled || isReadOnly
+          "
+          :clearable="
+            !(appliedOptions.isDisabled || !control.enabled || isReadOnly)
+          "
           @click:clear="clear"
           prepend-inner-icon="mdi-calendar"
           v-mask="mask"
@@ -33,7 +38,7 @@
           @update:model-value="onInputChange"
           v-bind="{ ...vuetifyProps('v-text-field'), ...props }"
         >
-          <template v-slot:message>
+          <template #message>
             <cz-field-messages
               :description="control.description"
               :errors="cleanedErrors"

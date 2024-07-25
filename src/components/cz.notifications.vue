@@ -7,7 +7,7 @@
     >
       <span>{{ snackbar.message }}</span>
 
-      <template v-slot:actions>
+      <template #actions>
         <v-btn
           @click="snackbar.isActive = false"
           :color="

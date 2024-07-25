@@ -12,10 +12,10 @@
       :return-value.sync="pickerValue"
       transition="scale-transition"
       v-bind="vuetifyProps('v-menu')"
-      :disabled="!control.enabled || isReadOnly"
+      :disabled="appliedOptions.isDisabled || !control.enabled || isReadOnly"
       min-width="50px"
     >
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-text-field
           :id="control.id + '-input'"
           :class="styles.control.input"
@@ -23,13 +23,16 @@
           :hint="control.description"
           :required="control.required"
           :error-messages="control.errors"
+          :clearable="
+            !(appliedOptions.isDisabled || !control.enabled || isReadOnly)
+          "
           v-bind="{ ...vuetifyProps(`v-text-field`), ...props }"
           :prepend-inner-icon="pickerIcon"
           v-mask="mask"
           :model-value="inputValue"
           @update:model-value="onInputChange"
         >
-          <template v-slot:message>
+          <template #message>
             <cz-field-messages
               :description="control.description"
               :errors="cleanedErrors"

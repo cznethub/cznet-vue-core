@@ -30,10 +30,10 @@
       v-bind="vuetifyProps('v-combobox')"
       item-text="label"
       item-value="value"
-      @focus="isFocused = true"
+      @update:focused="isFocused = $event"
       @blur="isFocused = false"
     >
-      <template v-slot:chip="{ item }">
+      <template #chip="{ item }">
         <v-chip
           :readonly="!control.enabled || isReadOnly"
           :disabled="appliedOptions.isDisabled"
@@ -47,7 +47,7 @@
         </v-chip>
       </template>
 
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"

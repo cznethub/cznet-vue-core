@@ -23,7 +23,7 @@
       item-text="label"
       item-value="value"
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"
@@ -48,7 +48,7 @@
       item-title="label"
       item-value="value"
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"

@@ -27,7 +27,7 @@
       :items="items"
       :clearable="control.enabled && !isReadOnly"
       @update:model-value="onChange"
-      @focus="isFocused = true"
+      @update:focused="isFocused = $event"
       @blur="isFocused = false"
     />
   </control-wrapper>

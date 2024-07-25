@@ -46,6 +46,7 @@ const filteredErrorKeywords = [
   'allOf',
   'anyOf',
   'oneOf',
+  'if',
 ];
 
 const defaultConfigs: Config = {
@@ -133,11 +134,14 @@ class CzForm extends Vue {
     if (error.instancePath) {
       return error.parentSchema?.title || error.params.missingProperty;
     }
-    return (
+    let title =
       error.parentSchema?.properties?.[error.params.missingProperty]?.title ||
       error.params.missingProperty ||
-      ''
-    );
+      '';
+    title = title.replaceAll('_', ' ');
+    return title.length
+      ? title.charAt(0).toUpperCase() + title.slice(1)
+      : title;
   }
 
   private _getErrorMessage(error: ErrorObject): string {

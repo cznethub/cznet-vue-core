@@ -17,9 +17,9 @@
       @show="noData && control.enabled ? addButtonClick() : null"
       ref="fieldset"
     >
-      <template v-slot:actions="{ show }">
+      <template #actions="{ show }">
         <v-tooltip bottom transition="fade">
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
               variant="text"
@@ -123,7 +123,7 @@
                     >
                       <div class="pt-5 fill-height">
                         <v-tooltip bottom>
-                          <template v-slot:activator="{ props }">
+                          <template #activator="{ props }">
                             <v-btn
                               v-bind="props"
                               v-if="appliedOptions.showSortButtons"
@@ -140,7 +140,7 @@
                           Move Up
                         </v-tooltip>
                         <v-tooltip bottom>
-                          <template v-slot:activator="{ props }">
+                          <template #activator="{ props }">
                             <v-btn
                               v-bind="props"
                               v-if="appliedOptions.showSortButtons"
@@ -159,7 +159,7 @@
                           Move Down
                         </v-tooltip>
                         <v-tooltip bottom>
-                          <template v-slot:activator="{ props }">
+                          <template #activator="{ props }">
                             <v-btn
                               v-bind="props"
                               variant="text"

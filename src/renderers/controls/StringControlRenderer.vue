@@ -30,7 +30,7 @@
       v-bind="vuetifyProps('v-combobox')"
       @update:model-value="onChange"
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"
@@ -59,10 +59,10 @@
       :clearable="control.enabled && !isReadOnly"
       v-bind="vuetifyProps('v-text-field')"
       @update:model-value="onChange"
-      @focus="isFocused = true"
+      @update:focused="isFocused = $event"
       @blur="isFocused = false"
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"

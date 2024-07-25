@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-tooltip bottom v-if="errors.length > 0">
-      <template v-slot:activator="{ props }">
+      <template #activator="{ props }">
         <v-badge
           :color="color"
           :bordered="bordered"
@@ -10,7 +10,7 @@
           :offsetY="offsetY"
           :overlap="overlap"
         >
-          <template v-slot:badge>
+          <template #badge>
             {{ errors.length }}
           </template>
           <div v-bind="props"><slot></slot></div>

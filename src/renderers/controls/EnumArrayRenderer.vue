@@ -25,7 +25,7 @@
       item-value="value"
       multiple
     >
-      <template v-slot:message>
+      <template #message>
         <cz-field-messages
           :description="control.description"
           :errors="cleanedErrors"

@@ -7,16 +7,16 @@
       </div>
 
       <!-- LABEL -->
-      <template v-slot:label="{ label }">
+      <template #label="{ label }">
         <div @click="show">{{ label }}</div>
       </template>
 
       <!-- ACTIONS -->
-      <template v-slot:append-inner>
+      <template #append-inner>
         <slot name="actions" :show="show" :hide="hide">
           <div v-if="hasToggle && enabled && !readonly">
             <v-tooltip v-if="!isAdded" transition="fade">
-              <template v-slot:activator="{ props }">
+              <template #activator="{ props }">
                 <v-btn
                   icon="mdi-plus"
                   variant="text"
@@ -33,7 +33,7 @@
             </v-tooltip>
 
             <v-tooltip v-else transition="fade">
-              <template v-slot:activator="{ props }">
+              <template #activator="{ props }">
                 <v-btn
                   icon="mdi-minus"
                   variant="text"
