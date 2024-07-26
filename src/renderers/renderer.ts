@@ -28,6 +28,7 @@ import {
   schemaMatches,
   schemaSubPathMatches,
   uiTypeIs,
+  hasOption,
 } from '@jsonforms/core';
 
 import groupRenderer from './layouts/GroupRenderer.vue';
@@ -54,6 +55,7 @@ import arrayControlRenderer from './controls/ArrayControlRenderer.vue';
 import booleanControlRenderer from './controls/BooleanControlRenderer.vue';
 import mapLayoutRenderer from './layouts/MapLayoutRenderer.vue';
 import objectLayoutRenderer from './layouts/ObjectLayoutRenderer.vue';
+import ObjectArrayAsyncAutocompleteRenderer from './controls/ObjectArrayAsyncAutocompleteRenderer.vue';
 
 const hasOneOfItems = (schema: JsonSchema): boolean =>
   schema.oneOf !== undefined &&
@@ -95,6 +97,11 @@ const simpleAnyOf = and(
   schemaMatches(
     schema => Array.isArray(schema.anyOf) && hasEnumAndText(schema.anyOf)
   )
+);
+
+const isObjectArrayAsyncAutocompleteControl = and(
+  uiTypeIs('Control'),
+  hasOption('asyncAutocomplete')
 );
 
 /**
@@ -218,6 +225,10 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     renderer: objectLayoutRenderer,
     tester: rankWith(3, and(isLayout, uiTypeIs('Object'))),
+  },
+  {
+    renderer: ObjectArrayAsyncAutocompleteRenderer,
+    tester: rankWith(5, isObjectArrayAsyncAutocompleteControl),
   },
 ];
 
