@@ -4,103 +4,77 @@
     :styles="styles"
     :appliedOptions="appliedOptions"
   >
-    <v-combobox
-      :items="hints"
-      @click="menu = true"
-      @click:clear="hints = []"
-      v-model="valueInternal"
-      v-model:menu="menu"
-      ref="searchInput"
-      prepend-inner-icon="mdi-magnify"
-      item-props
-      item-title="label"
-      item-value="value"
-      rounded
-      density="compact"
-      clearable
-      :loading="isFetchingHints"
-      hide-no-data
-      variant="solo"
-      no-filter
-    >
-      <template #item="{ props, item }">
-        <v-list-item
-          v-bind="props"
-          density="compact"
-          @pointerdown="onHintSelected($event, item.raw)"
-          @keydown.enter="onHintSelected($event, item.raw)"
-        >
-          <template #title>
-            <v-list-item-title class="font-weight-regular">
-              {{ item.raw.label }}
-            </v-list-item-title>
-          </template>
-        </v-list-item>
-      </template>
-    </v-combobox>
-
-    <v-card
+    <cz-fieldset
       v-if="control.visible"
-      :class="styles.arrayList.root"
-      class="mt-5"
-      elevation="0"
-      v-bind="vuetifyProps('v-card')"
-      outlined
+      :data-id="computedLabel.replaceAll(` `, ``)"
+      :description="control.description"
+      :hasToggle="noData"
+      :enabled="!appliedOptions.isDisabled"
+      :readonly="!control.enabled"
+      :errors="control.errors"
+      :title="control.schema.title"
+      :computedLabel="computedLabel"
+      @show="noData && control.enabled ? addButtonClick() : null"
+      ref="fieldset"
     >
-      <v-card-text class="pa-0">
-        <v-container justify-space-around align-content-center>
-          <v-row justify="center">
+      <template #actions="{ show }">
+        <v-tooltip bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              icon="mdi-plus"
+              variant="text"
+              size="small"
+              color="primary"
+              @click="
+                addButtonClick();
+                show();
+              "
+              :class="styles.arrayList.addButton"
+              class="btn-add"
+              :aria-label="`Add to ${control.label}`"
+              v-bind="props"
+              :disabled="
+                !control.enabled ||
+                (appliedOptions.restrict &&
+                  maxItems !== undefined &&
+                  control.data &&
+                  control.data.length >= maxItems)
+              "
+            ></v-btn>
+          </template>
+          {{ `Add to ${control.label}` }}
+        </v-tooltip>
+      </template>
+
+      <v-card
+        v-if="control.visible"
+        :class="styles.arrayList.root"
+        class="mt-5"
+        elevation="0"
+        v-bind="vuetifyProps('v-card')"
+        outlined
+      >
+        <v-card-text class="pa-0">
+          <v-container justify-space-around align-content-center>
             <v-table
               class="array-container flex"
               v-bind="vuetifyProps('v-table')"
             >
-              <thead v-if="control.schema.type === 'object'">
-                <tr>
-                  <!-- FIELDS TITLES -->
-                  <th
-                    v-for="(prop, index) in getValidColumnProps(control.schema)"
-                    :key="`${control.path}-header-${index}`"
-                    scope="col"
-                  >
-                    {{ title(prop) }}
-                  </th>
-
-                  <!-- CONTROLS -->
-                  <th
-                    v-if="control.enabled"
-                    :class="
-                      appliedOptions.showSortButtons
-                        ? 'fixed-cell'
-                        : 'fixed-cell-small'
-                    "
-                    scope="col"
-                  ></th>
-                </tr>
-              </thead>
               <tbody>
                 <tr
                   v-for="(element, index) in control.data"
                   :key="`${control.path}-${index}`"
                   :class="styles.arrayList.item"
                 >
-                  <!-- FIELDS RENDERERS -->
-                  <td
-                    v-for="propName in getValidColumnProps(control.schema)"
-                    :key="
-                      composePaths(
-                        composePaths(control.path, `${index}`),
-                        propName
-                      )
-                    "
-                  >
-                    <dispatch-renderer
-                      :schema="control.schema"
-                      :uischema="resolveUiSchema(propName)"
-                      :path="composePaths(control.path, `${index}`)"
-                      :enabled="control.enabled && !isRequired(element)"
-                      :renderers="control.renderers"
-                      :cells="control.cells"
-                    />
+                  <!-- OBJECT -->
+                  <td>
+                    <v-card class="mb-4">
+                      <v-card-text class="d-flex">
+                        <div class="flex-grow-1">
+                          <pre>{{ element }}</pre>
+                        </div>
+                      </v-card-text>
+                    </v-card>
                   </td>
 
                   <!-- CONTROLS -->
@@ -176,13 +150,134 @@
                 </tr>
               </tbody>
             </v-table>
-          </v-row>
-        </v-container>
-        <v-container v-if="dataLength === 0" :class="styles.arrayList.noData">
-          No data
-        </v-container>
-      </v-card-text>
-    </v-card>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </cz-fieldset>
+
+    <v-dialog max-width="1280" height="70vh" v-model="showAddDialog">
+      <v-card class="fill-height d-flex flex-column">
+        <v-card-title>Search</v-card-title>
+        <v-card-text class="flex-grow-0">
+          <v-text-field
+            append-inner-icon="mdi-magnify"
+            v-model.trim="valueInternal"
+            :loading="isLoadingOptions"
+            v-bind="vuetifyProps('v-text-field')"
+            @click:append-inner="search"
+            @keydown.enter="search"
+            class="flex-shrink-1"
+            hide-details
+          ></v-text-field>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-text class="d-flex flex-column results-container">
+          <v-data-iterator
+            :items="options"
+            :page="page"
+            :items-per-page="itemsPerPage"
+            show-select
+            multiple
+            :loading="isLoadingOptions"
+          >
+            <template v-slot:default="{ items }">
+              <v-row>
+                <v-col
+                  v-for="(item, i) in items"
+                  :key="i"
+                  cols="12"
+                  sm="6"
+                  xl="4"
+                >
+                  <v-card
+                    class="fill-height bg-white"
+                    @click="
+                      !isValueIncluded(getOptionValue(item.raw))
+                        ? (item.raw._isSelected = !item.raw._isSelected)
+                        : null
+                    "
+                    :ripple="false"
+                    :variant="
+                      item.raw._isSelected ||
+                      isValueIncluded(getOptionValue(item.raw))
+                        ? 'outlined'
+                        : 'elevated'
+                    "
+                    :color="
+                      item.raw._isSelected ||
+                      isValueIncluded(getOptionValue(item.raw))
+                        ? 'primary'
+                        : ''
+                    "
+                  >
+                    <v-card-text class="d-flex">
+                      <div class="flex-grow-1">
+                        <template v-for="row of getOptionDisplay(item.raw)">
+                          <div class="text-caption">{{ row.label }}</div>
+                          <div class="text-body-1 mb-2">{{ row.value }}</div>
+                        </template>
+                      </div>
+                      <div class="align-self-center">
+                        <v-checkbox
+                          v-if="isValueIncluded(getOptionValue(item.raw))"
+                          :model-value="true"
+                          disabled
+                          color="primary"
+                        ></v-checkbox>
+                        <v-checkbox
+                          v-else
+                          :model-value="item.raw._isSelected"
+                          color="primary"
+                        ></v-checkbox>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </template>
+
+            <template v-slot:loader>
+              <v-row>
+                <v-col
+                  v-for="(_, k) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]"
+                  :key="k"
+                  cols="12"
+                  sm="6"
+                  xl="4"
+                >
+                  <v-skeleton-loader
+                    class="border"
+                    type="article"
+                  ></v-skeleton-loader>
+                </v-col>
+              </v-row>
+            </template>
+          </v-data-iterator>
+        </v-card-text>
+        <v-divider></v-divider>
+
+        <v-card-text v-if="options.length" class="flex-grow-0">
+          <v-pagination
+            v-model="page"
+            :length="Math.ceil(options.length / itemsPerPage)"
+            rounded="circle"
+          ></v-pagination>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Cancel" @click="showAddDialog = false"></v-btn>
+          <v-btn
+            @click="addSelected"
+            color="primary"
+            text="Add selected"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </control-wrapper>
 </template>
 
@@ -226,10 +321,6 @@ import {
 import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
-import { debounceTime, map, switchMap, tap } from 'rxjs/operators';
-import { fromEvent, from } from 'rxjs';
-
-const typeaheadDebounceTime = 500;
 
 export default defineComponent({
   name: 'array-control-renderer',
@@ -265,25 +356,25 @@ export default defineComponent({
 
     const fieldset = ref<InstanceType<typeof CzFieldset>>();
     const suggestToDelete = ref<null | number>(null);
-    const options: Ref<{ label: string; value: any }[]> = ref([]);
-    const hints: Ref<{ label: string; value: any }[]> = ref([]);
+    const options: Ref<any[]> = ref([]);
     const menu = ref(false);
-    const isFetchingHints = ref(false);
-    const valueInternal = ref('');
-    const searchInput = ref(null);
-    const isLoadingOptions = ref(true);
+    const valueInternal = ref('collab');
+    const isLoadingOptions = ref(false);
+    const page = ref(1);
+    const showAddDialog = ref(false);
+    const itemsPerPage = ref(12);
 
     return {
       ...control,
       suggestToDelete,
       fieldset,
       options,
-      hints,
       menu,
-      isFetchingHints,
       valueInternal,
-      searchInput,
       isLoadingOptions,
+      page,
+      showAddDialog,
+      itemsPerPage,
     };
   },
   computed: {
@@ -304,6 +395,9 @@ export default defineComponent({
       // @ts-ignore
       return this.control.schema.maxItems || this.arraySchema?.maxItems;
     },
+    selected() {
+      return this.options.filter(o => !!o._isSelected);
+    },
   },
   created() {
     // @ts-ignore
@@ -314,10 +408,7 @@ export default defineComponent({
         this.control.data = [];
       }
       // We must use isEqual to compare objects instead of Arra.includes
-      const isIncluded = this.control.data.some((existingItem: any) =>
-        isEqual(item, existingItem)
-      );
-      if (!isIncluded) {
+      if (!this.isValueIncluded(item)) {
         this.addItem(this.control.path, item)();
       }
     });
@@ -327,35 +418,26 @@ export default defineComponent({
         this.addItem(this.control.path, item)();
       });
     }
-
-    this.loadOptions();
-  },
-  mounted() {
-    // https://www.learnrxjs.io/learn-rxjs/recipes/type-ahead
-    if (this.searchInput) {
-      fromEvent(this.searchInput?.$el, 'input')
-        .pipe(
-          tap(() => {
-            this.isFetchingHints = !!this.valueInternal;
-            this.menu = true;
-          }),
-          debounceTime(typeaheadDebounceTime),
-          map((e: any) => e.target.value),
-          switchMap(() => from(this._onTypeahead()))
-        )
-        .subscribe(() => {
-          this._handleTypeahead();
-        });
-    }
   },
   methods: {
     composePaths,
     createDefaultValue,
     addButtonClick() {
-      this.addItem(
-        this.control.path,
-        createDefaultValue(this.control.schema, this.control.rootSchema)
-      )();
+      this.showAddDialog = true;
+    },
+    addSelected() {
+      this.showAddDialog = false;
+      this.selected.forEach(item => {
+        const value = this.getOptionValue(item);
+        if (!this.isValueIncluded(value)) {
+          this.addItem(this.control.path, value)();
+        }
+      });
+    },
+    isValueIncluded(value: any) {
+      return this.control.data?.some((existingItem: any) =>
+        isEqual(value, existingItem)
+      );
     },
     moveUpClick(event: Event, toMove: number): void {
       event.stopPropagation();
@@ -465,12 +547,14 @@ export default defineComponent({
       });
       return value;
     },
-    async loadOptions() {
-      // Load options
-      console.log(this.control);
+    async loadOptions(search: string) {
       let vocabulary: any;
-      const url =
-        this.control.uischema?.options?.asyncAutocomplete.vocabularyUrl;
+      let url =
+        this.control.uischema?.options?.asyncAutocomplete.vocabulary.jsonUrl;
+      if (search) {
+        url = `${url}&q=${encodeURIComponent(search)}`;
+      }
+      this.isLoadingOptions = true;
       try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -481,55 +565,45 @@ export default defineComponent({
         console.log(vocabulary);
       } catch (error: any) {
         console.error(error.message);
+        this.isLoadingOptions = false;
       }
 
-      const path: string =
-        this.control.uischema?.options?.asyncAutocomplete.items;
-      vocabulary = this.deepValue(vocabulary, path);
-
-      console.log(vocabulary);
-      const labelPath = this.control.uischema?.options?.asyncAutocomplete.label;
-      vocabulary.forEach((item: any) => {
-        const label = this.deepValue(item, labelPath);
-
-        this.options.push({
-          label: label,
-          value: label,
-        });
-      });
-
-      console.log(this.options);
-      this.isLoadingOptions = false;
-    },
-    onHintSelected(_event: PointerEvent, hint: { label: string; value: any }) {
-      // TODO: duplicate check
-      if (
-        !this.control.data?.some(
-          (item: { label: string; value: any }) => item.label === hint.label
-        )
-      ) {
-        this.addItem(this.control.path, hint)();
-      }
-    },
-    _handleTypeahead() {
-      if (this.valueInternal) {
-        this.isFetchingHints = false;
-      }
-    },
-    async _onTypeahead() {
-      if (!this.valueInternal?.trim?.()) {
-        this.isFetchingHints = false;
-        this.hints = [];
+      if (!vocabulary) {
         return;
       }
 
-      return new Promise((_resolve, _reject) => {
-        setTimeout(() => {
-          _resolve(true);
-          this.hints = this.options; // TODO: filter using this.valueInternal
-          // _reject(false);
-        }, 500);
-      });
+      const path: string =
+        this.control.uischema?.options?.asyncAutocomplete.vocabulary.items;
+      vocabulary = this.deepValue(vocabulary, path);
+
+      this.options = vocabulary;
+
+      this.isLoadingOptions = false;
+    },
+    getOptionDisplay(option: any): { label: string; value: string }[] {
+      const display: { label: string; value: string }[] =
+        this.control.uischema?.options?.asyncAutocomplete.vocabulary.display;
+      return display.map(d => ({
+        label: d.label,
+        value: this.deepValue(option, d.value),
+      }));
+    },
+    getOptionValue(option: any): { [key: string]: any } {
+      const value: { [key: string]: any } = {
+        ...this.control.uischema?.options?.asyncAutocomplete.vocabulary.value,
+      };
+
+      for (var prop in value) {
+        if (Object.prototype.hasOwnProperty.call(value, prop)) {
+          value[prop] = this.deepValue(option, value[prop]);
+        }
+      }
+
+      return value;
+    },
+    async search() {
+      await this.loadOptions(this.valueInternal);
+      this.page = 1;
     },
   },
 });
@@ -556,16 +630,10 @@ export default defineComponent({
   text-align: center;
 }
 
-// .array-container tbody tr td {
-//   // border-bottom: none !important;
-// }
-
-.array-container tbody tr td .container {
-  padding: 0;
-  margin: 0;
-}
-
-:deep(.array-container .v-label) {
-  background-color: transparent !important;
+.results-container {
+  height: 0;
+  overflow-y: auto;
+  padding: 4rem;
+  background: #efefef;
 }
 </style>

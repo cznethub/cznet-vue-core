@@ -2,14 +2,28 @@
   "type": "Control",
   "scope": "#/properties/grants",
   "options": {
+    "showSortButtons": true,
     "asyncAutocomplete": {
-      "vocabularyUrl": "https://zenodo.org/api/awards?page=1&size=10&funders=021nxhr62",
-      "items": "hits.hits",
-      "label": "title.en",
-      "value": {
-        "id": "id",
-        "funder": "funder.name",
-        "award": "title.en"
+      "vocabulary": {
+        "jsonUrl": "https://zenodo.org/api/awards?page=1&size=50&funders=021nxhr62",
+        "items": "hits.hits",
+        "display": [
+          {
+            "label": "Award/Grant Title",
+            "value": "title.en"
+          },
+          {
+            "label": "Award/Grant Number",
+            "value": "number"
+          },
+          {
+            "label": "Funder",
+            "value": "funder.name"
+          }
+        ],
+        "value": {
+          "id": "id"
+        }
       }
     }
   }
