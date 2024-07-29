@@ -56,10 +56,7 @@
       >
         <v-card-text class="pa-0">
           <v-container justify-space-around align-content-center>
-            <v-table
-              class="array-container flex"
-              v-bind="vuetifyProps('v-table')"
-            >
+            <v-table class="array-container" v-bind="vuetifyProps('v-table')">
               <tbody>
                 <tr
                   v-for="(element, index) in control.data"
@@ -68,7 +65,7 @@
                 >
                   <!-- OBJECT -->
                   <td>
-                    <v-card class="mb-4">
+                    <v-card class="my-4">
                       <v-card-text class="d-flex">
                         <div class="flex-grow-1">
                           <pre>{{ element }}</pre>
@@ -180,6 +177,7 @@
             show-select
             multiple
             :loading="isLoadingOptions"
+            class="fill-height"
           >
             <template v-slot:default="{ items }">
               <v-row>
@@ -218,7 +216,7 @@
                           <div class="text-body-1 mb-2">{{ row.value }}</div>
                         </template>
                       </div>
-                      <div class="align-self-center">
+                      <div class="flex-shrink-0 ml-2">
                         <v-checkbox
                           v-if="isValueIncluded(getOptionValue(item.raw))"
                           :model-value="true"
@@ -252,6 +250,24 @@
                   ></v-skeleton-loader>
                 </v-col>
               </v-row>
+            </template>
+
+            <template #no-data>
+              <div class="fill-height d-flex justify-center">
+                <v-empty-state
+                  v-if="hasLoadedOptions"
+                  icon="mdi-magnify"
+                  title="We couldn't find a match."
+                  text="Try narrowing your search or adjusting your filters."
+                ></v-empty-state>
+
+                <v-empty-state
+                  v-else
+                  icon="mdi-magnify"
+                  title="Search"
+                  text="Use the input above to search."
+                ></v-empty-state>
+              </div>
             </template>
           </v-data-iterator>
         </v-card-text>
@@ -358,11 +374,12 @@ export default defineComponent({
     const suggestToDelete = ref<null | number>(null);
     const options: Ref<any[]> = ref([]);
     const menu = ref(false);
-    const valueInternal = ref('collab');
+    const valueInternal = ref('');
     const isLoadingOptions = ref(false);
     const page = ref(1);
     const showAddDialog = ref(false);
     const itemsPerPage = ref(12);
+    const hasLoadedOptions = ref(false);
 
     return {
       ...control,
@@ -375,6 +392,7 @@ export default defineComponent({
       page,
       showAddDialog,
       itemsPerPage,
+      hasLoadedOptions,
     };
   },
   computed: {
@@ -548,6 +566,10 @@ export default defineComponent({
       return value;
     },
     async loadOptions(search: string) {
+      if (!search) {
+        return;
+      }
+
       let vocabulary: any;
       let url =
         this.control.uischema?.options?.asyncAutocomplete.vocabulary.jsonUrl;
@@ -562,7 +584,6 @@ export default defineComponent({
         }
 
         vocabulary = await response.json();
-        console.log(vocabulary);
       } catch (error: any) {
         console.error(error.message);
         this.isLoadingOptions = false;
@@ -579,6 +600,7 @@ export default defineComponent({
       this.options = vocabulary;
 
       this.isLoadingOptions = false;
+      this.hasLoadedOptions = true;
     },
     getOptionDisplay(option: any): { label: string; value: string }[] {
       const display: { label: string; value: string }[] =
