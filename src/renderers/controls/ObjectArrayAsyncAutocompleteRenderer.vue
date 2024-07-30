@@ -435,7 +435,7 @@ export default defineComponent({
       // TODO: load displayelements of existing items
       this.control.data?.forEach(async (d: any, index: number) => {
         this.displayElements[index] = null;
-        this.displayElements[index] = await this.getElementDisplay(d);
+        this.displayElements[index] = await this.fetchElementDisplay(d);
       });
     },
     addButtonClick() {
@@ -446,7 +446,10 @@ export default defineComponent({
       this.selected.forEach(item => {
         const value = this.getOptionValue(item);
         if (!this.isValueIncluded(value)) {
-          this.addAsyncItem(value);
+          this.addItem(this.control.path, value)();
+          const index = this.control.data.length - 1;
+          this.displayElements[index] = null;
+          this.displayElements[index] = this.getOptionDisplay(item);
         }
       });
     },
@@ -569,7 +572,7 @@ export default defineComponent({
       this.addItem(this.control.path, item)();
       const index = this.control.data.length - 1;
       this.displayElements[index] = null;
-      this.displayElements[index] = await this.getElementDisplay(item);
+      this.displayElements[index] = await this.fetchElementDisplay(item);
     },
     async loadOptions(search: string) {
       if (!search) {
@@ -629,14 +632,14 @@ export default defineComponent({
 
       return value;
     },
-    async getElementDisplay(item: any) {
+    async fetchElementDisplay(item: any) {
       const itemUrl: { url: string; params: string[] } =
         this.control.uischema?.options?.asyncAutocomplete.vocabulary.itemUrl;
 
       const params = itemUrl.params;
       let url = itemUrl.url;
       params.forEach(p => {
-        url = sprintf(itemUrl.url || '', item[p]);
+        url = sprintf(itemUrl.url || '', encodeURIComponent(item[p]));
       });
 
       let data;
@@ -662,26 +665,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-:deep(table) {
-  table-layout: fixed;
-}
-
-.fixed-cell {
-  width: 150px;
-  height: 50px;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  text-align: center;
-}
-
-.fixed-cell-small {
-  width: 50px;
-  height: 50px;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  text-align: center;
-}
-
 .results-container {
   height: 0;
   overflow-y: auto;
