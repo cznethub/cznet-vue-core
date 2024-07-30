@@ -5,7 +5,7 @@
     "showSortButtons": true,
     "asyncAutocomplete": {
       "vocabulary": {
-        "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000&funders=021nxhr62",
+        "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
         "items": "hits.hits",
         "display": [
           {
@@ -23,6 +23,12 @@
         ],
         "value": {
           "id": "id"
+        },
+        "itemUrl": {
+          "url": "https://zenodo.org/api/awards/%s",
+          "params": [
+            "id"
+          ]
         }
       }
     }

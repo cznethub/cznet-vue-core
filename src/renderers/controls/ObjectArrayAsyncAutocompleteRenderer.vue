@@ -46,110 +46,96 @@
         </v-tooltip>
       </template>
 
-      <v-card
-        v-if="control.visible"
-        :class="styles.arrayList.root"
-        class="mt-5"
-        elevation="0"
-        v-bind="vuetifyProps('v-card')"
-        outlined
-      >
-        <v-card-text class="pa-0">
-          <v-container justify-space-around align-content-center>
-            <v-table class="array-container" v-bind="vuetifyProps('v-table')">
-              <tbody>
-                <tr
-                  v-for="(element, index) in control.data"
-                  :key="`${control.path}-${index}`"
-                  :class="styles.arrayList.item"
-                >
-                  <!-- OBJECT -->
-                  <td>
-                    <v-card class="my-4">
-                      <v-card-text class="d-flex">
-                        <div class="flex-grow-1">
-                          <pre>{{ element }}</pre>
-                        </div>
-                      </v-card-text>
-                    </v-card>
-                  </td>
-
-                  <!-- CONTROLS -->
-                  <td
-                    v-if="control.enabled"
-                    :class="
-                      appliedOptions.showSortButtons
-                        ? 'fixed-cell'
-                        : 'fixed-cell-small'
-                    "
-                  >
-                    <div class="pt-5 fill-height">
-                      <v-tooltip bottom>
-                        <template #activator="{ props }">
-                          <v-btn
-                            v-bind="props"
-                            v-if="appliedOptions.showSortButtons"
-                            variant="text"
-                            icon="mdi-arrow-up"
-                            elevation="0"
-                            size="small"
-                            aria-label="Up"
-                            :disabled="index <= 0 || !control.enabled"
-                            :class="styles.arrayList.itemMoveUp"
-                            @click.native="moveUpClick($event, index)"
-                          ></v-btn>
-                        </template>
-                        Move Up
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <template #activator="{ props }">
-                          <v-btn
-                            v-bind="props"
-                            v-if="appliedOptions.showSortButtons"
-                            variant="text"
-                            elevation="0"
-                            size="small"
-                            icon="mdi-arrow-down"
-                            aria-label="Down"
-                            :disabled="
-                              index >= dataLength - 1 || !control.enabled
-                            "
-                            :class="styles.arrayList.itemMoveDown"
-                            @click.native="moveDownClick($event, index)"
-                          ></v-btn>
-                        </template>
-                        Move Down
-                      </v-tooltip>
-                      <v-tooltip bottom>
-                        <template #activator="{ props }">
-                          <v-btn
-                            v-bind="props"
-                            variant="text"
-                            elevation="0"
-                            aria-label="Remove"
-                            icon="mdi-delete"
-                            :class="styles.arrayList.itemDelete"
-                            :disabled="
-                              !control.enabled ||
-                              isRequired(element) ||
-                              (appliedOptions.restrict &&
-                                arraySchema !== undefined &&
-                                arraySchema.minItems !== undefined &&
-                                dataLength <= arraySchema.minItems)
-                            "
-                            @click.native="removeItemsClick($event, [index])"
-                          ></v-btn>
-                        </template>
-                        Remove
-                      </v-tooltip>
+      <div v-if="control.visible" class="gap-1 d-flex flex-column mt-5">
+        <template
+          v-for="(element, index) in control.data"
+          :key="`${control.path}-${index}`"
+          :class="styles.arrayList.item"
+        >
+          <!-- OBJECT -->
+          <v-card class="bg-white" variant="elevated">
+            <template v-if="displayElements[index]">
+              <v-card-actions v-if="control.enabled">
+                <v-badge color="primary" :content="index + 1" inline></v-badge>
+                <v-spacer></v-spacer>
+                <v-tooltip bottom>
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      v-if="appliedOptions.showSortButtons"
+                      variant="text"
+                      icon="mdi-arrow-up"
+                      elevation="0"
+                      size="small"
+                      aria-label="Up"
+                      :disabled="index <= 0 || !control.enabled"
+                      :class="styles.arrayList.itemMoveUp"
+                      @click.native="moveUpClick($event, index)"
+                    ></v-btn>
+                  </template>
+                  Move Up
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      v-if="appliedOptions.showSortButtons"
+                      variant="text"
+                      elevation="0"
+                      size="small"
+                      icon="mdi-arrow-down"
+                      aria-label="Down"
+                      :disabled="index >= dataLength - 1 || !control.enabled"
+                      :class="styles.arrayList.itemMoveDown"
+                      @click.native="moveDownClick($event, index)"
+                    ></v-btn>
+                  </template>
+                  Move Down
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template #activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      variant="text"
+                      elevation="0"
+                      aria-label="Remove"
+                      icon="mdi-delete"
+                      :class="styles.arrayList.itemDelete"
+                      :disabled="
+                        !control.enabled ||
+                        isRequired(element) ||
+                        (appliedOptions.restrict &&
+                          arraySchema !== undefined &&
+                          arraySchema.minItems !== undefined &&
+                          dataLength <= arraySchema.minItems)
+                      "
+                      @click.native="removeItemsClick($event, [index])"
+                    ></v-btn>
+                  </template>
+                  Remove
+                </v-tooltip>
+              </v-card-actions>
+              <v-divider></v-divider>
+              <v-card-text class="d-flex">
+                <div class="flex-grow-1">
+                  <template v-for="row of displayElements[index]">
+                    <div class="text-caption">{{ row.label }}</div>
+                    <div class="text-body-1 mb-2">
+                      {{ row.value }}
                     </div>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-container>
-        </v-card-text>
-      </v-card>
+                  </template>
+                </div>
+              </v-card-text>
+            </template>
+
+            <v-skeleton-loader
+              v-else
+              class="border"
+              type="article"
+            ></v-skeleton-loader>
+          </v-card>
+        </template>
+      </div>
     </cz-fieldset>
 
     <v-dialog max-width="1280" height="70vh" v-model="showAddDialog">
@@ -337,6 +323,7 @@ import {
 import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+import { sprintf } from 'sprintf-js';
 
 export default defineComponent({
   name: 'array-control-renderer',
@@ -373,6 +360,7 @@ export default defineComponent({
     const fieldset = ref<InstanceType<typeof CzFieldset>>();
     const suggestToDelete = ref<null | number>(null);
     const options: Ref<any[]> = ref([]);
+    const displayElements: Ref<any[]> = ref([]);
     const menu = ref(false);
     const valueInternal = ref('');
     const isLoadingOptions = ref(false);
@@ -393,6 +381,7 @@ export default defineComponent({
       showAddDialog,
       itemsPerPage,
       hasLoadedOptions,
+      displayElements,
     };
   },
   computed: {
@@ -427,19 +416,28 @@ export default defineComponent({
       }
       // We must use isEqual to compare objects instead of Arra.includes
       if (!this.isValueIncluded(item)) {
-        this.addItem(this.control.path, item)();
+        this.addAsyncItem(item);
       }
     });
 
     if (this.control.schema.default && !this.control.data) {
       this.control.schema.default.map((item: any) => {
-        this.addItem(this.control.path, item)();
+        this.addAsyncItem(item);
       });
     }
+
+    this.loadInitialDisplay();
   },
   methods: {
     composePaths,
     createDefaultValue,
+    async loadInitialDisplay() {
+      // TODO: load displayelements of existing items
+      this.control.data?.forEach(async (d: any, index: number) => {
+        this.displayElements[index] = null;
+        this.displayElements[index] = await this.getElementDisplay(d);
+      });
+    },
     addButtonClick() {
       this.showAddDialog = true;
     },
@@ -448,7 +446,7 @@ export default defineComponent({
       this.selected.forEach(item => {
         const value = this.getOptionValue(item);
         if (!this.isValueIncluded(value)) {
-          this.addItem(this.control.path, value)();
+          this.addAsyncItem(value);
         }
       });
     },
@@ -457,6 +455,7 @@ export default defineComponent({
         isEqual(value, existingItem)
       );
     },
+    // TODO: keep displayElements in sync after every operation or find a way to append to control.data without mutating data
     moveUpClick(event: Event, toMove: number): void {
       event.stopPropagation();
       this.moveUp?.(this.control.path, toMove)();
@@ -565,6 +564,13 @@ export default defineComponent({
       });
       return value;
     },
+    // TODO: this sync has to happen on every operation
+    async addAsyncItem(item: any) {
+      this.addItem(this.control.path, item)();
+      const index = this.control.data.length - 1;
+      this.displayElements[index] = null;
+      this.displayElements[index] = await this.getElementDisplay(item);
+    },
     async loadOptions(search: string) {
       if (!search) {
         return;
@@ -622,6 +628,30 @@ export default defineComponent({
       }
 
       return value;
+    },
+    async getElementDisplay(item: any) {
+      const itemUrl: { url: string; params: string[] } =
+        this.control.uischema?.options?.asyncAutocomplete.vocabulary.itemUrl;
+
+      const params = itemUrl.params;
+      let url = itemUrl.url;
+      params.forEach(p => {
+        url = sprintf(itemUrl.url || '', item[p]);
+      });
+
+      let data;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+
+        data = await response.json();
+      } catch (error: any) {
+        console.error(error.message);
+      }
+
+      return this.getOptionDisplay(data);
     },
     async search() {
       await this.loadOptions(this.valueInternal);
