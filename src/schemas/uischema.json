@@ -3,32 +3,24 @@
   "scope": "#/properties/grants",
   "options": {
     "showSortButtons": true,
-    "asyncAutocomplete": {
-      "vocabulary": {
-        "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
-        "items": "hits.hits",
-        "display": [
-          {
-            "label": "Award/Grant Title",
-            "value": "title.en"
-          },
-          {
-            "label": "Award/Grant Number",
-            "value": "number"
-          },
-          {
-            "label": "Funder",
-            "value": "funder.name"
-          }
-        ],
-        "value": {
-          "id": "id"
+    "elementLabelProp": "title",
+    "childLabelProp": "-",
+    "vocabulary": {
+      "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
+      "items": "hits.hits",
+      "value": {
+        "id": {
+          "contents": "id",
+          "hidden": true
         },
-        "itemUrl": {
-          "url": "https://zenodo.org/api/awards/%s",
-          "params": [
-            "id"
-          ]
+        "title": {
+          "contents": "title.en"
+        },
+        "number": {
+          "contents": "number"
+        },
+        "funder": {
+          "contents": "funder.name"
         }
       }
     }

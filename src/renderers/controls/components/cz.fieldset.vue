@@ -19,12 +19,11 @@
               <template #activator="{ props }">
                 <v-btn
                   icon="mdi-plus"
-                  variant="text"
-                  color="primary"
+                  variant="elevated"
+                  size="small"
+                  border="solid thin"
                   @click="show()"
                   :disabled="!enabled || readonly"
-                  size="small"
-                  class="btn-add"
                   :aria-label="`Add to ${title}`"
                   v-bind="props"
                 ></v-btn>
@@ -41,7 +40,6 @@
                   @click="hide()"
                   :disabled="!enabled"
                   size="small"
-                  class="btn-add"
                   aria-label="Remove"
                   v-bind="props"
                 ></v-btn>

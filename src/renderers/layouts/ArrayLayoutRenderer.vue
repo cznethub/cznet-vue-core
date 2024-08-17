@@ -22,15 +22,14 @@
           <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
-              size="x-small"
-              variant="text"
-              color="primary"
+              variant="elevated"
+              size="small"
+              border="solid thin"
               @click="
                 addButtonClick();
                 show();
               "
               :class="styles.arrayList.addButton"
-              class="btn-add"
               :aria-label="`Add to ${control.label}`"
               v-bind="props"
               :disabled="
@@ -61,7 +60,7 @@
                   px-0
                   class="flex-grow-0"
                 >
-                  <v-chip aria-label="Index" color="primary">
+                  <v-chip aria-label="Index" class="bg-primary">
                     <span class="primary--text text--lighten-5">
                       {{ index + 1 }}
                     </span>

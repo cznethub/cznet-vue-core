@@ -17,20 +17,16 @@
       @show="noData && control.enabled ? addButtonClick() : null"
       ref="fieldset"
     >
-      <template #actions="{ show }">
+      <template #actions>
         <v-tooltip bottom transition="fade">
           <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
-              variant="text"
+              variant="elevated"
               size="small"
-              color="primary"
-              @click="
-                addButtonClick();
-                show();
-              "
+              border="solid thin"
+              @click="addButtonClick"
               :class="styles.arrayList.addButton"
-              class="btn-add"
               :aria-label="`Add to ${control.label}`"
               v-bind="props"
               :disabled="
@@ -46,99 +42,177 @@
         </v-tooltip>
       </template>
 
-      <div v-if="control.visible" class="gap-1 d-flex flex-column mt-5">
-        <template
-          v-for="(element, index) in control.data"
-          :key="`${control.path}-${index}`"
-          :class="styles.arrayList.item"
-        >
-          <!-- OBJECT -->
-          <v-card class="bg-white" variant="elevated">
-            <template v-if="displayElements[index]">
-              <v-card-actions v-if="control.enabled">
-                <v-badge color="primary" :content="index + 1" inline></v-badge>
-                <v-spacer></v-spacer>
-                <v-tooltip bottom>
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      v-if="appliedOptions.showSortButtons"
-                      variant="text"
-                      icon="mdi-arrow-up"
-                      elevation="0"
-                      size="small"
-                      aria-label="Up"
-                      :disabled="index <= 0 || !control.enabled"
-                      :class="styles.arrayList.itemMoveUp"
-                      @click.native="moveUpClick($event, index)"
-                    ></v-btn>
-                  </template>
-                  Move Up
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      v-if="appliedOptions.showSortButtons"
-                      variant="text"
-                      elevation="0"
-                      size="small"
-                      icon="mdi-arrow-down"
-                      aria-label="Down"
-                      :disabled="index >= dataLength - 1 || !control.enabled"
-                      :class="styles.arrayList.itemMoveDown"
-                      @click.native="moveDownClick($event, index)"
-                    ></v-btn>
-                  </template>
-                  Move Down
-                </v-tooltip>
-                <v-tooltip bottom>
-                  <template #activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      variant="text"
-                      elevation="0"
-                      aria-label="Remove"
-                      icon="mdi-delete"
-                      :class="styles.arrayList.itemDelete"
-                      :disabled="
-                        !control.enabled ||
-                        isRequired(element) ||
-                        (appliedOptions.restrict &&
-                          arraySchema !== undefined &&
-                          arraySchema.minItems !== undefined &&
-                          dataLength <= arraySchema.minItems)
-                      "
-                      @click.native="removeItemsClick($event, [index])"
-                    ></v-btn>
-                  </template>
-                  Remove
-                </v-tooltip>
-              </v-card-actions>
-              <v-divider></v-divider>
-              <v-card-text class="d-flex">
-                <div class="flex-grow-1">
-                  <template v-for="row of displayElements[index]">
-                    <div class="text-caption">{{ row.label }}</div>
-                    <div class="text-body-1 mb-2">
-                      {{ row.value }}
+      <v-container v-if="!noData" justify-space-around align-content-center>
+        <v-row justify="center">
+          <v-expansion-panels focusable multiple>
+            <v-expansion-panel
+              v-for="(element, index) in control.data"
+              :class="styles.arrayList.item"
+            >
+              <v-expansion-panel-title :class="styles.arrayList.itemHeader">
+                <div
+                  v-if="!hideAvatar"
+                  align-self="center"
+                  px-0
+                  class="flex-grow-0"
+                >
+                  <v-chip aria-label="Index" class="bg-primary">
+                    <span class="primary--text text--lighten-5">
+                      {{ index + 1 }}
+                    </span>
+                  </v-chip>
+                </div>
+
+                <div
+                  v-if="appliedOptions.elementLabelProp"
+                  :title="getItemLabel(element)"
+                  align-self="center"
+                  justify-self="start"
+                  class="text-truncate flex-grow-1"
+                >
+                  {{ getItemLabel(element) }}
+                </div>
+                <v-spacer v-else />
+
+                <template
+                  v-if="
+                    !appliedOptions.isViewMode && !appliedOptions.isReadOnly
+                  "
+                >
+                  <template
+                    v-if="
+                      appliedOptions.showSortButtons &&
+                      !appliedOptions.isDisabled
+                    "
+                  >
+                    <div align-self="center" class="flex-grow-0 flex-shrink-0">
+                      <v-tooltip bottom>
+                        <template #activator="{ props }">
+                          <v-btn
+                            v-bind="props"
+                            variant="text"
+                            icon="mdi-arrow-up"
+                            size="x-small"
+                            class="v-expansion-panel-header__icon"
+                            aria-label="Move up"
+                            :disabled="index <= 0 || !control.enabled"
+                            :class="styles.arrayList.itemMoveUp"
+                            @click.native="moveUpClick($event, index)"
+                          ></v-btn>
+                        </template>
+                        Move Up
+                      </v-tooltip>
+                    </div>
+                    <div align-self="center" class="flex-grow-0 flex-shrink-0">
+                      <v-tooltip bottom>
+                        <template #activator="{ props }">
+                          <v-btn
+                            v-bind="props"
+                            icon="mdi-arrow-down"
+                            variant="text"
+                            elevation="0"
+                            size="x-small"
+                            class="v-expansion-panel-header__icon"
+                            aria-label="Move down"
+                            :disabled="
+                              index >= control.data.length - 1 ||
+                              !control.enabled
+                            "
+                            :class="styles.arrayList.itemMoveDown"
+                            @click.native="moveDownClick($event, index)"
+                          ></v-btn>
+                        </template>
+                        Move down
+                      </v-tooltip>
                     </div>
                   </template>
-                </div>
-              </v-card-text>
-            </template>
 
-            <v-skeleton-loader
-              v-else
-              class="border"
-              type="article"
-            ></v-skeleton-loader>
-          </v-card>
-        </template>
-      </div>
+                  <div align-self="center" class="flex-grow-0 flex-shrink-0">
+                    <v-tooltip bottom>
+                      <template #activator="{ props }">
+                        <v-btn
+                          v-bind="props"
+                          variant="text"
+                          elevation="0"
+                          icon="mdi-delete"
+                          size="x-small"
+                          class="v-expansion-panel-header__icon"
+                          aria-label="Delete"
+                          :class="styles.arrayList.itemDelete"
+                          :disabled="
+                            !control.enabled ||
+                            (appliedOptions.restrict &&
+                              arraySchema !== undefined &&
+                              minItems !== undefined &&
+                              control.data.length <= minItems)
+                          "
+                          @click.stop.native="suggestToDelete = index"
+                        ></v-btn>
+                      </template>
+                      Delete
+                    </v-tooltip>
+                  </div>
+                </template>
+              </v-expansion-panel-title>
+
+              <v-expansion-panel-text
+                :class="styles.arrayList.itemContent"
+                class="pa-0"
+              >
+                <!-- OBJECT -->
+                <div class="flex-grow-1">
+                  <template v-for="row of getDisplayElements(index)">
+                    <div class="text-caption">{{ row.label }}</div>
+                    <div class="text-body-1 mb-2">{{ row.value }}</div>
+                  </template>
+                </div>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-row>
+      </v-container>
     </cz-fieldset>
 
-    <v-dialog max-width="1280" height="70vh" v-model="showAddDialog">
+    <v-dialog
+      v-if="
+        !appliedOptions.isViewMode &&
+        !appliedOptions.isReadOnly &&
+        !appliedOptions.isDisabled
+      "
+      :model-value="suggestToDelete !== null"
+      max-width="600"
+      @keydown.esc="suggestToDelete = null"
+      @click:outside="suggestToDelete = null"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
+        </v-card-title>
+
+        <v-card-text>The element will be deleted.</v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn variant="text" @click="suggestToDelete = null">Cancel</v-btn>
+          <v-btn
+            variant="text"
+            color="error"
+            ref="confirm"
+            @click="onRemoveItem"
+          >
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      max-width="1280"
+      height="70vh"
+      v-model="showAddDialog"
+      @update:model-value="$event ? null : closeDialog()"
+    >
       <v-card class="fill-height d-flex flex-column">
         <v-card-title>Search</v-card-title>
         <v-card-text class="flex-grow-0">
@@ -271,7 +345,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text="Cancel" @click="showAddDialog = false"></v-btn>
+          <v-btn text="Cancel" @click="closeDialog"></v-btn>
           <v-btn
             @click="addSelected"
             color="primary"
@@ -284,16 +358,7 @@
 </template>
 
 <script lang="ts">
-import {
-  findUISchema,
-  composePaths,
-  createDefaultValue,
-  ControlElement,
-  JsonSchema,
-  Resolve,
-  VerticalLayout,
-} from '@jsonforms/core';
-import { startCase } from 'lodash-es';
+import { ControlElement, JsonSchema, Resolve } from '@jsonforms/core';
 import { defineComponent, ref, Ref } from 'vue';
 import {
   DispatchCell,
@@ -360,7 +425,6 @@ export default defineComponent({
     const fieldset = ref<InstanceType<typeof CzFieldset>>();
     const suggestToDelete = ref<null | number>(null);
     const options: Ref<any[]> = ref([]);
-    const displayElements: Ref<any[]> = ref([]);
     const menu = ref(false);
     const valueInternal = ref('');
     const isLoadingOptions = ref(false);
@@ -381,7 +445,6 @@ export default defineComponent({
       showAddDialog,
       itemsPerPage,
       hasLoadedOptions,
-      displayElements,
     };
   },
   computed: {
@@ -392,11 +455,19 @@ export default defineComponent({
         this.control.rootSchema
       );
     },
+    hideAvatar(): boolean {
+      // @ts-ignore
+      return !!this.appliedOptions.hideAvatar;
+    },
     dataLength(): number {
       return this.control.data ? this.control.data.length : 0;
     },
     noData(): boolean {
       return !this.control.data || this.control.data.length === 0;
+    },
+    minItems() {
+      // @ts-ignore
+      return this.control.schema.minItems || this.arraySchema?.minItems;
     },
     maxItems() {
       // @ts-ignore
@@ -404,6 +475,12 @@ export default defineComponent({
     },
     selected() {
       return this.options.filter(o => !!o._isSelected);
+    },
+    display(): { [key: string]: { contents: string; hidden?: boolean } } {
+      return this.control.uischema?.options?.vocabulary.value;
+    },
+    displayProps(): string[] {
+      return Object.keys(this.display).filter(key => !this.display[key].hidden);
     },
   },
   created() {
@@ -416,30 +493,32 @@ export default defineComponent({
       }
       // We must use isEqual to compare objects instead of Arra.includes
       if (!this.isValueIncluded(item)) {
-        this.addAsyncItem(item);
+        this.addItem(this.control.path, item)();
       }
     });
 
     if (this.control.schema.default && !this.control.data) {
       this.control.schema.default.map((item: any) => {
-        this.addAsyncItem(item);
+        this.addItem(this.control.path, item)();
       });
     }
-
-    this.loadInitialDisplay();
   },
   methods: {
-    composePaths,
-    createDefaultValue,
-    async loadInitialDisplay() {
-      // TODO: load displayelements of existing items
-      this.control.data?.forEach(async (d: any, index: number) => {
-        this.displayElements[index] = null;
-        this.displayElements[index] = await this.fetchElementDisplay(d);
-      });
+    getDisplayElements(index: number) {
+      return this.displayProps.map(prop => ({
+        label: this.control.schema.properties?.[prop].title,
+        value: this.control.data[index][prop],
+      }));
     },
     addButtonClick() {
       this.showAddDialog = true;
+    },
+    closeDialog() {
+      this.showAddDialog = false;
+      if (!this.control.data?.length) {
+        // @ts-ignore
+        this.fieldset?.hide();
+      }
     },
     addSelected() {
       this.showAddDialog = false;
@@ -447,9 +526,6 @@ export default defineComponent({
         const value = this.getOptionValue(item);
         if (!this.isValueIncluded(value)) {
           this.addItem(this.control.path, value)();
-          const index = this.control.data.length - 1;
-          this.displayElements[index] = null;
-          this.displayElements[index] = this.getOptionDisplay(item);
         }
       });
     },
@@ -458,7 +534,6 @@ export default defineComponent({
         isEqual(value, existingItem)
       );
     },
-    // TODO: keep displayElements in sync after every operation or find a way to append to control.data without mutating data
     moveUpClick(event: Event, toMove: number): void {
       event.stopPropagation();
       this.moveUp?.(this.control.path, toMove)();
@@ -467,84 +542,13 @@ export default defineComponent({
       event.stopPropagation();
       this.moveDown?.(this.control.path, toMove)();
     },
-    removeItemsClick(event: MouseEvent, toDelete: number[]): void {
-      event.stopPropagation();
+    removeItemsClick(toDelete: number[]): void {
       this.removeItems?.(this.control.path, toDelete)();
       if (this.control.data.length === 0) {
         this.handleChange(this.control.path, undefined);
         // @ts-ignore
         this.fieldset?.hide();
       }
-    },
-    getValidColumnProps(scopedSchema: JsonSchema) {
-      if (
-        scopedSchema.type === 'object' &&
-        typeof scopedSchema.properties === 'object'
-      ) {
-        return Object.keys(scopedSchema.properties).filter(prop => {
-          const resolvedUiSchema = this.resolveUiSchema(prop);
-          const rule = resolvedUiSchema.rule?.effect;
-          const condition = resolvedUiSchema.rule?.condition;
-
-          if (condition) {
-            // Detect if empty object
-            const isEmptyCondition =
-              Object.keys(condition).length === 0 &&
-              condition.constructor === Object;
-
-            return !(isEmptyCondition && rule === 'HIDE');
-          }
-          return true;
-        });
-      }
-      // primitives
-      return [''];
-    },
-    title(prop: string) {
-      return this.control.schema.properties?.[prop]?.title ?? startCase(prop);
-    },
-    resolveUiSchema(propName: string) {
-      // We expect controls using `useTableLayout` option to be primitive types or non-nested object type.
-      // Non-nested objects are expected to have a simple VerticalLayout uischema.
-      if (this.control.schema.type === 'object') {
-        const foundUISchema = findUISchema(
-          this.control.uischemas,
-          this.control.schema,
-          this.control.uischema.scope,
-          this.control.path,
-          undefined,
-          this.control.uischema,
-          this.control.rootSchema
-        ) as VerticalLayout;
-
-        const detailUISchema = foundUISchema.elements.find(
-          // @ts-ignore
-          el => el.scope === `#/properties/${propName}`
-        );
-
-        if (detailUISchema) {
-          return detailUISchema;
-        }
-      }
-
-      // Create the schema
-      return this.control.schema.properties
-        ? this.controlWithoutLabel(`#/properties/${propName}`)
-        : this.controlWithLabel('#');
-    },
-    controlWithoutLabel(scope: string): ControlElement {
-      return { type: 'Control', scope, label: false };
-    },
-    controlWithLabel(scope: string): ControlElement {
-      return {
-        scope,
-        type: 'Control',
-        label: this.control.schema.title
-          ? `${this.control.schema.title}*`
-          : false,
-        // @ts-ignore
-        description: this.control.schema.description || false,
-      };
     },
     isRequired(item: any) {
       const count = this.control.data.filter((i: any) => {
@@ -567,21 +571,13 @@ export default defineComponent({
       });
       return value;
     },
-    // TODO: this sync has to happen on every operation
-    async addAsyncItem(item: any) {
-      this.addItem(this.control.path, item)();
-      const index = this.control.data.length - 1;
-      this.displayElements[index] = null;
-      this.displayElements[index] = await this.fetchElementDisplay(item);
-    },
     async loadOptions(search: string) {
       if (!search) {
         return;
       }
 
       let vocabulary: any;
-      let url =
-        this.control.uischema?.options?.asyncAutocomplete.vocabulary.jsonUrl;
+      let url = this.control.uischema?.options?.vocabulary.jsonUrl;
       if (search) {
         url = `${url}&q=${encodeURIComponent(search)}`;
       }
@@ -602,8 +598,7 @@ export default defineComponent({
         return;
       }
 
-      const path: string =
-        this.control.uischema?.options?.asyncAutocomplete.vocabulary.items;
+      const path: string = this.control.uischema?.options?.vocabulary.items;
       vocabulary = this.deepValue(vocabulary, path);
 
       this.options = vocabulary;
@@ -612,21 +607,23 @@ export default defineComponent({
       this.hasLoadedOptions = true;
     },
     getOptionDisplay(option: any): { label: string; value: string }[] {
-      const display: { label: string; value: string }[] =
-        this.control.uischema?.options?.asyncAutocomplete.vocabulary.display;
-      return display.map(d => ({
-        label: d.label,
-        value: this.deepValue(option, d.value),
+      return this.displayProps.map(prop => ({
+        label: this.control.schema.properties?.[prop].title || '',
+        value: this.deepValue(option, this.display[prop].contents),
       }));
     },
     getOptionValue(option: any): { [key: string]: any } {
-      const value: { [key: string]: any } = {
-        ...this.control.uischema?.options?.asyncAutocomplete.vocabulary.value,
+      if (!this.display) {
+        return {};
+      }
+
+      const value: { [key: string]: { contents: string; hidden?: boolean } } = {
+        ...this.display,
       };
 
       for (var prop in value) {
         if (Object.prototype.hasOwnProperty.call(value, prop)) {
-          value[prop] = this.deepValue(option, value[prop]);
+          value[prop] = this.deepValue(option, value[prop].contents);
         }
       }
 
@@ -634,7 +631,7 @@ export default defineComponent({
     },
     async fetchElementDisplay(item: any) {
       const itemUrl: { url: string; params: string[] } =
-        this.control.uischema?.options?.asyncAutocomplete.vocabulary.itemUrl;
+        this.control.uischema?.options?.vocabulary.itemUrl;
 
       const params = itemUrl.params;
       let url = itemUrl.url;
@@ -659,6 +656,27 @@ export default defineComponent({
     async search() {
       await this.loadOptions(this.valueInternal);
       this.page = 1;
+    },
+    getItemLabel(element: any) {
+      if (!element) {
+        return '';
+      }
+      // @ts-ignore
+      if (Array.isArray(this.appliedOptions.elementLabelProp)) {
+        // @ts-ignore
+        return this.appliedOptions.elementLabelProp
+          .map((prop: string) => element[prop])
+          .join(' ');
+      } else {
+        // @ts-ignore
+        return element[this.appliedOptions.elementLabelProp];
+      }
+    },
+    onRemoveItem() {
+      if (this.suggestToDelete !== null) {
+        this.removeItemsClick([this.suggestToDelete]);
+      }
+      this.suggestToDelete = null;
     },
   },
 });

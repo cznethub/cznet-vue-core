@@ -22,15 +22,14 @@
           <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
-              variant="text"
+              variant="elevated"
               size="small"
-              color="primary"
+              border="solid thin"
               @click="
                 addButtonClick();
                 show();
               "
               :class="styles.arrayList.addButton"
-              class="btn-add"
               :aria-label="`Add to ${control.label}`"
               v-bind="props"
               :disabled="

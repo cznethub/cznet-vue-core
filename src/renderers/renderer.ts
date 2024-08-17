@@ -55,7 +55,7 @@ import arrayControlRenderer from './controls/ArrayControlRenderer.vue';
 import booleanControlRenderer from './controls/BooleanControlRenderer.vue';
 import mapLayoutRenderer from './layouts/MapLayoutRenderer.vue';
 import objectLayoutRenderer from './layouts/ObjectLayoutRenderer.vue';
-import ObjectArrayAsyncAutocompleteRenderer from './controls/ObjectArrayAsyncAutocompleteRenderer.vue';
+import objectArrayVocabularyRenderer from './controls/ObjectArrayVocabularyRenderer.vue';
 
 const hasOneOfItems = (schema: JsonSchema): boolean =>
   schema.oneOf !== undefined &&
@@ -99,9 +99,9 @@ const simpleAnyOf = and(
   )
 );
 
-const isObjectArrayAsyncAutocompleteControl = and(
+const isObjectArrayVocabularyControl = and(
   uiTypeIs('Control'),
-  hasOption('asyncAutocomplete')
+  hasOption('vocabulary')
 );
 
 /**
@@ -227,8 +227,8 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
     tester: rankWith(3, and(isLayout, uiTypeIs('Object'))),
   },
   {
-    renderer: ObjectArrayAsyncAutocompleteRenderer,
-    tester: rankWith(5, isObjectArrayAsyncAutocompleteControl),
+    renderer: objectArrayVocabularyRenderer,
+    tester: rankWith(5, isObjectArrayVocabularyControl),
   },
 ];
 
