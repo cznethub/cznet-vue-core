@@ -388,6 +388,7 @@ import {
 import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+// @ts-ignore
 import { sprintf } from 'sprintf-js';
 
 export default defineComponent({
