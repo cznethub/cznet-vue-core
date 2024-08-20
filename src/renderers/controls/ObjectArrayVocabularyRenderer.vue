@@ -215,10 +215,10 @@
     >
       <v-card class="fill-height d-flex flex-column">
         <v-card-title>Search</v-card-title>
-        <v-card-text class="flex-grow-0">
+        <v-card-text v-if="searchParam" class="flex-grow-0">
           <v-text-field
             append-inner-icon="mdi-magnify"
-            v-model.trim="valueInternal"
+            v-model.trim="searchQ"
             :loading="isLoadingOptions"
             v-bind="vuetifyProps('v-text-field')"
             @click:append-inner="search"
@@ -426,7 +426,7 @@ export default defineComponent({
     const suggestToDelete = ref<null | number>(null);
     const options: Ref<any[]> = ref([]);
     const menu = ref(false);
-    const valueInternal = ref('');
+    const searchQ = ref('');
     const isLoadingOptions = ref(false);
     const page = ref(1);
     const showAddDialog = ref(false);
@@ -439,7 +439,7 @@ export default defineComponent({
       fieldset,
       options,
       menu,
-      valueInternal,
+      searchQ,
       isLoadingOptions,
       page,
       showAddDialog,
@@ -482,6 +482,9 @@ export default defineComponent({
     displayProps(): string[] {
       return Object.keys(this.display).filter(key => !this.display[key].hidden);
     },
+    searchParam(): string | undefined {
+      return this.control.uischema?.options?.vocabulary.queryParams?.search;
+    },
   },
   created() {
     // @ts-ignore
@@ -512,6 +515,10 @@ export default defineComponent({
     },
     addButtonClick() {
       this.showAddDialog = true;
+      // Load options
+      if (!this.hasLoadedOptions && !this.searchParam) {
+        this.loadOptions();
+      }
     },
     closeDialog() {
       this.showAddDialog = false;
@@ -571,16 +578,14 @@ export default defineComponent({
       });
       return value;
     },
-    async loadOptions(search: string) {
-      if (!search) {
-        return;
-      }
-
+    async loadOptions() {
       let vocabulary: any;
       let url = this.control.uischema?.options?.vocabulary.jsonUrl;
-      if (search) {
-        url = `${url}&q=${encodeURIComponent(search)}`;
+
+      if (this.searchQ && this.searchParam) {
+        url = `${url}&${this.searchParam}=${encodeURIComponent(this.searchQ)}`;
       }
+
       this.isLoadingOptions = true;
       try {
         const response = await fetch(url);
@@ -654,7 +659,7 @@ export default defineComponent({
       return this.getOptionDisplay(data);
     },
     async search() {
-      await this.loadOptions(this.valueInternal);
+      await this.loadOptions();
       this.page = 1;
     },
     getItemLabel(element: any) {
