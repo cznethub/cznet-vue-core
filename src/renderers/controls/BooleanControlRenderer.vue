@@ -6,7 +6,6 @@
     :hint="control.description"
     :required="control.required"
     :error-messages="control.errors"
-    :indeterminate="control.data === undefined"
     :input-value="control.data"
     :model-value="control.data"
     v-bind="vuetifyProps('v-checkbox')"

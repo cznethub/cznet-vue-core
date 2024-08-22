@@ -44,10 +44,11 @@
 
       <v-container v-if="!noData" justify-space-around align-content-center>
         <v-row justify="center">
-          <v-expansion-panels focusable multiple>
+          <v-expansion-panels v-model="panels" multiple>
             <v-expansion-panel
               v-for="(element, index) in control.data"
               :class="styles.arrayList.item"
+              :key="index"
             >
               <v-expansion-panel-title :class="styles.arrayList.itemHeader">
                 <div
@@ -433,6 +434,7 @@ export default defineComponent({
     const showAddDialog = ref(false);
     const itemsPerPage = ref(12);
     const hasLoadedOptions = ref(false);
+    const panels: Ref<number[]> = ref([]);
 
     return {
       ...control,
@@ -446,6 +448,7 @@ export default defineComponent({
       showAddDialog,
       itemsPerPage,
       hasLoadedOptions,
+      panels,
     };
   },
   computed: {
@@ -505,6 +508,11 @@ export default defineComponent({
       this.control.schema.default.map((item: any) => {
         this.addItem(this.control.path, item)();
       });
+    }
+
+    // Expand existing items
+    if (this.control.data && !this.appliedOptions.collapsed) {
+      this.panels = this.control.data.map((_item: any, index: number) => index);
     }
   },
   methods: {
