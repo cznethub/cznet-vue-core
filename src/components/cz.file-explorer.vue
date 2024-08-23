@@ -282,6 +282,7 @@
                     :search="search"
                     :filter="filter"
                     return-object
+                    :open-on-click="false"
                     item-value="key"
                     item-title="name"
                     density="comfortable"
@@ -525,6 +526,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
+import { toRaw } from 'vue';
 import { IFolder, IFile } from '@/types';
 import { default as Notifications } from '@/models/notifications';
 // @ts-ignore
@@ -627,7 +629,7 @@ class CzFileExplorer extends Vue {
 
   breakpoints: any = useDisplay();
   opened: number[] = [];
-  selected: number[] = [];
+  selected: (IFile | IFolder)[] = [];
   dropFiles: File[] = [];
   isDeleting = false;
   fileReleaseDate = null;
@@ -642,27 +644,33 @@ class CzFileExplorer extends Vue {
   prettyBytes = prettyBytes;
 
   customActiveStrategy = (_mandatory?: boolean) => {
-    const onItemClick = (item: IFolder | IFile, activated: Set<number>) => {
+    const onItemClick = (
+      item: IFolder | IFile,
+      activated: Set<IFile | IFolder>
+    ) => {
       activated.clear();
-      activated.add(+item.key);
+      activated.add(item);
       if (this.isFolder(item)) {
         this.open([item]);
       }
       this.shiftAnchor = item;
     };
 
-    const onItemCtrlClick = (item: IFolder | IFile, activated: Set<number>) => {
-      if (activated.has(+item.key)) {
-        activated.delete(+item.key);
+    const onItemCtrlClick = (
+      item: IFolder | IFile,
+      activated: Set<IFile | IFolder>
+    ) => {
+      if (activated.has(item)) {
+        activated.delete(item);
       } else {
-        activated.add(+item.key);
+        activated.add(item);
       }
       this.shiftAnchor = item;
     };
 
     const onItemShiftClick = (
       item: IFolder | IFile,
-      activated: Set<number>
+      activated: Set<IFile | IFolder>
     ) => {
       const parent = this.getParent(item);
       const itemIndex = parent.children.indexOf(item);
@@ -676,28 +684,43 @@ class CzFileExplorer extends Vue {
       const last = Math.max(itemIndex, anchorIndex);
 
       for (let i = first; i <= last; i++) {
-        activated.add(parent.children[i].key);
+        activated.add(parent.children[i]);
       }
     };
 
     const strategy = {
       // @ts-ignore
-      activate: ({ id, value, activated, event }) => {
-        const item = this.getItemById(id as number);
-        if (!item) {
-          return;
-        }
+      activate: ({ id, value, activated, children, parents, event }) => {
+        id = toRaw(id);
+
+        if (!event && activated.has(id)) return activated;
 
         event?.ctrlKey
-          ? onItemCtrlClick(item, activated)
+          ? onItemCtrlClick(id, activated)
           : event?.shiftKey
-            ? onItemShiftClick(item, activated)
-            : onItemClick(item, activated);
+            ? onItemShiftClick(id, activated)
+            : onItemClick(id, activated);
 
         return activated;
       },
-      in: (v: number[], _children: any, _parents: any) => {
-        return new Set(v);
+      in: (v: (IFile | IFolder)[], children: any, parents: any) => {
+        let set = new Set(v.map(i => toRaw(i)));
+
+        if (v != null) {
+          for (const id of v) {
+            const activated = strategy.activate({
+              id,
+              value: true,
+              activated: new Set(set),
+              children,
+              parents,
+              event: undefined,
+            });
+
+            set = new Set([...set, ...activated]);
+          }
+        }
+        return set;
       },
       out: (v: Set<number>) => {
         return Array.from(v);
@@ -761,7 +784,7 @@ class CzFileExplorer extends Vue {
     if (this.selected.length !== 1) {
       return this.rootDirectory;
     } else {
-      return this.getItemById(this.selected[0]) || this.rootDirectory;
+      return this.selected[0] || this.rootDirectory;
     }
   }
 
@@ -775,10 +798,7 @@ class CzFileExplorer extends Vue {
   }
 
   get selectedItems() {
-    return this.selected.map(key => this.getItemById(+key)).filter(i => i) as (
-      | IFile
-      | IFolder
-    )[];
+    return this.selected.filter(i => i) as (IFile | IFolder)[];
   }
 
   @Watch('rootDirectory.children', { deep: true })
@@ -1026,13 +1046,11 @@ class CzFileExplorer extends Vue {
   }
 
   isSelected(item: IFolder | IFile) {
-    return this.selected.includes(item.key);
+    return this.selected.includes(item);
   }
 
   select(items: (IFolder | IFile)[]) {
-    this.selected = [
-      ...new Set([...this.selected, ...items.map(i => +i.key as number)]),
-    ];
+    this.selected = [...new Set([...this.selected, ...items])];
   }
 
   open(items: (IFolder | IFile)[]) {
@@ -1042,7 +1060,7 @@ class CzFileExplorer extends Vue {
   }
 
   unselect(item: IFolder | IFile) {
-    const index = this.selected.indexOf(item.key as number);
+    const index = this.selected.indexOf(item);
     if (index >= 0) {
       this.selected.splice(index, 1);
     }
@@ -1055,8 +1073,7 @@ class CzFileExplorer extends Vue {
   cut() {
     this.uncutAll();
 
-    this.selected.map(key => {
-      const item = this.getItemById(key);
+    this.selected.map(item => {
       if (item) {
         item.isCutting = true;
       }
@@ -1097,13 +1114,10 @@ class CzFileExplorer extends Vue {
       ? (this.activeDirectoryItem as IFolder)
       : this.getParent(this.activeDirectoryItem);
 
-    await this._handlePaste(
-      targetFolder,
-      this.itemsToCut.map(i => i.key)
-    );
+    await this._handlePaste(targetFolder, this.itemsToCut);
   }
 
-  private async _handlePaste(target: IFolder, items: number[]) {
+  private async _handlePaste(target: IFolder, items: (IFile | IFolder)[]) {
     const itemsToMove = [...items]; // We make a copy because the original can change during iteration below
     const pastePromises: Promise<boolean>[] = [];
 
@@ -1150,9 +1164,11 @@ class CzFileExplorer extends Vue {
     });
   }
 
-  private async _paste(key: number, targetFolder: IFolder): Promise<boolean> {
+  private async _paste(
+    item: IFile | IFolder,
+    targetFolder: IFolder
+  ): Promise<boolean> {
     let wasMoved = false;
-    const item = this.getItemById(key);
 
     if (!item) {
       return false;
@@ -1308,14 +1324,14 @@ class CzFileExplorer extends Vue {
 
     // First, disable all items to delete
     for (let i = 0; i < reversedSelected.length; i++) {
-      const item = this.getItemById(reversedSelected[i]);
+      const item = reversedSelected[i];
       if (item) {
         this._toggleItemDisabled(item, true);
       }
     }
 
     for (let i = 0; i < reversedSelected.length; i++) {
-      const item = this.getItemById(reversedSelected[i]);
+      const item = reversedSelected[i];
 
       if (item) {
         if (item === this.shiftAnchor) {
