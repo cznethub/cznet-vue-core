@@ -22,15 +22,14 @@
           <template #activator="{ props }">
             <v-btn
               icon="mdi-plus"
-              size="x-small"
-              variant="text"
-              color="primary"
+              variant="elevated"
+              size="small"
+              border="solid thin"
               @click="
                 addButtonClick();
                 show();
               "
               :class="styles.arrayList.addButton"
-              class="btn-add"
               :aria-label="`Add to ${control.label}`"
               v-bind="props"
               :disabled="
@@ -49,10 +48,11 @@
 
       <v-container v-if="!noData" justify-space-around align-content-center>
         <v-row justify="center">
-          <v-expansion-panels focusable multiple>
+          <v-expansion-panels multiple v-model="panels">
             <v-expansion-panel
               v-for="(element, index) in control.data"
               :class="styles.arrayList.item"
+              :key="index"
             >
               <v-expansion-panel-title :class="styles.arrayList.itemHeader">
                 <div
@@ -61,7 +61,7 @@
                   px-0
                   class="flex-grow-0"
                 >
-                  <v-chip aria-label="Index" color="primary">
+                  <v-chip aria-label="Index" class="bg-primary">
                     <span class="primary--text text--lighten-5">
                       {{ index + 1 }}
                     </span>
@@ -260,7 +260,7 @@ import {
   VChip,
 } from 'vuetify/components';
 import { ErrorObject } from 'ajv';
-import { ref } from 'vue';
+import { ref, Ref } from 'vue';
 import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
@@ -302,7 +302,7 @@ export default defineComponent({
       ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
     };
     const fieldset = ref<InstanceType<typeof CzFieldset>>();
-    const panels: number[] = [];
+    const panels: Ref<number[]> = ref([]);
     const suggestToDelete = ref<null | number>(null);
     // indicate to our child renderers that we are increasing the "nested" level
     useNested('array');

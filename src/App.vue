@@ -96,7 +96,7 @@
 
         <v-divider />
         <v-card-text>
-          <v-expansion-panels>
+          <v-expansion-panels :model-value="0">
             <v-expansion-panel>
               <v-expansion-panel-title>
                 <div class="text-overline">Form Data</div>
