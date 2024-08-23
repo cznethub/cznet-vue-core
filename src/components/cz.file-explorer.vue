@@ -282,7 +282,6 @@
                     :search="search"
                     :filter="filter"
                     return-object
-                    :open-on-click="false"
                     item-value="key"
                     item-title="name"
                     density="comfortable"
@@ -329,7 +328,7 @@
                             @click.right.exact.prevent="show($event, item)"
                             @retry-upload="retryUpload(item as IFile)"
                             :item="item"
-                            :isOpen="opened.includes(item.key)"
+                            :isOpen="opened.includes(item)"
                             :folderColor="folderColor"
                             :fileColor="fileColor"
                             :canRetryUpload="canRetryUpload(item)"
@@ -628,7 +627,7 @@ class CzFileExplorer extends Vue {
   // @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
   breakpoints: any = useDisplay();
-  opened: number[] = [];
+  opened: (IFile | IFolder)[] = [];
   selected: (IFile | IFolder)[] = [];
   dropFiles: File[] = [];
   isDeleting = false;
@@ -1055,7 +1054,10 @@ class CzFileExplorer extends Vue {
 
   open(items: (IFolder | IFile)[]) {
     this.opened = [
-      ...new Set([...this.opened, ...items.map(i => +i.key as number)]),
+      ...new Set([
+        ...this.opened.map(i => toRaw(i)),
+        ...items.map(i => toRaw(i)),
+      ]),
     ];
   }
 
@@ -1138,7 +1140,7 @@ class CzFileExplorer extends Vue {
 
   private _closeIfEmpty(item: IFolder) {
     if (!item.children.length) {
-      const index = this.opened.indexOf(item.key);
+      const index = this.opened.indexOf(item);
       if (index >= 0) {
         this.opened.splice(index, 1);
       }
@@ -1466,12 +1468,12 @@ class CzFileExplorer extends Vue {
     }
 
     if (this.isFolder(item)) {
-      this.opened = [...new Set([...this.opened, item.key])];
+      this.open([item]);
     }
 
     const parent = this.getParent(item);
     if (parent && parent !== this.rootDirectory) {
-      this.opened = [...new Set([...this.opened, parent.key])];
+      this.open([parent]);
       this._openRecursive(parent);
     }
   }
