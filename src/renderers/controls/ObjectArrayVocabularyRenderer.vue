@@ -15,6 +15,7 @@
       :title="control.schema.title"
       :computedLabel="computedLabel"
       @show="noData && control.enabled ? addButtonClick() : null"
+      class="cz-fieldset"
       ref="fieldset"
     >
       <template #actions>
@@ -50,13 +51,11 @@
               :class="styles.arrayList.item"
               :key="index"
             >
-              <v-expansion-panel-title :class="styles.arrayList.itemHeader">
-                <div
-                  v-if="!hideAvatar"
-                  align-self="center"
-                  px-0
-                  class="flex-grow-0"
-                >
+              <v-expansion-panel-title
+                :class="styles.arrayList.itemHeader"
+                class="text-body-2"
+              >
+                <div v-if="!hideAvatar" class="flex-grow-0">
                   <v-chip aria-label="Index" class="bg-primary">
                     <span class="primary--text text--lighten-5">
                       {{ index + 1 }}
@@ -66,10 +65,8 @@
 
                 <div
                   v-if="appliedOptions.elementLabelProp"
-                  :title="getItemLabel(element)"
-                  align-self="center"
-                  justify-self="start"
                   class="text-truncate flex-grow-1"
+                  :title="getItemLabel(element)"
                 >
                   {{ getItemLabel(element) }}
                 </div>
@@ -518,7 +515,6 @@ export default defineComponent({
   methods: {
     getDisplayElements(index: number) {
       return this.displayProps.map(prop => {
-        console.log(this.deepValue(this.control.data[index], prop));
         return {
           label:
             this.deepValue(
@@ -752,5 +748,15 @@ export default defineComponent({
   overflow-y: auto;
   padding: 4rem;
   background: #efefef;
+}
+
+.cz-fieldset {
+  :deep(.v-field__field) {
+    width: 0;
+  }
+
+  :deep(.v-expansion-panel-title__overlay) {
+    display: none;
+  }
 }
 </style>

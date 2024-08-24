@@ -54,7 +54,10 @@
               :class="styles.arrayList.item"
               :key="index"
             >
-              <v-expansion-panel-title :class="styles.arrayList.itemHeader">
+              <v-expansion-panel-title
+                :class="styles.arrayList.itemHeader"
+                class="text-body-2"
+              >
                 <div
                   v-if="!hideAvatar"
                   align-self="center"

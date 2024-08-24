@@ -3,7 +3,7 @@
   "scope": "#/properties/grants",
   "options": {
     "showSortButtons": true,
-    "elementLabelProp": "award.title",
+    "elementLabelProp": "title",
     "childLabelProp": "-",
     "vocabulary": {
       "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
@@ -13,23 +13,16 @@
       "items": "hits.hits",
       "value": {
         "id": {
-          "contents": "id"
-        },
-        "award.id": {
           "contents": "id",
           "hidden": true
         },
-        "award.title": {
+        "title": {
           "contents": "title.en"
         },
-        "award.number": {
+        "number": {
           "contents": "number"
         },
-        "funder.id": {
-          "contents": "funder.id",
-          "hidden": true
-        },
-        "funder.name": {
+        "fundingAgency": {
           "contents": "funder.name"
         }
       }

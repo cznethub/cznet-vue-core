@@ -1,10 +1,16 @@
 {
   "grants": [
     {
-      "id": "10.13039/100000001::650S652"
+      "id": "021nxhr62::1331846",
+      "title": "Human and Natural Forcings of Critical Zone Dynamics and Evolution at the Calhoun Critical Zone Observatory",
+      "number": "1331846",
+      "fundingAgency": "National Science Foundation"
     },
     {
-      "id": "10.13039/100000001::67S1465"
+      "id": "021nxhr62::1037387",
+      "title": "RAPID: Susquehanna Shale Hills Critical Zone Observatory - The Critical Zone in the Susquehanna River Basin: The Shale Experiment",
+      "number": "1037387",
+      "fundingAgency": "National Science Foundation"
     }
   ]
 }
