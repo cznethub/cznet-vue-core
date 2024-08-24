@@ -1,6 +1,6 @@
 {
   "type": "Control",
-  "scope": "#/properties/funding",
+  "scope": "#/properties/grants",
   "options": {
     "showSortButtons": true,
     "elementLabelProp": "award.title",
@@ -12,6 +12,9 @@
       },
       "items": "hits.hits",
       "value": {
+        "id": {
+          "contents": "id"
+        },
         "award.id": {
           "contents": "id",
           "hidden": true

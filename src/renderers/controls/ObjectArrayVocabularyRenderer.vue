@@ -517,14 +517,17 @@ export default defineComponent({
   },
   methods: {
     getDisplayElements(index: number) {
-      return this.displayProps.map(prop => ({
-        label:
-          this.deepValue(
-            this.control.schema.properties,
-            prop.split('.').join('.properties.')
-          )?.title || '',
-        value: this.deepValue(this.control.data[index], prop),
-      }));
+      return this.displayProps.map(prop => {
+        console.log(this.deepValue(this.control.data[index], prop));
+        return {
+          label:
+            this.deepValue(
+              this.control.schema.properties,
+              prop.split('.').join('.properties.')
+            )?.title || '',
+          value: this.deepValue(this.control.data[index], prop),
+        };
+      });
     },
     addButtonClick() {
       this.showAddDialog = true;
@@ -584,9 +587,19 @@ export default defineComponent({
         isEqual(item, requiredItem)
       );
     },
+    /**
+     * Receives an object and a path (using object notation) to one of its properties and
+     * returns the value for that property.
+     * @param object The object in which to look
+     * @param path The path to the property in object notation. i.e 'foo.bar'
+     * @param expand If true, will insert empty objects as it traverses if the property is undefined
+     */
     deepValue(object: any, path: string, expand?: boolean) {
       let value = object;
-      path.split('.').forEach(p => {
+
+      const paths = path.split('.');
+      for (let i = 0; i < paths.length; i++) {
+        const p = paths[i];
         if (expand && !value.hasOwnProperty(p)) {
           value[p] = {};
         }
@@ -595,7 +608,8 @@ export default defineComponent({
           return;
         }
         value = value[p];
-      });
+      }
+
       return value;
     },
     async loadOptions() {

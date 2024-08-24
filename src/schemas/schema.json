@@ -208,7 +208,7 @@
         ]
       }
     },
-    "funding": {
+    "grants": {
       "title": "Award/Grants",
       "type": "array",
       "description": "List of OpenAIRE-supported grants, which have funded the research for this deposition.",
@@ -217,6 +217,9 @@
         "title": "Grant",
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "funder": {
             "title": "Funding Organization",
             "type": "object",
