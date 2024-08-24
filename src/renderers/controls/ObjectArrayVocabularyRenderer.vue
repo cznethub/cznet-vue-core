@@ -580,9 +580,16 @@ export default defineComponent({
         isEqual(item, requiredItem)
       );
     },
-    deepValue(object: any, path: string) {
+    deepValue(object: any, path: string, expand?: boolean) {
       let value = object;
       path.split('.').forEach(p => {
+        if (expand && !value.hasOwnProperty(p)) {
+          value[p] = {};
+        }
+
+        if (!value.hasOwnProperty(p)) {
+          return;
+        }
         value = value[p];
       });
       return value;
@@ -621,52 +628,71 @@ export default defineComponent({
       this.hasLoadedOptions = true;
     },
     getOptionDisplay(option: any): { label: string; value: string }[] {
-      return this.displayProps.map(prop => ({
-        label: this.control.schema.properties?.[prop].title || '',
-        value: this.deepValue(option, this.display[prop].contents),
-      }));
+      return this.displayProps.map(prop => {
+        return {
+          label:
+            this.deepValue(
+              this.control.schema.properties,
+              prop.split('.').join('.properties.')
+            )?.title || '',
+          value: this.deepValue(option, this.display[prop].contents),
+        };
+      });
     },
     getOptionValue(option: any): { [key: string]: any } {
       if (!this.display) {
         return {};
       }
 
-      const value: { [key: string]: { contents: string; hidden?: boolean } } = {
-        ...this.display,
-      };
+      const value: any = { ...this.display };
 
-      for (var prop in value) {
+      for (let prop in this.display) {
         if (Object.prototype.hasOwnProperty.call(value, prop)) {
-          value[prop] = this.deepValue(option, value[prop].contents);
+          // Properties can also use objet notation
+          let target = value;
+          const path = prop.split('.');
+          if (path.length > 1) {
+            // We need to point to the object that contains our property
+            const targetPathStr = path.slice(0, path.length - 1).join('.');
+            target = this.deepValue(value, targetPathStr, true);
+          }
+
+          const targetProp = prop.split('.').pop() || '';
+          if (targetProp) {
+            target[targetProp] = this.deepValue(option, value[prop].contents);
+            if (path.length > 1) {
+              delete value[prop];
+            }
+          }
         }
       }
 
       return value;
     },
-    async fetchElementDisplay(item: any) {
-      const itemUrl: { url: string; params: string[] } =
-        this.control.uischema?.options?.vocabulary.itemUrl;
+    // async fetchElementDisplay(item: any) {
+    //   const itemUrl: { url: string; params: string[] } =
+    //     this.control.uischema?.options?.vocabulary.itemUrl;
 
-      const params = itemUrl.params;
-      let url = itemUrl.url;
-      params.forEach(p => {
-        url = sprintf(itemUrl.url || '', encodeURIComponent(item[p]));
-      });
+    //   const params = itemUrl.params;
+    //   let url = itemUrl.url;
+    //   params.forEach(p => {
+    //     url = sprintf(itemUrl.url || '', encodeURIComponent(item[p]));
+    //   });
 
-      let data;
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
+    //   let data;
+    //   try {
+    //     const response = await fetch(url);
+    //     if (!response.ok) {
+    //       throw new Error(`Response status: ${response.status}`);
+    //     }
 
-        data = await response.json();
-      } catch (error: any) {
-        console.error(error.message);
-      }
+    //     data = await response.json();
+    //   } catch (error: any) {
+    //     console.error(error.message);
+    //   }
 
-      return this.getOptionDisplay(data);
-    },
+    //   return this.getOptionDisplay(data);
+    // },
     async search() {
       await this.loadOptions();
       this.page = 1;
