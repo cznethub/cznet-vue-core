@@ -707,13 +707,19 @@ export default defineComponent({
       }
       // @ts-ignore
       if (Array.isArray(this.appliedOptions.elementLabelProp)) {
-        // @ts-ignore
         return this.appliedOptions.elementLabelProp
-          .map((prop: string) => element[prop])
+          .map((prop: string) => {
+            return this.deepValue(
+              element,
+              prop.split('.').join('.properties.')
+            );
+          })
           .join(' ');
       } else {
-        // @ts-ignore
-        return element[this.appliedOptions.elementLabelProp];
+        return this.deepValue(
+          element,
+          this.appliedOptions.elementLabelProp.split('.').join('.properties.')
+        );
       }
     },
     onRemoveItem() {

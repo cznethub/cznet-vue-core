@@ -3,7 +3,7 @@
   "scope": "#/properties/funding",
   "options": {
     "showSortButtons": true,
-    "elementLabelProp": "title",
+    "elementLabelProp": "award.title",
     "childLabelProp": "-",
     "vocabulary": {
       "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
