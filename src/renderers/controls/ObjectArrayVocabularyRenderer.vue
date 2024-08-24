@@ -518,8 +518,12 @@ export default defineComponent({
   methods: {
     getDisplayElements(index: number) {
       return this.displayProps.map(prop => ({
-        label: this.control.schema.properties?.[prop].title,
-        value: this.control.data[index][prop],
+        label:
+          this.deepValue(
+            this.control.schema.properties,
+            prop.split('.').join('.properties.')
+          )?.title || '',
+        value: this.deepValue(this.control.data[index], prop),
       }));
     },
     addButtonClick() {

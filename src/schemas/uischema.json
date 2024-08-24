@@ -16,13 +16,17 @@
           "contents": "id",
           "hidden": true
         },
-        "title": {
+        "award.title": {
           "contents": "title.en"
         },
-        "number": {
+        "award.number": {
           "contents": "number"
         },
-        "funder": {
+        "funder.id": {
+          "contents": "funder.id",
+          "hidden": true
+        },
+        "funder.name": {
           "contents": "funder.name"
         }
       }
