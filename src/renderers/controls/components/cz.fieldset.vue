@@ -35,11 +35,12 @@
               <template #activator="{ props }">
                 <v-btn
                   icon="mdi-minus"
-                  variant="text"
-                  color="error"
+                  variant="elevated"
+                  size="small"
+                  border="solid thin"
+                  class="text-error"
                   @click="hide()"
                   :disabled="!enabled"
-                  size="small"
                   aria-label="Remove"
                   v-bind="props"
                 ></v-btn>

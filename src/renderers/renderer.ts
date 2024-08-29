@@ -56,6 +56,7 @@ import booleanControlRenderer from './controls/BooleanControlRenderer.vue';
 import mapLayoutRenderer from './layouts/MapLayoutRenderer.vue';
 import objectLayoutRenderer from './layouts/ObjectLayoutRenderer.vue';
 import objectArrayVocabularyRenderer from './controls/ObjectArrayVocabularyRenderer.vue';
+import objectVocabularyControlRenderer from './controls/ObjectVocabularyControlRenderer.vue';
 
 const hasOneOfItems = (schema: JsonSchema): boolean =>
   schema.oneOf !== undefined &&
@@ -100,9 +101,11 @@ const simpleAnyOf = and(
 );
 
 const isObjectArrayVocabularyControl = and(
-  uiTypeIs('Control'),
+  isObjectArrayControl,
   hasOption('vocabulary')
 );
+
+const isObjectVocabularyControl = and(isObjectControl, hasOption('vocabulary'));
 
 /**
  * @see https://github.com/eclipsesource/jsonforms/issues/1744#issuecomment-2044488336
@@ -203,6 +206,7 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
       or(isObjectArrayControl, isObjectArrayWithNesting, useArrayLayout)
     ),
   },
+
   {
     renderer: arrayControlRenderer,
     tester: rankWith(
@@ -229,6 +233,10 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     renderer: objectArrayVocabularyRenderer,
     tester: rankWith(5, isObjectArrayVocabularyControl),
+  },
+  {
+    renderer: objectVocabularyControlRenderer,
+    tester: rankWith(5, isObjectVocabularyControl),
   },
 ];
 

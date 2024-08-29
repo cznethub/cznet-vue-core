@@ -53,7 +53,11 @@ import {
   useJsonFormsControlWithDetail,
 } from '@jsonforms/vue';
 import { cloneDeep } from 'lodash-es';
-import { useNested, useVuetifyControl } from '@/renderers/util/composition';
+import {
+  useDefaults,
+  useNested,
+  useVuetifyControl,
+} from '@/renderers/util/composition';
 import { defineComponent } from 'vue';
 import { VBtn, VIcon, VTooltip } from 'vuetify/components';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
@@ -75,6 +79,7 @@ export default defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const control = useVuetifyControl(useJsonFormsControlWithDetail(props));
     const nested = useNested('object');
+    useDefaults(control);
     return {
       ...control,
       input: control,

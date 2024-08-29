@@ -8,214 +8,40 @@
       v-if="control.visible"
       :data-id="computedLabel.replaceAll(` `, ``)"
       :description="control.description"
-      :enabled="!appliedOptions.isDisabled"
       :hasToggle="
         !appliedOptions.isViewMode &&
         !appliedOptions.isReadOnly &&
         !appliedOptions.isDisabled
       "
+      :hasData="!noData"
+      :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
       :title="control.schema.title"
       :computedLabel="computedLabel"
       @show="noData && control.enabled ? addButtonClick() : null"
+      @hide="onHide"
       class="cz-fieldset"
       ref="fieldset"
     >
-      <template #actions>
-        <v-tooltip bottom transition="fade">
-          <template #activator="{ props }">
-            <v-btn
-              icon="mdi-plus"
-              variant="elevated"
-              size="small"
-              border="solid thin"
-              @click="addButtonClick"
-              :class="styles.arrayList.addButton"
-              :aria-label="`Add to ${control.label}`"
-              v-bind="props"
-              :disabled="
-                !control.enabled ||
-                (appliedOptions.restrict &&
-                  maxItems !== undefined &&
-                  control.data &&
-                  control.data.length >= maxItems)
-              "
-            ></v-btn>
-          </template>
-          {{ `Add to ${control.label}` }}
-        </v-tooltip>
-      </template>
-
       <v-container v-if="!noData" justify-space-around align-content-center>
-        <v-row justify="center">
-          <v-expansion-panels v-model="panels" multiple>
-            <v-expansion-panel
-              v-for="(element, index) in control.data"
-              :class="styles.arrayList.item"
-              :key="index"
-            >
-              <v-expansion-panel-title
-                :class="styles.arrayList.itemHeader"
-                class="text-body-2"
-              >
-                <div v-if="!hideAvatar" class="flex-grow-0">
-                  <v-chip aria-label="Index" class="bg-primary">
-                    <span class="primary--text text--lighten-5">
-                      {{ index + 1 }}
-                    </span>
-                  </v-chip>
-                </div>
-
-                <div
-                  v-if="appliedOptions.elementLabelProp"
-                  class="text-truncate flex-grow-1"
-                  :title="getItemLabel(element)"
-                >
-                  {{ getItemLabel(element) }}
-                </div>
-                <v-spacer v-else />
-
-                <template
-                  v-if="
-                    !appliedOptions.isViewMode && !appliedOptions.isReadOnly
-                  "
-                >
-                  <template
-                    v-if="
-                      appliedOptions.showSortButtons &&
-                      !appliedOptions.isDisabled
-                    "
-                  >
-                    <div align-self="center" class="flex-grow-0 flex-shrink-0">
-                      <v-tooltip bottom>
-                        <template #activator="{ props }">
-                          <v-btn
-                            v-bind="props"
-                            variant="text"
-                            icon="mdi-arrow-up"
-                            size="x-small"
-                            class="v-expansion-panel-header__icon"
-                            aria-label="Move up"
-                            :disabled="index <= 0 || !control.enabled"
-                            :class="styles.arrayList.itemMoveUp"
-                            @click.native="moveUpClick($event, index)"
-                          ></v-btn>
-                        </template>
-                        Move Up
-                      </v-tooltip>
-                    </div>
-                    <div align-self="center" class="flex-grow-0 flex-shrink-0">
-                      <v-tooltip bottom>
-                        <template #activator="{ props }">
-                          <v-btn
-                            v-bind="props"
-                            icon="mdi-arrow-down"
-                            variant="text"
-                            elevation="0"
-                            size="x-small"
-                            class="v-expansion-panel-header__icon"
-                            aria-label="Move down"
-                            :disabled="
-                              index >= control.data.length - 1 ||
-                              !control.enabled
-                            "
-                            :class="styles.arrayList.itemMoveDown"
-                            @click.native="moveDownClick($event, index)"
-                          ></v-btn>
-                        </template>
-                        Move down
-                      </v-tooltip>
-                    </div>
-                  </template>
-
-                  <div align-self="center" class="flex-grow-0 flex-shrink-0">
-                    <v-tooltip bottom>
-                      <template #activator="{ props }">
-                        <v-btn
-                          v-bind="props"
-                          variant="text"
-                          elevation="0"
-                          icon="mdi-delete"
-                          size="x-small"
-                          class="v-expansion-panel-header__icon"
-                          aria-label="Delete"
-                          :class="styles.arrayList.itemDelete"
-                          :disabled="
-                            !control.enabled ||
-                            (appliedOptions.restrict &&
-                              arraySchema !== undefined &&
-                              minItems !== undefined &&
-                              control.data.length <= minItems)
-                          "
-                          @click.stop.native="suggestToDelete = index"
-                        ></v-btn>
-                      </template>
-                      Delete
-                    </v-tooltip>
-                  </div>
-                </template>
-              </v-expansion-panel-title>
-
-              <v-expansion-panel-text
-                :class="styles.arrayList.itemContent"
-                class="pa-0"
-              >
-                <!-- OBJECT -->
-                <div class="flex-grow-1">
-                  <template v-for="row of getDisplayElements(index)">
-                    <div v-if="row.value" class="mb-4">
-                      <v-label>{{ row.label }}</v-label>
-                      <v-divider class="my-1"></v-divider>
-                      <div v-if="row.isUrl" class="text-body-1 mb-2">
-                        <a :href="row.value" target="_blank">{{ row.value }}</a>
-                      </div>
-                      <div v-else class="text-body-1 mb-2">
-                        {{ row.value }}
-                      </div>
-                    </div>
-                  </template>
-                </div>
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-row>
+        <!-- OBJECT -->
+        <div class="flex-grow-1">
+          <template v-for="row of getDisplayElements()">
+            <div v-if="row.value" class="mb-4">
+              <v-label>{{ row.label }}</v-label>
+              <v-divider class="my-1"></v-divider>
+              <div v-if="row.isUrl" class="text-body-1 mb-2">
+                <a :href="row.value" target="_blank">{{ row.value }}</a>
+              </div>
+              <div v-else class="text-body-1 mb-2">
+                {{ row.value }}
+              </div>
+            </div>
+          </template>
+        </div>
       </v-container>
     </cz-fieldset>
-
-    <v-dialog
-      v-if="
-        !appliedOptions.isViewMode &&
-        !appliedOptions.isReadOnly &&
-        !appliedOptions.isDisabled
-      "
-      :model-value="suggestToDelete !== null"
-      max-width="600"
-      @keydown.esc="suggestToDelete = null"
-      @click:outside="suggestToDelete = null"
-    >
-      <v-card>
-        <v-card-title class="text-h5">
-          Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
-        </v-card-title>
-
-        <v-card-text>The element will be deleted.</v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn variant="text" @click="suggestToDelete = null">Cancel</v-btn>
-          <v-btn
-            variant="text"
-            color="error"
-            ref="confirm"
-            @click="onRemoveItem"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog
       max-width="1280"
@@ -233,9 +59,9 @@
             v-bind="vuetifyProps('v-text-field')"
             @click:append-inner="search"
             @keydown.enter="search"
+            clearable
             class="flex-shrink-1"
             hide-details
-            clearable
           ></v-text-field>
         </v-card-text>
 
@@ -261,44 +87,34 @@
                 >
                   <v-card
                     class="fill-height bg-white"
-                    @click="
-                      !isValueIncluded(getOptionValue(item.raw))
-                        ? (item.raw._isSelected = !item.raw._isSelected)
-                        : null
-                    "
+                    @click="selected = item.raw"
                     :ripple="false"
-                    :variant="
-                      item.raw._isSelected ||
-                      isValueIncluded(getOptionValue(item.raw))
-                        ? 'outlined'
-                        : 'elevated'
-                    "
-                    :color="
-                      item.raw._isSelected ||
-                      isValueIncluded(getOptionValue(item.raw))
-                        ? 'primary'
-                        : ''
-                    "
+                    :variant="selected === item.raw ? 'outlined' : 'elevated'"
+                    :color="selected === item.raw ? 'primary' : ''"
                   >
                     <v-card-text class="d-flex">
-                      <div class="flex-grow-1">
+                      <div class="flex-grow-1" style="width: 0">
                         <template v-for="row of getOptionDisplay(item.raw)">
-                          <v-label>{{ row.label }}</v-label>
-                          <div class="text-body-1 mb-4">{{ row.value }}</div>
+                          <template v-if="row.value">
+                            <v-label>{{ row.label }}</v-label>
+                            <div class="text-body-1 mb-4">
+                              {{ row.value }}
+                            </div>
+                          </template>
                         </template>
                       </div>
-                      <div class="flex-shrink-0 ml-2">
-                        <v-checkbox
-                          v-if="isValueIncluded(getOptionValue(item.raw))"
+                      <div class="ml-2 flex-shrink-0">
+                        <v-radio
+                          v-if="selected === item.raw"
                           :model-value="true"
                           disabled
                           color="primary"
-                        ></v-checkbox>
-                        <v-checkbox
+                        ></v-radio>
+                        <v-radio
                           v-else
-                          :model-value="item.raw._isSelected"
+                          :model-value="false"
                           color="primary"
-                        ></v-checkbox>
+                        ></v-radio>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -369,17 +185,16 @@
 </template>
 
 <script lang="ts">
-import { ControlElement, JsonSchema, Resolve } from '@jsonforms/core';
+import { ControlElement } from '@jsonforms/core';
 import { defineComponent, ref, Ref } from 'vue';
 import {
   DispatchCell,
   DispatchRenderer,
   rendererProps,
-  useJsonFormsArrayControl,
   RendererProps,
-  useJsonFormsControl,
+  useJsonFormsControlWithDetail,
 } from '@jsonforms/vue';
-import { useVuetifyArrayControl } from '@/renderers/util';
+import { useDefaults, useVuetifyControl } from '@/renderers/util';
 import {
   VCard,
   VCardTitle,
@@ -392,13 +207,10 @@ import {
   VBtn,
   VAvatar,
   VSpacer,
-  VTable,
 } from 'vuetify/components';
 import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
-// @ts-ignore
-import { sprintf } from 'sprintf-js';
 
 export default defineComponent({
   name: 'array-control-renderer',
@@ -416,7 +228,6 @@ export default defineComponent({
     VBtn,
     VSpacer,
     VContainer,
-    VTable,
     CzFieldset,
     ControlWrapper,
   },
@@ -424,27 +235,23 @@ export default defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    const { handleChange } = useJsonFormsControl(props);
-    const control = {
-      handleChange,
-      ...useVuetifyArrayControl(useJsonFormsArrayControl(props)),
-    };
+    const control = useVuetifyControl(useJsonFormsControlWithDetail(props));
+
+    useDefaults(control);
 
     const fieldset = ref<InstanceType<typeof CzFieldset>>();
-    const suggestToDelete = ref<null | number>(null);
     const options: Ref<any[]> = ref([]);
     const menu = ref(false);
     const searchQ = ref('');
+    const selected = ref();
     const isLoadingOptions = ref(false);
     const page = ref(1);
     const showAddDialog = ref(false);
     const itemsPerPage = ref(12);
     const hasLoadedOptions = ref(false);
-    const panels: Ref<number[]> = ref([]);
 
     return {
       ...control,
-      suggestToDelete,
       fieldset,
       options,
       menu,
@@ -454,42 +261,20 @@ export default defineComponent({
       showAddDialog,
       itemsPerPage,
       hasLoadedOptions,
-      panels,
+      selected,
     };
   },
   computed: {
-    arraySchema(): JsonSchema | undefined {
-      return Resolve.schema(
-        this.control.rootSchema,
-        this.control.uischema.scope,
-        this.control.rootSchema
-      );
-    },
-    hideAvatar(): boolean {
-      // @ts-ignore
-      return !!this.appliedOptions.hideAvatar;
-    },
-    dataLength(): number {
-      return this.control.data ? this.control.data.length : 0;
-    },
     noData(): boolean {
-      return !this.control.data || this.control.data.length === 0;
-    },
-    minItems() {
-      // @ts-ignore
-      return this.control.schema.minItems || this.arraySchema?.minItems;
-    },
-    maxItems() {
-      // @ts-ignore
-      return this.control.schema.maxItems || this.arraySchema?.maxItems;
-    },
-    selected() {
-      return this.options.filter(o => !!o._isSelected);
+      return !this.control.data;
     },
     display(): {
       [key: string]: { contents: string; hidden?: boolean; format?: string };
     } {
       return this.control.uischema?.options?.vocabulary.value;
+    },
+    hasDefaultOptions(): string | undefined {
+      return this.control.uischema?.options?.vocabulary.default;
     },
     displayProps(): string[] {
       return Object.keys(this.display).filter(key => !this.display[key].hidden);
@@ -497,41 +282,22 @@ export default defineComponent({
     searchParam(): string | undefined {
       return this.control.uischema?.options?.vocabulary.queryParams?.search;
     },
-    hasDefaultOptions(): string | undefined {
-      return this.control.uischema?.options?.vocabulary.default;
+    isFlat() {
+      // @ts-ignore
+      return this.control.schema.options?.flat;
     },
   },
   created() {
-    // @ts-ignore
-    const requiredItems: string[] = this.control.schema.contains?.enum || [];
-
-    requiredItems.map(item => {
-      if (!this.control.data) {
-        this.control.data = [];
-      }
-      // We must use isEqual to compare objects instead of Arra.includes
-      if (!this.isValueIncluded(item)) {
-        this.addItem(this.control.path, item)();
-      }
-    });
-
-    if (this.control.schema.default && !this.control.data) {
-      this.control.schema.default.map((item: any) => {
-        this.addItem(this.control.path, item)();
-      });
-    }
-
-    // Expand existing items
-    if (this.control.data && !this.appliedOptions.collapsed) {
-      this.panels = this.control.data.map((_item: any, index: number) => index);
-    }
-
     if (this.hasDefaultOptions && !this.hasLoadedOptions) {
       this.loadDefaultOptions();
     }
   },
   methods: {
-    getDisplayElements(index: number) {
+    onHide() {
+      this.selected = null;
+      this.handleChange(this.control.path, undefined);
+    },
+    getDisplayElements() {
       return this.displayProps.map(prop => {
         return {
           label:
@@ -539,7 +305,7 @@ export default defineComponent({
               this.control.schema.properties,
               prop.split('.').join('.properties.')
             )?.title || '',
-          value: this.deepValue(this.control.data[index], prop),
+          value: this.deepValue(this.control.data, prop),
           isUrl: this.display[prop]?.format === 'url',
         };
       });
@@ -560,46 +326,12 @@ export default defineComponent({
     },
     addSelected() {
       this.showAddDialog = false;
-      this.selected.forEach(item => {
-        const value = this.getOptionValue(item);
-        if (!this.isValueIncluded(value)) {
-          this.addItem(this.control.path, value)();
-        }
-      });
+      const value = this.getOptionValue(this.selected);
+      this.handleChange(this.control.path, value);
     },
     isValueIncluded(value: any) {
       return this.control.data?.some((existingItem: any) =>
         isEqual(value, existingItem)
-      );
-    },
-    moveUpClick(event: Event, toMove: number): void {
-      event.stopPropagation();
-      this.moveUp?.(this.control.path, toMove)();
-    },
-    moveDownClick(event: Event, toMove: number): void {
-      event.stopPropagation();
-      this.moveDown?.(this.control.path, toMove)();
-    },
-    removeItemsClick(toDelete: number[]): void {
-      this.removeItems?.(this.control.path, toDelete)();
-      if (this.control.data.length === 0) {
-        this.handleChange(this.control.path, undefined);
-        // @ts-ignore
-        this.fieldset?.hide();
-      }
-    },
-    isRequired(item: any) {
-      const count = this.control.data.filter((i: any) => {
-        return isEqual(i, item);
-      }).length;
-
-      if (count > 1) {
-        return false;
-      }
-
-      // @ts-ignore
-      return this.control.schema.contains?.enum?.some(requiredItem =>
-        isEqual(item, requiredItem)
       );
     },
     /**
@@ -756,12 +488,6 @@ export default defineComponent({
           this.appliedOptions.elementLabelProp.split('.').join('.properties.')
         );
       }
-    },
-    onRemoveItem() {
-      if (this.suggestToDelete !== null) {
-        this.removeItemsClick([this.suggestToDelete]);
-      }
-      this.suggestToDelete = null;
     },
   },
 });

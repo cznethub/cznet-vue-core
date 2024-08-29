@@ -1,31 +1,207 @@
 {
-  "type": "Control",
-  "scope": "#/properties/grants",
-  "options": {
-    "showSortButtons": true,
-    "elementLabelProp": "title",
-    "childLabelProp": "-",
-    "vocabulary": {
-      "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
-      "queryParams": {
-        "search": "q"
-      },
-      "items": "hits.hits",
-      "value": {
-        "id": {
-          "contents": "id",
-          "hidden": true
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "Basic Information",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/title"
         },
-        "title": {
-          "contents": "title.en"
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/version"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/upload_type",
+              "rule": {
+                "effect": "DISABLE",
+                "condition": {
+                  "scope": "#/properties/upload_type"
+                }
+              }
+            }
+          ]
         },
-        "number": {
-          "contents": "number"
+        {
+          "type": "Control",
+          "scope": "#/properties/description",
+          "options": {
+            "multi": true
+          }
         },
-        "fundingAgency": {
-          "contents": "funder.name"
+        {
+          "type": "Control",
+          "scope": "#/properties/keywords"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/communities",
+          "options": {
+            "useTableLayout": true
+          }
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/creators",
+      "options": {
+        "elementLabelProp": [
+          "name"
+        ],
+        "showSortButtons": true
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/contributors",
+      "options": {
+        "elementLabelProp": [
+          "name"
+        ],
+        "showSortButtons": true
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/grants",
+      "options": {
+        "showSortButtons": true,
+        "elementLabelProp": "title",
+        "childLabelProp": "-",
+        "vocabulary": {
+          "jsonUrl": "https://zenodo.org/api/awards?page=1&size=5000000",
+          "queryParams": {
+            "search": "q"
+          },
+          "items": "hits.hits",
+          "value": {
+            "id": {
+              "contents": "id",
+              "hidden": true
+            },
+            "title": {
+              "contents": "title.en"
+            },
+            "number": {
+              "contents": "number"
+            },
+            "fundingAgency": {
+              "contents": "funder.name"
+            }
+          }
         }
       }
+    },
+    {
+      "type": "Group",
+      "label": "Related Resource Information",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/references",
+          "options": {
+            "useArrayLayout": true,
+            "showSortButtons": true
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/related_identifiers",
+          "options": {
+            "useTableLayout": true
+          }
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "License",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/access_right",
+                  "options": {
+                    "format": "radio"
+                  }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/embargo_date",
+                  "rule": {
+                    "effect": "HIDE",
+                    "condition": {
+                      "scope": "#/properties/access_right",
+                      "schema": {
+                        "enum": [
+                          "open"
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/license",
+              "options": {
+                "vocabulary": {
+                  "jsonUrl": "https://zenodo.org/api/vocabularies/licenses?page=1&size=5000",
+                  "default": "https://zenodo.org/api/vocabularies/licenses?page=1&size=5000",
+                  "queryParams": {
+                    "search": "q"
+                  },
+                  "items": "hits.hits",
+                  "value": {
+                    "id": {
+                      "contents": "id",
+                      "hidden": true
+                    },
+                    "name": {
+                      "contents": "title.en"
+                    },
+                    "description": {
+                      "contents": "description.en"
+                    },
+                    "url": {
+                      "contents": "props.url",
+                      "format": "url"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/subjects",
+      "options": {
+        "useTableLayout": true,
+        "showSortButtons": true
+      }
+    },
+    {
+      "type": "Control",
+      "scope": "#/properties/notes",
+      "options": {
+        "multi": true
+      }
     }
-  }
+  ]
 }
