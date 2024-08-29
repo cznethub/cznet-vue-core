@@ -3,6 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 // Vuetify
 import 'vuetify/styles';
+import '@/assets/css/settings.scss';
 import { ThemeDefinition, createVuetify } from 'vuetify';
 import { aliases as fa_aliases, fa } from 'vuetify/iconsets/fa';
 import { aliases as md_aliases, mdi } from 'vuetify/iconsets/mdi';
