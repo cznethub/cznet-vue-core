@@ -73,6 +73,9 @@
             <v-time-picker
               :model-value="timePickerValue"
               @update:model-value="timePickerValue = $event"
+              @update:hour="onUpdateHour($event)"
+              @update:minute="onUpdateMinutes($event)"
+              @update:second="onUpdateSeconds($event)"
               color="primary"
               ref="timePicker"
               v-bind="vuetifyProps('v-time-picker')"
@@ -265,6 +268,9 @@ export default defineComponent({
             : time.format('HH:mm')
           : undefined;
       },
+      /**
+       * @param val time string in format 'HH:mm:ss' or 'HH:mm'
+       */
       set(val: string) {
         this.onPickerChange(this.datePickerValue, val);
       },
@@ -338,6 +344,33 @@ export default defineComponent({
           JSON_SCHEMA_DATE_TIME_FORMATS[0]
         );
         this.onChange(dateTime!.format(this.dateTimeSaveFormat));
+      }
+    },
+    /* 
+    v-time-picker component emits update:model-value only after certain portions change.
+    We use these event handlers to update the value after any part of it changes.
+    Assumes time in format 'HH:mm:ss'
+    @see https://vuetifyjs.com/en/api/v-time-picker/
+    */
+    onUpdateHour(value: number) {
+      const fragments = this.timePickerValue?.split(':');
+      if (fragments) {
+        fragments[0] = `${value}`;
+        this.timePickerValue = fragments.join(':');
+      }
+    },
+    onUpdateMinutes(value: number) {
+      const fragments = this.timePickerValue?.split(':');
+      if (fragments) {
+        fragments[1] = `${value}`;
+        this.timePickerValue = fragments.join(':');
+      }
+    },
+    onUpdateSeconds(value: number) {
+      const fragments = this.timePickerValue?.split(':');
+      if (fragments) {
+        fragments[2] = `${value}`;
+        this.timePickerValue = fragments.join(':');
       }
     },
     okHandler(): void {
