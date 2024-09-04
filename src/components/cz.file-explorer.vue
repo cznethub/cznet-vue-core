@@ -272,6 +272,7 @@
               <v-row class="flex-grow-1">
                 <v-col
                   :cols="11"
+                  class="py-0"
                   v-click-outside="{ handler: onClickOutside, include }"
                 >
                   <v-treeview
@@ -285,7 +286,7 @@
                     item-value="key"
                     item-title="name"
                     density="comfortable"
-                    class="files-container--included"
+                    class="files-container--included pb-0"
                     activatable
                     :active-strategy="customActiveStrategy"
                   >
