@@ -61,8 +61,8 @@ const defaultConfigs: Config = {
   hideArraySummaryValidation: false,
   vuetify: {
     commonAttrs: {
-      dense: true,
-      outlined: true,
+      density: 'compact',
+      variant: 'outlined',
     },
   },
 };

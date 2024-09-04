@@ -50,3 +50,10 @@
 .v-date-picker .v-picker-title {
   display: none;
 }
+
+.v-input.is-filled {
+  .v-field__overlay {
+    background-color: currentColor;
+    opacity: 0.04;
+  }
+}

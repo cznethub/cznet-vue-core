@@ -98,11 +98,6 @@ export const getVuetifyControlProps = (
 ) => {
   const props = {
     ...appliedOptions.value?.vuetify.commonAttrs,
-    filled:
-      !!input.control.value.schema['readOnly'] ||
-      appliedOptions.value.isViewMode ||
-      appliedOptions.value.isReadOnly ||
-      appliedOptions.value?.vuetify.commonAttrs.filled,
     readonly:
       !input.control.value.enabled || input.control.value.schema['readOnly'],
     disabled: appliedOptions.value.isDisabled,
@@ -110,6 +105,16 @@ export const getVuetifyControlProps = (
     placeholder: appliedOptions.value.placeholder,
     ...get(appliedOptions.value?.vuetify, path),
   };
+
+  const isFilled =
+    !!input.control.value.schema['readOnly'] ||
+    appliedOptions.value.isViewMode ||
+    appliedOptions.value.isReadOnly ||
+    appliedOptions.value?.vuetify.commonAttrs.filled;
+
+  if (isFilled) {
+    props.class = 'is-filled';
+  }
 
   return props && isPlainObject(props) ? props : {};
 };
