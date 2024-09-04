@@ -211,6 +211,8 @@ import {
 import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+// @ts-ignore
+import { sprintf } from 'sprintf-js';
 
 export default defineComponent({
   name: 'array-control-renderer',
@@ -440,30 +442,32 @@ export default defineComponent({
 
       return value;
     },
-    // async fetchElementDisplay(item: any) {
-    //   const itemUrl: { url: string; params: string[] } =
-    //     this.control.uischema?.options?.vocabulary.itemUrl;
+    async fetchElementDisplay(item: any) {
+      // TODO: add schema syntax to load options on demand
+      // Usable for primitive types
+      const itemUrl: { url: string; params: string[] } =
+        this.control.uischema?.options?.vocabulary.itemUrl;
 
-    //   const params = itemUrl.params;
-    //   let url = itemUrl.url;
-    //   params.forEach(p => {
-    //     url = sprintf(itemUrl.url || '', encodeURIComponent(item[p]));
-    //   });
+      const params = itemUrl.params;
+      let url = itemUrl.url;
+      params.forEach(p => {
+        url = sprintf(itemUrl.url || '', encodeURIComponent(item[p]));
+      });
 
-    //   let data;
-    //   try {
-    //     const response = await fetch(url);
-    //     if (!response.ok) {
-    //       throw new Error(`Response status: ${response.status}`);
-    //     }
+      let data;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
 
-    //     data = await response.json();
-    //   } catch (error: any) {
-    //     console.error(error.message);
-    //   }
+        data = await response.json();
+      } catch (error: any) {
+        console.error(error.message);
+      }
 
-    //   return this.getOptionDisplay(data);
-    // },
+      return this.getOptionDisplay(data);
+    },
     async search() {
       await this.loadOptions();
       this.page = 1;

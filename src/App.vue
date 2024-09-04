@@ -34,7 +34,7 @@
         <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-title>
+              <v-expansion-panel-title class="bg-grey-lighten-4">
                 <div class="text-overline">File Explorer Data</div>
               </v-expansion-panel-title>
               <v-expansion-panel-text>
@@ -71,7 +71,25 @@
       </v-card>
 
       <v-card class="my-5">
-        <v-card-title>CzForm</v-card-title>
+        <v-card-title
+          class="d-flex justify-space-between align-center flex-column flex-md-row"
+        >
+          <span>CzForm</span>
+
+          <v-select
+            class="my-2"
+            label="Schema"
+            :items="schemaCollection"
+            v-model="selectedSchema"
+            @update:model-value="data = defaults"
+            item-value="index"
+            item-title="name"
+            max-width="200px"
+            variant="outlined"
+            hide-details
+            density="compact"
+          ></v-select>
+        </v-card-title>
         <v-divider />
         <v-card-text class="d-flex">
           <v-checkbox
@@ -98,7 +116,7 @@
         <v-card-text>
           <v-expansion-panels :model-value="0">
             <v-expansion-panel>
-              <v-expansion-panel-title>
+              <v-expansion-panel-title class="bg-grey-lighten-4">
                 <div class="text-overline">Form Data</div>
               </v-expansion-panel-title>
               <v-expansion-panel-text>
@@ -113,10 +131,10 @@
           <cz-form
             :schema="schema"
             :uischema="uischema"
+            v-model="data"
             :errors.sync="errors"
             @update:errors="onUpdateErrors"
             :isValid.sync="isValid"
-            v-model="data"
             :config="config"
             ref="form"
           />
@@ -181,13 +199,14 @@ import Notifications from './models/notifications';
 import { Config, IFolder, IFile } from '@/types';
 import { stringify } from '@/utils';
 import CzFileExplorer from './components/cz.file-explorer.vue';
-
-import schema from './schemas/schema.json';
-import uischema from './schemas/uischema.json';
-import initialData from './schemas/test-dataset.json';
 import CzForm from './components/cz.form.vue';
 
-// const initialData = {};
+const schemaPaths = [
+  { name: 'HydroShare', path: './schemas/hydroshare' },
+  { name: 'EarthChem', path: './schemas/earthchem' },
+  { name: 'Zenodo', path: './schemas/zenodo' },
+  { name: 'External', path: './schemas/external' },
+];
 
 @Component({
   components: { CzNotifications, CzFileExplorer, CzForm },
@@ -196,14 +215,14 @@ import CzForm from './components/cz.form.vue';
 class App extends Vue {
   @Ref('form') form!: InstanceType<typeof CzForm>;
 
-  schema: { [key: string]: any } = schema;
-  uischema: { [key: string]: any } = uischema;
   isValid = false;
   errors: { title: string; message: string }[] = [];
-  data = initialData;
+  data = {};
   stringify = stringify;
   selectedMetadata: any = false;
   validItems = [];
+  schemaCollection: any = [];
+  selectedSchema: number = 0;
 
   /** Example folder/file tree structure */
   rootDirectory = {
@@ -281,9 +300,43 @@ class App extends Vue {
     hasFolders: true,
   };
 
-  async beforeCreate() {
-    this.schema = schema;
-    this.uischema = uischema;
+  async created() {
+    for (let i = 0; i < schemaPaths.length; i++) {
+      const path = schemaPaths[i].path;
+      const name = schemaPaths[i].name;
+      const { default: schema } = await import(
+        /* @vite-ignore */ `${path}/schema.json`
+      );
+      const { default: uischema } = await import(
+        /* @vite-ignore */
+        `${path}/uischema.json`
+      );
+      const { default: defaults } = await import(
+        /* @vite-ignore */
+        `${path}/defaults.json`
+      );
+
+      this.schemaCollection.push({
+        index: i,
+        name,
+        schema,
+        uischema,
+        defaults,
+      });
+    }
+    this.data = { ...this.data, ...this.defaults };
+  }
+
+  get schema() {
+    return this.schemaCollection[this.selectedSchema]?.schema || {};
+  }
+
+  get uischema() {
+    return this.schemaCollection[this.selectedSchema]?.uischema || {};
+  }
+
+  get defaults() {
+    return this.schemaCollection[this.selectedSchema]?.defaults || {};
   }
 
   openDialog() {

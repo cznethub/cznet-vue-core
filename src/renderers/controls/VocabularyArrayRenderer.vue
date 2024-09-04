@@ -18,7 +18,7 @@
       :errors="control.errors"
       :title="control.schema.title"
       :computedLabel="computedLabel"
-      @show="noData && control.enabled ? addButtonClick() : null"
+      @show="control.enabled ? addButtonClick() : null"
       class="cz-fieldset"
       ref="fieldset"
     >
@@ -398,7 +398,7 @@ import { isEqual } from 'lodash-es';
 import { default as CzFieldset } from './components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 // @ts-ignore
-import { sprintf } from 'sprintf-js';
+// import { sprintf } from 'sprintf-js';
 
 export default defineComponent({
   name: 'array-control-renderer',

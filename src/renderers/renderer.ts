@@ -55,8 +55,8 @@ import arrayControlRenderer from './controls/ArrayControlRenderer.vue';
 import booleanControlRenderer from './controls/BooleanControlRenderer.vue';
 import mapLayoutRenderer from './layouts/MapLayoutRenderer.vue';
 import objectLayoutRenderer from './layouts/ObjectLayoutRenderer.vue';
-import objectArrayVocabularyRenderer from './controls/ObjectArrayVocabularyRenderer.vue';
-import objectVocabularyControlRenderer from './controls/ObjectVocabularyControlRenderer.vue';
+import vocabularyArrayRenderer from './controls/VocabularyArrayRenderer.vue';
+import vocabularyControlRenderer from './controls/VocabularyControlRenderer.vue';
 
 const hasOneOfItems = (schema: JsonSchema): boolean =>
   schema.oneOf !== undefined &&
@@ -231,11 +231,11 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
     tester: rankWith(3, and(isLayout, uiTypeIs('Object'))),
   },
   {
-    renderer: objectArrayVocabularyRenderer,
+    renderer: vocabularyArrayRenderer,
     tester: rankWith(5, isObjectArrayVocabularyControl),
   },
   {
-    renderer: objectVocabularyControlRenderer,
+    renderer: vocabularyControlRenderer,
     tester: rankWith(5, isObjectVocabularyControl),
   },
 ];
