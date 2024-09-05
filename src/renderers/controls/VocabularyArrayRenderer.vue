@@ -521,13 +521,17 @@ export default defineComponent({
       });
     }
 
-    // Expand existing items
-    if (this.control.data && !this.appliedOptions.collapsed) {
-      this.panels = this.control.data.map((_item: any, index: number) => index);
-    }
-
     if (this.hasDefaultOptions && !this.hasLoadedOptions) {
       this.loadDefaultOptions();
+    }
+  },
+  mounted() {
+    // Expand existing items
+    if (this.control.data && !this.appliedOptions.collapsed) {
+      if (this.fieldset) {
+        this.fieldset.isAdded = true;
+      }
+      this.panels = this.control.data.map((_item: any, index: number) => index);
     }
   },
   methods: {
