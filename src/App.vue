@@ -222,7 +222,7 @@ class App extends Vue {
   selectedMetadata: any = false;
   validItems = [];
   schemaCollection: any = [];
-  selectedSchema: number = 0;
+  selectedSchema: number = -1;
 
   /** Example folder/file tree structure */
   rootDirectory = {
@@ -324,19 +324,20 @@ class App extends Vue {
         defaults,
       });
     }
+    this.selectedSchema = 0; // Initial repository schema to render
     this.data = { ...this.data, ...this.defaults };
   }
 
   get schema() {
-    return this.schemaCollection[this.selectedSchema]?.schema || {};
+    return this.schemaCollection[this.selectedSchema]?.schema;
   }
 
   get uischema() {
-    return this.schemaCollection[this.selectedSchema]?.uischema || {};
+    return this.schemaCollection[this.selectedSchema]?.uischema;
   }
 
   get defaults() {
-    return this.schemaCollection[this.selectedSchema]?.defaults || {};
+    return this.schemaCollection[this.selectedSchema]?.defaults;
   }
 
   openDialog() {
