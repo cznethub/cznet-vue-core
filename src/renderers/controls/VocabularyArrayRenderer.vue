@@ -219,24 +219,58 @@
 
     <v-dialog
       max-width="1280"
-      height="70vh"
+      height="100vh"
       v-model="showAddDialog"
       @update:model-value="$event ? null : closeDialog()"
     >
       <v-card class="fill-height d-flex flex-column">
         <v-card-title>Search</v-card-title>
-        <v-card-text v-if="searchParam" class="flex-grow-0">
-          <v-text-field
-            append-inner-icon="mdi-magnify"
-            v-model.trim="searchQ"
-            :loading="isLoadingOptions"
-            v-bind="vuetifyProps('v-text-field')"
-            @click:append-inner="search"
-            @keydown.enter="search"
-            class="flex-shrink-1"
-            hide-details
-            clearable
-          ></v-text-field>
+        <v-card-text class="flex-grow-0 d-flex gap-1">
+          <div class="flex-grow-1">
+            <!-- FILTER FACETS -->
+            <v-row v-if="facets.length" class="mb-2">
+              <v-col cols="12" sm="6" lg="4" v-for="facet of facets">
+                <v-select
+                  v-bind="vuetifyProps('v-select')"
+                  v-model="facet.value"
+                  :label="facet.label"
+                  :items="facet.options"
+                  item-title="label"
+                  item-value="value"
+                  clearable
+                  hide-details
+                ></v-select>
+              </v-col>
+            </v-row>
+
+            <!-- SEARCH -->
+            <v-text-field
+              v-if="searchParam"
+              v-model.trim="searchQ"
+              label="Search..."
+              :loading="isLoadingOptions"
+              v-bind="vuetifyProps('v-text-field')"
+              @keydown.enter="search"
+              hide-details
+              clearable
+            ></v-text-field>
+          </div>
+
+          <v-btn
+            color="primary"
+            @click="search"
+            prepend-icon="mdi-magnify"
+            class="align-self-end mb-1"
+          >
+            Search
+          </v-btn>
+        </v-card-text>
+
+        <v-card-text
+          v-if="options.length"
+          class="flex-grow-0 text-body-2 text-medium-emphasis pt-0 pb-2"
+        >
+          {{ options.length }} Result{{ options.length != 1 ? 's' : '' }}
         </v-card-text>
 
         <v-divider></v-divider>
@@ -309,7 +343,10 @@
             <template v-slot:loader>
               <v-row>
                 <v-col
-                  v-for="(_, k) in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]"
+                  v-for="(_, k) in [
+                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                    17, 18,
+                  ]"
                   :key="k"
                   cols="12"
                   sm="6"
@@ -336,7 +373,7 @@
                   v-else
                   icon="mdi-magnify"
                   title="Search"
-                  text="Use the input above to search."
+                  text="Use the filter controls above to search."
                 ></v-empty-state>
               </div>
             </template>
@@ -359,6 +396,7 @@
           <v-btn text="Cancel" @click="closeDialog"></v-btn>
           <v-btn
             @click="addSelected"
+            :disabled="!selected.length"
             color="primary"
             text="Add selected"
           ></v-btn>
@@ -441,6 +479,7 @@ export default defineComponent({
     const itemsPerPage = ref(12);
     const hasLoadedOptions = ref(false);
     const panels: Ref<number[]> = ref([]);
+    const facets: Ref<any[]> = ref([]);
 
     return {
       ...control,
@@ -455,6 +494,7 @@ export default defineComponent({
       itemsPerPage,
       hasLoadedOptions,
       panels,
+      facets,
     };
   },
   computed: {
@@ -497,6 +537,9 @@ export default defineComponent({
     searchParam(): string | undefined {
       return this.control.uischema?.options?.vocabulary.queryParams?.search;
     },
+    facetParams(): any[] | undefined {
+      return this.control.uischema?.options?.vocabulary.queryParams?.facets;
+    },
     hasDefaultOptions(): string | undefined {
       return this.control.uischema?.options?.vocabulary.default;
     },
@@ -524,6 +567,8 @@ export default defineComponent({
     if (this.hasDefaultOptions && !this.hasLoadedOptions) {
       this.loadDefaultOptions();
     }
+
+    this.loadFacets();
   },
   mounted() {
     // Expand existing items
@@ -570,6 +615,11 @@ export default defineComponent({
           this.addItem(this.control.path, value)();
         }
       });
+      if (this.control.data && !this.appliedOptions.collapsed) {
+        if (this.fieldset) {
+          this.fieldset.isAdded = true;
+        }
+      }
     },
     isValueIncluded(value: any) {
       return this.control.data?.some((existingItem: any) =>
@@ -634,6 +684,7 @@ export default defineComponent({
     async _loadOptionsFromUrl(url: string) {
       let vocabulary: any;
       this.isLoadingOptions = true;
+      this.options = [];
       try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -663,12 +714,69 @@ export default defineComponent({
     },
     async loadOptions() {
       let url = this.control.uischema?.options?.vocabulary.jsonUrl;
-
+      let queryParams: string[] = [];
       if (this.searchQ && this.searchParam) {
-        url = `${url}&${this.searchParam}=${encodeURIComponent(this.searchQ)}`;
+        queryParams.push(
+          `${this.searchParam}=${encodeURIComponent(this.searchQ)}`
+        );
+      }
+
+      if (this.facets.length) {
+        const facetParams = this.facets
+          .filter(f => f.value)
+          .map(f => `${f.param}=${encodeURIComponent(f.value)}`);
+
+        queryParams = [...queryParams, ...facetParams];
+      }
+
+      if (queryParams.length) {
+        url += `&${queryParams.join('&')}`;
       }
 
       this._loadOptionsFromUrl(url);
+    },
+    async loadFacets() {
+      if (!this.facetParams) {
+        return;
+      }
+
+      for (let i = 0; i < this.facetParams.length; i++) {
+        const facet = this.facetParams[i];
+        let url = facet.vocabulary;
+
+        let vocabulary: any;
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+          }
+
+          vocabulary = await response.json();
+        } catch (error: any) {
+          console.error(error.message);
+          this.isLoadingOptions = false;
+        }
+
+        if (!vocabulary) {
+          continue;
+        }
+
+        vocabulary = this.deepValue(vocabulary, facet.items);
+
+        if (vocabulary) {
+          this.facets.push({
+            label: facet.label,
+            param: facet.param,
+            value: facet.defaultValue || null,
+            options: vocabulary.map((item: any) => {
+              return {
+                label: this.deepValue(item, facet.itemLabel),
+                value: this.deepValue(item, facet.itemValue),
+              };
+            }),
+          });
+        }
+      }
     },
     getOptionDisplay(option: any): { label: string; value: string }[] {
       return this.displayProps.map(prop => {

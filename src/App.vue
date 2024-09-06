@@ -77,6 +77,7 @@
           <span>CzForm</span>
 
           <v-select
+            v-if="selectedSchema >= 0"
             class="my-2"
             label="Schema"
             :items="schemaCollection"
@@ -324,7 +325,7 @@ class App extends Vue {
         defaults,
       });
     }
-    this.selectedSchema = 0; // Initial repository schema to render
+    this.selectedSchema = 2; // Initial repository schema to render
     this.data = { ...this.data, ...this.defaults };
   }
 
