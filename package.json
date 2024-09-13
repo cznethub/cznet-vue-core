@@ -100,7 +100,7 @@
     "taze": "^0.16.7",
     "typescript": "latest",
     "vite": "^5.4.4",
-    "vitest": "^2.0.5",
+    "vitest": "^2.1.0",
     "vue": "^3.5.4",
     "vue-eslint-parser": "^9.4.3",
     "vue-tsc": "^2.1.6"
