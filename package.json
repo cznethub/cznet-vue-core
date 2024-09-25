@@ -99,7 +99,7 @@
     "stylelint-config-recommended-vue": "^1.5.0",
     "taze": "^0.16.9",
     "typescript": "latest",
-    "vite": "^5.4.7",
+    "vite": "^5.4.8",
     "vitest": "^2.1.1",
     "vue": "^3.5.8",
     "vue-eslint-parser": "^9.4.3",
