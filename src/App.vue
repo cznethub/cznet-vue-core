@@ -50,6 +50,7 @@
             :rootDirectory="rootDirectory"
             :hasFolders="fileExplorerConfig.hasFolders"
             :isReadOnly="fileExplorerConfig.isReadOnly"
+            :supportedFileTypes="supportedFileTypes"
             v-model:valid-items="validItems"
             :hasFileMetadata="() => true"
             @showMetadata="onShowMetadata($event)"
@@ -224,6 +225,47 @@ class App extends Vue {
   validItems = [];
   schemaCollection: any = [];
   selectedSchema: number = -1;
+  supportedFileTypes = [
+    '.csv',
+    '.doc',
+    '.kml',
+    '.pdf',
+    '.asc',
+    '.txt',
+    '.bin',
+    '.xls',
+    '.xlsx',
+    '.bmp',
+    '.xlsm',
+    '.xml',
+    '.jpg',
+    '.zip',
+    '.jgw',
+    '.f',
+    '.gif',
+    '.h5',
+    '.tar.gz',
+    '.docx',
+    '.html',
+    '.ipynb',
+    '.png',
+    '.m',
+    '.nc',
+    '.ppt',
+    '.ps',
+    '.tiff',
+    '.tsv',
+    '.md',
+    '.jpeg',
+    '.js',
+    '.json',
+    '.HEIC',
+    '.pptx',
+    '.tif',
+    '.geojson',
+    '.rdf',
+    '.hdf',
+  ];
 
   /** Example folder/file tree structure */
   rootDirectory = {

@@ -333,6 +333,7 @@
                             :folderColor="folderColor"
                             :fileColor="fileColor"
                             :canRetryUpload="canRetryUpload(item)"
+                            :is-invalid="isFileInvalid(item as IFile)"
                           >
                             <template #warnings>
                               <v-menu
@@ -490,7 +491,43 @@
         The maximum number of files cannot exceed
         <b>{{ maxNumberOfFiles }}</b>
       </v-alert>
-
+      <v-alert
+        v-if="sortedSupportedFileTypes"
+        class="my-4 border-grey"
+        color="info"
+        variant="outlined"
+        border="start"
+        density="compact"
+      >
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <template #title>
+              <v-icon class="mr-2" color="info">mdi-information</v-icon>
+              <v-label>Supported file extensions</v-label>
+            </template>
+            <v-expansion-panel-text>
+              <v-chip
+                size="small"
+                v-for="(fileType, index) of sortedSupportedFileTypes"
+                :key="index"
+                label
+                class="ma-1 border-grey"
+                variant="outlined"
+              >
+                <v-icon
+                  :color="fileColor"
+                  :icon="
+                    fileIcons[fileType.substring(1, fileType.length)] ||
+                    fileIcons.default
+                  "
+                  class="mr-2"
+                ></v-icon>
+                <div>{{ fileType }}</div>
+              </v-chip>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-alert>
       <drop
         @drop="onDropDiscard($event)"
         v-if="isDragMoving && !isReadOnly"
@@ -557,6 +594,7 @@ import { VTreeview } from 'vuetify/labs/VTreeview';
 import { useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';
+import { FILE_ICONS } from '@/constants';
 
 @Component({
   name: 'cz-file-explorer',
@@ -627,6 +665,7 @@ class CzFileExplorer extends Vue {
 
   // @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
+  fileIcons = FILE_ICONS;
   breakpoints: any = useDisplay();
   opened: (IFile | IFolder)[] = [];
   selected: (IFile | IFolder)[] = [];
@@ -740,6 +779,10 @@ class CzFileExplorer extends Vue {
     return this.allFiles.some((item: IFile) => {
       return !item.isUploaded && this.isFileInvalid(item as IFile);
     });
+  }
+
+  get sortedSupportedFileTypes() {
+    return this.supportedFileTypes?.map(f => f.toLocaleLowerCase()).sort();
   }
 
   get isSomeNotUploaded() {
@@ -1230,9 +1273,13 @@ class CzFileExplorer extends Vue {
       return true;
     }
 
-    const nameWithoutExtension = this._getFileNameWithoutExtension(file.name);
-    const extention = file.name.replace(nameWithoutExtension, '');
+    const extention = this._getFileExtension(file);
     return this.supportedFileTypes.includes(extention);
+  }
+
+  _getFileExtension(file: IFile) {
+    const nameWithoutExtension = this._getFileNameWithoutExtension(file.name);
+    return file.name.replace(nameWithoutExtension, '');
   }
 
   isFileNameValid(file: IFile) {
@@ -1245,6 +1292,10 @@ class CzFileExplorer extends Vue {
   }
 
   isFileInvalid(file: IFile) {
+    if (this.isFolder(file)) {
+      return false;
+    }
+
     return (
       !this.isFileExtensionValid(file) ||
       this.isFileTooLarge(file) ||

@@ -2,6 +2,7 @@
   <v-row
     :class="{
       'text-medium-emphasis': item.isCutting || item.isDisabled,
+      'bg-red-lighten-5': isInvalid,
     }"
     class="item-row flex-wrap flex-sm-nowrap ma-0 flex-sm-row flex-column cursor-pointer fill-height align-center"
   >
@@ -113,6 +114,7 @@ class CzFileExplorerItem extends Vue {
   @Prop({ default: 'primary-lighten-3' }) fileColor!: string;
   @Prop() isOpen!: boolean;
   @Prop() canRetryUpload!: boolean;
+  @Prop() isInvalid!: boolean;
   prettyBytes = prettyBytes;
 
   fileIcons = FILE_ICONS;
