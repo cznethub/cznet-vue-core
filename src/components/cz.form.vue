@@ -176,5 +176,5 @@ export default toNative(CzForm);
 </script>
 
 <style lang="scss">
-@import '../renderers/styles/renderers.scss';
+@use '../renderers/styles/renderers.scss';
 </style>
