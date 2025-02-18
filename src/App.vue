@@ -396,7 +396,18 @@ class App extends Vue {
   }
 
   toast() {
-    Notifications.toast({ message: 'Some toasty message', type: 'success' });
+    Notifications.toast({
+      title: 'Important Note: drink water.',
+      message: `Stay hydrated.`,
+      type: 'success',
+      location: 'top center',
+      isInfinite: true,
+      hasDoNotShowAgain: true,
+      onDismissed: (doNotShowAgain: boolean) => {
+        // Use in your app to not show the notification again
+        console.log(doNotShowAgain);
+      },
+    });
   }
 
   submit() {

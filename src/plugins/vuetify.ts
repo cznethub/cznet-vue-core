@@ -45,7 +45,7 @@ const vuetify = createVuetify({
       darkTheme,
     },
     variations: {
-      colors: ['primary', 'secondary'],
+      colors: ['primary', 'secondary', 'warning', 'error'],
       lighten: 4,
       darken: 4,
     },

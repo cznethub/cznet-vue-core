@@ -4,18 +4,26 @@
       v-model="snackbar.isActive"
       :timeout="snackbar.isInfinite ? -1 : snackbar.duration"
       :color="snackbar.type ? snackbarColors[snackbar.type].snackbar : ''"
+      :location="snackbar.location"
+      vertical
     >
-      <span>{{ snackbar.message }}</span>
+      <div v-if="snackbar.title" class="text-body-1 pb-4">
+        {{ snackbar.title }}
+      </div>
+      <p class="text-body-2">{{ snackbar.message }}</p>
 
       <template #actions>
-        <v-btn
-          @click="snackbar.isActive = false"
-          :color="
-            snackbar.type ? snackbarColors[snackbar.type].actionButton : ''
-          "
-        >
-          Dismiss
-        </v-btn>
+        <div class="d-flex align-center gap-2">
+          <v-checkbox
+            v-if="snackbar.hasDoNotShowAgain && snackbar.isInfinite"
+            v-model="doNotShowAgain"
+            hide-details
+          >
+            <template #label>Do not show again</template>
+          </v-checkbox>
+
+          <v-btn @click="onDismiss">Dismiss</v-btn>
+        </div>
       </template>
     </v-snackbar>
 
@@ -88,10 +96,10 @@ const INITIAL_DIALOG = {
   onCancel: () => {},
 };
 
-const INITIAL_SNACKBAR = {
+const INITIAL_SNACKBAR: IToast & { isActive: boolean; isInfinite: boolean } = {
   message: '',
   duration: DEFAULT_TOAST_DURATION,
-  position: 'center' as 'center' | 'left' | undefined,
+  location: 'bottom center',
   type: 'default' as 'default' | 'success' | 'error' | 'info',
   isActive: false,
   isInfinite: false,
@@ -127,14 +135,16 @@ class CzNotifications extends Vue {
   public onToast!: Subscription;
   public onOpenDialog!: Subscription;
   public snackbarColors = {
-    success: { snackbar: 'primary', actionButton: 'primary darken-2' },
-    error: { snackbar: 'error darken-2', actionButton: 'error darken-3' },
-    info: { snackbar: 'primary', actionButton: 'primary darken-2' },
-    default: { snackbar: undefined, actionButton: undefined },
+    success: { snackbar: 'green-darken-3' },
+    warning: { snackbar: 'amber-darken-1' },
+    error: { snackbar: 'deep-orange-darken-4' },
+    info: { snackbar: 'white' },
+    default: { snackbar: undefined },
   };
   public snackbar: IToast & { isActive: boolean; isInfinite: boolean } =
     INITIAL_SNACKBAR;
   public dialog: IDialog & { isActive: boolean } = INITIAL_DIALOG;
+  public doNotShowAgain = false;
 
   async created() {
     this.onToast = Notifications.toast$.subscribe((toast: IToast) => {
@@ -147,6 +157,13 @@ class CzNotifications extends Vue {
       this.dialog = { ...INITIAL_DIALOG, ...dialog };
       this.dialog.isActive = true;
     });
+  }
+
+  onDismiss() {
+    if (this.snackbar.isInfinite && this.snackbar.onDismissed) {
+      this.snackbar.onDismissed(this.doNotShowAgain);
+    }
+    this.snackbar.isActive = false;
   }
 
   beforeDestroy() {

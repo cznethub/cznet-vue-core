@@ -14,7 +14,7 @@ export default class Notifications {
         params.duration !== undefined
           ? params.duration
           : DEFAULT_TOAST_DURATION,
-      position: params.position || 'center',
+      location: params.location || 'bottom center',
       isInfinite: !!params.isInfinite,
       type: params.type || 'default',
       // isPersistent: params.isPersistent !== undefined ? params.isPersistent : true,

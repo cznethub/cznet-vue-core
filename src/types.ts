@@ -1,12 +1,21 @@
-import { JsonSchema } from '@jsonforms/core';
+import { VSnackbar } from 'vuetify/components';
+
+// Vuetify does not export its types, so we unwrap them
+type UnwrapReadonlyArray<A> = A extends Readonly<Array<infer I>> ? I : A;
+
+export type SnackbarLocation = UnwrapReadonlyArray<VSnackbar['location']>;
 
 export interface IToast {
+  title?: string;
   message: string;
   duration?: number;
-  position?: 'center' | 'left';
+  location?: SnackbarLocation;
   isInfinite?: boolean;
-  type?: 'success' | 'error' | 'info' | 'default';
+  type?: 'success' | 'warning' | 'error' | 'info' | 'default';
+  /** Used only when `isInfinite` is set to `true` */
+  hasDoNotShowAgain?: boolean;
   // isPersistent?: boolean // Currently has no effect
+  onDismissed?: (doNotShowAgain: boolean) => any;
 }
 
 export interface IDialog {

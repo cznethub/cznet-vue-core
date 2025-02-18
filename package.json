@@ -1,6 +1,6 @@
 {
   "name": "@cznethub/cznet-vue-core",
-  "version": "0.2.29",
+  "version": "0.2.31",
   "private": false,
   "keywords": [
     "cznet",
@@ -21,8 +21,8 @@
       "import": "./dist/index.js"
     },
     "./styles": {
-      "require": "./dist/style.css",
-      "import": "./dist/style.css"
+      "require": "./dist/index.css",
+      "import": "./dist/index.css"
     }
   },
   "types": "./dist/index.d.ts",
