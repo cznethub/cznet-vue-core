@@ -1,1 +1,266 @@
-{}
+{
+  "context": "https://schema.org",
+  "type": "Dataset",
+  "name": "a title",
+  "description": "an abstract",
+  "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/dataset_metadata.json",
+  "identifier": null,
+  "publisher": null,
+  "datePublished": null,
+  "subjectOf": null,
+  "version": null,
+  "inLanguage": null,
+  "creativeWorkStatus": null,
+  "dateModified": null,
+  "funding": null,
+  "temporalCoverage": null,
+  "spatialCoverage": null,
+  "hasPart": [
+    {
+      "@type": "CreativeWork",
+      "name": "Not Found and name is required",
+      "description": null,
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/rasters/logan.vrt.json"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Not Found and name is required",
+      "description": null,
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/rasters/single/logan1.tif.json"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Logan River Stream Network",
+      "description": "Logan River Stream Network delineated from a digital elevation model using TauDEM",
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/states/states.shp.json"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Not Found and name is required",
+      "description": null,
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/watersheds/watersheds.shp.json"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Water temperature data from the Little Bear River, UT",
+      "description": "This dataset contains time series of observations of water temperature in the Little Bear River, UT. Data were recorded every 30 minutes. The values were recorded using a HydroLab MS5 multi-parameter water quality sonde connected to a Campbell Scientific datalogger. ",
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/timeseries/ODM2_Multi_Site_One_Variable.sqlite.json"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "Not Found and name is required",
+      "description": null,
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/timeseries/ODM2_Multi_Site_One_Variable_Test.csv.json"
+    },
+    {
+      "@type": "CreativeWork",
+      "name": "overwrited",
+      "description": "This netCDF data is the simulation output from Utah Energy Balance (UEB) model.It includes the simulation result of snow water equivalent during the period Oct. 2009 to June 2010 for TWDEF site in Utah.",
+      "url": "https://hydroshare.org/resource/resource_id/data/extracted_metadata/netcdf/netcdf_valid.nc.json"
+    }
+  ],
+  "isPartOf": null,
+  "associatedMedia": [
+    {
+      "@type": "DataDownload",
+      "name": "readme.txt",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/readme.txt",
+      "contentSize": "0.244 KB",
+      "sha256": "37ecfe5fb662dcd63a376889926e5de0fee7c19b0fdfa3a218113243288ae312",
+      "encodingFormat": "text/plain"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "testfile.txt",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/folder_aggregation/testfile.txt",
+      "contentSize": "0.011 KB",
+      "sha256": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+      "encodingFormat": "text/plain"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "netcdf_invalid.nc",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/netcdf/netcdf_invalid.nc",
+      "contentSize": "0.0 KB",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encodingFormat": "application/x-netcdf"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "netcdf_valid.nc",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/netcdf/netcdf_valid.nc",
+      "contentSize": "4869.898 KB",
+      "sha256": "a3229e683732e4188077d33480f0321c7d97be2248f50ac2a6c1c3928b8c6f21",
+      "encodingFormat": "application/x-netcdf"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "logan.vrt",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/rasters/logan.vrt",
+      "contentSize": "2.175 KB",
+      "sha256": "94a844d49defcafef815258d1d2bc558b464d9454de7e178b25d5377eca789b4",
+      "encodingFormat": ".vrt"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "logan1.tif",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/rasters/logan1.tif",
+      "contentSize": "100.749 KB",
+      "sha256": "830f4b50e78e8a8fb0f7eee7369171dacbcaa43cc2c4deb59cef8e4fd2f641c5",
+      "encodingFormat": "image/tiff"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "logan2.tif",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/rasters/logan2.tif",
+      "contentSize": "98.943 KB",
+      "sha256": "b5ad48ae6428c23c63ceaa93838eb2b3a688a3ecfbf10f01fcbc25f0d2d16f46",
+      "encodingFormat": "image/tiff"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "logan1.tif",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/rasters/single/logan1.tif",
+      "contentSize": "100.749 KB",
+      "sha256": "830f4b50e78e8a8fb0f7eee7369171dacbcaa43cc2c4deb59cef8e4fd2f641c5",
+      "encodingFormat": "image/tiff"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "__init__.py",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/states/__init__.py",
+      "contentSize": "0.0 KB",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encodingFormat": "text/x-python"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "states.dbf",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/states/states.dbf",
+      "contentSize": "2.846 KB",
+      "sha256": "80e5e3fd777d4d8394dccc0040ec7cb8250f2d5890f1f5c7e153e70ea864e054",
+      "encodingFormat": ".dbf"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "states.prj",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/states/states.prj",
+      "contentSize": "0.167 KB",
+      "sha256": "84cf5b9a3c1a444f83ac30ff76f8c5035990223027ba69b2f4d628388adcbd65",
+      "encodingFormat": ".prj"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "states.shp",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/states/states.shp",
+      "contentSize": "222.392 KB",
+      "sha256": "5dcb0eceff81acfe776b3b08dd733e0b519d361783f82afa31876eff9ff45e88",
+      "encodingFormat": "application/x-qgis"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "states.shp.xml",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/states/states.shp.xml",
+      "contentSize": "10.489 KB",
+      "sha256": "3213aa43cf5f6aa9b2c2ea6b9560956f047f907a8187ca6140401d3a187ceffe",
+      "encodingFormat": "application/xml"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "states.shx",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/states/states.shx",
+      "contentSize": "0.508 KB",
+      "sha256": "2697eb17b968d7733813c3d8d6536b706499f7fee3e37ff35e3a6366e0d9ea36",
+      "encodingFormat": "application/x-qgis"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "ODM2_Multi_Site_One_Variable.sqlite",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/timeseries/ODM2_Multi_Site_One_Variable.sqlite",
+      "contentSize": "1894.4 KB",
+      "sha256": "2fba6f2ebac562dac6a57acf0fdc5fdfabc9654b3c910aa6ef69cf4385997e19",
+      "encodingFormat": ".sqlite"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "ODM2_Multi_Site_One_Variable_Test.csv",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/timeseries/ODM2_Multi_Site_One_Variable_Test.csv",
+      "contentSize": "0.737 KB",
+      "sha256": "7eab3b1b96d9fb2952e306dd82d673299f8a41a3af2e36dae57469a1e6d35941",
+      "encodingFormat": "text/csv"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "ODM2_invalid.sqlite",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/timeseries/ODM2_invalid.sqlite",
+      "contentSize": "185.344 KB",
+      "sha256": "74311d1dae4574d9e9ca4ec1a42421f1eb21e612ae9a450b781690ed6b32eea6",
+      "encodingFormat": ".sqlite"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.cpg",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.cpg",
+      "contentSize": "0.005 KB",
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824",
+      "encodingFormat": ".cpg"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.dbf",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.dbf",
+      "contentSize": "0.666 KB",
+      "sha256": "c351188821452dd4802e19a27529a2637d1190ea748ee233194e2d08eb8776ea",
+      "encodingFormat": ".dbf"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.prj",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.prj",
+      "contentSize": "0.425 KB",
+      "sha256": "d8d0a7a0e0b796b5468d4c9827b2ff864b5be38b96df55efdb14b73c3ec0bc12",
+      "encodingFormat": ".prj"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.sbn",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.sbn",
+      "contentSize": "0.18 KB",
+      "sha256": "fc1c6b5bfb502919a3402f2d929bed1dcc9bbbf77679881b9ffb0087be785fc0",
+      "encodingFormat": ".sbn"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.sbx",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.sbx",
+      "contentSize": "0.124 KB",
+      "sha256": "ffc7a4c8ab42afb049a10a78aa99f2003d457ab0261c4fbdaa1802f0e5a0a54c",
+      "encodingFormat": ".sbx"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.shp",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.shp",
+      "contentSize": "29.228 KB",
+      "sha256": "258a1a0291179c80df6b20c8577d5b9d7e13a791c60753953fdaeba4ff9587b6",
+      "encodingFormat": "application/x-qgis"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.shp.xml",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.shp.xml",
+      "contentSize": "0.821 KB",
+      "sha256": "45b01b459b0cc25ce07c8ee184aa9eab16acf1f149a37f31c41f5609f9cde2ef",
+      "encodingFormat": "application/xml"
+    },
+    {
+      "@type": "DataDownload",
+      "name": "watersheds.shx",
+      "contentUrl": "https://hydroshare.org/resource/resource_id/data/contents/watersheds/watersheds.shx",
+      "contentSize": "0.14 KB",
+      "sha256": "f66736da63de330216ac27939f725348177f439e120b89ab2cb4612292bf4ab8",
+      "encodingFormat": "application/x-qgis"
+    }
+  ],
+  "citation": null
+}
