@@ -5,7 +5,9 @@
       :timeout="snackbar.isInfinite ? -1 : snackbar.duration"
       :color="snackbar.type ? snackbarColors[snackbar.type].snackbar : ''"
       :location="snackbar.location"
-      vertical
+      :vertical="
+        !!snackbar.title || (snackbar.hasDoNotShowAgain && snackbar.isInfinite)
+      "
     >
       <div v-if="snackbar.title" class="text-body-1 pb-4">
         {{ snackbar.title }}
@@ -83,7 +85,7 @@
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { Subscription } from 'rxjs';
-import { DEFAULT_TOAST_DURATION } from '@/constants';
+import { DEFAULT_TOAST_DURATION, INITIAL_SNACKBAR } from '@/constants';
 import Notifications from '@/models/notifications';
 
 const INITIAL_DIALOG = {
@@ -94,16 +96,6 @@ const INITIAL_DIALOG = {
   isActive: false,
   onConfirm: () => {},
   onCancel: () => {},
-};
-
-const INITIAL_SNACKBAR: IToast & { isActive: boolean; isInfinite: boolean } = {
-  message: '',
-  duration: DEFAULT_TOAST_DURATION,
-  location: 'bottom center',
-  type: 'default' as 'default' | 'success' | 'error' | 'info',
-  isActive: false,
-  isInfinite: false,
-  // isPersistent: false,
 };
 
 import {

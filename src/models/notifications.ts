@@ -1,4 +1,4 @@
-import { DEFAULT_TOAST_DURATION } from '../constants';
+import { DEFAULT_TOAST_DURATION, INITIAL_SNACKBAR } from '../constants';
 import { IDialog, IToast } from '../types';
 import { Subject } from 'rxjs';
 
@@ -9,15 +9,8 @@ export default class Notifications {
 
   static toast(params: IToast) {
     this.toast$.next({
+      ...INITIAL_SNACKBAR,
       ...params,
-      duration:
-        params.duration !== undefined
-          ? params.duration
-          : DEFAULT_TOAST_DURATION,
-      location: params.location || 'bottom center',
-      isInfinite: !!params.isInfinite,
-      type: params.type || 'default',
-      // isPersistent: params.isPersistent !== undefined ? params.isPersistent : true,
     });
   }
 

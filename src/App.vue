@@ -399,7 +399,7 @@ class App extends Vue {
     Notifications.toast({
       title: 'Important Note: drink water.',
       message: `Stay hydrated.`,
-      type: 'success',
+      type: 'info',
       location: 'top center',
       isInfinite: true,
       hasDoNotShowAgain: true,

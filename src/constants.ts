@@ -1,3 +1,5 @@
+import { IToast } from './types';
+
 export const APP_NAME = 'CZNet Vue Core';
 export const APP_GOOGLE_MAPS_API_KEY =
   import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || '';
@@ -46,4 +48,20 @@ export const FILE_ICONS: { [key: string]: string } = {
 
   card: 'mdi-file-cad',
   default: 'mdi-file-outline',
+};
+
+export const INITIAL_SNACKBAR: IToast & {
+  isActive: boolean;
+  isInfinite: boolean;
+} = {
+  title: '',
+  message: '',
+  duration: DEFAULT_TOAST_DURATION,
+  location: 'bottom center',
+  type: 'default',
+  isActive: false,
+  isInfinite: false,
+  hasDoNotShowAgain: false,
+  // isPersistent: false,
+  onDismissed: () => {},
 };
