@@ -1,15 +1,132 @@
 <template>
   <v-app class="bg-grey-lighten-4">
     <v-container>
-      <div class="text-h5 text-center">Warning: Large Schemas takes ~30+ seconds to render!</div>
+      <div class="text-h5 text-center">CZNet Vue 3 core components</div>
+
+      <v-card class="my-5">
+        <v-card-title>Notifications</v-card-title>
+        <v-divider />
+        <v-card-text>
+          <v-btn class="mr-2" color="primary" @click="toast">Toast</v-btn>
+          <v-btn color="primary" @click="openDialog">Open Dialog</v-btn>
+        </v-card-text>
+      </v-card>
+
+      <v-card>
+        <v-card-title>CzFileExplorer</v-card-title>
+        <v-divider />
+        <v-card-text class="d-flex">
+          <v-checkbox
+            label="isReadOnly"
+            v-model="fileExplorerConfig.isReadOnly"
+            class="mr-4"
+            hide-details
+          />
+          <v-checkbox
+            v-if="!fileExplorerConfig.isReadOnly"
+            label="hasFolders"
+            v-model="fileExplorerConfig.hasFolders"
+            class="mr-4"
+            hide-details
+          />
+        </v-card-text>
+        <v-divider />
+        <v-card-text>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-title class="bg-grey-lighten-4">
+                <div class="text-overline">File Explorer Data</div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <pre>{{ JSON.parse(stringify(rootDirectory)) }}</pre>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card-text>
+
+        <v-divider />
+        <v-card-text>
+          <cz-file-explorer
+            :rootDirectory="rootDirectory"
+            :hasFolders="fileExplorerConfig.hasFolders"
+            :isReadOnly="fileExplorerConfig.isReadOnly"
+            :supportedFileTypes="supportedFileTypes"
+            v-model:valid-items="validItems"
+            :hasFileMetadata="() => true"
+            @showMetadata="onShowMetadata($event)"
+            :renameFileOrFolder="renameFileOrFolderMock"
+            :deleteFileOrFolder="deleteFileOrFolderMock"
+            :upload="uploadMock"
+          >
+            <template #prepend>
+              <v-alert
+                class="text-subtitle-1 mb-4"
+                border="start"
+                colored-border
+              >
+                You can prepend content to this area.
+              </v-alert>
+            </template>
+          </cz-file-explorer>
+        </v-card-text>
+      </v-card>
 
       <v-card class="my-5">
         <v-card-title
           class="d-flex justify-space-between align-center flex-column flex-md-row"
         >
+          <span>CzForm</span>
 
+          <v-select
+            v-if="selectedSchema >= 0"
+            class="my-2"
+            label="Schema"
+            :items="schemaCollection"
+            v-model="selectedSchema"
+            @update:model-value="data = defaults"
+            item-value="index"
+            item-title="name"
+            max-width="200px"
+            variant="outlined"
+            hide-details
+            density="compact"
+          ></v-select>
         </v-card-title>
         <v-divider />
+        <v-card-text class="d-flex">
+          <v-checkbox
+            label="ReadOnly"
+            v-model="config.isReadOnly"
+            class="mr-4"
+            hide-details
+          />
+          <v-checkbox
+            label="View mode"
+            v-model="config.isViewMode"
+            class="mr-4"
+            hide-details
+          />
+          <v-checkbox
+            label="Disabled"
+            v-model="config.isDisabled"
+            class="mr-4"
+            hide-details
+          />
+        </v-card-text>
+
+        <v-divider />
+        <v-card-text>
+          <v-expansion-panels :model-value="0">
+            <v-expansion-panel>
+              <v-expansion-panel-title class="bg-grey-lighten-4">
+                <div class="text-overline">Form Data</div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <pre>{{ data }}</pre>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card-text>
 
         <v-divider />
         <v-card-text>
@@ -88,6 +205,9 @@ import CzForm from './components/cz.form.vue';
 
 const schemaPaths = [
   { name: 'HydroShare', path: './schemas/hydroshare' },
+  { name: 'EarthChem', path: './schemas/earthchem' },
+  { name: 'Zenodo', path: './schemas/zenodo' },
+  { name: 'External', path: './schemas/external' },
 ];
 
 @Component({
@@ -243,10 +363,11 @@ class App extends Vue {
         index: i,
         name,
         schema,
+        uischema,
         defaults,
       });
     }
-    this.selectedSchema = 0; // Initial repository schema to render
+    this.selectedSchema = 2; // Initial repository schema to render
     this.data = { ...this.data, ...this.defaults };
   }
 
