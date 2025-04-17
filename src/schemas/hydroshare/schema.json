@@ -1,687 +1,2226 @@
 {
-  "title": "Resource Metadata",
-  "description": "A class used to represent the metadata for a resource",
-  "type": "object",
-  "properties": {
-    "title": {
-      "title": "Title",
-      "description": "A string containing the name given to a resource",
-      "maxLength": 300,
-      "type": "string"
-    },
-    "abstract": {
-      "title": "Abstract",
-      "description": "A string containing a summary of a resource",
-      "type": "string"
-    },
-    "subjects": {
-      "title": "Subject keywords",
-      "description": "A list of keyword strings expressing the topic of a resource",
-      "default": [
-        "CZNet"
-      ],
-      "minItems": 2,
-      "contains": {
-        "enum": [
-          "CZNet"
-        ]
-      },
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "creators": {
-      "title": "Creators",
-      "description": "A list of Creator objects indicating the entities responsible for creating a resource",
-      "default": [],
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "$ref": "#/definitions/Creator"
-      }
-    },
-    "contributors": {
-      "title": "Contributors",
-      "description": "A list of Contributor objects indicating the entities that contributed to a resource",
-      "default": [],
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Contributor"
-      }
-    },
-    "relations": {
-      "title": "Related resources",
-      "description": "A list of Relation objects representing resources related to a described resource",
-      "default": [],
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Relation"
-      }
-    },
-    "additional_metadata": {
-      "title": "Additional metadata",
-      "description": "A dictionary containing key-value pair metadata associated with a resource",
-      "default": [],
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/AdditionalMetadata"
-      }
-    },
-    "rights": {
-      "title": "Rights",
-      "description": "An object containing information about rights held in and over a resource",
-      "required": [
-        "statement",
-        "url"
-      ],
-      "anyOf": [
-        {
-          "title": "Choose a License",
-          "required": [
-            "license"
-          ],
-          "default": {
-            "license": "Creative Commons Attribution CC BY",
-            "statement": "This resource is shared under the Creative Commons Attribution CC BY.",
-            "url": "http://creativecommons.org/licenses/by/4.0/"
-          },
-          "anyOf": [
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution CC BY",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution CC BY"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution CC BY.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-ShareAlike CC BY-SA",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-ShareAlike CC BY-SA"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-ShareAlike CC BY-SA.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-sa/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoDerivs CC BY-ND",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoDerivs CC BY-ND"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoDerivs CC BY-ND.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nd/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial-ShareAlike CC BY-NC-SA.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nc-sa/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoCommercial CC BY-NC",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoCommercial CC BY-NC"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial CC BY-NC.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nc/4.0/",
-                  "readOnly": true
-                }
-              }
-            },
-            {
-              "type": "object",
-              "title": "Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND",
-              "properties": {
-                "license": {
-                  "type": "string",
-                  "default": "Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND"
-                },
-                "statement": {
-                  "type": "string",
-                  "default": "This resource is shared under the Creative Commons Attribution-NoCommercial-NoDerivs CC BY-NC-ND.",
-                  "readOnly": true
-                },
-                "url": {
-                  "type": "string",
-                  "default": "http://creativecommons.org/licenses/by-nc/4.0/",
-                  "readOnly": true
-                }
-              }
-            }
-          ]
-        },
-        {
-          "title": "Custom License",
-          "description": "An object containing information about rights held in an over a resource",
-          "type": "object",
-          "properties": {
-            "statement": {
-              "title": "Statement",
-              "description": "A string containing the text of the license or rights statement",
-              "type": "string"
-            },
-            "url": {
-              "type": "string",
-              "title": "URL",
-              "description": "URL pointing to a description of the license or rights statement",
-              "minLength": 1,
-              "maxLength": 2047,
-              "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
-              "errorMessage": {
-                "pattern": "must match format \"url\""
-              }
-            }
-          }
-        }
-      ],
-      "errorMessage": {
-        "anyOf": "selected item is incomplete"
-      }
-    },
-    "awards": {
-      "title": "Funding agency information",
-      "description": "A list of objects containing information about the funding agencies and awards associated with a resource",
-      "default": [],
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/AwardInfo"
-      }
-    },
-    "spatial_coverage": {
-      "title": "Spatial coverage",
-      "description": "An object containing information about the spatial topic of a resource, the spatial applicability of a resource, or jurisdiction under with a resource is relevant",
-      "anyOf": [
-        {
-          "title": "Point Coverage Metadata",
-          "description": "A class used to represent geographic coverage metadata for a resource or aggregation expressed as a\npoint location",
-          "type": "object",
-          "properties": {
-            "name": {
-              "title": "Name",
-              "description": "A string containing a name for the place associated with the geographic coverage",
-              "type": "string"
-            },
-            "east": {
-              "title": "East",
-              "description": "The coordinate of the point location measured in the east direction (between -180 and 180)",
-              "exclusiveMinimum": -180,
-              "exclusiveMaximum": 180,
-              "type": "number"
-            },
-            "north": {
-              "title": "North",
-              "description": " The coordinate of the point location measured in the north direction (between -90 and 90)",
-              "exclusiveMinimum": -90,
-              "exclusiveMaximum": 90,
-              "type": "number"
-            },
-            "units": {
-              "title": "Units",
-              "description": "The units applying to the unlabelled numeric values of north and east",
-              "type": "string",
-              "default": "Decimal degrees",
-              "readOnly": true
-            },
-            "projection": {
-              "title": "Projection",
-              "description": "The name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
-              "type": "string",
-              "default": "WGS 84 EPSG:4326",
-              "readOnly": true
-            }
-          },
-          "required": [
-            "east",
-            "north"
-          ]
-        },
-        {
-          "title": "Box Coverage Metadata",
-          "description": "A class used to represent geographic coverage metadata for a resource or aggregation expressed as a\nlatitude-longitude bounding box",
-          "type": "object",
-          "properties": {
-            "name": {
-              "title": "Name",
-              "description": "A string containing a name for the place associated with the geographic coverage",
-              "type": "string"
-            },
-            "northlimit": {
-              "title": "North limit",
-              "description": "A floating point value containing the constant coordinate for the northernmost face or edge of the bounding box (between -90 and 90)",
-              "exclusiveMinimum": -90,
-              "exclusiveMaximum": 90,
-              "type": "number"
-            },
-            "eastlimit": {
-              "title": "East limit",
-              "description": "A floating point value containing the constant coordinate for the easternmost face or edge of the bounding box (between -180 and 180)",
-              "exclusiveMinimum": -180,
-              "exclusiveMaximum": 180,
-              "type": "number"
-            },
-            "southlimit": {
-              "title": "South limit",
-              "description": "A floating point value containing the constant coordinate for the southernmost face or edge of the bounding box (between -90 and 90)",
-              "exclusiveMinimum": -90,
-              "exclusiveMaximum": 90,
-              "type": "number"
-            },
-            "westlimit": {
-              "title": "West limit",
-              "description": "A floating point value containing the constant coordinate for the westernmost face or edge of the bounding box (between -180 and 180)",
-              "exclusiveMinimum": -180,
-              "exclusiveMaximum": 180,
-              "type": "number"
-            },
-            "units": {
-              "title": "Units",
-              "description": "A string containing the units applying to the unlabelled numeric values of northlimit, eastlimit, southlimit, and westlimit",
-              "type": "string",
-              "default": "Decimal degrees",
-              "readOnly": true
-            },
-            "projection": {
-              "title": "Projection",
-              "description": "A string containing the name of the projection used with any parameters required, such as ellipsoid parameters, datum, standard parallels and meridians, zone, etc.",
-              "type": "string",
-              "default": "WGS 84 EPSG:4326",
-              "readOnly": true
-            }
-          },
-          "required": [
-            "northlimit",
-            "eastlimit",
-            "southlimit",
-            "westlimit"
-          ]
-        }
-      ],
-      "errorMessage": {
-        "anyOf": "selected item is incomplete"
-      }
-    },
-    "period_coverage": {
-      "title": "Temporal coverage",
-      "description": "An object containing information about the temporal topic or applicability of a resource",
-      "$ref": "#/definitions/PeriodCoverage"
-    },
-    "publisher": {
-      "title": "Publisher",
-      "description": "An object containing information about the publisher of a resource",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Publisher"
-        }
-      ]
-    },
-    "citation": {
-      "title": "Citation",
-      "description": "A string containing the biblilographic citation for a resource",
-      "type": "string",
-      "readOnly": true
-    }
-  },
-  "required": [
-    "title",
-    "abstract",
-    "subjects",
-    "awards",
-    "rights"
-  ],
-  "definitions": {
-    "Creator": {
-      "title": "Creator Metadata",
-      "description": "A class used to represent the metadata associated with a creator of a resource",
-      "type": "object",
+  "$defs": {
+    "Affiliation": {
       "properties": {
+        "@type": {
+          "const": "Organization",
+          "default": "Organization",
+          "title": "@Type",
+          "type": "string"
+        },
         "name": {
+          "description": "Name of the organization the creator is affiliated with.",
           "title": "Name",
-          "description": "A string containing the name of the creator",
-          "maxLength": 100,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
-          }
-        },
-        "phone": {
-          "title": "Phone",
-          "description": "A string containing a phone number for the creator",
-          "maxLength": 25,
-          "type": "string",
-          "options": {
-            "placeholder": "Phone: e.g., (435) 797-2946"
-          }
-        },
-        "address": {
-          "title": "Address",
-          "description": "A string containing an address for the creator",
-          "maxLength": 250,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g., 8200 Old Main Hill, Logan, UT 84322-8200"
-          }
-        },
-        "organization": {
-          "title": "Organization",
-          "description": "A string containing the name of the organization with which the creator is affiliated",
-          "maxLength": 200,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g. 'Utah State University'"
-          }
-        },
-        "email": {
-          "title": "Email",
-          "description": "A string containing an email address for the creator",
-          "type": "string",
-          "format": "email",
-          "options": {
-            "placeholder": "e.g. 'jeff.horsburgh@usu.edu'"
-          }
-        },
-        "homepage": {
-          "$ref": "#/definitions/UrlPattern"
-        },
-        "profile_url": {
-          "$ref": "#/definitions/ProfileUrlPattern"
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "Contributor": {
-      "title": "Contributor Metadata",
-      "description": "A class used to represent the metadata associated with a contributor to a resource",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "A string containing the name of the contributor",
-          "type": "string",
-          "maxLength": 100,
-          "options": {
-            "placeholder": "e.g. 'Horsburgh, Jeffery S.'"
-          }
-        },
-        "phone": {
-          "title": "Phone",
-          "description": "A string containing a phone number for the contributor",
-          "maxLength": 25,
-          "type": "string",
-          "options": {
-            "placeholder": "Phone: e.g., (435) 797-2946"
-          }
-        },
-        "address": {
-          "title": "Address",
-          "description": "A string containing an address for the contributor",
-          "maxLength": 250,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g., 8200 Old Main Hill, Logan, UT 84322-8200"
-          }
-        },
-        "organization": {
-          "title": "Organization",
-          "description": "A string containing the name of the organization with which the contributor is affiliated",
-          "maxLength": 200,
-          "type": "string",
-          "options": {
-            "placeholder": "e.g. 'Utah State University'"
-          }
-        },
-        "email": {
-          "title": "Email",
-          "description": "A string containing an email address for the contributor",
-          "type": "string",
-          "format": "email",
-          "options": {
-            "placeholder": "e.g. 'jeff.horsburgh@usu.edu'"
-          }
-        },
-        "homepage": {
-          "$ref": "#/definitions/UrlPattern"
-        },
-        "profile_url": {
-          "$ref": "#/definitions/ProfileUrlPattern"
-        }
-      },
-      "required": [
-        "name"
-      ]
-    },
-    "Relation": {
-      "title": "Related Resource Metadata",
-      "description": "A class used to represent the metadata associated with a resource related to the resource being described",
-      "type": "object",
-      "properties": {
-        "type": {
-          "title": "RelationType",
-          "description": "",
-          "enum": [
-            "The content of this resource is part of",
-            "This resource includes",
-            "The content of this resource was created by a related App or software program",
-            "The content of this resource was created by",
-            "This resource updates and replaces a previous version",
-            "This resource has been replaced by a newer version",
-            "This resource is described by",
-            "This resource conforms to established standard described by",
-            "This resource has a related resource in another format",
-            "This resource is a different format of",
-            "This resource is required by",
-            "This resource requires",
-            "This resource is referenced by",
-            "The content of this resource references",
-            "This resource replaces",
-            "The content of this resource is derived from"
-          ],
-          "type": "string"
-        },
-        "value": {
-          "title": "Value",
-          "description": "String expressing the Full text citation, URL link for, or description of the related resource",
-          "maxLength": 500,
-          "type": "string"
-        }
-      },
-      "required": [
-        "type",
-        "value"
-      ]
-    },
-    "AdditionalMetadata": {
-      "title": "Key-Value",
-      "description": "A key-value pair",
-      "type": "object",
-      "properties": {
-        "key": {
-          "title": "Key",
-          "type": "string"
-        },
-        "value": {
-          "title": "Value",
-          "type": "string"
-        }
-      },
-      "required": [
-        "key",
-        "value"
-      ]
-    },
-    "AwardInfo": {
-      "title": "Funding Agency Metadata",
-      "description": "A class used to represent the metadata associated with funding agency credits for a resource",
-      "type": "object",
-      "properties": {
-        "funding_agency_name": {
-          "title": "Agency name",
-          "description": "A string containing the name of the funding agency or organization",
-          "type": "string"
-        },
-        "title": {
-          "title": "Award title",
-          "description": "A string containing the title of the project or award",
-          "type": "string"
-        },
-        "number": {
-          "title": "Award number",
-          "description": "A string containing the award number or other identifier",
-          "type": "string"
-        },
-        "funding_agency_url": {
-          "$ref": "#/definitions/UrlPattern"
-        }
-      },
-      "required": [
-        "funding_agency_name",
-        "number",
-        "title"
-      ]
-    },
-    "PeriodCoverage": {
-      "title": "Period coverage",
-      "description": "A class used to represent temporal coverage metadata for a resource or aggregation",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Name",
-          "description": "A string containing a name for the time interval",
-          "type": "string"
-        },
-        "start": {
-          "title": "Start",
-          "description": "A datetime object containing the instant corresponding to the commencement of the time interval",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          },
-          "formatMaximum": {
-            "$data": "1/end"
-          },
-          "errorMessage": {
-            "formatMaximum": "must be lesser than or equal to End date"
-          }
-        },
-        "end": {
-          "title": "End",
-          "description": "A datetime object containing the instant corresponding to the termination of the time interval",
-          "type": "string",
-          "format": "date-time",
-          "options": {
-            "placeholder": "YYYY-MM-DDTHH:MM"
-          },
-          "formatMinimum": {
-            "$data": "1/start"
-          },
-          "errorMessage": {
-            "formatMinimum": "must be greater than or equal to Start date"
-          }
-        }
-      },
-      "required": [
-        "start",
-        "end"
-      ]
-    },
-    "Publisher": {
-      "title": "Publisher Metadata",
-      "description": "A class used to represent the metadata associated with the publisher of a resource",
-      "type": "object",
-      "properties": {
-        "name": {
-          "title": "Publisher name",
-          "description": "A string containing the name of the publisher",
-          "maxLength": 200,
           "type": "string"
         },
         "url": {
-          "title": "Publisher URL",
-          "description": "An object containing a URL that points to the publisher website",
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the homepage for the organization.",
+          "title": "URL"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full address for the organization - e.g., \u201c8200 Old Main Hill, Logan, UT 84322-8200\u201d.",
+          "title": "Address"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Affiliation",
+      "type": "object"
+    },
+    "CreativeWork": {
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The description of the creative work.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the creative work.",
+          "title": "URL"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "CreativeWork",
+      "type": "object"
+    },
+    "Creator": {
+      "properties": {
+        "@type": {
+          "const": "Person",
+          "default": "Person",
+          "description": "A person.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "A string containing the full name of the person. Personal name format: Family Name, Given Name.",
+          "title": "Name",
+          "type": "string"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "format": "email",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string containing an email address for the creator.",
+          "title": "Email"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORCID identifier for creator.",
+          "errorMessage": {
+            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
+          },
+          "options": {
+            "placeholder": "e.g. '0000-0001-2345-6789'"
+          },
+          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
+          "title": "Identifier"
+        },
+        "affiliation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Affiliation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The affiliation of the creator with the organization."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Creator",
+      "type": "object"
+    },
+    "DataCatalog": {
+      "description": "A collection of datasets.",
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The description of the creative work.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the creative work.",
+          "title": "URL"
+        },
+        "measurementMethod": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "items": {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "$ref": "#/$defs/DefinedTerm"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DefinedTerm"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Measurementmethod"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Dataset"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/Dataset"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "measurementTechnique": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "items": {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "$ref": "#/$defs/DefinedTerm"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DefinedTerm"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Measurementtechnique"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "DataCatalog",
+      "type": "object"
+    },
+    "DataDownload": {
+      "properties": {
+        "@type": {
+          "const": "DataDownload",
+          "default": "DataDownload",
+          "description": "All or part of a Dataset in downloadable form.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "contentUrl": {
+          "description": "The direct URL link to access or download the actual content of the media object.",
+          "format": "uri",
+          "maxLength": 2083,
           "minLength": 1,
-          "maxLength": 2047,
-          "$ref": "#/definitions/UrlPattern"
+          "title": "Content URL",
+          "type": "string"
+        },
+        "encodingFormat": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Represents the specific file format in which the media is encoded.",
+          "title": "Encoding format"
+        },
+        "contentSize": {
+          "description": "Represents the file size, expressed in bytes, kilobytes, megabytes, or another unit of measurement.",
+          "title": "Content size",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the media object (file).",
+          "title": "Name",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The SHA-256 hash of the media object.",
+          "title": "SHA-256"
+        },
+        "isPartOf": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/MediaObjectPartOf"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Link to or citation for a related metadata document that this media object is a part of",
+          "title": "Is part of"
+        },
+        "measurementMethod": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DefinedTerm"
+            },
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A subproperty of measurementTechnique that can be used for specifying specific methods, in particular via MeasurementMethodEnum.",
+          "title": "Measurement method"
+        },
+        "measurementTechnique": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DefinedTerm"
+            },
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A technique, method or technology used in an Observation, StatisticalVariable or Dataset (or DataDownload, DataCatalog), corresponding to the method used for measuring the corresponding variable(s) (for datasets, described using variableMeasured; for Observation, a StatisticalVariable). Often but not necessarily each variableMeasured will have an explicit representation as (or mapping to) an property such as those defined in Schema.org, or other RDF vocabularies and 'knowledge graphs'. In that case the subproperty of variableMeasured called measuredProperty is applicable.",
+          "title": "Measurement technique"
+        }
+      },
+      "required": [
+        "contentUrl",
+        "contentSize",
+        "name"
+      ],
+      "title": "DataDownload",
+      "type": "object"
+    },
+    "Dataset": {
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The description of the creative work.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the creative work.",
+          "title": "URL"
+        },
+        "measurementMethod": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "items": {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "$ref": "#/$defs/DefinedTerm"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DefinedTerm"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Measurementmethod"
+        },
+        "issn": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issn"
+        },
+        "measurementTechnique": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "items": {
+                "format": "uri",
+                "maxLength": 2083,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "$ref": "#/$defs/DefinedTerm"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DefinedTerm"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Measurementtechnique"
+        },
+        "catalog": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataCatalog"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DataCatalog"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Catalog"
+        },
+        "variablesMeasured": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "$ref": "#/$defs/PropertyValue"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/PropertyValue"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variablesmeasured"
+        },
+        "variableMeasured": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "$ref": "#/$defs/PropertyValue"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/PropertyValue"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variablemeasured"
+        },
+        "includedDataCatalog": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataCatalog"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DataCatalog"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Includeddatacatalog"
+        },
+        "includedInDataCatalog": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataCatalog"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DataCatalog"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Includedindatacatalog"
+        },
+        "datasetTimeInterval": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "items": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Datasettimeinterval"
+        },
+        "distribution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataDownload"
+            },
+            {
+              "items": {
+                "$ref": "#/$defs/DataDownload"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distribution"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Dataset",
+      "type": "object"
+    },
+    "DefinedTerm": {
+      "properties": {
+        "@type": {
+          "const": "DefinedTerm",
+          "default": "DefinedTerm",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the term or item being defined.",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "description": "The description of the item being defined.",
+          "title": "Description",
+          "type": "string"
         }
       },
       "required": [
         "name",
-        "url"
-      ]
+        "description"
+      ],
+      "title": "DefinedTerm",
+      "type": "object"
     },
-    "UrlPattern": {
-      "type": "string",
-      "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}(:[0-9]{1,5})?(\\/.*)?$",
-      "errorMessage": {
-        "pattern": "must match format \"url\""
-      }
+    "Draft": {
+      "properties": {
+        "@type": {
+          "const": "DefinedTerm",
+          "default": "DefinedTerm",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "default": "Draft",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "The resource is in draft state and should not be considered final. Content and metadata may change",
+          "description": "The description of the item being defined.",
+          "readOnly": true,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "title": "Draft",
+      "type": "object"
     },
-    "ProfileUrlPattern": {
-      "type": "string",
-      "pattern": "^(http:\\/\\/www\\.|https:\\/\\/www\\.|http:\\/\\/|https:\\/\\/)?hydroshare\\.org\\/user\\/\\d+\\/?$",
-      "errorMessage": {
-        "pattern": "must match profile link format. e.g. \"https://www.hydroshare.org/user/10/\""
-      }
+    "FunderOrganization": {
+      "properties": {
+        "@type": {
+          "const": "Organization",
+          "default": "Organization",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the organization.",
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the homepage for the organization.",
+          "title": "URL"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full address for the organization - e.g., \u201c8200 Old Main Hill, Logan, UT 84322-8200\u201d.",
+          "title": "Address"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "FunderOrganization",
+      "type": "object"
+    },
+    "GeoCoordinates": {
+      "properties": {
+        "@type": {
+          "const": "GeoCoordinates",
+          "default": "GeoCoordinates",
+          "description": "Geographic coordinates that represent a specific location on the Earth's surface. GeoCoordinates typically consists of two components: latitude and longitude.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "latitude": {
+          "description": "Represents the angular distance of a location north or south of the equator, measured in degrees and ranges from -90 to +90 degrees.",
+          "title": "Latitude",
+          "type": "number"
+        },
+        "longitude": {
+          "description": "Represents the angular distance of a location east or west of the Prime Meridian, measured in degrees and ranges from -180 to +180 degrees.",
+          "title": "Longitude",
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ],
+      "title": "GeoCoordinates",
+      "type": "object"
+    },
+    "GeoShape": {
+      "properties": {
+        "@type": {
+          "const": "GeoShape",
+          "default": "GeoShape",
+          "description": "A structured representation that describes the coordinates of a geographic feature.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "validate_bbox": {
+          "default": true,
+          "description": "Flag to turn on/off bounding box validation",
+          "title": "Validate Bbox",
+          "type": "boolean"
+        },
+        "box": {
+          "description": "A box is a rectangular region defined by a pair of coordinates representing the southwest and northeast corners of the box.",
+          "title": "Box",
+          "type": "string"
+        }
+      },
+      "required": [
+        "box"
+      ],
+      "title": "GeoShape",
+      "type": "object"
+    },
+    "Grant": {
+      "properties": {
+        "@type": {
+          "const": "Grant",
+          "default": "Grant",
+          "description": "This metadata represents details about a grant or financial assistance provided to an individual(s) or organization(s) for supporting the work related to the record.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "A text string indicating the name or title of the grant or financial assistance.",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A text string describing the grant or financial assistance.",
+          "title": "Description"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Grant award number or other identifier.",
+          "title": "Funding identifier"
+        },
+        "funder": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FunderOrganization"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The organization that provided the funding or sponsorship."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Grant",
+      "type": "object"
+    },
+    "HasPart": {
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Information about a related resource that is part of this resource.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The URL address to the data resource.",
+          "title": "URL"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "HasPart",
+      "type": "object"
+    },
+    "Incomplete": {
+      "properties": {
+        "@type": {
+          "const": "DefinedTerm",
+          "default": "DefinedTerm",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "default": "Incomplete",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "Data collection is ongoing or the resource is not completed",
+          "description": "The description of the item being defined.",
+          "readOnly": true,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "title": "Incomplete",
+      "type": "object"
+    },
+    "IsPartOf": {
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Information about a related resource that this resource is a part of - e.g., a related collection.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The URL address to the data resource.",
+          "title": "URL"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "IsPartOf",
+      "type": "object"
+    },
+    "LanguageEnum": {
+      "enum": [
+        "eng",
+        "esp"
+      ],
+      "title": "LanguageEnum",
+      "type": "string"
+    },
+    "MediaObject": {
+      "properties": {
+        "@type": {
+          "const": "MediaObject",
+          "default": "MediaObject",
+          "description": "An item that encodes the record.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "contentUrl": {
+          "description": "The direct URL link to access or download the actual content of the media object.",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Content URL",
+          "type": "string"
+        },
+        "encodingFormat": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Represents the specific file format in which the media is encoded.",
+          "title": "Encoding format"
+        },
+        "contentSize": {
+          "description": "Represents the file size, expressed in bytes, kilobytes, megabytes, or another unit of measurement.",
+          "title": "Content size",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the media object (file).",
+          "title": "Name",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The SHA-256 hash of the media object.",
+          "title": "SHA-256"
+        },
+        "isPartOf": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/MediaObjectPartOf"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Link to or citation for a related metadata document that this media object is a part of",
+          "title": "Is part of"
+        }
+      },
+      "required": [
+        "contentUrl",
+        "contentSize",
+        "name"
+      ],
+      "title": "MediaObject",
+      "type": "object"
+    },
+    "MediaObjectPartOf": {
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Information about a related metadata document.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The URL address to the related metadata document.",
+          "title": "URL"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "MediaObjectPartOf",
+      "type": "object"
+    },
+    "Obsolete": {
+      "properties": {
+        "@type": {
+          "const": "DefinedTerm",
+          "default": "DefinedTerm",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "default": "Obsolete",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "The resource has been replaced by a newer version, or the resource is no longer considered applicable",
+          "description": "The description of the item being defined.",
+          "readOnly": true,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "title": "Obsolete",
+      "type": "object"
+    },
+    "Organization": {
+      "properties": {
+        "@type": {
+          "const": "Organization",
+          "default": "Organization",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the provider organization or repository.",
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the homepage for the organization.",
+          "title": "URL"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full address for the organization - e.g., \u201c8200 Old Main Hill, Logan, UT 84322-8200\u201d.",
+          "title": "Address"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Organization",
+      "type": "object"
+    },
+    "Place": {
+      "properties": {
+        "@type": {
+          "const": "Place",
+          "default": "Place",
+          "description": "Represents the focus area of the record's content.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the place.",
+          "title": "Name"
+        },
+        "geo": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeoCoordinates"
+            },
+            {
+              "$ref": "#/$defs/GeoShape"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Specifies the geographic coordinates of the place in the form of a point location, line, or area coverage extent.",
+          "title": "Geo"
+        },
+        "additionalProperty": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PropertyValue"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": [],
+          "description": "Additional properties of the place.",
+          "title": "Additional properties"
+        }
+      },
+      "title": "Place",
+      "type": "object"
+    },
+    "PropertyValue": {
+      "properties": {
+        "@type": {
+          "const": "PropertyValue",
+          "default": "PropertyValue",
+          "description": "A property-value pair.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the property.",
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "description": "The value of the property.",
+          "title": "Value"
+        },
+        "propertyID": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The ID of the property.",
+          "title": "Property ID"
+        },
+        "unitCode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The unit of measurement for the value.",
+          "title": "Measurement unit"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A description of the property.",
+          "title": "Description"
+        },
+        "minValue": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The minimum allowed value for the property.",
+          "title": "Minimum value"
+        },
+        "maxValue": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The maximum allowed value for the property.",
+          "title": "Maximum value"
+        },
+        "measurementTechnique": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A technique or technology used in a measurement.",
+          "title": "Measurement technique"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "title": "PropertyValue",
+      "type": "object"
+    },
+    "Provider": {
+      "properties": {
+        "@type": {
+          "const": "Person",
+          "default": "Person",
+          "description": "A person.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "A string containing the full name of the person. Personal name format: Family Name, Given Name.",
+          "title": "Name",
+          "type": "string"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "format": "email",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A string containing an email address for the provider.",
+          "title": "Email"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ORCID identifier for the person.",
+          "errorMessage": {
+            "pattern": "must match the ORCID pattern. e.g. '0000-0001-2345-6789'"
+          },
+          "options": {
+            "placeholder": "e.g. '0000-0001-2345-6789'"
+          },
+          "pattern": "\\b\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]\\b",
+          "title": "Identifier"
+        },
+        "affiliation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Affiliation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The affiliation of the creator with the organization."
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Provider",
+      "type": "object"
+    },
+    "Published": {
+      "properties": {
+        "@type": {
+          "const": "DefinedTerm",
+          "default": "DefinedTerm",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "default": "Published",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "default": "The resource has been permanently published and should be considered final and complete",
+          "description": "The description of the item being defined.",
+          "readOnly": true,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "title": "Published",
+      "type": "object"
+    },
+    "PublisherOrganization": {
+      "properties": {
+        "@type": {
+          "const": "Organization",
+          "default": "Organization",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the publishing organization.",
+          "title": "Name",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A URL to the homepage for the publisher organization or repository.",
+          "title": "URL"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full address for the organization - e.g., \u201c8200 Old Main Hill, Logan, UT 84322-8200\u201d.",
+          "title": "Address"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PublisherOrganization",
+      "type": "object"
+    },
+    "SubjectOf": {
+      "properties": {
+        "@type": {
+          "const": "CreativeWork",
+          "default": "CreativeWork",
+          "description": "Submission type can include various forms of content, such as datasets, software source code, digital documents, etc.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Submission's name or title",
+          "title": "Name or title",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Information about a related resource that is about or describes this resource - e.g., a related metadata document describing the resource.",
+          "title": "Description"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The URL address that serves as a reference to access additional details related to the record. It is important to note that this type of metadata solely pertains to the record itself and may not necessarily be an integral component of the record, unlike the HasPart metadata.",
+          "title": "URL"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "SubjectOf",
+      "type": "object"
+    },
+    "TemporalCoverage": {
+      "properties": {
+        "startDate": {
+          "description": "A date/time object containing the instant corresponding to the commencement of the time interval (ISO8601 formatted date - YYYY-MM-DDTHH:MM).",
+          "format": "date-time",
+          "title": "Start date",
+          "type": "string"
+        },
+        "endDate": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A date/time object containing the instant corresponding to the termination of the time interval (ISO8601 formatted date - YYYY-MM-DDTHH:MM). If the ending date is left off, that means the temporal coverage is ongoing.",
+          "title": "End date"
+        }
+      },
+      "required": [
+        "startDate"
+      ],
+      "title": "TemporalCoverage",
+      "type": "object"
+    },
+    "VideoObject": {
+      "properties": {
+        "@type": {
+          "const": "VideoObject",
+          "default": "VideoObject",
+          "description": "A video file.",
+          "title": "@Type",
+          "type": "string"
+        },
+        "contentUrl": {
+          "description": "The direct URL link to access or download the actual content of the media object.",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Content URL",
+          "type": "string"
+        },
+        "encodingFormat": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Represents the specific file format in which the media is encoded.",
+          "title": "Encoding format"
+        },
+        "contentSize": {
+          "description": "Represents the file size, expressed in bytes, kilobytes, megabytes, or another unit of measurement.",
+          "title": "Content size",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the media object (file).",
+          "title": "Name",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The SHA-256 hash of the media object.",
+          "title": "SHA-256"
+        },
+        "isPartOf": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/MediaObjectPartOf"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Link to or citation for a related metadata document that this media object is a part of",
+          "title": "Is part of"
+        }
+      },
+      "required": [
+        "contentUrl",
+        "contentSize",
+        "name"
+      ],
+      "title": "VideoObject",
+      "type": "object"
     }
-  }
+  },
+  "description": "A generic dataset extends the CoreMetadata class with a few additional fields and is designed to capture\nscientific file-level metadata.. It also overrides many of the required CoreMetadata fields to make them\noptional. It generally follows the design of the Schema.org Dataset class. ",
+  "properties": {
+    "@context": {
+      "default": "https://schema.org/",
+      "description": "Specifies the vocabulary employed for understanding the structured data markup.",
+      "format": "uri",
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "@Context",
+      "type": "string"
+    },
+    "@type": {
+      "const": "Dataset",
+      "default": "DataSet",
+      "description": "A body of structured information describing some topic(s) of interest.",
+      "title": "@Type",
+      "type": "string"
+    },
+    "name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A text string with a descriptive name or title for the resource.",
+      "title": "Name or title"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A text string containing a description/abstract for the resource.",
+      "title": "Description or abstract"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A URL for the landing page that describes the resource and where the content of the resource can be accessed. If there is no landing page, provide the URL of the content.",
+      "title": "URL"
+    },
+    "identifier": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Any kind of identifier for the resource. Identifiers may be DOIs or unique strings assigned by a repository. Multiple identifiers can be entered. Where identifiers can be encoded as URLs, enter URLs here.",
+      "title": "Identifiers"
+    },
+    "creator": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Creator"
+              },
+              {
+                "$ref": "#/$defs/Organization"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Person or Organization that created the resource.",
+      "title": "Creator"
+    },
+    "dateCreated": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The date on which the resource was created.",
+      "title": "Date created"
+    },
+    "keywords": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Keywords or tags used to describe the dataset, delimited by commas.",
+      "title": "Keywords"
+    },
+    "license": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CreativeWork"
+        },
+        {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A license document that applies to the resource.",
+      "title": "License"
+    },
+    "provider": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Organization"
+        },
+        {
+          "$ref": "#/$defs/Provider"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The repository, service provider, organization, person, or service performer that provides access to the resource.",
+      "title": "Provider"
+    },
+    "publisher": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PublisherOrganization"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Where the resource is permanently published, indicated the repository, service provider, or organization that published the resource - e.g., CUAHSI HydroShare. This may be the same as Provider.",
+      "title": "Publisher"
+    },
+    "datePublished": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Date of first publication for the resource.",
+      "title": "Date published"
+    },
+    "subjectOf": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/SubjectOf"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Link to or citation for a related resource that is about or describes this resource - e.g., a journal paper that describes this resource or a related metadata document describing the resource.",
+      "title": "Subject of"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A text string indicating the version of the resource.",
+      "title": "Version"
+    },
+    "inLanguage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LanguageEnum"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The language of the content of the resource.",
+      "title": "Language"
+    },
+    "creativeWorkStatus": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Draft"
+        },
+        {
+          "$ref": "#/$defs/Incomplete"
+        },
+        {
+          "$ref": "#/$defs/Obsolete"
+        },
+        {
+          "$ref": "#/$defs/Published"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The status of this resource in terms of its stage in a lifecycle. Example terms include Incomplete, Draft, Published, and Obsolete.",
+      "title": "Resource status"
+    },
+    "dateModified": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The date on which the resource was most recently modified or updated.",
+      "title": "Date modified"
+    },
+    "funding": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Grant"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A Grant or monetary assistance that directly or indirectly provided funding or sponsorship for creation of the resource.",
+      "title": "Funding"
+    },
+    "temporalCoverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TemporalCoverage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The time period that applies to all of the content within the resource.",
+      "title": "Temporal coverage"
+    },
+    "spatialCoverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Place"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The spatialCoverage of a CreativeWork indicates the place(s) which are the focus of the content. It is a sub property of contentLocation intended primarily for more technical and detailed materials. For example with a Dataset, it indicates areas that the dataset describes: a dataset of New York weather would have spatialCoverage which was the place: the state of New York."
+    },
+    "hasPart": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/HasPart"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Link to or citation for a related resource that is part of this resource.",
+      "title": "Has part"
+    },
+    "isPartOf": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/IsPartOf"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Link to or citation for a related resource that this resource is a part of - e.g., a related collection.",
+      "title": "Is part of"
+    },
+    "associatedMedia": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MediaObject"
+        },
+        {
+          "$ref": "#/$defs/DataDownload"
+        },
+        {
+          "$ref": "#/$defs/VideoObject"
+        },
+        {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/MediaObject"
+              },
+              {
+                "$ref": "#/$defs/DataDownload"
+              },
+              {
+                "$ref": "#/$defs/VideoObject"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A media object that encodes this CreativeWork. This property is a synonym for encoding.",
+      "title": "Resource content"
+    },
+    "citation": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A bibliographic citation for the resource.",
+      "title": "Citation"
+    },
+    "variableMeasured": {
+      "description": "Measured variables.",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$ref": "#/$defs/PropertyValue"
+          }
+        ]
+      },
+      "title": "Variables measured",
+      "type": "array"
+    },
+    "includedInDataCatalog": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DataCatalog"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A data catalog which contains this dataset.",
+      "title": "DataCatalog"
+    },
+    "additionalProperty": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "$ref": "#/$defs/PropertyValue"
+        },
+        {
+          "items": {
+            "$ref": "#/$defs/PropertyValue"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Additional properties of the dataset that don't fit into schema org.",
+      "title": "Additional properties"
+    },
+    "sourceOrganization": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Organization"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The organization that provided the data for this dataset.",
+      "title": "Source organization"
+    }
+  },
+  "required": [
+    "variableMeasured"
+  ],
+  "title": "GenericDataset",
+  "type": "object"
 }
