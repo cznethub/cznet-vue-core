@@ -87,7 +87,7 @@
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/eslint-config-prettier": "^10.2.0",
     "ajv": "^8.17.1",
-    "eslint": "^9.25.0",
+    "eslint": "^9.25.1",
     "eslint-plugin-cypress": "^4.2.1",
     "eslint-plugin-prettier": "^5.2.6",
     "happy-dom": "^17.4.4",
