@@ -323,6 +323,17 @@
         ],
         "detail": {
           "type": "VerticalLayout",
+          "rule": {
+            "effect": "DISABLE",
+            "condition": {
+              "scope": "#/properties/access_right",
+              "schema": {
+                "enum": [
+                  "The content of this resource is part of"
+                ]
+              }
+            }
+          },
           "elements": [
             {
               "type": "Control",
