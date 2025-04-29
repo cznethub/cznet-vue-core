@@ -14,7 +14,6 @@ const components: Record<string, any> = {
 const CzNet = {
   install: (app: any) => {
     Object.keys(components).forEach(name => {
-      // app.component(name, components[name]);
       app.use(components[name]);
     });
   },
