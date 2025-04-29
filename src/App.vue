@@ -441,3 +441,9 @@ class App extends Vue {
 
 export default toNative(App);
 </script>
+
+<style lang="scss" scoped>
+pre {
+  white-space: pre-wrap;
+}
+</style>

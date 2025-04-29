@@ -7,6 +7,10 @@ import {
   JsonFormsSubStates,
   Resolve,
   getControlPath,
+  isEnabled,
+  getPropPath,
+  findUISchema,
+  Generate,
 } from '@jsonforms/core';
 import { cloneDeep, debounce, merge, get, isPlainObject } from 'lodash-es';
 import { useStyles } from '../styles';
@@ -292,6 +296,50 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     );
   });
 
+  // const getChildSchema = () => {
+  //   const childLabelProp =
+  //     input.control.value.uischema.options?.childLabelProp ??
+  //     getFirstPrimitiveProp(input.control.value.schema);
+
+  //   return Resolve.schema(
+  //     input.control.value.schema,
+  //     '#' + getPropPath(childLabelProp),
+  //     input.control.value.rootSchema
+  //   );
+  // }
+
+  const getChildUiSchema = () => {
+    const childLabelProp =
+      input.control.value.uischema.options?.childLabelProp ??
+      getFirstPrimitiveProp(input.control.value.schema);
+
+    return findUISchema(
+      input.control.value.uischemas,
+      input.control.value.schema,
+      input.control.value.uischema.scope,
+      '#' + getPropPath(childLabelProp),
+      () => {
+        const newSchema = cloneDeep(input.control.value.schema);
+        // delete unsupported operators
+        delete newSchema.oneOf;
+        delete newSchema.anyOf;
+        delete newSchema.allOf;
+        return Generate.uiSchema(
+          newSchema,
+          'Group',
+          undefined,
+          input.control.value.rootSchema
+        );
+      },
+      input.control.value.uischema,
+      input.control.value.rootSchema
+    )
+  }
+
+  const isChildEnabled = (index: number): boolean => {
+    return isEnabled(getChildUiSchema(), input.control.value.data, `${index}`, useAjv())
+  }
+
   const childLabelForIndex = (index: number | null) => {
     if (index === null) {
       return '';
@@ -321,8 +369,8 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
 
     const isVisible = appliedOptions.value.isViewMode
       ? visible &&
-        !!input.control.value.data &&
-        input.control.value.data.length > 0
+      !!input.control.value.data &&
+      input.control.value.data.length > 0
       : visible;
     return { id, visible: isVisible };
   });
@@ -337,6 +385,7 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     description,
     vuetifyProps,
     isCombinatorSchema,
+    isChildEnabled
   };
 };
 
@@ -362,8 +411,8 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
           `${input.control.value.path}.`
         )
           ? !controlPath
-              .replace(`${input.control.value.path}.`, '')
-              .includes('.')
+            .replace(`${input.control.value.path}.`, '')
+            .includes('.')
           : false;
         return controlPath === input.control.value.path || isChildProp;
       })

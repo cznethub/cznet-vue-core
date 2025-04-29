@@ -148,6 +148,7 @@
                           aria-label="Delete"
                           :class="styles.arrayList.itemDelete"
                           :disabled="
+                            !isChildEnabled(index) ||
                             !control.enabled ||
                             (appliedOptions.restrict &&
                               arraySchema !== undefined &&
@@ -162,6 +163,7 @@
                   </div>
                 </template>
               </v-expansion-panel-title>
+              <v-divider></v-divider>
               <v-expansion-panel-text
                 :class="styles.arrayList.itemContent"
                 class="pa-0"
@@ -192,7 +194,7 @@
         @click:outside="suggestToDelete = null"
       >
         <v-card>
-          <v-card-title class="text-h5">
+          <v-card-title class="text-h6">
             Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
           </v-card-title>
 

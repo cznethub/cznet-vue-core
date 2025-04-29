@@ -17,7 +17,7 @@
       :error-messages="control.errors"
       :clearable="control.enabled && !isReadOnly"
       :model-value="control.data"
-      :items="control.options"
+      :items="filteredOptions"
       v-bind="vuetifyProps('v-select')"
       item-title="label"
       item-value="value"
@@ -33,8 +33,8 @@
 </template>
 
 <script lang="ts">
-import { ControlElement } from '@jsonforms/core';
-import { defineComponent } from 'vue';
+import { ControlElement, EnumOption } from '@jsonforms/core';
+import { defineComponent, ref } from 'vue';
 import {
   rendererProps,
   useJsonFormsEnumControl,
@@ -58,7 +58,18 @@ export default defineComponent({
   setup(props: RendererProps<ControlElement>) {
     const control = useJsonFormsEnumControl(props);
     useDefaults(control);
-    return useVuetifyControl(control, value => value || undefined);
+
+    const filteredOptions = ref<EnumOption[]>([]);
+
+    return { ...useVuetifyControl(control, value => value || undefined), filteredOptions}
+
   },
+  created() {
+    const hiddenOptions = this.control.uischema.options?.hidden
+    this.filteredOptions = this.control.options
+    if (hiddenOptions) {
+      this.filteredOptions = this.control.options.filter(o => !hiddenOptions.includes(o.value))
+    }
+  }
 });
 </script>

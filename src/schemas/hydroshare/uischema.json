@@ -323,10 +323,11 @@
         ],
         "detail": {
           "type": "VerticalLayout",
+          "scope": "#",
           "rule": {
             "effect": "DISABLE",
             "condition": {
-              "scope": "#/properties/access_right",
+              "scope": "#/properties/type",
               "schema": {
                 "enum": [
                   "The content of this resource is part of"
@@ -337,14 +338,16 @@
           "elements": [
             {
               "type": "Control",
-              "scope": "#/properties/type"
+              "scope": "#/properties/type",
+              "options": {
+                "hidden": [
+                  "The content of this resource is part of"
+                ]
+              }
             },
             {
               "type": "Control",
-              "scope": "#/properties/value",
-              "options": {
-                "multi": true
-              }
+              "scope": "#/properties/value"
             }
           ]
         }

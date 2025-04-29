@@ -293,7 +293,7 @@
                     <template #title="{ item }">
                       <drop
                         :key="item.key"
-                        @drop="onDropMove($event, item as IFolder)"
+                        @drop="onDropMove($event, item)"
                         :customAttribute="item.key"
                       >
                         <drag
@@ -591,7 +591,7 @@ import {
   VAlert,
 } from 'vuetify/components';
 import { VTreeview } from 'vuetify/labs/VTreeview';
-import { useDisplay } from 'vuetify';
+import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';
 import { FILE_ICONS } from '@/constants';
@@ -682,7 +682,7 @@ class CzFileExplorer extends Vue {
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
-  customActiveStrategy = (_mandatory?: boolean) => {
+  customActiveStrategy = (_mandatory?: boolean): ActiveStrategy => {
     const onItemClick = (
       item: IFolder | IFile,
       activated: Set<IFile | IFolder>
@@ -727,23 +727,25 @@ class CzFileExplorer extends Vue {
       }
     };
 
-    const strategy = {
+    const strategy: ActiveStrategy = {
       // @ts-ignore
       activate: ({ id, value, activated, children, parents, event }) => {
         id = toRaw(id);
 
         if (!event && activated.has(id)) return activated;
 
+        // @ts-ignore
         event?.ctrlKey
-          ? onItemCtrlClick(id, activated)
+          ? onItemCtrlClick(id as IFile | IFolder, activated as Set<IFile | IFolder>)
+            // @ts-ignore
           : event?.shiftKey
-            ? onItemShiftClick(id, activated)
-            : onItemClick(id, activated);
+            ? onItemShiftClick(id as IFile | IFolder, activated as Set<IFile | IFolder>)
+            : onItemClick(id as IFile | IFolder, activated as Set<IFile | IFolder>);
 
         return activated;
       },
-      in: (v: (IFile | IFolder)[], children: any, parents: any) => {
-        let set = new Set(v.map(i => toRaw(i)));
+      in: (v: any, children: any, parents: any) => {
+        let set: Set<IFile | IFolder> = new Set(v.map((i: any) => toRaw(i)));
 
         if (v != null) {
           for (const id of v) {
@@ -756,12 +758,12 @@ class CzFileExplorer extends Vue {
               event: undefined,
             });
 
-            set = new Set([...set, ...activated]);
+            set = new Set([...set, ...activated]) as Set<IFile | IFolder>;
           }
         }
         return set;
       },
-      out: (v: Set<number>) => {
+      out: (v: any) => {
         return Array.from(v);
       },
     };
@@ -1133,7 +1135,7 @@ class CzFileExplorer extends Vue {
   }
 
   /** Paste the selected files inside the directory where the file was dropped */
-  async onDropMove(event: DnDEvent, dropTarget: IFolder) {
+  async onDropMove(event: DnDEvent, dropTarget: IFile | IFolder) {
     const targetFolder = this.isFolder(dropTarget)
       ? dropTarget
       : this.getParent(dropTarget);
@@ -1143,7 +1145,7 @@ class CzFileExplorer extends Vue {
       this.select([event.data]);
     }
 
-    await this._handlePaste(targetFolder, this.selected);
+    await this._handlePaste(targetFolder as IFolder, this.selected);
   }
 
   onDropDiscard(event: DnDEvent) {

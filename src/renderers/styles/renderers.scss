@@ -57,3 +57,8 @@
     opacity: 0.04;
   }
 }
+
+.cz-fieldset.v-field > .v-field__field {
+  flex-shrink: 1;
+  width: 0;
+}

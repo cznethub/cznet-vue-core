@@ -131,6 +131,7 @@ export default defineComponent({
         active: this.isAdded || !this.hasToggle,
         error: !!this.errors?.length,
         disabled: this.readonly || !this.enabled,
+        class: 'cz-fieldset'
       };
     },
   },
@@ -138,14 +139,14 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.v-field {
+.v-field.cz-fieldset {
   display: flex;
 
   :deep(.v-field__field) {
     display: block;
   }
 
-  :deep(.v-field__append-inner) {
+  & > :deep(.v-field__append-inner) {
     align-items: start;
   }
 

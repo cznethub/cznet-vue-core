@@ -195,7 +195,7 @@
       @click:outside="suggestToDelete = null"
     >
       <v-card>
-        <v-card-title class="text-h5">
+        <v-card-title class="text-h6">
           Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
         </v-card-title>
 
