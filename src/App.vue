@@ -367,7 +367,7 @@ class App extends Vue {
         defaults,
       });
     }
-    this.selectedSchema = 2; // Initial repository schema to render
+    this.selectedSchema = 0; // Initial repository schema to render
     this.data = { ...this.data, ...this.defaults };
   }
 

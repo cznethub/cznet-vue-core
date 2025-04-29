@@ -16,3 +16,82 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
    1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
    2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+
+## Getting started
+In your theme file, import the cznet-vue-core styles.
+
+`theme.scss`
+```
+@use '@cznethub/cznet-vue-core/styles';
+```
+
+
+`your-component.vue`
+```
+...
+<cz-form
+   :schema="schema"
+   :uischema="uischema"
+   v-model="data"
+   :errors.sync="errors"
+   @update:errors="onUpdateErrors"
+   :isValid.sync="isValid"
+   :config="config"
+   ref="form"
+ />
+...
+import type { IFile, IFolder } from '@cznethub/cznet-vue-core/dist/types'   // For type annotation
+import { CzFileExplorer, CzForm, Notifications } from '@cznethub/cznet-vue-core'
+
+data = {};
+errors: { title: string; message: string }[] = [];
+isValid = false;
+config = {
+    restrict: true,
+    trim: false,
+    showUnfocusedDescription: false,
+    hideRequiredAsterisk: false,
+    collapseNewItems: false,
+    breakHorizontal: false,
+    initCollapsed: false,
+    hideAvatar: false,
+    hideArraySummaryValidation: false,
+    vuetify: {
+      commonAttrs: {
+        density: 'compact',
+        variant: 'outlined',
+        'persistent-hint': true,
+        'hide-details': false,
+      },
+    },
+    isViewMode: false,
+    isReadOnly: false,
+    isDisabled: false,
+  };
+
+  onUpdateErrors(errors: { title: string; message: string }[]) {
+    this.errors = errors;
+  }
+```
+
+`App.vue`
+```
+...
+<cz-notifications />
+...
+
+import { CzNotifications, Notifications } from '@cznethub/cznet-vue-core'
+
+openDialog() {
+ Notifications.openDialog({
+   title: `Dialog Title`,
+   content: 'Some message for the dialog',
+   onConfirm: () => {},
+ });
+}
+
+toast() {
+ Notifications.toast({ message: 'Some toasty message', type: 'success' });
+}
+```
+
