@@ -51,12 +51,13 @@
             :hasFolders="fileExplorerConfig.hasFolders"
             :isReadOnly="fileExplorerConfig.isReadOnly"
             :supportedFileTypes="supportedFileTypes"
+            :fileNameRegex="fileNameRegex"
+            :folderNameRegex="folderNameRegex"
             v-model:valid-items="validItems"
             :hasFileMetadata="() => true"
             @showMetadata="onShowMetadata($event)"
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
-            :upload="uploadMock"
           >
             <template #prepend>
               <v-alert
@@ -266,6 +267,8 @@ class App extends Vue {
     '.rdf',
     '.hdf',
   ];
+  fileNameRegex = /^[^\\/:*?"<>|]+$/;
+  folderNameRegex = /^[^\\/:*?"<>|]+$/;
 
   /** Example folder/file tree structure */
   rootDirectory = {

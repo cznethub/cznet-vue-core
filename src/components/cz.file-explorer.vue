@@ -327,17 +327,17 @@
                           <cz-file-explorer-item
                             v-else
                             @click.right.exact.prevent="show($event, item)"
-                            @retry-upload="retryUpload(item as IFile)"
+                            @retry-upload="retryUpload(item)"
                             :item="item"
                             :isOpen="opened.includes(item)"
                             :folderColor="folderColor"
                             :fileColor="fileColor"
                             :canRetryUpload="canRetryUpload(item)"
-                            :is-invalid="isFileInvalid(item as IFile)"
+                            :is-invalid="isFileOrFolderInvalid(item)"
                           >
                             <template #warnings>
                               <v-menu
-                                v-if="showFileWarnings(item as IFile)"
+                                v-if="showFileWarnings(item)"
                                 open-on-hover
                                 bottom
                                 left
@@ -347,7 +347,7 @@
                                   <div v-bind="props">
                                     <v-icon
                                       :color="
-                                        isFileInvalid(item as IFile) ||
+                                        isFileOrFolderInvalid(item) ||
                                         item.isUploaded === false
                                           ? 'error'
                                           : 'warning'
@@ -361,10 +361,17 @@
                                 <v-card>
                                   <v-card-text>
                                     <div
-                                      v-if="isFileInvalid(item as IFile)"
+                                      v-if="isFileInvalid(item)"
                                       class="text-body-1"
                                     >
                                       <b>This file cannot be uploaded</b>
+                                    </div>
+
+                                    <div
+                                      v-if="isFolderInvalid(item)"
+                                      class="text-body-1"
+                                    >
+                                      <b>This folder cannot be created</b>
                                     </div>
 
                                     <div
@@ -380,19 +387,25 @@
                                       </li>
                                       <li
                                         v-if="
-                                          !isFileExtensionValid(item as IFile)
+                                          !isFileExtensionValid(item)
                                         "
                                       >
                                         This file extension is not allowed for
                                         upload.
                                       </li>
                                       <li
-                                        v-if="!isFileNameValid(item as IFile)"
+                                        v-if="!isFileNameValid(item)"
                                       >
                                         This file name contains invalid
                                         characters.
                                       </li>
-                                      <li v-if="isFileTooLarge(item as IFile)">
+                                      <li
+                                        v-if="!isFolderNameValid(item)"
+                                      >
+                                        This folder name contains invalid
+                                        characters.
+                                      </li>
+                                      <li v-if="isFileTooLarge(item)">
                                         Files cannot be larger than
                                         <b>
                                           {{
@@ -638,6 +651,8 @@ class CzFileExplorer extends Vue {
   @Prop() supportedFileTypes!: string[];
   /** A regular expression to test validity of file names */
   @Prop() fileNameRegex!: RegExp;
+  /** A regular expression to test validity of folder names */
+  @Prop() folderNameRegex!: RegExp;
   /** If `true`, allow folder operations */
   @Prop({ default: false }) hasFolders!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
@@ -777,9 +792,21 @@ class CzFileExplorer extends Vue {
     target: null,
   };
 
+  public get hasInvalidItemsToUpload() {
+    return this.allItems.some((item: IFile | IFolder) => {
+      return !item.isUploaded && this.isFileOrFolderInvalid(item);
+    });
+  }
+
   public get hasInvalidFilesToUpload() {
-    return this.allFiles.some((item: IFile) => {
-      return !item.isUploaded && this.isFileInvalid(item as IFile);
+    return this.allFiles.some((file: IFile) => {
+      return !file.isUploaded && this.isFileInvalid(file);
+    });
+  }
+
+  public get hasInvalidFoldersToUpload() {
+    return this.allFolders.some((folder: IFolder) => {
+      return !folder.isUploaded && this.isFolderInvalid(folder);
     });
   }
 
@@ -1035,9 +1062,15 @@ class CzFileExplorer extends Vue {
     this.dropFiles = [];
   }
 
-  retryUpload(item: IFile) {
+  retryUpload(item: IFile | IFolder) {
     this.select([this.getParent(item)]);
     this.onDeleteFileOrFolder(item);
+
+    if (this.isFolder(item)) {
+      return
+    }
+
+    item = item as IFile
 
     const nameOverrides: { [index: number]: string } = {};
 
@@ -1270,12 +1303,16 @@ class CzFileExplorer extends Vue {
     this.showMenuItem = null;
   }
 
-  isFileExtensionValid(file: IFile) {
+  isFileExtensionValid(file: IFile | IFolder) {
     if (!this.supportedFileTypes) {
       return true;
     }
 
-    const extention = this._getFileExtension(file);
+    if (this.isFolder(file)) {
+      return true
+    }
+
+    const extention = this._getFileExtension(file as IFile);
     return this.supportedFileTypes.includes(extention);
   }
 
@@ -1284,19 +1321,35 @@ class CzFileExplorer extends Vue {
     return file.name.replace(nameWithoutExtension, '');
   }
 
-  isFileNameValid(file: IFile) {
-    if (!this.fileNameRegex) {
-      return true;
+  isFileNameValid(file: IFile | IFolder) {
+    if (!this.fileNameRegex || this.isFolder(file)) {
+      return true
     }
+    file = file as IFile
+
     const nameWithoutExtension = this._getFileNameWithoutExtension(file.name);
-    const isValid = this.fileNameRegex.test(nameWithoutExtension);
-    return isValid;
+    return this.fileNameRegex.test(nameWithoutExtension);
   }
 
-  isFileInvalid(file: IFile) {
+  isFolderNameValid(folder: IFile | IFolder) {
+    if (!this.folderNameRegex || !this.isFolder(folder)) {
+      return true;
+    }
+    return this.folderNameRegex.test(folder.name);
+  }
+
+  isFileOrFolderInvalid(item: IFile | IFolder) {
+    return this.isFolder(item)
+      ? this.isFolderInvalid(item as IFolder)
+      : this.isFileInvalid(item as IFile)
+  }
+
+  isFileInvalid(file: IFile | IFolder) {
     if (this.isFolder(file)) {
       return false;
     }
+    
+    file = file as IFile
 
     return (
       !this.isFileExtensionValid(file) ||
@@ -1305,7 +1358,18 @@ class CzFileExplorer extends Vue {
     );
   }
 
-  isFileTooLarge(file: IFile) {
+  isFolderInvalid(folder: IFile | IFolder) {
+    if (!this.isFolder(folder)) {
+      return false;
+    }
+    return !this.isFolderNameValid(folder);
+  }
+
+  isFileTooLarge(file: IFile | IFolder) {
+    if (this.isFolder(file)) {
+      return false
+    }
+    file = file as IFile
     if (!this.maxUploadSizePerFile) {
       return false;
     }
@@ -1325,11 +1389,14 @@ class CzFileExplorer extends Vue {
     );
   }
 
-  showFileWarnings(item: IFile) {
-    return (
-      !this.isFolder(item) &&
-      ((!!this.upload && item.isUploaded === false) || this.isFileInvalid(item))
-    );
+  showFileWarnings(item: IFile | IFolder) {
+    if (!!this.upload && item.isUploaded === false) {
+      return true
+    }
+
+    return this.isFolder(item) 
+      ? this.isFolderInvalid(item as IFolder)
+      : this.isFileInvalid(item as IFile);
   }
 
   async onRename(item: IFile | IFolder, event: Event) {
