@@ -297,9 +297,7 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
   });
 
   // const getChildSchema = () => {
-  //   const childLabelProp =
-  //     input.control.value.uischema.options?.childLabelProp ??
-  //     getFirstPrimitiveProp(input.control.value.schema);
+  //   const childLabelProp = getChildLabelProp();
 
   //   return Resolve.schema(
   //     input.control.value.schema,
@@ -308,16 +306,19 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
   //   );
   // }
 
+  const getChildLabelProp = () => {
+    return input.control.value.uischema.options?.childLabelProp ??
+      getFirstPrimitiveProp(input.control.value.schema)
+  }
+
   const getChildUiSchema = () => {
-    const childLabelProp =
-      input.control.value.uischema.options?.childLabelProp ??
-      getFirstPrimitiveProp(input.control.value.schema);
+    const childLabelProp = getChildLabelProp()
 
     return findUISchema(
       input.control.value.uischemas,
       input.control.value.schema,
       input.control.value.uischema.scope,
-      '#' + getPropPath(childLabelProp),
+      childLabelProp ? '#' + getPropPath(childLabelProp) : '',
       () => {
         const newSchema = cloneDeep(input.control.value.schema);
         // delete unsupported operators
@@ -344,11 +345,9 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
     if (index === null) {
       return '';
     }
-    const childLabelProp =
-      input.control.value.uischema.options?.childLabelProp ??
-      getFirstPrimitiveProp(input.control.value.schema);
+    const childLabelProp = getChildLabelProp()
     if (!childLabelProp) {
-      return `${index}`;
+      return '';
     }
     const labelValue = Resolve.data(
       input.control.value.data,
