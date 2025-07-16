@@ -602,8 +602,8 @@ import {
   VListItem,
   VListItemTitle,
   VAlert,
+  VTreeview
 } from 'vuetify/components';
-import { VTreeview } from 'vuetify/labs/VTreeview';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';

@@ -133,8 +133,8 @@ import {
   VCardActions,
   VRow,
   VCol,
+  VTimePicker,
 } from 'vuetify/components';
-import { VTimePicker } from 'vuetify/labs/VTimePicker';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { useDisplay } from 'vuetify'
 import CzFieldMessages from '../components/cz.field-messages.vue';
