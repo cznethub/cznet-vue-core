@@ -136,7 +136,7 @@ import {
 } from 'vuetify/components';
 import { VTimePicker } from 'vuetify/labs/VTimePicker';
 import { default as ControlWrapper } from './ControlWrapper.vue';
-import { useDisplay } from 'vuetify'
+import { useDisplay } from 'vuetify';
 import CzFieldMessages from '../components/cz.field-messages.vue';
 
 const JSON_SCHEMA_DATE_TIME_FORMATS = [
@@ -162,7 +162,6 @@ export default defineComponent({
     VCardActions,
     VRow,
     VCol,
-    VTimePicker,
     ControlWrapper,
     CzFieldMessages,
   },

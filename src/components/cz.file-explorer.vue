@@ -385,23 +385,15 @@
                                       <li v-if="hasTooManyFiles">
                                         Maximum number of files exceeded.
                                       </li>
-                                      <li
-                                        v-if="
-                                          !isFileExtensionValid(item)
-                                        "
-                                      >
+                                      <li v-if="!isFileExtensionValid(item)">
                                         This file extension is not allowed for
                                         upload.
                                       </li>
-                                      <li
-                                        v-if="!isFileNameValid(item)"
-                                      >
+                                      <li v-if="!isFileNameValid(item)">
                                         This file name contains invalid
                                         characters.
                                       </li>
-                                      <li
-                                        v-if="!isFolderNameValid(item)"
-                                      >
+                                      <li v-if="!isFolderNameValid(item)">
                                         This folder name contains invalid
                                         characters.
                                       </li>
@@ -603,7 +595,6 @@ import {
   VListItemTitle,
   VAlert,
 } from 'vuetify/components';
-import { VTreeview } from 'vuetify/labs/VTreeview';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';
@@ -623,7 +614,6 @@ import { FILE_ICONS } from '@/constants';
     VMenu,
     VRow,
     VCol,
-    VTreeview,
     VBtn,
     VIcon,
     VList,
@@ -751,11 +741,20 @@ class CzFileExplorer extends Vue {
 
         // @ts-ignore
         event?.ctrlKey
-          ? onItemCtrlClick(id as IFile | IFolder, activated as Set<IFile | IFolder>)
-            // @ts-ignore
-          : event?.shiftKey
-            ? onItemShiftClick(id as IFile | IFolder, activated as Set<IFile | IFolder>)
-            : onItemClick(id as IFile | IFolder, activated as Set<IFile | IFolder>);
+          ? onItemCtrlClick(
+              id as IFile | IFolder,
+              activated as Set<IFile | IFolder>
+            )
+          : // @ts-ignore
+            event?.shiftKey
+            ? onItemShiftClick(
+                id as IFile | IFolder,
+                activated as Set<IFile | IFolder>
+              )
+            : onItemClick(
+                id as IFile | IFolder,
+                activated as Set<IFile | IFolder>
+              );
 
         return activated;
       },
@@ -1067,10 +1066,10 @@ class CzFileExplorer extends Vue {
     this.onDeleteFileOrFolder(item);
 
     if (this.isFolder(item)) {
-      return
+      return;
     }
 
-    item = item as IFile
+    item = item as IFile;
 
     const nameOverrides: { [index: number]: string } = {};
 
@@ -1309,7 +1308,7 @@ class CzFileExplorer extends Vue {
     }
 
     if (this.isFolder(file)) {
-      return true
+      return true;
     }
 
     const extention = this._getFileExtension(file as IFile);
@@ -1323,9 +1322,9 @@ class CzFileExplorer extends Vue {
 
   isFileNameValid(file: IFile | IFolder) {
     if (!this.fileNameRegex || this.isFolder(file)) {
-      return true
+      return true;
     }
-    file = file as IFile
+    file = file as IFile;
 
     const nameWithoutExtension = this._getFileNameWithoutExtension(file.name);
     return this.fileNameRegex.test(nameWithoutExtension);
@@ -1341,15 +1340,15 @@ class CzFileExplorer extends Vue {
   isFileOrFolderInvalid(item: IFile | IFolder) {
     return this.isFolder(item)
       ? this.isFolderInvalid(item as IFolder)
-      : this.isFileInvalid(item as IFile)
+      : this.isFileInvalid(item as IFile);
   }
 
   isFileInvalid(file: IFile | IFolder) {
     if (this.isFolder(file)) {
       return false;
     }
-    
-    file = file as IFile
+
+    file = file as IFile;
 
     return (
       !this.isFileExtensionValid(file) ||
@@ -1367,9 +1366,9 @@ class CzFileExplorer extends Vue {
 
   isFileTooLarge(file: IFile | IFolder) {
     if (this.isFolder(file)) {
-      return false
+      return false;
     }
-    file = file as IFile
+    file = file as IFile;
     if (!this.maxUploadSizePerFile) {
       return false;
     }
@@ -1391,10 +1390,10 @@ class CzFileExplorer extends Vue {
 
   showFileWarnings(item: IFile | IFolder) {
     if (!!this.upload && item.isUploaded === false) {
-      return true
+      return true;
     }
 
-    return this.isFolder(item) 
+    return this.isFolder(item)
       ? this.isFolderInvalid(item as IFolder)
       : this.isFileInvalid(item as IFile);
   }

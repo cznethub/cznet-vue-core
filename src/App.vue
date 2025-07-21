@@ -58,6 +58,7 @@
             @showMetadata="onShowMetadata($event)"
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
+            :upload="uploadMock"
           >
             <template #prepend>
               <v-alert
