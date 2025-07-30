@@ -113,6 +113,7 @@ export const getVuetifyControlProps = (
   const isFilled =
     !!input.control.value.schema['readOnly'] ||
     appliedOptions.value.isViewMode ||
+    appliedOptions.value.isDisabled ||
     appliedOptions.value.isReadOnly ||
     appliedOptions.value?.vuetify.commonAttrs.filled;
 
