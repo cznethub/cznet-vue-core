@@ -12,6 +12,12 @@
     :validationMode="
       isViewMode || isReadOnly ? 'NoValidation' : 'ValidateAndShow'
     "
+    class="cz-form"
+    :class="{
+      'is-view-mode': isViewMode,
+      'is-readonly': isReadOnly,
+      'is-disabled': isDisabled,
+    }"
     ref="form"
   />
 </template>
