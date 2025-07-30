@@ -594,6 +594,7 @@ import {
   VListItem,
   VListItemTitle,
   VAlert,
+  VTreeview
 } from 'vuetify/components';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';

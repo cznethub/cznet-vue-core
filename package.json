@@ -55,7 +55,7 @@
     "@vue/composition-api": "^1.7.1",
     "vue": "^3.4.21",
     "vue-facing-decorator": "^4.0.1",
-    "vuetify": "^3.6.6"
+    "vuetify": "^3.9.0"
   },
   "peerDependenciesMeta": {
     "@vue/composition-api": {
