@@ -60,6 +60,7 @@ export interface IFile {
   key: number;
   file: File | null;
   highlight?: boolean;
+  /** Helpful metadata to annotate before emiting items via events */
   path?: string;
 }
 

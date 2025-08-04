@@ -93,11 +93,28 @@
                 icon="mdi-delete"
                 size="small"
                 variant="text"
+                color="error-lighten-2"
                 :disabled="isDeleting || !selected.length"
                 v-bind="props"
               ></v-btn>
             </template>
             <span>Discard</span>
+          </v-tooltip>
+        </template>
+
+        <template v-if="canDownloadSomeSelected">
+          <v-tooltip bottom transition="fade">
+            <template #activator="{ props }">
+              <v-btn
+                @click="onItemsDownload"
+                icon="mdi-download"
+                size="small"
+                variant="text"
+                color="green"
+                v-bind="props"
+              ></v-btn>
+            </template>
+            <span>Download</span>
           </v-tooltip>
         </template>
       </div>
@@ -219,16 +236,33 @@
             </v-list-item>
           </template>
 
+          <v-divider
+            v-if="
+              showMenuItem &&
+              (!isReadOnly ||
+                hasFileMetadata?.(showMenuItem) ||
+                canDownloadItem?.(showMenuItem))
+            "
+          ></v-divider>
+
           <!-- VIEW DETAILS -->
           <template v-if="showMenuItem && hasFileMetadata?.(showMenuItem)">
-            <v-divider v-if="!isReadOnly"></v-divider>
-
-            <v-list-item @click.stop="$emit('show-metadata', showMenuItem)">
+            <v-list-item @click.stop="onViewDetails(showMenuItem)">
               <v-list-item-title>
                 <v-icon class="mr-2" color="orange">
                   mdi-text-box-search-outline
                 </v-icon>
                 View details
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+
+          <!-- Download -->
+          <template v-if="showMenuItem && canDownloadItem?.(showMenuItem)">
+            <v-list-item @click.stop="onItemsDownload">
+              <v-list-item-title>
+                <v-icon class="mr-2" color="green">mdi-download</v-icon>
+                Download
               </v-list-item-title>
             </v-list-item>
           </template>
@@ -289,6 +323,7 @@
                     class="files-container--included pb-0"
                     activatable
                     :active-strategy="customActiveStrategy"
+                    indent-lines="default"
                   >
                     <template #title="{ item }">
                       <drop
@@ -594,7 +629,7 @@ import {
   VListItem,
   VListItemTitle,
   VAlert,
-  VTreeview
+  VTreeview,
 } from 'vuetify/components';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
@@ -628,7 +663,7 @@ import { FILE_ICONS } from '@/constants';
     VAlert,
   },
   directives: { ClickOutside },
-  emits: ['show-metadata', 'update:valid-items'],
+  emits: ['show-metadata', 'update:valid-items', 'download'],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -648,6 +683,12 @@ class CzFileExplorer extends Vue {
   @Prop({ default: false }) hasFolders!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   @Prop({ default: false }) isReadOnly!: boolean;
+
+  /** A function to check if a file or folder can be downloaded using the
+   * 'Download' context menu item
+   * */
+  @Prop()
+  canDownloadItem?: (_item: IFile | IFolder) => Promise<boolean>;
 
   /** A function to check if an item has metadata that can be displayed using the
    * 'View file metadata' context menu item
@@ -873,6 +914,10 @@ class CzFileExplorer extends Vue {
     return this.selected.filter(i => i) as (IFile | IFolder)[];
   }
 
+  get canDownloadSomeSelected() {
+    return this.selected.some(item => this.canDownloadItem?.(item));
+  }
+
   @Watch('rootDirectory.children', { deep: true })
   protected onInput() {
     const items = this._getDirectoryItems(this.rootDirectory) as (
@@ -913,6 +958,21 @@ class CzFileExplorer extends Vue {
       !this.itemsToCut.includes(item) &&
       this.itemsToCut.some(i => this.getParent(i) !== item)
     );
+  }
+
+  onItemsDownload() {
+    // Annotate the paths before emmitting the items
+    if (this.canDownloadItem) {
+      const downlodable = this.selected.filter(this.canDownloadItem);
+      downlodable.forEach(item => (item.path = this.getPathString(item)));
+      this.$emit('download', downlodable);
+    }
+  }
+
+  onViewDetails(item: IFile | IFolder) {
+    // Annotate the paths before emmitting the items
+    item.path = this.getPathString(item);
+    this.$emit('show-metadata', item);
   }
 
   get canCutSelected() {
@@ -959,7 +1019,12 @@ class CzFileExplorer extends Vue {
   }
 
   show(event: MouseEvent, item: (IFile | IFolder) | null) {
-    if (item && this.isReadOnly && !this.hasFileMetadata?.(item)) {
+    if (
+      item &&
+      this.isReadOnly &&
+      !this.hasFileMetadata?.(item) &&
+      !this.canDownloadItem?.(item)
+    ) {
       return false;
     }
 

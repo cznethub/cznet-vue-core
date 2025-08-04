@@ -55,10 +55,12 @@
             :folderNameRegex="folderNameRegex"
             v-model:valid-items="validItems"
             :hasFileMetadata="() => true"
-            @showMetadata="onShowMetadata($event)"
+            :canDownloadItem="() => true"
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
             :upload="uploadMock"
+            @showMetadata="onShowMetadata($event)"
+            @download="onFileDownload($event)"
           >
             <template #prepend>
               <v-alert
@@ -136,9 +138,9 @@
             :schema="schema"
             :uischema="uischema"
             v-model="data"
-            :errors.sync="errors"
+            v-model:errors="errors"
             @update:errors="onUpdateErrors"
-            :isValid.sync="isValid"
+            v-model:is-valid="isValid"
             :config="config"
             ref="form"
           />
@@ -395,7 +397,9 @@ class App extends Vue {
     });
   }
 
-  onShowMetadata(item: any) {
+  onShowMetadata(item: IFile | IFolder) {
+    // Handle show metadata
+    console.log(item);
     this.selectedMetadata = item;
   }
 
@@ -425,6 +429,11 @@ class App extends Vue {
   // =======================
   // MOCK FUNCTIONS
   // =======================
+
+  async onFileDownload(items: (IFile | IFolder)[]) {
+    console.log(items);
+    // Handle file download
+  }
 
   async uploadMock(_items: (IFile | IFolder)[]) {
     return new Promise((_resolve, _reject) => {
