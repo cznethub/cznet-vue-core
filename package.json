@@ -89,7 +89,7 @@
     "ajv": "^8.17.1",
     "eslint": "^9.32.0",
     "eslint-plugin-cypress": "^5.1.0",
-    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-prettier": "^5.5.4",
     "happy-dom": "^18.0.1",
     "rimraf": "^6.0.1",
     "rollup-plugin-visualizer": "^6.0.3",
