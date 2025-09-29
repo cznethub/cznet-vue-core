@@ -95,7 +95,7 @@
     "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.93.2",
     "stylelint": "^16.24.0",
-    "stylelint-config-recommended-scss": "^16.0.1",
+    "stylelint-config-recommended-scss": "^16.0.2",
     "stylelint-config-recommended-vue": "^1.6.1",
     "taze": "^19.7.0",
     "typescript": "latest",
