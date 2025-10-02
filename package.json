@@ -78,7 +78,7 @@
     "vuetify": "^3.10.3"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^7.0.1",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@jsonforms/core": "^3.6.0",
     "@jsonforms/vue": "^3.6.0",
     "@mdi/font": "^7.4.47",
