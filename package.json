@@ -103,7 +103,7 @@
     "vitest": "^4.0.15",
     "vue": "^3.5.25",
     "vue-eslint-parser": "^10.2.0",
-    "vue-tsc": "^3.1.7"
+    "vue-tsc": "^3.1.8"
   },
   "repository": {
     "type": "git",
