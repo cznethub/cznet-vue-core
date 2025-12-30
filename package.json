@@ -75,7 +75,7 @@
     "v-mask": "^2.3.0",
     "vue-easy-dnd": "^2.2.2",
     "vue-facing-decorator": "^4.0.1",
-    "vuetify": "^3.11.5"
+    "vuetify": "^3.11.6"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^7.1.0",
