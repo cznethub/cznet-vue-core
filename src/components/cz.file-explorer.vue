@@ -245,14 +245,14 @@
             "
           ></v-divider>
 
-          <!-- VIEW DETAILS -->
-          <template v-if="showMenuItem && hasFileMetadata?.(showMenuItem)">
-            <v-list-item @click.stop="onViewDetails(showMenuItem)">
+          <!-- PREVIEW -->
+          <template v-if="showMenuItem && canPreview(showMenuItem)">
+            <v-list-item @click.stop="onPreview(showMenuItem)">
               <v-list-item-title>
                 <v-icon class="mr-2" color="orange">
-                  mdi-text-box-search-outline
+                  mdi-eye-outline
                 </v-icon>
-                View details
+                Preview
               </v-list-item-title>
             </v-list-item>
           </template>
@@ -577,28 +577,29 @@
           mdi-delete-outline
         </v-icon>
       </drop>
-      <div
-        v-else-if="!isReadOnly"
-        class="upload-drop-area files-container--included"
-      >
-        <b-upload
-          type="file"
-          multiple
-          drag-drop
-          expanded
-          v-model="dropFiles"
-          class="fill-height d-block"
-        >
-          <v-alert variant="plain" class="fill-height">
-            <v-alert-title class="text-body-1">
-              <v-icon class="mr-2" size="x-large" icon="mdi-paperclip"></v-icon>
-              Drop your files here or click to upload
-            </v-alert-title>
-          </v-alert>
-        </b-upload>
-      </div>
+      <template v-else-if="!isReadOnly">
+        <slot name="drop-area">
+          <v-file-upload
+            v-model="dropFiles"
+            multiple
+            icon="mdi-paperclip"
+            title="Drop your files here or click to upload"
+            density="compact"
+            variant="flat"
+            class="cz-upload-drop-area files-container--included"
+            :hide-browse="true"
+          ></v-file-upload>
+        </slot>
+      </template>
     </v-card-text>
   </v-card>
+
+  <cz-file-preview
+    v-model="previewOpen"
+    :item="previewItem"
+    :load-file-content="loadFilePreview"
+    :extra-renderers="extraPreviewRenderers"
+  />
 </template>
 
 <script lang="ts">
@@ -610,6 +611,7 @@ import { default as Notifications } from '@/models/notifications';
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
+import CzFilePreview, { PreviewRenderer } from '@/components/cz.file-preview.vue';
 
 import {
   VCard,
@@ -631,6 +633,7 @@ import {
   VAlert,
   VTreeview,
 } from 'vuetify/components';
+import { VFileUpload } from 'vuetify/labs/VFileUpload';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';
@@ -660,7 +663,9 @@ import { FILE_ICONS } from '@/constants';
     DropMask,
     CzDragSelect,
     CzFileExplorerItem,
+    CzFilePreview,
     VAlert,
+    VFileUpload,
   },
   directives: { ClickOutside },
   emits: ['show-metadata', 'update:valid-items', 'download'],
@@ -696,6 +701,24 @@ class CzFileExplorer extends Vue {
   @Prop()
   hasFileMetadata?: (_item: IFile | IFolder) => Promise<boolean>;
 
+  /**
+   * Consumer-supplied loader the preview dialog uses to fetch a file's bytes.
+   * If absent, the Preview menu item is hidden (no point in offering a button
+   * the consumer hasn't wired up). Returns a Blob for binary previews
+   * (image/pdf) or text content for text/markdown previews.
+   */
+  @Prop()
+  loadFilePreview?: (_item: IFile | IFolder) => Promise<Blob | string>;
+
+  /**
+   * Optional renderer plugins appended to the built-in registry. First match
+   * wins, so listing a renderer here overrides a built-in for the same
+   * extension. Use this to add new format support (e.g. a custom audio
+   * player) without forking the library.
+   */
+  @Prop({ default: () => [] })
+  extraPreviewRenderers!: PreviewRenderer[];
+
   /** Asynchronous function to run when renaming files or folders */
   @Prop() renameFileOrFolder?: (
     _item: IFile | IFolder,
@@ -717,6 +740,12 @@ class CzFileExplorer extends Vue {
   opened: (IFile | IFolder)[] = [];
   selected: (IFile | IFolder)[] = [];
   dropFiles: File[] = [];
+
+  // Preview dialog state. Populated by `onPreview`; the dialog watches both
+  // `previewOpen` and `previewItem` so reopening for the same item still
+  // re-fetches (useful after the file changes on disk).
+  previewOpen = false;
+  previewItem: IFile | IFolder | null = null;
   isDeleting = false;
   fileReleaseDate = null;
   shiftAnchor: IFolder | IFile | null = null;
@@ -973,6 +1002,25 @@ class CzFileExplorer extends Vue {
     // Annotate the paths before emmitting the items
     item.path = this.getPathString(item);
     this.$emit('show-metadata', item);
+  }
+
+  /**
+   * Whether the Preview menu item should appear for a given item. Folders
+   * never preview; files only preview when the consumer wired a loader
+   * (otherwise the dialog has no way to fetch bytes).
+   */
+  canPreview(item: IFile | IFolder): boolean {
+    if (!item) return false;
+    if (this.isFolder(item)) return false;
+    return !!this.loadFilePreview;
+  }
+
+  onPreview(item: IFile | IFolder) {
+    // Annotate path for consumers that need it (e.g. their loader looks up
+    // the S3 key from `path`).
+    item.path = this.getPathString(item);
+    this.previewItem = item;
+    this.previewOpen = true;
   }
 
   get canCutSelected() {
@@ -1753,6 +1801,40 @@ export default toNative(CzFileExplorer);
 <style lang="scss" scoped>
 .border-grey {
   border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+// `.cz-upload-drop-area` is set as the class on the `<v-file-upload>` root,
+// so this selector matches the same element as `.v-file-upload`. Don't try to
+// target it as a descendant (`:deep(.v-file-upload)`) — that scopes to a
+// non-existent child and the override silently no-ops.
+.cz-upload-drop-area.v-file-upload {
+  cursor: pointer;
+  background: transparent;
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  border-radius: 0.5rem;
+  padding: 1rem !important;
+  transition: background-color 0.15s ease;
+
+  &:hover,
+  &.v-file-upload--dragging {
+    background: #eee;
+  }
+
+  :deep(.v-file-upload-icon) {
+    min-height: 0 !important;
+    font-size: 1.5rem !important;
+    margin-bottom: 0.25rem;
+  }
+
+  :deep(.v-file-upload-title) {
+    font-size: 0.8125rem !important;
+    font-weight: 400 !important;
+    color: rgba(0, 0, 0, 0.6) !important;
+  }
+
+  :deep(.v-file-upload-divider) {
+    display: none;
+  }
 }
 
 .upload-drop-area {
