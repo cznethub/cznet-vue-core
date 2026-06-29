@@ -269,26 +269,22 @@
         </v-list>
       </v-menu>
 
-      <v-card
-        flat
-        variant="outlined"
-        v-if="rootDirectory.children.length"
-        class="mb-4 files-container-card"
-        :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
-      >
-        <v-card-text>
-          <v-text-field
-            v-model="search"
-            label="Search by file or folder name..."
-            density="compact"
-            variant="outlined"
-            hide-details
-            clearable
-            clear-icon="mdi-close-circle-outline"
-            prepend-inner-icon="mdi-magnify"
-          />
-        </v-card-text>
-        <v-card-text class="files-container py-0 pr-0">
+      <div v-if="rootDirectory.children.length" class="mb-4">
+        <v-text-field
+          v-model="search"
+          class="mb-3"
+          label="Search by file or folder name..."
+          density="compact"
+          variant="outlined"
+          hide-details
+          clearable
+          clear-icon="mdi-close-circle-outline"
+          prepend-inner-icon="mdi-magnify"
+        />
+        <div
+          class="files-container"
+          :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
+        >
           <drop
             @drop="onDropMove($event, rootDirectory)"
             @dragenter.exact="isRootDragging = true"
@@ -459,7 +455,7 @@
               </v-row>
             </cz-drag-select>
           </drop>
-        </v-card-text>
+        </div>
         <v-divider />
 
         <div class="py-2 px-4" v-if="rootDirectory.children.length">
@@ -507,7 +503,7 @@
             </v-card>
           </v-menu>
         </div>
-      </v-card>
+      </div>
 
       <v-card
         flat
@@ -1878,18 +1874,17 @@ export default toNative(CzFileExplorer);
   }
 }
 
-.files-container-card {
-  border-color: rgba(0, 0, 0, 0.25) !important;
-
-  &.border-dash {
-    border: 1px dashed !important;
-  }
-}
-
 .files-container {
   height: 15rem;
   overflow: auto;
   resize: vertical;
+
+  // Highlight the drop target while a drag is in flight. The previous markup
+  // wrapped this region in a v-card; now the dashed border lives directly on
+  // the scrollable file-tree container.
+  &.border-dash {
+    border: 1px dashed rgba(0, 0, 0, 0.4) !important;
+  }
 }
 
 .cz-drag-select {
