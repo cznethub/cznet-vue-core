@@ -1902,18 +1902,25 @@ export default toNative(CzFileExplorer);
   height: 3rem !important;
 }
 
-// Make the item content span the full height to enable controls in the entire area
+// Make the item content span the full row so controls (drag handle, context
+// menu, etc.) are clickable across the item width. Use min-height instead of
+// height: 100% so items can GROW vertically when the file name wraps to
+// multiple lines — the old `height: 100%` chain forced the title into a
+// fixed-height box and clipped wrapped content.
 :deep(.v-treeview) {
   .v-list-item.v-treeview-item {
     padding-top: 0;
     padding-bottom: 0;
+    align-items: stretch;
     & > .v-list-item__content {
-      height: 100%;
+      min-height: 100%;
+      align-self: stretch;
 
       .v-list-item-title,
       .dnd-drop,
       .dnd-drag {
-        height: 100%;
+        min-height: 100%;
+        white-space: normal; // v-list-item-title defaults to nowrap
       }
     }
   }
