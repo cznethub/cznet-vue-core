@@ -55,6 +55,7 @@ import arrayControlRenderer from './controls/ArrayControlRenderer.vue';
 import booleanControlRenderer from './controls/BooleanControlRenderer.vue';
 import mapLayoutRenderer from './layouts/MapLayoutRenderer.vue';
 import objectLayoutRenderer from './layouts/ObjectLayoutRenderer.vue';
+import composedLayoutRenderer from './layouts/ComposedLayoutRenderer.vue';
 import vocabularyArrayRenderer from './controls/VocabularyArrayRenderer.vue';
 import vocabularyControlRenderer from './controls/VocabularyControlRenderer.vue';
 
@@ -237,6 +238,13 @@ export const CzRenderers: JsonFormsRendererRegistryEntry[] = [
   {
     renderer: vocabularyControlRenderer,
     tester: rankWith(5, isObjectVocabularyControl),
+  },
+  // Composed layout: hand back layout decisions to the consumer's template
+  // via a default slot on <cz-form-composed>. The renderer dispatches to a
+  // function injected from the form wrapper.
+  {
+    renderer: composedLayoutRenderer,
+    tester: rankWith(10, uiTypeIs('CzComposedLayout')),
   },
 ];
 

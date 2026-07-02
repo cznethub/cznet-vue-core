@@ -189,6 +189,92 @@
           </v-menu>
         </v-card-actions>
       </v-card>
+      <v-card class="my-5">
+        <v-card-title>
+          Composed form (Teleport vs. slot) — prototype
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="text-body-2 text-medium-emphasis">
+          Same schema, same data binding, same validation pipeline as the
+          uischema-driven form above — two different ways for the consumer
+          template to place controls. Toggle the ReadOnly / View / Disabled
+          checkboxes above to confirm the composed forms react identically.
+        </v-card-text>
+
+        <v-divider />
+        <v-card-subtitle class="pt-4 text-overline">
+          Slot approach (recommended)
+        </v-card-subtitle>
+        <v-card-text>
+          <cz-form-composed
+            v-if="firstStringScope"
+            :schema="schema"
+            v-model="composedData"
+            v-model:is-valid="composedIsValid"
+            v-model:errors="composedErrors"
+            :config="config"
+          >
+            <div class="d-flex flex-column" style="gap: 0.5rem;">
+              <div class="text-caption text-medium-emphasis">
+                Wrapped in a custom container the form knows nothing about:
+              </div>
+              <div
+                class="pa-3"
+                style="border: 1px dashed #999; border-radius: 4px;"
+              >
+                <cz-field :scope="firstStringScope" />
+              </div>
+            </div>
+          </cz-form-composed>
+        </v-card-text>
+
+        <v-divider />
+        <v-card-subtitle class="pt-4 text-overline">
+          Teleport approach (comparison)
+        </v-card-subtitle>
+        <v-card-text>
+          <cz-form-composed
+            v-if="firstStringScope"
+            :schema="schema"
+            v-model="teleportData"
+            v-model:is-valid="teleportIsValid"
+            v-model:errors="teleportErrors"
+            :config="config"
+          >
+            <cz-field-teleport :scope="firstStringScope" />
+          </cz-form-composed>
+
+          <div class="mt-2 text-caption text-medium-emphasis">
+            Same control teleports to this anchor (could live anywhere on
+            the page — sidebar, header, modal, etc.):
+          </div>
+          <div
+            :id="`cz-field-${firstStringScope?.replace(/[^a-zA-Z0-9_-]/g, '-')}`"
+            class="pa-3 mt-2"
+            style="border: 1px dashed #999; border-radius: 4px;"
+          />
+        </v-card-text>
+
+        <v-divider />
+        <v-card-text class="d-flex flex-wrap" style="gap: 2rem;">
+          <div>
+            <div class="text-overline">Slot — data / valid / errors</div>
+            <pre class="text-caption">{{ composedData }}</pre>
+            <div class="text-caption">
+              isValid: {{ composedIsValid }} ({{ composedErrors.length }}
+              error{{ composedErrors.length === 1 ? '' : 's' }})
+            </div>
+          </div>
+          <div>
+            <div class="text-overline">Teleport — data / valid / errors</div>
+            <pre class="text-caption">{{ teleportData }}</pre>
+            <div class="text-caption">
+              isValid: {{ teleportIsValid }} ({{ teleportErrors.length }}
+              error{{ teleportErrors.length === 1 ? '' : 's' }})
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
     </v-container>
     <cz-notifications />
   </v-app>
@@ -206,6 +292,9 @@ import { Config, IFolder, IFile } from '@/types';
 import { stringify } from '@/utils';
 import CzFileExplorer from './components/cz.file-explorer.vue';
 import CzForm from './components/cz.form.vue';
+import CzFormComposed from './components/cz.form-composed.vue';
+import CzField from './components/cz.field.vue';
+import CzFieldTeleport from './components/cz.field-teleport.vue';
 
 const schemaPaths = [
   { name: 'HydroShare', path: './schemas/hydroshare' },
@@ -215,7 +304,14 @@ const schemaPaths = [
 ];
 
 @Component({
-  components: { CzNotifications, CzFileExplorer, CzForm },
+  components: {
+    CzNotifications,
+    CzFileExplorer,
+    CzForm,
+    CzFormComposed,
+    CzField,
+    CzFieldTeleport,
+  },
   name: 'App',
 })
 class App extends Vue {
@@ -224,6 +320,16 @@ class App extends Vue {
   isValid = false;
   errors: { title: string; message: string }[] = [];
   data = {};
+  // Separate data buckets for the composed-form prototype so its edits
+  // don't fight the main form above. We also keep separate is-valid /
+  // errors state to demo that the composed-form fires the same
+  // update:is-valid and update:errors events as <cz-form>.
+  composedData: Record<string, any> = {};
+  composedIsValid = false;
+  composedErrors: { title: string; message: string }[] = [];
+  teleportData: Record<string, any> = {};
+  teleportIsValid = false;
+  teleportErrors: { title: string; message: string }[] = [];
   stringify = stringify;
   selectedMetadata: any = false;
   validItems = [];
@@ -387,6 +493,17 @@ class App extends Vue {
 
   get defaults() {
     return this.schemaCollection[this.selectedSchema]?.defaults;
+  }
+
+  // Pick the first plain-string property of the current schema so the
+  // composed-form prototype has something concrete to render no matter
+  // which sample schema the user picks above.
+  get firstStringScope(): string | null {
+    const props = this.schema?.properties ?? {};
+    const match = Object.entries(props).find(
+      ([, def]: [string, any]) => def?.type === 'string' && !def?.enum
+    );
+    return match ? `#/properties/${match[0]}` : null;
   }
 
   openDialog() {

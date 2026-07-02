@@ -26,52 +26,14 @@
 import { Component, Vue, Prop, toNative } from 'vue-facing-decorator';
 import { JsonForms, JsonFormsChangeEvent } from '@jsonforms/vue';
 import { Config } from '@/types';
-import { ErrorObject } from 'ajv';
-import { isCombinatorSchema } from '@/renderers/util';
 import { createAjv } from '@/validate/validate';
 import { CzRenderers, extendedCzRenderers } from '@/renderers/renderer';
+import { defaultConfigs, processFormChange } from './cz.form-shared';
 
 // import { createTranslator } from "@/renderers/i18n";
 
 const renderers = Object.freeze([...CzRenderers]);
 const ajv = createAjv();
-
-/**
- * The error-type of an AJV error is defined by its `keyword` property.
- * Certain errors are filtered because they don't fit to any rendered control.
- * All of them have in common that we don't want to show them in the UI
- * because controls will show the actual reason why they don't match their correponding sub schema.
- * - additionalProperties: Indicates that a property is present that is not defined in the schema.
- *      Jsonforms only allows to edit defined properties. These errors occur if an oneOf doesn't match.
- * - allOf: Indicates that not all of the allOf definitions match as a whole.
- * - anyOf: Indicates that an anyOf definition itself is not valid because none of its subschemas matches.
- * - oneOf: Indicates that an oneOf definition itself is not valid because not exactly one of its subschemas matches.
- */
-const filteredErrorKeywords = [
-  'additionalProperties',
-  'allOf',
-  'anyOf',
-  'oneOf',
-  'if',
-];
-
-const defaultConfigs: Config = {
-  restrict: true,
-  trim: false,
-  showUnfocusedDescription: false,
-  hideRequiredAsterisk: false,
-  collapseNewItems: false,
-  breakHorizontal: false,
-  initCollapsed: false,
-  hideAvatar: false,
-  hideArraySummaryValidation: false,
-  vuetify: {
-    commonAttrs: {
-      density: 'compact',
-      variant: 'outlined',
-    },
-  },
-};
 
 @Component({
   name: 'cz-form',
@@ -116,65 +78,10 @@ class CzForm extends Vue {
   onChange(event: JsonFormsChangeEvent) {
     // Run on next tick to allow annotations to complete
     this.$nextTick(() => {
-      const errors =
-        event.errors
-          ?.filter((e: ErrorObject) => {
-            return (
-              !filteredErrorKeywords.includes(e.keyword) &&
-              // @ts-ignore
-              !filteredErrorKeywords.includes(e['_keyword'])
-            );
-          })
-          .map((e: ErrorObject) => ({
-            title: this._getErrorTitle(e),
-            message: this._getErrorMessage(e),
-          })) || [];
-
-      this.$emit('update:is-valid', !event.errors?.length);
-      this.$emit('update:errors', errors);
-      this.$emit('update:model-value', event.data);
+      processFormChange(event, (name, payload) =>
+        this.$emit(name as any, payload)
+      );
     });
-  }
-
-  private _getErrorTitle(error: ErrorObject): string {
-    if (error.instancePath) {
-      return error.parentSchema?.title || error.params.missingProperty;
-    }
-    let title =
-      error.parentSchema?.properties?.[error.params.missingProperty]?.title ||
-      error.params.missingProperty ||
-      '';
-    title = title.replaceAll('_', ' ');
-    return title.length
-      ? title.charAt(0).toUpperCase() + title.slice(1)
-      : title;
-  }
-
-  private _getErrorMessage(error: ErrorObject): string {
-    if (error.keyword === 'required') {
-      if (error.instancePath) {
-        // Error is in a nested object
-        // For combinator renderers we must anotate `_selectedSchemaIndex` in the control itself and then use it here to get the corresponding prop title
-        const combinatorSchema = isCombinatorSchema(error.parentSchema);
-
-        const propTitle = combinatorSchema
-          ? // @ts-ignore
-            error.parentSchema?.anyOf[error['_selectedSchemaIndex']]?.[
-              error.params.missingProperty
-            ]?.title
-          : error.parentSchema?.properties?.[error.params.missingProperty]
-              ?.title;
-
-        if (propTitle) {
-          return `must have required property '${propTitle}'`;
-        }
-      } else {
-        return 'is a required property';
-      }
-    } else if (error.keyword === 'type' && error.data === undefined) {
-      error.message = 'is a required property';
-    }
-    return error.message || '';
   }
 }
 
