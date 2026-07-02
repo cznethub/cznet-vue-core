@@ -171,7 +171,11 @@ export const useVuetifyControl = <
     );
   };
 
-  const computedLabel = useComputedLabel(input, appliedOptions.value);
+  // useComputedLabel expects appliedOptions as a ComputedRef (it reads
+  // `appliedOptions.value?.hideRequiredAsterisk` internally). Previously
+  // this passed `.value`, which double-unwrapped to `undefined` and made
+  // the function ignore `hideRequiredAsterisk` no matter what.
+  const computedLabel = useComputedLabel(input, appliedOptions);
 
   const controlWrapper = computed(() => {
     const { id, description, errors, label, visible, required } =
