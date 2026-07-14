@@ -33,14 +33,17 @@ export default defineConfig(({ mode }) => {
         ],
         output: {
           /**
-           * DESC:
-           * Provide global variables to use in the UMD build
-           * for externalized deps
+           * Global names for externals in the UMD build. Real names for the
+           * common browser globals; the rest derive a name from the module id
+           * (matching Rollup's own fallback) so every external is covered and
+           * no "missing global name" warnings are emitted.
            */
-          globals: {
-            // vue: 'Vue',
-            // vuetify: 'Vuetify',
-            // 'vue-facing-decorator': 'vueFacingDecorator',
+          globals: (id: string) => {
+            const known: Record<string, string> = {
+              vue: 'Vue',
+              vuetify: 'Vuetify',
+            };
+            return known[id] ?? id.replace(/[^a-zA-Z0-9_$]/g, '_');
           },
         },
       },
