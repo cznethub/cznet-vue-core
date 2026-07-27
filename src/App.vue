@@ -59,8 +59,11 @@
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
             :upload="uploadMock"
+            :showDownloadZippedButton="true"
+            :showDownloadArchiveButton="true"
             @showMetadata="onShowMetadata($event)"
             @download="onFileDownload($event)"
+            @downloadZipped="onDownloadZipped($event)"
             @downloadArchive="onDownloadArchive"
             downloadArchiveHelpText="Download all content as Zipped BagIt Archive"
           >
@@ -552,6 +555,11 @@ class App extends Vue {
   async onFileDownload(items: (IFile | IFolder)[]) {
     console.log(items);
     // Handle file download
+  }
+
+  async onDownloadZipped(items: (IFile | IFolder)[]) {
+    items.forEach(item => console.log(item.path));
+    // Handle zipped file download
   }
 
   async onDownloadArchive() {

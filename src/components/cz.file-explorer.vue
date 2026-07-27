@@ -80,7 +80,22 @@
           </v-tooltip>
         </template>
 
-        <v-tooltip bottom transition="fade">
+        <v-tooltip v-if="showDownloadZippedButton" bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="onDownloadZipped"
+              :disabled="!canDownloadZippedSelected"
+              icon="mdi-download-box-outline"
+              size="small"
+              variant="text"
+              color="blue"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>Download zipped</span>
+        </v-tooltip>
+
+        <v-tooltip v-if="showDownloadArchiveButton" bottom transition="fade">
           <template #activator="{ props }">
             <v-btn
               @click="onDownloadArchive"
@@ -675,7 +690,13 @@ import { FILE_ICONS } from '@/constants';
     VFileUpload,
   },
   directives: { ClickOutside },
-  emits: ['show-metadata', 'update:valid-items', 'download', 'downloadArchive'],
+  emits: [
+    'show-metadata',
+    'update:valid-items',
+    'download',
+    'downloadZipped',
+    'downloadArchive',
+  ],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -697,6 +718,12 @@ class CzFileExplorer extends Vue {
   @Prop({ default: false }) isReadOnly!: boolean;
   /** Files that passed validation; kept in sync via `v-model:valid-items`. */
   @Prop({ default: () => [] }) validItems!: (IFile | IFolder)[];
+
+  /** If `true`, show the zipped download button. */
+  @Prop({ default: false }) showDownloadZippedButton!: boolean;
+
+  /** If `true`, show the archive download button. */
+  @Prop({ default: false }) showDownloadArchiveButton!: boolean;
 
   /** A function to check if a file or folder can be downloaded using the
    * 'Download' context menu item
@@ -960,6 +987,11 @@ class CzFileExplorer extends Vue {
     return this.selected.some(item => this.canDownloadItem?.(item));
   }
 
+  get canDownloadZippedSelected() {
+    const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
+    return !!selectedItem && this.canDownloadItem?.(selectedItem);
+  }
+
   @Watch('rootDirectory.children', { deep: true })
   protected onInput() {
     const items = this._getDirectoryItems(this.rootDirectory) as (
@@ -1008,6 +1040,16 @@ class CzFileExplorer extends Vue {
       const downlodable = this.selected.filter(this.canDownloadItem);
       downlodable.forEach(item => (item.path = this.getPathString(item)));
       this.$emit('download', downlodable);
+    }
+  }
+
+  onDownloadZipped() {
+    const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
+
+    if (selectedItem && this.canDownloadItem) {
+      const downlodable = [selectedItem];
+      downlodable.forEach(item => (item.path = this.getPathString(item)));
+      this.$emit('downloadZipped', downlodable);
     }
   }
 
