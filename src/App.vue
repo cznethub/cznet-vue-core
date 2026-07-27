@@ -61,6 +61,8 @@
             :upload="uploadMock"
             @showMetadata="onShowMetadata($event)"
             @download="onFileDownload($event)"
+            @downloadArchive="onDownloadArchive"
+            downloadArchiveHelpText="Download all content as Zipped BagIt Archive"
           >
             <template #prepend>
               <v-alert
@@ -550,6 +552,11 @@ class App extends Vue {
   async onFileDownload(items: (IFile | IFolder)[]) {
     console.log(items);
     // Handle file download
+  }
+
+  async onDownloadArchive() {
+    console.log('downloadArchive');
+    // Handle archive download
   }
 
   async uploadMock(_items: (IFile | IFolder)[]) {

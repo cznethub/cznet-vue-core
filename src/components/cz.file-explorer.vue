@@ -80,6 +80,21 @@
           </v-tooltip>
         </template>
 
+        <v-tooltip bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="onDownloadArchive"
+              :disabled="!rootDirectory.children.length"
+              icon="mdi-briefcase-download-outline"
+              size="small"
+              variant="text"
+              color="blue"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>{{ downloadArchiveHelpText }}</span>
+        </v-tooltip>
+
         <v-divider class="mx-2" vertical></v-divider>
 
         <template v-if="!isReadOnly">
@@ -660,7 +675,7 @@ import { FILE_ICONS } from '@/constants';
     VFileUpload,
   },
   directives: { ClickOutside },
-  emits: ['show-metadata', 'update:valid-items', 'download'],
+  emits: ['show-metadata', 'update:valid-items', 'download', 'downloadArchive'],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -694,6 +709,10 @@ class CzFileExplorer extends Vue {
    * */
   @Prop()
   hasFileMetadata?: (_item: IFile | IFolder) => Promise<boolean>;
+
+  /** Tooltip/help text for the archive download button. */
+  @Prop({ default: 'Download Archive' })
+  downloadArchiveHelpText!: string;
 
   /**
    * Consumer-supplied loader the preview dialog uses to fetch a file's bytes.
@@ -990,6 +1009,10 @@ class CzFileExplorer extends Vue {
       downlodable.forEach(item => (item.path = this.getPathString(item)));
       this.$emit('download', downlodable);
     }
+  }
+
+  onDownloadArchive() {
+    this.$emit('downloadArchive');
   }
 
   onViewDetails(item: IFile | IFolder) {
