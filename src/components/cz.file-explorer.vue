@@ -16,24 +16,20 @@
         New Folder
       </v-tooltip>
 
-      <div v-else class="text-subtitle-1 mr-4">Files</div>
-
-      <div v-if="!isReadOnly">
-        <template>
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="selectAll"
-                :disabled="!rootDirectory.children.length"
-                icon="mdi-select"
-                size="small"
-                variant="text"
-                v-bind="props"
-              ></v-btn>
-            </template>
-            <span>Select All</span>
-          </v-tooltip>
-        </template>
+      <div class="file-action-buttons d-flex align-center flex-wrap gap-1">
+        <v-tooltip bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="selectAll"
+              :disabled="!rootDirectory.children.length"
+              icon="mdi-select"
+              size="small"
+              variant="text"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>Select All</span>
+        </v-tooltip>
 
         <!-- <template>
           <v-tooltip bottom transition="fade">
@@ -54,7 +50,7 @@
           <v-divider class="mx-4" vertical></v-divider>
         </template> -->
 
-        <template v-if="hasFolders">
+        <template v-if="!isReadOnly && hasFolders">
           <v-tooltip bottom transition="fade">
             <template #activator="{ props }">
               <v-btn
@@ -82,8 +78,9 @@
             </template>
             Paste
           </v-tooltip>
-          <v-divider class="mx-4" vertical></v-divider>
         </template>
+
+        <v-divider class="mx-2" vertical></v-divider>
 
         <template v-if="!isReadOnly">
           <v-tooltip bottom transition="fade">
@@ -102,21 +99,20 @@
           </v-tooltip>
         </template>
 
-        <template v-if="canDownloadSomeSelected">
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="onItemsDownload"
-                icon="mdi-download"
-                size="small"
-                variant="text"
-                color="green"
-                v-bind="props"
-              ></v-btn>
-            </template>
-            <span>Download</span>
-          </v-tooltip>
-        </template>
+        <v-tooltip bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="onItemsDownload"
+              :disabled="!canDownloadSomeSelected"
+              icon="mdi-download"
+              size="small"
+              variant="text"
+              color="green"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>Download</span>
+        </v-tooltip>
       </div>
 
       <v-spacer />
@@ -1799,6 +1795,10 @@ export default toNative(CzFileExplorer);
 <style lang="scss" scoped>
 .border-grey {
   border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.file-action-buttons {
+  min-height: 2.5rem;
 }
 
 // `.cz-upload-drop-area` is set as the class on the `<v-file-upload>` root,
