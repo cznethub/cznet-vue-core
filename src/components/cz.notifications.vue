@@ -12,7 +12,8 @@
       <div v-if="snackbar.title" class="text-body-1 pb-4">
         {{ snackbar.title }}
       </div>
-      <p class="text-body-2">{{ snackbar.message }}</p>
+      <p v-if="typeof snackbar.message === 'string'" class="text-body-2">{{ snackbar.message }}</p>
+      <component v-else :is="() => snackbar.message" />
 
       <template #actions>
         <div class="d-flex align-center gap-2">

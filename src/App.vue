@@ -8,6 +8,7 @@
         <v-divider />
         <v-card-text>
           <v-btn class="mr-2" color="primary" @click="toast">Toast</v-btn>
+          <v-btn class="mr-2" color="primary" @click="toastWithLink">Toast with Link</v-btn>
           <v-btn color="primary" @click="openDialog">Open Dialog</v-btn>
         </v-card-text>
       </v-card>
@@ -291,6 +292,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative, Ref } from 'vue-facing-decorator';
+import { h } from 'vue';
 import CzNotifications from './components/cz.notifications.vue';
 import Notifications from './models/notifications';
 import { Config, IFolder, IFile } from '@/types';
@@ -537,6 +539,19 @@ class App extends Vue {
         // Use in your app to not show the notification again
         console.log(doNotShowAgain);
       },
+    });
+  }
+
+  toastWithLink() {
+    Notifications.toast({
+      title: 'Learn More',
+      message: h('span', [
+        'Learn more in the ',
+        h('a', { href: 'https://github.com/cznethub/cznet-vue-core', target: '_blank', rel: 'noopener noreferrer' }, 'documentation'),
+        '.'
+      ]),
+      type: 'info',
+      location: 'top center',
     });
   }
 
