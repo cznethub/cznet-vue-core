@@ -84,7 +84,8 @@
           <template #activator="{ props }">
             <v-btn
               @click="onDownloadZipped"
-              :disabled="!canDownloadZippedSelected"
+              :disabled="!canDownloadZippedSelected || zippedDownloading"
+              :loading="zippedDownloading"
               icon="mdi-download-box-outline"
               size="small"
               variant="text"
@@ -99,7 +100,8 @@
           <template #activator="{ props }">
             <v-btn
               @click="onDownloadArchive"
-              :disabled="!rootDirectory.children.length"
+              :disabled="!rootDirectory.children.length || archiveDownloading"
+              :loading="archiveDownloading"
               icon="mdi-briefcase-download-outline"
               size="small"
               variant="text"
@@ -741,6 +743,12 @@ class CzFileExplorer extends Vue {
   @Prop({ default: 'Download Archive' })
   downloadArchiveHelpText!: string;
 
+  /** If `true`, shows a loading spinner on the archive download button. */
+  @Prop({ default: false }) archiveDownloading!: boolean;
+
+  /** If `true`, shows a loading spinner on the zipped download button. */
+  @Prop({ default: false }) zippedDownloading!: boolean;
+
   /**
    * Consumer-supplied loader the preview dialog uses to fetch a file's bytes.
    * If absent, the Preview menu item is hidden (no point in offering a button
@@ -1047,9 +1055,8 @@ class CzFileExplorer extends Vue {
     const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
 
     if (selectedItem && this.canDownloadItem) {
-      const downlodable = [selectedItem];
-      downlodable.forEach(item => (item.path = this.getPathString(item)));
-      this.$emit('downloadZipped', downlodable);
+      selectedItem.path = this.getPathString(selectedItem);
+      this.$emit('downloadZipped', selectedItem);
     }
   }
 
