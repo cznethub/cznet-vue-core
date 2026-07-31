@@ -629,7 +629,7 @@ import {
   VAlert,
   VTreeview,
 } from 'vuetify/components';
-import { VFileUpload } from 'vuetify/labs/VFileUpload';
+import { VFileUpload } from 'vuetify/components/VFileUpload';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';
@@ -684,6 +684,8 @@ class CzFileExplorer extends Vue {
   @Prop({ default: false }) hasFolders!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   @Prop({ default: false }) isReadOnly!: boolean;
+  /** Files that passed validation; kept in sync via `v-model:valid-items`. */
+  @Prop({ default: () => [] }) validItems!: (IFile | IFolder)[];
 
   /** A function to check if a file or folder can be downloaded using the
    * 'Download' context menu item

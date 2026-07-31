@@ -34,7 +34,7 @@
 <script lang="ts">
 import { ControlElement, JsonSchema } from '@jsonforms/core';
 import { defineComponent } from 'vue';
-import { VDateInput } from 'vuetify/labs/VDateInput';
+import { VDateInput } from 'vuetify/components/VDateInput';
 
 import {
   rendererProps,
