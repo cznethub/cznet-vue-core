@@ -23,7 +23,7 @@
           </v-row>
         </v-col>
         <v-col sm="12" md="7">
-          <div ref="map" class="map-container elevation-2"></div>
+          <div ref="mapEl" class="map-container elevation-2"></div>
         </v-col>
       </v-row>
     </v-container>
@@ -81,7 +81,7 @@ const layoutRenderer = defineComponent({
       drawnLayer: null as L.FeatureGroup | null,
       previewRect: null as L.Rectangle | null,
       boxStart: null as L.LatLng | null,
-      _drawBtn: null as HTMLElement | null,
+      drawBtn: null as HTMLElement | null,
       drawMode: false,
       isEventFromMap: false,
       initialized: false,
@@ -168,7 +168,7 @@ const layoutRenderer = defineComponent({
   },
   methods: {
     initMap() {
-      const el = this.$refs.map as HTMLElement;
+      const el = this.$refs.mapEl as HTMLElement;
       if (!el) {
         return;
       }
@@ -326,15 +326,15 @@ const layoutRenderer = defineComponent({
         this.map.dragging.disable();
         this.map.getContainer().style.cursor = 'crosshair';
         this.map.on('mousedown', this.onBoxStart, this);
-        this._drawBtn = btn;
+        this.drawBtn = btn;
       } else {
         this.exitDrawMode();
       }
     },
     exitDrawMode() {
       this.drawMode = false;
-      if (this._drawBtn) {
-        this._drawBtn.style.background = '#fff';
+      if (this.drawBtn) {
+        this.drawBtn.style.background = '#fff';
       }
       if (!this.map) {
         return;
