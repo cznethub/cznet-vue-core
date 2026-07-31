@@ -4,6 +4,7 @@
     :data-id="computedLabel.replaceAll(` `, ``)"
     :description="control.description"
     :hasToggle="hasToggle"
+    :hasData="hasData"
     :enabled="!appliedOptions.isDisabled"
     :readonly="!control.enabled"
     :errors="control.errors"
@@ -101,6 +102,9 @@ export default defineComponent({
     },
     hasToggle() {
       return !this.control.required && !this.isFlat;
+    },
+    hasData(): boolean {
+      return !!this.control.data;
     },
     title(): string {
       return (
