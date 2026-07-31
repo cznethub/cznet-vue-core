@@ -41,11 +41,28 @@ import {
 } from '@jsonforms/vue';
 import { useVuetifyControl } from '@/renderers/util/composition';
 import { VContainer, VRow, VCol } from 'vuetify/components';
-import { Loader, LoaderOptions } from 'google-maps';
-import { APP_GOOGLE_MAPS_API_KEY } from '@/constants';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-const options: LoaderOptions = { libraries: ['drawing'] };
-const loader = new Loader(APP_GOOGLE_MAPS_API_KEY, options);
+// Leaflet's default icon paths break when bundled; point them at the imports.
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+const pointZoom = 7;
+const maxZoom = 18;
+const boxStyle: L.PathOptions = {
+  color: '#1976d2',
+  weight: 2,
+  fillColor: '#1976d2',
+  fillOpacity: 0.25,
+};
 
 const layoutRenderer = defineComponent({
   name: 'map-layout-renderer',
@@ -59,71 +76,33 @@ const layoutRenderer = defineComponent({
     ...rendererProps<ControlElement>(),
   },
   setup(props: RendererProps<ControlElement>) {
-    const marker: any = null;
-    const rectangle: any = null;
-    const map: google.maps.Map | null = null;
-    const isEventFromMap = false;
-    const timeout = 50;
-    const initialized = false;
-
-    const rectangleOptions: google.maps.RectangleOptions = {
-      fillColor: '#1976d2',
-      fillOpacity: 0.25,
-      strokeWeight: 2,
-      strokeColor: '#1976d2',
-      zIndex: 1,
-      editable:
-        !props.config.isViewMode &&
-        !props.config.isReadOnly &&
-        !props.config.isDisabled,
-      draggable:
-        !props.config.isViewMode &&
-        !props.config.isReadOnly &&
-        !props.config.isDisabled,
-    };
-
-    const markerOptions: google.maps.MarkerOptions = {};
     return {
-      marker,
-      rectangle,
-      map,
-      rectangleOptions,
-      markerOptions,
-      isEventFromMap,
-      timeout,
-      initialized,
+      map: null as L.Map | null,
+      drawnLayer: null as L.FeatureGroup | null,
+      previewRect: null as L.Rectangle | null,
+      boxStart: null as L.LatLng | null,
+      _drawBtn: null as HTMLElement | null,
+      drawMode: false,
+      isEventFromMap: false,
+      initialized: false,
+      changeTimeout: 0,
       ...useVuetifyControl(useJsonFormsControlWithDetail(props)),
     };
   },
-  mounted: async function () {
-    await this.initMap();
-
+  mounted() {
+    this.initMap();
     if (this.hasData) {
       this.loadDrawing();
-
-      if (this.map) {
-        if (this.mapType === 'box') {
-          // Zoom and center to rectangle
-          (this.map as google.maps.Map).fitBounds(this.rectangle.bounds);
-        } else {
-          // Recenter at marker
-          (this.map as google.maps.Map).setCenter({
-            lat: this.control.data[this.inputFields.north],
-            lng: this.control.data[this.inputFields.east],
-          });
-        }
-      }
     }
   },
   watch: {
-    'control.data': function (_newData, _oldData) {
+    // Redraw when the value changes from the form (not from a map edit, which
+    // already reflects on the map — the flag breaks that feedback loop).
+    'control.data': function () {
       if (this.isEventFromMap) {
         this.isEventFromMap = false;
-      } else {
-        if (this.initialized) {
-          this.loadDrawing();
-          this.isEventFromMap = false;
-        }
+      } else if (this.initialized) {
+        this.loadDrawing();
       }
     },
   },
@@ -141,9 +120,15 @@ const layoutRenderer = defineComponent({
         this.control.uischema.options?.map.format === 'GeoShape'
       );
     },
+    isEditable(): boolean {
+      return (
+        !this.appliedOptions.isViewMode &&
+        !this.appliedOptions.isReadOnly &&
+        !this.appliedOptions.isDisabled
+      );
+    },
     inputFields(): { [key: string]: string } {
       const options = this.control.uischema.options?.map;
-
       return this.mapType === 'point'
         ? { east: options.east, north: options.north }
         : this.isBoxSchemaOrgFormat
@@ -159,247 +144,235 @@ const layoutRenderer = defineComponent({
       if (!this.control.data) {
         return false;
       }
-
       if (this.mapType === 'point') {
         return (
           !isNaN(this.control.data[this.inputFields.north]) &&
           !isNaN(this.control.data[this.inputFields.east])
         );
-      } else {
-        // box
-        if (this.isBoxSchemaOrgFormat) {
-          const boxStr = this.control.data[this.inputFields.box];
-          if (!boxStr) {
-            return false;
-          }
-          const segments: string[] = boxStr.trim().split(' ');
-          return segments.length === 4 && segments.some(s => !isNaN(+s));
-        } else {
-          return (
-            !isNaN(this.control.data[this.inputFields.northlimit]) &&
-            !isNaN(this.control.data[this.inputFields.eastlimit]) &&
-            !isNaN(this.control.data[this.inputFields.southlimit]) &&
-            !isNaN(this.control.data[this.inputFields.westlimit])
-          );
-        }
       }
+      if (this.isBoxSchemaOrgFormat) {
+        const boxStr = this.control.data[this.inputFields.box];
+        if (!boxStr) {
+          return false;
+        }
+        const segments: string[] = boxStr.trim().split(' ');
+        return segments.length === 4 && segments.some(s => !isNaN(+s));
+      }
+      return (
+        !isNaN(this.control.data[this.inputFields.northlimit]) &&
+        !isNaN(this.control.data[this.inputFields.eastlimit]) &&
+        !isNaN(this.control.data[this.inputFields.southlimit]) &&
+        !isNaN(this.control.data[this.inputFields.westlimit])
+      );
     },
   },
   methods: {
-    async initMap() {
-      await loader.load();
-
-      if (!this.$refs.map) {
+    initMap() {
+      const el = this.$refs.map as HTMLElement;
+      if (!el) {
         return;
       }
+      const map = L.map(el, { scrollWheelZoom: true }).setView(
+        [39.8097343, -98.5556199],
+        4
+      );
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          'Map data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+        maxZoom,
+      }).addTo(map);
+      map.attributionControl.setPrefix(
+        '<a href="https://leafletjs.com/" target="_blank">Leaflet</a>'
+      );
+      this.drawnLayer = L.featureGroup().addTo(map);
+      this.map = map;
 
-      // @ts-ignore
-      this.map = new google.maps.Map(this.$refs.map, {
-        center: { lat: 39.8097343, lng: -98.5556199 },
-        zoom: 5,
-      });
-
-      const drawwingMode =
-        this.mapType === 'point'
-          ? google.maps.drawing.OverlayType.MARKER
-          : google.maps.drawing.OverlayType.RECTANGLE;
-
-      // Icon base from: http://kml4earth.appspot.com/icons.html
-      const iconBase = 'http://earth.google.com/images/kml-icons/';
-      const icons = {
-        track_directional: {
-          icon: iconBase + 'track-directional/track-8.png',
-        },
-      };
-
-      this.markerOptions = {
-        ...this.markerOptions,
-        // animation: google.maps.Animation.DROP,
-        icon: {
-          url: icons.track_directional.icon,
-          anchor: new google.maps.Point(20, 35),
-          scaledSize: new google.maps.Size(40, 40),
-        },
-      };
-
-      if (
-        !this.appliedOptions.isViewMode &&
-        !this.appliedOptions.isReadOnly &&
-        !this.appliedOptions.isDisabled
-      ) {
-        // add drawing menu
-        const drawingManager = new google.maps.drawing.DrawingManager({
-          drawingMode: drawwingMode,
-          drawingControl: true,
-          drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: [drawwingMode],
-          },
-          rectangleOptions: this.rectangleOptions,
-          markerOptions: this.markerOptions,
-        });
-
-        drawingManager.setMap(this.map);
-
-        google.maps.event.addListener(
-          drawingManager,
-          'markercomplete',
-          (marker: google.maps.Marker) => {
-            this.clearMarkers();
-            this.marker = marker;
-            this.isEventFromMap = true;
-            this.handleDrawing();
-          }
-        );
-
-        google.maps.event.addListener(
-          drawingManager,
-          'rectanglecomplete',
-          (rectangle: google.maps.Rectangle) => {
-            this.clearRectangles();
-            this.rectangle = rectangle;
-            rectangle.addListener('bounds_changed', () => {
-              this.isEventFromMap = true;
-              this.handleDrawing();
-            });
-            this.isEventFromMap = true;
-            this.handleDrawing();
-          }
-        );
+      if (this.isEditable) {
+        if (this.mapType === 'point') {
+          map.on('click', (e: L.LeafletMouseEvent) => {
+            this.drawMarker(e.latlng);
+            this.updatePointData(e.latlng);
+          });
+        } else {
+          this.addBoxDrawControl();
+        }
       }
-
       this.initialized = true;
     },
-    debouncedHandleChange() {
-      window.clearTimeout(this.timeout);
-      this.timeout = window.setTimeout(() => {
+
+    // ---- shared ----
+    clearShapes() {
+      this.drawnLayer?.clearLayers();
+    },
+    fit(layer: L.Layer & { getBounds?: () => L.LatLngBounds }) {
+      const bounds = layer.getBounds?.();
+      if (bounds) {
+        this.map?.fitBounds(bounds, {
+          maxZoom: this.mapType === 'point' ? pointZoom : maxZoom,
+        });
+      }
+    },
+    debouncedChange() {
+      window.clearTimeout(this.changeTimeout);
+      this.changeTimeout = window.setTimeout(() => {
         this.handleChange(this.control.path, this.control.data);
       }, 150);
     },
-    handleDrawing() {
-      // propagate to form inputs
-      if (this.mapType === 'box') {
-        const bounds = this.rectangle.getBounds();
-        const northEast = bounds.getNorthEast();
-        const southWeast = bounds.getSouthWest();
 
-        if (this.isBoxSchemaOrgFormat) {
-          this.control.data[this.inputFields.box] = `${+northEast
-            .lat()
-            .toFixed(4)} ${+northEast.lng().toFixed(4)} ${+southWeast
-            .lat()
-            .toFixed(4)} ${+southWeast.lng().toFixed(4)}`;
-        } else {
-          this.control.data[this.inputFields.northlimit] = +northEast
-            .lat()
-            .toFixed(4);
-          this.control.data[this.inputFields.eastlimit] = +northEast
-            .lng()
-            .toFixed(4);
-          this.control.data[this.inputFields.southlimit] = +southWeast
-            .lat()
-            .toFixed(4);
-          this.control.data[this.inputFields.westlimit] = +southWeast
-            .lng()
-            .toFixed(4);
-        }
-
-        if (this.isEventFromMap) {
-          // Debounced to prevent stuttering while draging the rectangle around
-          this.debouncedHandleChange();
-        }
-      } else if (this.mapType === 'point') {
-        const position = this.marker.getPosition();
-        const lat = position?.lat().toFixed(4);
-        const lng = position?.lng().toFixed(4);
-
-        if (lat && lng) {
-          this.control.data[this.inputFields.north] = +lat;
-          this.control.data[this.inputFields.east] = +lng;
-        }
-
-        if (this.isEventFromMap) {
-          this.handleChange(this.control.path, this.control.data);
-        }
-      }
-    },
-    clearMarkers() {
-      if (this.marker) {
-        this.marker.setMap(null);
-        this.marker = null;
-      }
-    },
-    clearRectangles() {
-      if (this.rectangle) {
-        this.rectangle.setMap(null);
-        this.rectangle = null;
-      }
-    },
+    // ---- load from data ----
     loadDrawing() {
+      this.clearShapes();
+      if (!this.hasData) {
+        return;
+      }
       if (this.mapType === 'point') {
-        this.loadPoint();
+        const latlng = L.latLng(
+          this.control.data[this.inputFields.north],
+          this.control.data[this.inputFields.east]
+        );
+        this.drawMarker(latlng);
+        this.fit(this.drawnLayer as L.FeatureGroup);
       } else {
-        this.loadRectangle();
-      }
-    },
-    loadRectangle() {
-      if (this.map) {
-        this.clearRectangles();
-
-        if (this.hasData) {
-          let bounds;
-          if (this.isBoxSchemaOrgFormat) {
-            // Schema.org format
-            const segments = this.control.data[this.inputFields.box]
-              .trim()
-              .split(' ')
-              .map((s: string) => +s);
-            bounds = {
-              north: segments[0],
-              east: segments[1],
-              south: segments[2],
-              west: segments[3],
-            };
-          } else {
-            // Default format
-            bounds = {
-              north: this.control.data[this.inputFields.northlimit],
-              south: this.control.data[this.inputFields.southlimit],
-              east: this.control.data[this.inputFields.eastlimit],
-              west: this.control.data[this.inputFields.westlimit],
-            };
-          }
-
-          this.rectangle = new google.maps.Rectangle({
-            ...this.rectangleOptions,
-            bounds,
-            map: this.map,
-          });
-
-          this.rectangle.addListener('bounds_changed', () => {
-            this.isEventFromMap = true;
-            this.handleDrawing();
-          });
+        const b = this.boundsFromData();
+        if (b) {
+          this.drawRectangle(b);
+          this.fit(this.drawnLayer as L.FeatureGroup);
         }
       }
     },
-    loadPoint() {
-      if (this.map) {
-        this.clearMarkers();
-
-        if (this.hasData) {
-          const marker = new google.maps.Marker({
-            ...this.markerOptions,
-            position: {
-              lat: this.control.data[this.inputFields.north],
-              lng: this.control.data[this.inputFields.east],
-            },
-            map: this.map,
-          });
-
-          this.marker = marker;
-        }
+    boundsFromData(): L.LatLngBounds | null {
+      let n, e, s, w;
+      if (this.isBoxSchemaOrgFormat) {
+        const seg = this.control.data[this.inputFields.box]
+          .trim()
+          .split(' ')
+          .map((x: string) => +x);
+        [n, e, s, w] = seg;
+      } else {
+        n = this.control.data[this.inputFields.northlimit];
+        e = this.control.data[this.inputFields.eastlimit];
+        s = this.control.data[this.inputFields.southlimit];
+        w = this.control.data[this.inputFields.westlimit];
       }
+      if ([n, e, s, w].some(v => isNaN(v))) {
+        return null;
+      }
+      return L.latLngBounds([s, w], [n, e]);
+    },
+
+    // ---- point ----
+    drawMarker(latlng: L.LatLng) {
+      this.clearShapes();
+      const marker = L.marker(latlng, { draggable: this.isEditable }).addTo(
+        this.drawnLayer as L.FeatureGroup
+      );
+      if (this.isEditable) {
+        marker.on('dragend', () => this.updatePointData(marker.getLatLng()));
+      }
+    },
+    updatePointData(latlng: L.LatLng) {
+      this.control.data[this.inputFields.north] = +latlng.lat.toFixed(4);
+      this.control.data[this.inputFields.east] = +latlng.lng.toFixed(4);
+      this.isEventFromMap = true;
+      this.handleChange(this.control.path, this.control.data);
+    },
+
+    // ---- box ----
+    drawRectangle(bounds: L.LatLngBounds) {
+      this.clearShapes();
+      L.rectangle(bounds, boxStyle).addTo(this.drawnLayer as L.FeatureGroup);
+    },
+    updateBoxData(bounds: L.LatLngBounds) {
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      const f = (n: number) => +n.toFixed(4);
+      if (this.isBoxSchemaOrgFormat) {
+        this.control.data[this.inputFields.box] =
+          `${f(ne.lat)} ${f(ne.lng)} ${f(sw.lat)} ${f(sw.lng)}`;
+      } else {
+        this.control.data[this.inputFields.northlimit] = f(ne.lat);
+        this.control.data[this.inputFields.eastlimit] = f(ne.lng);
+        this.control.data[this.inputFields.southlimit] = f(sw.lat);
+        this.control.data[this.inputFields.westlimit] = f(sw.lng);
+      }
+      this.isEventFromMap = true;
+      this.debouncedChange();
+    },
+    addBoxDrawControl() {
+      const self = this;
+      const DrawControl = L.Control.extend({
+        onAdd() {
+          const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+          btn.style.cssText =
+            'width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer;background:#fff;font-size:18px;';
+          btn.title = 'Draw a bounding box';
+          btn.innerHTML = '▭';
+          L.DomEvent.on(btn, 'click', e => {
+            L.DomEvent.stop(e);
+            self.toggleDrawMode(btn);
+          });
+          return btn;
+        },
+      });
+      this.map?.addControl(new DrawControl({ position: 'topleft' }));
+    },
+    toggleDrawMode(btn: HTMLElement) {
+      this.drawMode = !this.drawMode;
+      btn.style.background = this.drawMode ? '#e3f2fd' : '#fff';
+      if (!this.map) {
+        return;
+      }
+      if (this.drawMode) {
+        this.map.dragging.disable();
+        this.map.getContainer().style.cursor = 'crosshair';
+        this.map.on('mousedown', this.onBoxStart, this);
+        this._drawBtn = btn;
+      } else {
+        this.exitDrawMode();
+      }
+    },
+    exitDrawMode() {
+      this.drawMode = false;
+      if (this._drawBtn) {
+        this._drawBtn.style.background = '#fff';
+      }
+      if (!this.map) {
+        return;
+      }
+      this.map.dragging.enable();
+      this.map.getContainer().style.cursor = '';
+      this.map.off('mousedown', this.onBoxStart, this);
+      this.map.off('mousemove', this.onBoxMove, this);
+      this.map.off('mouseup', this.onBoxEnd, this);
+    },
+    onBoxStart(e: L.LeafletMouseEvent) {
+      this.boxStart = e.latlng;
+      this.map?.on('mousemove', this.onBoxMove, this);
+      this.map?.on('mouseup', this.onBoxEnd, this);
+    },
+    onBoxMove(e: L.LeafletMouseEvent) {
+      if (!this.boxStart || !this.map) {
+        return;
+      }
+      const bounds = L.latLngBounds(this.boxStart, e.latlng);
+      if (this.previewRect) {
+        this.previewRect.setBounds(bounds);
+      } else {
+        this.previewRect = L.rectangle(bounds, boxStyle).addTo(this.map);
+      }
+    },
+    onBoxEnd(e: L.LeafletMouseEvent) {
+      if (this.previewRect && this.map) {
+        this.map.removeLayer(this.previewRect);
+        this.previewRect = null;
+      }
+      if (this.boxStart) {
+        const bounds = L.latLngBounds(this.boxStart, e.latlng);
+        this.drawRectangle(bounds);
+        this.updateBoxData(bounds);
+        this.boxStart = null;
+      }
+      this.exitDrawMode();
     },
   },
 });
