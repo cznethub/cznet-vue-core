@@ -8,6 +8,7 @@
         <v-divider />
         <v-card-text>
           <v-btn class="mr-2" color="primary" @click="toast">Toast</v-btn>
+          <v-btn class="mr-2" color="primary" @click="toastWithLink">Toast with Link</v-btn>
           <v-btn color="primary" @click="openDialog">Open Dialog</v-btn>
         </v-card-text>
       </v-card>
@@ -59,8 +60,13 @@
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
             :upload="uploadMock"
+            :showDownloadZippedButton="true"
+            :showDownloadArchiveButton="true"
             @showMetadata="onShowMetadata($event)"
             @download="onFileDownload($event)"
+            @downloadZipped="onDownloadZipped($event)"
+            @downloadArchive="onDownloadArchive"
+            downloadArchiveHelpText="Download all content as Zipped BagIt Archive"
           >
             <template #prepend>
               <v-alert
@@ -286,6 +292,7 @@
 
 <script lang="ts">
 import { Component, Vue, toNative, Ref } from 'vue-facing-decorator';
+import { h } from 'vue';
 import CzNotifications from './components/cz.notifications.vue';
 import Notifications from './models/notifications';
 import { Config, IFolder, IFile } from '@/types';
@@ -535,6 +542,19 @@ class App extends Vue {
     });
   }
 
+  toastWithLink() {
+    Notifications.toast({
+      title: 'Learn More',
+      message: h('span', [
+        'Learn more in the ',
+        h('a', { href: 'https://github.com/cznethub/cznet-vue-core', target: '_blank', rel: 'noopener noreferrer' }, 'documentation'),
+        '.'
+      ]),
+      type: 'info',
+      location: 'top center',
+    });
+  }
+
   submit() {
     console.log(this.data);
   }
@@ -550,6 +570,16 @@ class App extends Vue {
   async onFileDownload(items: (IFile | IFolder)[]) {
     console.log(items);
     // Handle file download
+  }
+
+  async onDownloadZipped(items: (IFile | IFolder)[]) {
+    items.forEach(item => console.log(item.path));
+    // Handle zipped file download
+  }
+
+  async onDownloadArchive() {
+    console.log('downloadArchive');
+    // Handle archive download
   }
 
   async uploadMock(_items: (IFile | IFolder)[]) {

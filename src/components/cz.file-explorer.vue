@@ -16,24 +16,20 @@
         New Folder
       </v-tooltip>
 
-      <div v-else class="text-subtitle-1 mr-4">Files</div>
-
-      <div v-if="!isReadOnly">
-        <template>
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="selectAll"
-                :disabled="!rootDirectory.children.length"
-                icon="mdi-select"
-                size="small"
-                variant="text"
-                v-bind="props"
-              ></v-btn>
-            </template>
-            <span>Select All</span>
-          </v-tooltip>
-        </template>
+      <div class="file-action-buttons d-flex align-center flex-wrap gap-1">
+        <v-tooltip bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="selectAll"
+              :disabled="!rootDirectory.children.length"
+              icon="mdi-select"
+              size="small"
+              variant="text"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>Select All</span>
+        </v-tooltip>
 
         <!-- <template>
           <v-tooltip bottom transition="fade">
@@ -54,7 +50,7 @@
           <v-divider class="mx-4" vertical></v-divider>
         </template> -->
 
-        <template v-if="hasFolders">
+        <template v-if="!isReadOnly && hasFolders">
           <v-tooltip bottom transition="fade">
             <template #activator="{ props }">
               <v-btn
@@ -82,8 +78,41 @@
             </template>
             Paste
           </v-tooltip>
-          <v-divider class="mx-4" vertical></v-divider>
         </template>
+
+        <v-tooltip v-if="showDownloadZippedButton" bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="onDownloadZipped"
+              :disabled="!canDownloadZippedSelected || zippedDownloading"
+              :loading="zippedDownloading"
+              icon="mdi-download-box-outline"
+              size="small"
+              variant="text"
+              color="blue"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>Download zipped</span>
+        </v-tooltip>
+
+        <v-tooltip v-if="showDownloadArchiveButton" bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="onDownloadArchive"
+              :disabled="!rootDirectory.children.length || archiveDownloading"
+              :loading="archiveDownloading"
+              icon="mdi-briefcase-download-outline"
+              size="small"
+              variant="text"
+              color="blue"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>{{ downloadArchiveHelpText }}</span>
+        </v-tooltip>
+
+        <v-divider class="mx-2" vertical></v-divider>
 
         <template v-if="!isReadOnly">
           <v-tooltip bottom transition="fade">
@@ -102,21 +131,20 @@
           </v-tooltip>
         </template>
 
-        <template v-if="canDownloadSomeSelected">
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="onItemsDownload"
-                icon="mdi-download"
-                size="small"
-                variant="text"
-                color="green"
-                v-bind="props"
-              ></v-btn>
-            </template>
-            <span>Download</span>
-          </v-tooltip>
-        </template>
+        <v-tooltip bottom transition="fade">
+          <template #activator="{ props }">
+            <v-btn
+              @click="onItemsDownload"
+              :disabled="!canDownloadSomeSelected"
+              icon="mdi-download"
+              size="small"
+              variant="text"
+              color="green"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>Download</span>
+        </v-tooltip>
       </div>
 
       <v-spacer />
@@ -664,7 +692,13 @@ import { FILE_ICONS } from '@/constants';
     VFileUpload,
   },
   directives: { ClickOutside },
-  emits: ['show-metadata', 'update:valid-items', 'download'],
+  emits: [
+    'show-metadata',
+    'update:valid-items',
+    'download',
+    'downloadZipped',
+    'downloadArchive',
+  ],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -687,6 +721,12 @@ class CzFileExplorer extends Vue {
   /** Files that passed validation; kept in sync via `v-model:valid-items`. */
   @Prop({ default: () => [] }) validItems!: (IFile | IFolder)[];
 
+  /** If `true`, show the zipped download button. */
+  @Prop({ default: false }) showDownloadZippedButton!: boolean;
+
+  /** If `true`, show the archive download button. */
+  @Prop({ default: false }) showDownloadArchiveButton!: boolean;
+
   /** A function to check if a file or folder can be downloaded using the
    * 'Download' context menu item
    * */
@@ -698,6 +738,16 @@ class CzFileExplorer extends Vue {
    * */
   @Prop()
   hasFileMetadata?: (_item: IFile | IFolder) => Promise<boolean>;
+
+  /** Tooltip/help text for the archive download button. */
+  @Prop({ default: 'Download Archive' })
+  downloadArchiveHelpText!: string;
+
+  /** If `true`, shows a loading spinner on the archive download button. */
+  @Prop({ default: false }) archiveDownloading!: boolean;
+
+  /** If `true`, shows a loading spinner on the zipped download button. */
+  @Prop({ default: false }) zippedDownloading!: boolean;
 
   /**
    * Consumer-supplied loader the preview dialog uses to fetch a file's bytes.
@@ -945,6 +995,11 @@ class CzFileExplorer extends Vue {
     return this.selected.some(item => this.canDownloadItem?.(item));
   }
 
+  get canDownloadZippedSelected() {
+    const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
+    return !!selectedItem && this.canDownloadItem?.(selectedItem);
+  }
+
   @Watch('rootDirectory.children', { deep: true })
   protected onInput() {
     const items = this._getDirectoryItems(this.rootDirectory) as (
@@ -994,6 +1049,19 @@ class CzFileExplorer extends Vue {
       downlodable.forEach(item => (item.path = this.getPathString(item)));
       this.$emit('download', downlodable);
     }
+  }
+
+  onDownloadZipped() {
+    const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
+
+    if (selectedItem && this.canDownloadItem) {
+      selectedItem.path = this.getPathString(selectedItem);
+      this.$emit('downloadZipped', selectedItem);
+    }
+  }
+
+  onDownloadArchive() {
+    this.$emit('downloadArchive');
   }
 
   onViewDetails(item: IFile | IFolder) {
@@ -1799,6 +1867,10 @@ export default toNative(CzFileExplorer);
 <style lang="scss" scoped>
 .border-grey {
   border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.file-action-buttons {
+  min-height: 2.5rem;
 }
 
 // `.cz-upload-drop-area` is set as the class on the `<v-file-upload>` root,

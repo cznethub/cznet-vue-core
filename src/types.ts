@@ -1,4 +1,5 @@
 import { VSnackbar } from 'vuetify/components';
+import type { VNode } from 'vue';
 
 // Vuetify does not export its types, so we unwrap them
 type UnwrapReadonlyArray<A> = A extends Readonly<Array<infer I>> ? I : A;
@@ -7,7 +8,7 @@ export type SnackbarLocation = UnwrapReadonlyArray<VSnackbar['location']>;
 
 export interface IToast {
   title?: string;
-  message: string;
+  message: string | VNode;
   duration?: number;
   location?: SnackbarLocation;
   isInfinite?: boolean;
