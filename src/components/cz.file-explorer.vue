@@ -629,7 +629,7 @@ import {
   VAlert,
   VTreeview,
 } from 'vuetify/components';
-import { VFileUpload } from 'vuetify/components/VFileUpload';
+import { VFileUpload } from 'vuetify/labs/VFileUpload';
 import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';

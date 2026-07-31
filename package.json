@@ -66,7 +66,6 @@
   "dependencies": {
     "ajv-errors": "^3.0.0",
     "ajv-keywords": "^5.1.0",
-    "buefy": "npm:@ntohq/buefy-next@^0.2.0",
     "dayjs": "^1.11.21",
     "google-maps": "^4.3.3",
     "leaflet": "^1.9.4",
@@ -77,8 +76,7 @@
     "sprintf-js": "^1.1.3",
     "v-mask": "^2.3.0",
     "vue-easy-dnd": "^2.2.2",
-    "vue-facing-decorator": "^4.0.1",
-    "vuetify": "^4.1.6"
+    "vue-facing-decorator": "^4.0.1"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",
@@ -107,7 +105,8 @@
     "vitest": "^4.1.10",
     "vue": "^3.5.40",
     "vue-eslint-parser": "^10.4.1",
-    "vue-tsc": "^3.3.7"
+    "vue-tsc": "^3.3.7",
+    "vuetify": "^3.9.0"
   },
   "repository": {
     "type": "git",
