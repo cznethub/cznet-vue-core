@@ -277,9 +277,7 @@
           <template v-if="showMenuItem && canPreview(showMenuItem)">
             <v-list-item @click.stop="onPreview(showMenuItem)">
               <v-list-item-title>
-                <v-icon class="mr-2" color="orange">
-                  mdi-eye-outline
-                </v-icon>
+                <v-icon class="mr-2" color="orange">mdi-eye-outline</v-icon>
                 Preview
               </v-list-item-title>
             </v-list-item>
@@ -658,7 +656,9 @@ import { default as Notifications } from '@/models/notifications';
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
-import CzFilePreview, { PreviewRenderer } from '@/components/cz.file-preview.vue';
+import CzFilePreview, {
+  PreviewRenderer,
+} from '@/components/cz.file-preview.vue';
 
 import {
   VCard,
@@ -679,7 +679,6 @@ import {
   VListItemTitle,
   VAlert,
   VProgressCircular,
-  VTreeview,
 } from 'vuetify/components';
 import { VFileUpload } from 'vuetify/labs/VFileUpload';
 import { ActiveStrategy, useDisplay } from 'vuetify';
@@ -740,21 +739,18 @@ class CzFileExplorer extends Vue {
   /** Files that passed validation; kept in sync via `v-model:valid-items`. */
   @Prop({ default: () => [] }) validItems!: (IFile | IFolder)[];
 
-  /**
-   * Downloads a single item as a zip. If absent, the zipped-download button is
-   * hidden. The component awaits it and owns the disabled/spinner state.
-   */
+  /** Downloads a single item as a zip. */
   @Prop() downloadZipped?: (_item: IFile | IFolder) => Promise<void>;
 
-  /**
-   * Downloads the whole resource as an archive. If absent, the archive button
-   * is hidden. The component awaits it and owns its spinner state.
-   */
+  /** Downloads the whole resource as an archive. */
   @Prop() downloadArchive?: () => Promise<void>;
 
-  /** A function to check if a file or folder can be downloaded using the
-   * 'Download' context menu item
-   * */
+  /**
+   * Whether an item can be downloaded via the plain 'Download' action (button
+   * and context-menu item). Scopes that action only — zipped download has its
+   * own gate, so returning `false` for folders hides plain Download for them
+   * while leaving 'Download zipped' available.
+   */
   @Prop()
   canDownloadItem?: (_item: IFile | IFolder) => Promise<boolean>;
 
@@ -799,8 +795,6 @@ class CzFileExplorer extends Vue {
    * @returns An boolean array indicating if the file was uploaded successfully
    */
   @Prop() upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
-
-  // @Ref('tree') tree!: InstanceType<typeof VTreeview> & any;
 
   fileIcons = FILE_ICONS;
   breakpoints: any = useDisplay();
@@ -1016,9 +1010,13 @@ class CzFileExplorer extends Vue {
     return this.selected.some(item => this.canDownloadItem?.(item));
   }
 
+  /**
+   * Zipped download takes exactly one item. Deliberately not gated on
+   * `canDownloadItem`, which governs the plain Download action only — a folder
+   * typically cannot be downloaded raw but can always be zipped.
+   */
   get canDownloadZippedSelected() {
-    const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
-    return !!selectedItem && this.canDownloadItem?.(selectedItem);
+    return this.selected.length === 1;
   }
 
   @Watch('rootDirectory.children', { deep: true })

@@ -56,7 +56,7 @@
             :folderNameRegex="folderNameRegex"
             v-model:valid-items="validItems"
             :hasFileMetadata="() => true"
-            :canDownloadItem="() => true"
+            :canDownloadItem="canDownloadItem"
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
             :upload="uploadMock"
@@ -570,6 +570,11 @@ class App extends Vue {
     // Handle file download
   }
 
+  // Folders have no raw representation to download; they are zipped instead.
+  canDownloadItem(item: IFile | IFolder) {
+    return !Object.prototype.hasOwnProperty.call(item, 'children');
+  }
+
   async uploadMock(_items: (IFile | IFolder)[]) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
@@ -597,7 +602,8 @@ class App extends Vue {
     });
   }
 
-  // Slower than the other mocks so the download spinners are visible.
+  // Folders always zip; files zip only when the consumer offers it.
+  // Slower than the other mocks so the button and menu spinners are visible.
   async downloadZippedMock(_item: IFile | IFolder) {
     console.log('downloadZipped', _item.path);
     return new Promise<void>((_resolve, _reject) => {
