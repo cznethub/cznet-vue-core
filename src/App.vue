@@ -60,12 +60,10 @@
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
             :upload="uploadMock"
-            :showDownloadZippedButton="true"
-            :showDownloadArchiveButton="true"
+            :downloadZipped="downloadZippedMock"
+            :downloadArchive="downloadArchiveMock"
             @showMetadata="onShowMetadata($event)"
             @download="onFileDownload($event)"
-            @downloadZipped="onDownloadZipped($event)"
-            @downloadArchive="onDownloadArchive"
             downloadArchiveHelpText="Download all content as Zipped BagIt Archive"
           >
             <template #prepend>
@@ -572,16 +570,6 @@ class App extends Vue {
     // Handle file download
   }
 
-  async onDownloadZipped(items: (IFile | IFolder)[]) {
-    items.forEach(item => console.log(item.path));
-    // Handle zipped file download
-  }
-
-  async onDownloadArchive() {
-    console.log('downloadArchive');
-    // Handle archive download
-  }
-
   async uploadMock(_items: (IFile | IFolder)[]) {
     return new Promise((_resolve, _reject) => {
       setTimeout(() => {
@@ -606,6 +594,26 @@ class App extends Vue {
         _resolve(true);
         // _reject(false);
       }, 500);
+    });
+  }
+
+  // Slower than the other mocks so the download spinners are visible.
+  async downloadZippedMock(_item: IFile | IFolder) {
+    console.log('downloadZipped', _item.path);
+    return new Promise<void>((_resolve, _reject) => {
+      setTimeout(() => {
+        _resolve();
+        // _reject(new Error('zip failed'));
+      }, 2000);
+    });
+  }
+
+  async downloadArchiveMock() {
+    return new Promise<void>((_resolve, _reject) => {
+      setTimeout(() => {
+        _resolve();
+        // _reject(new Error('archive failed'));
+      }, 2000);
     });
   }
 }

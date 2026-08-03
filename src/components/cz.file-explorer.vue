@@ -80,12 +80,12 @@
           </v-tooltip>
         </template>
 
-        <v-tooltip v-if="showDownloadZippedButton" bottom transition="fade">
+        <v-tooltip v-if="downloadZipped" bottom transition="fade">
           <template #activator="{ props }">
             <v-btn
               @click="onDownloadZipped"
-              :disabled="!canDownloadZippedSelected || zippedDownloading"
-              :loading="zippedDownloading"
+              :disabled="!canDownloadZippedSelected || isDownloadingZipped"
+              :loading="isDownloadingZipped"
               icon="mdi-download-box-outline"
               size="small"
               variant="text"
@@ -96,12 +96,12 @@
           <span>Download zipped</span>
         </v-tooltip>
 
-        <v-tooltip v-if="showDownloadArchiveButton" bottom transition="fade">
+        <v-tooltip v-if="downloadArchive" bottom transition="fade">
           <template #activator="{ props }">
             <v-btn
               @click="onDownloadArchive"
-              :disabled="!rootDirectory.children.length || archiveDownloading"
-              :loading="archiveDownloading"
+              :disabled="!rootDirectory.children.length || isDownloadingArchive"
+              :loading="isDownloadingArchive"
               icon="mdi-briefcase-download-outline"
               size="small"
               variant="text"
@@ -692,13 +692,7 @@ import { FILE_ICONS } from '@/constants';
     VFileUpload,
   },
   directives: { ClickOutside },
-  emits: [
-    'show-metadata',
-    'update:valid-items',
-    'download',
-    'downloadZipped',
-    'downloadArchive',
-  ],
+  emits: ['show-metadata', 'update:valid-items', 'download'],
 })
 class CzFileExplorer extends Vue {
   /** The `IFolder` instance representing the root of the file structure */
@@ -721,11 +715,17 @@ class CzFileExplorer extends Vue {
   /** Files that passed validation; kept in sync via `v-model:valid-items`. */
   @Prop({ default: () => [] }) validItems!: (IFile | IFolder)[];
 
-  /** If `true`, show the zipped download button. */
-  @Prop({ default: false }) showDownloadZippedButton!: boolean;
+  /**
+   * Downloads a single item as a zip. If absent, the zipped-download button is
+   * hidden. The component awaits it and owns the disabled/spinner state.
+   */
+  @Prop() downloadZipped?: (_item: IFile | IFolder) => Promise<void>;
 
-  /** If `true`, show the archive download button. */
-  @Prop({ default: false }) showDownloadArchiveButton!: boolean;
+  /**
+   * Downloads the whole resource as an archive. If absent, the archive button
+   * is hidden. The component awaits it and owns its spinner state.
+   */
+  @Prop() downloadArchive?: () => Promise<void>;
 
   /** A function to check if a file or folder can be downloaded using the
    * 'Download' context menu item
@@ -742,12 +742,6 @@ class CzFileExplorer extends Vue {
   /** Tooltip/help text for the archive download button. */
   @Prop({ default: 'Download Archive' })
   downloadArchiveHelpText!: string;
-
-  /** If `true`, shows a loading spinner on the archive download button. */
-  @Prop({ default: false }) archiveDownloading!: boolean;
-
-  /** If `true`, shows a loading spinner on the zipped download button. */
-  @Prop({ default: false }) zippedDownloading!: boolean;
 
   /**
    * Consumer-supplied loader the preview dialog uses to fetch a file's bytes.
@@ -795,6 +789,8 @@ class CzFileExplorer extends Vue {
   previewOpen = false;
   previewItem: IFile | IFolder | null = null;
   isDeleting = false;
+  isDownloadingZipped = false;
+  isDownloadingArchive = false;
   fileReleaseDate = null;
   shiftAnchor: IFolder | IFile | null = null;
   search = '';
@@ -1051,17 +1047,36 @@ class CzFileExplorer extends Vue {
     }
   }
 
-  onDownloadZipped() {
+  async onDownloadZipped() {
     const selectedItem = this.selected.length === 1 ? this.selected[0] : null;
 
-    if (selectedItem && this.canDownloadItem) {
-      selectedItem.path = this.getPathString(selectedItem);
-      this.$emit('downloadZipped', selectedItem);
+    if (!selectedItem || !this.canDownloadItem || !this.downloadZipped) {
+      return;
+    }
+    if (this.isDownloadingZipped) {
+      return;
+    }
+
+    selectedItem.path = this.getPathString(selectedItem);
+    this.isDownloadingZipped = true;
+    try {
+      await this.downloadZipped(selectedItem);
+    } finally {
+      this.isDownloadingZipped = false;
     }
   }
 
-  onDownloadArchive() {
-    this.$emit('downloadArchive');
+  async onDownloadArchive() {
+    if (!this.downloadArchive || this.isDownloadingArchive) {
+      return;
+    }
+
+    this.isDownloadingArchive = true;
+    try {
+      await this.downloadArchive();
+    } finally {
+      this.isDownloadingArchive = false;
+    }
   }
 
   onViewDetails(item: IFile | IFolder) {
