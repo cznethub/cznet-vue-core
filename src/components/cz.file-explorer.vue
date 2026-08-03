@@ -294,6 +294,29 @@
               </v-list-item-title>
             </v-list-item>
           </template>
+
+          <!-- Download zipped -->
+          <template v-if="downloadZipped && showMenuItem">
+            <v-list-item
+              @click.stop="onDownloadZipped"
+              :disabled="isDownloadingZipped"
+            >
+              <v-list-item-title>
+                <v-progress-circular
+                  v-if="isDownloadingZipped"
+                  class="mr-2"
+                  indeterminate
+                  size="16"
+                  width="2"
+                  color="green"
+                ></v-progress-circular>
+                <v-icon v-else class="mr-2" color="green">
+                  mdi-download-box-outline
+                </v-icon>
+                {{ isDownloadingZipped ? 'Downloading…' : 'Download zipped' }}
+              </v-list-item-title>
+            </v-list-item>
+          </template>
         </v-list>
       </v-menu>
 
@@ -655,6 +678,7 @@ import {
   VListItem,
   VListItemTitle,
   VAlert,
+  VProgressCircular,
   VTreeview,
 } from 'vuetify/components';
 import { VFileUpload } from 'vuetify/labs/VFileUpload';
@@ -689,6 +713,7 @@ import { FILE_ICONS } from '@/constants';
     CzFileExplorerItem,
     CzFilePreview,
     VAlert,
+    VProgressCircular,
     VFileUpload,
   },
   directives: { ClickOutside },
