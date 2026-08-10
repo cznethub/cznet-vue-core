@@ -101,7 +101,12 @@ export default defineComponent({
   //   },
   // },
   created() {
-    if (!this.control.data && !this.hasToggle) {
+    // Seed required objects and non-flat ones without a toggle. Never seed an
+    // optional object: the empty `{}` would fail its own `required` rules. It
+    // materialises when the user types into one of its fields.
+    const shouldSeed =
+      !this.hasToggle && (this.control.required || !this.isFlat);
+    if (!this.control.data && shouldSeed) {
       const val = createDefaultValue(
         this.control.schema,
         this.control.rootSchema
@@ -151,8 +156,12 @@ export default defineComponent({
       return !this.control.required && !this.isFlat;
     },
     isFlat() {
-      // @ts-ignore
-      return this.control.schema.options?.flat;
+      // Honour the uischema as well as the schema: when the schema is
+      // generated, the uischema is the consumer's only way to set this.
+      return (
+        // @ts-ignore
+        this.appliedOptions?.flat ?? this.control.schema.options?.flat
+      );
     },
     hasData(): boolean {
       return !!this.control.data;

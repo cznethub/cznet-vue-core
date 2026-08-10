@@ -12,11 +12,7 @@
       :maxlength="
         appliedOptions.restrict ? control.schema.maxLength : undefined
       "
-      :counter="
-        control.schema.maxLength !== undefined
-          ? control.schema.maxLength
-          : undefined
-      "
+      :counter="counterLimit"
       :error-messages="control.errors"
       :required="control.required"
       :hint="control.description"
@@ -24,11 +20,13 @@
       :placeholder="placeholder"
       :label="computedLabel"
       :clearable="control.enabled && !isReadOnly"
+      @update:focused="isFocused = $event"
+      @blur="isFocused = false"
       v-bind="vuetifyProps('v-textarea')"
     >
       <template #message>
         <cz-field-messages
-          :description="control.description"
+          :description="visibleDescription"
           :errors="cleanedErrors"
         />
       </template>
@@ -70,6 +68,20 @@ export default defineComponent({
     stripHTML(): string {
       // @ts-ignore
       return !!this.control.schema.options?.stripHTML;
+    },
+    // See StringControlRenderer: the overridden #message slot bypasses
+    // `persistent-hint`, so honour it explicitly.
+    visibleDescription(): string {
+      const persistent =
+        this.appliedOptions?.['persistent-hint'] ??
+        this.appliedOptions?.persistentHint ??
+        false;
+      return persistent || this.isFocused ? this.control.description : '';
+    },
+    // See StringControlRenderer: suppress counters for machine-scale limits.
+    counterLimit(): number | undefined {
+      const max = this.control.schema.maxLength;
+      return max !== undefined && max <= 500 ? max : undefined;
     },
   },
   methods: {

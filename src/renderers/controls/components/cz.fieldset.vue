@@ -2,7 +2,9 @@
   <div>
     <v-field v-bind="vFieldProps" :variant="isFlat ? 'plain' : 'outlined'">
       <!-- CONTENT -->
-      <div v-if="vFieldProps.active" class="pa-4">
+      <!-- The inset clears the outlined field's border; flat has no border,
+           so the padding would just stack with the container's own. -->
+      <div v-if="vFieldProps.active" :class="isFlat ? '' : 'pa-4'">
         <slot></slot>
       </div>
 
@@ -53,7 +55,9 @@
     </v-field>
 
     <!-- MESSAGES -->
-    <div class="v-messages">
+    <!-- Only when there's something to say; unconditionally this is an empty
+         strip under every fieldset. -->
+    <div v-if="description || cleanedErrors" class="v-messages">
       <cz-field-messages :description="description" :errors="cleanedErrors" />
     </div>
   </div>
@@ -122,7 +126,11 @@ export default defineComponent({
   },
   computed: {
     cleanedErrors() {
-      return this.errors?.replaceAll(`is a required property`, ``).trim() || '';
+      // Rewrite rather than strip, so the error keeps a message.
+      return (
+        this.errors?.replaceAll('is a required property', 'is required').trim() ||
+        ''
+      );
     },
     /** @see https://vuetifyjs.com/en/api/v-field/#props */
     vFieldProps() {

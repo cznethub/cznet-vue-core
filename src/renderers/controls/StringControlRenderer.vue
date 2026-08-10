@@ -20,11 +20,7 @@
       :maxlength="
         appliedOptions.restrict ? control.schema.maxLength : undefined
       "
-      :counter="
-        control.schema.maxLength !== undefined
-          ? control.schema.maxLength
-          : undefined
-      "
+      :counter="counterLimit"
       :model-value="control.data"
       :items="suggestions"
       v-bind="vuetifyProps('v-combobox')"
@@ -32,7 +28,7 @@
     >
       <template #message>
         <cz-field-messages
-          :description="control.description"
+          :description="visibleDescription"
           :errors="cleanedErrors"
         />
       </template>
@@ -51,11 +47,7 @@
       :maxlength="
         appliedOptions.restrict ? control.schema.maxLength : undefined
       "
-      :counter="
-        control.schema.maxLength !== undefined
-          ? control.schema.maxLength
-          : undefined
-      "
+      :counter="counterLimit"
       :clearable="control.enabled && !isReadOnly"
       v-bind="vuetifyProps('v-text-field')"
       @update:model-value="onChange"
@@ -64,7 +56,7 @@
     >
       <template #message>
         <cz-field-messages
-          :description="control.description"
+          :description="visibleDescription"
           :errors="cleanedErrors"
         />
       </template>
@@ -108,6 +100,21 @@ export default defineComponent({
     }
   },
   computed: {
+    // The overridden #message slot bypasses Vuetify's `persistent-hint`, so
+    // honour it explicitly: show help on focus, or always if opted in.
+    visibleDescription(): string {
+      const persistent =
+        this.appliedOptions?.['persistent-hint'] ??
+        this.appliedOptions?.persistentHint ??
+        false;
+      return persistent || this.isFocused ? this.control.description : '';
+    },
+    // Counter only for editorial limits; machine-scale bounds (e.g. URL
+    // `maxLength: 2083`) are noise.
+    counterLimit(): number | undefined {
+      const max = this.control.schema.maxLength;
+      return max !== undefined && max <= 500 ? max : undefined;
+    },
     suggestions(): string[] | undefined {
       const suggestions = this.control.uischema.options?.suggestions;
       if (

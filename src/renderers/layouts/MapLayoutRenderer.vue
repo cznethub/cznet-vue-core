@@ -86,6 +86,7 @@ const layoutRenderer = defineComponent({
       isEventFromMap: false,
       initialized: false,
       changeTimeout: 0,
+      resizeObserver: null as ResizeObserver | null,
       ...useVuetifyControl(useJsonFormsControlWithDetail(props)),
     };
   },
@@ -94,6 +95,23 @@ const layoutRenderer = defineComponent({
     if (this.hasData) {
       this.loadDrawing();
     }
+    // Leaflet caches the container size at construction. Inside a v-dialog the
+    // map mounts mid-transition, so that cached size is stale and clicks map
+    // to the wrong lat/lng. Re-measure once the transition settles, and again
+    // whenever the container resizes.
+    this.$nextTick(() =>
+      requestAnimationFrame(() => (this.map as L.Map | undefined)?.invalidateSize())
+    );
+    const el = this.$refs.mapEl as HTMLElement | undefined;
+    if (el && typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() =>
+        (this.map as L.Map | undefined)?.invalidateSize()
+      );
+      this.resizeObserver.observe(el);
+    }
+  },
+  unmounted() {
+    this.resizeObserver?.disconnect();
   },
   watch: {
     // Redraw when the value changes from the form (not from a map edit, which
@@ -271,10 +289,15 @@ const layoutRenderer = defineComponent({
       }
     },
     updatePointData(latlng: L.LatLng) {
-      this.control.data[this.inputFields.north] = +latlng.lat.toFixed(4);
-      this.control.data[this.inputFields.east] = +latlng.lng.toFixed(4);
+      // Build a new object rather than mutating in place: control.data is
+      // undefined until the combinator branch is materialised.
+      const next = {
+        ...(this.control.data ?? {}),
+        [this.inputFields.north]: +latlng.lat.toFixed(4),
+        [this.inputFields.east]: +latlng.lng.toFixed(4),
+      };
       this.isEventFromMap = true;
-      this.handleChange(this.control.path, this.control.data);
+      this.handleChange(this.control.path, next);
     },
 
     // ---- box ----
@@ -286,17 +309,18 @@ const layoutRenderer = defineComponent({
       const ne = bounds.getNorthEast();
       const sw = bounds.getSouthWest();
       const f = (n: number) => +n.toFixed(4);
+      const base = { ...(this.control.data ?? {}) };
       if (this.isBoxSchemaOrgFormat) {
-        this.control.data[this.inputFields.box] =
+        base[this.inputFields.box] =
           `${f(ne.lat)} ${f(ne.lng)} ${f(sw.lat)} ${f(sw.lng)}`;
       } else {
-        this.control.data[this.inputFields.northlimit] = f(ne.lat);
-        this.control.data[this.inputFields.eastlimit] = f(ne.lng);
-        this.control.data[this.inputFields.southlimit] = f(sw.lat);
-        this.control.data[this.inputFields.westlimit] = f(sw.lng);
+        base[this.inputFields.northlimit] = f(ne.lat);
+        base[this.inputFields.eastlimit] = f(ne.lng);
+        base[this.inputFields.southlimit] = f(sw.lat);
+        base[this.inputFields.westlimit] = f(sw.lng);
       }
       this.isEventFromMap = true;
-      this.debouncedChange();
+      this.handleChange(this.control.path, base);
     },
     addBoxDrawControl() {
       const self = this;

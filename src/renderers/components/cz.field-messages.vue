@@ -1,8 +1,8 @@
 <template>
-  <div v-if="description" class="text-subtitle-1 message--text">
+  <div v-if="description" class="text-caption message--text">
     {{ description }}
   </div>
-  <div v-if="errors" class="error--text">
+  <div v-if="errors" class="text-caption error--text">
     {{ errors }}
   </div>
 </template>
@@ -26,6 +26,6 @@ export default defineComponent({
 }
 
 .message--text {
-  color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
 }
 </style>

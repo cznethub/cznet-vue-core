@@ -21,7 +21,19 @@ export default defineComponent({
   props: { ...rendererProps<Layout>() },
   setup(_props: RendererProps<Layout>) {
     const renderSlot = inject<Slot | null>('cz-form-composed-slot', null);
-    return () => (renderSlot ? renderSlot() : null);
+    // The consumer's whole template is evaluated inside this render effect,
+    // so an exception in any one row (a nullish array entry, a bad index)
+    // would otherwise abort the entire form's render rather than just that
+    // row — which reads as "the page stopped responding".
+    return () => {
+      if (!renderSlot) return null;
+      try {
+        return renderSlot();
+      } catch (e) {
+        console.error('[cz-form-composed] slot render failed', e);
+        return null;
+      }
+    };
   },
 });
 </script>
