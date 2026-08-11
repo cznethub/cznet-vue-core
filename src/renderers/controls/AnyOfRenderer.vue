@@ -17,6 +17,7 @@
       :title="title"
       :computedLabel="computedLabel"
       :isFlat="isFlat"
+      @show="onShow"
       @hide="onHide"
     >
       <combinator-properties
@@ -73,9 +74,9 @@
       <template v-else>
         <!-- this select change emits old selectedIndex -->
         <v-select
-          :model-value="anyOfRenderInfos[selectedIndex]"
+          :model-value="branchItems[selectedIndex]"
           @update:model-value="handleSelectChange"
-          :items="anyOfRenderInfos"
+          :items="branchItems"
           :label="title"
           :hint="selectHint"
           :data-id="computedLabel.replaceAll(` `, ``)"
@@ -130,6 +131,8 @@ import {
   VBtn,
   VTabs,
   VTab,
+  VWindow,
+  VWindowItem,
   VTooltip,
   VIcon,
   VSelect,
@@ -152,6 +155,8 @@ export default defineComponent({
     VBtn,
     VTabs,
     VTab,
+    VWindow,
+    VWindowItem,
     VTooltip,
     VIcon,
     CzFieldset,
@@ -176,6 +181,15 @@ export default defineComponent({
     this.prevSelectedIndex = this.selectedIndex;
   },
   computed: {
+    // Prefer a per-branch `options.label` over the raw schema title.
+    branchItems(): CombinatorSubSchemaRenderInfo[] {
+      return this.anyOfRenderInfos.map(
+        (i: CombinatorSubSchemaRenderInfo) => ({
+          ...i,
+          label: (i.uischema as any)?.options?.label || i.label,
+        })
+      );
+    },
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
       const result = createCombinatorRenderInfos(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -242,14 +256,16 @@ export default defineComponent({
         // seletedIndex still has the previously selected index
         this.tabData[this.selectedIndex] = this.control.data;
 
-        // Update to new value
-        if (typeof nextIndexOrLabel === 'number') {
-          this.selectedIndex = nextIndexOrLabel;
-        } else if (typeof nextIndexOrLabel === 'string') {
-          this.selectedIndex = this.anyOfRenderInfos.findIndex(
-            (info: CombinatorSubSchemaRenderInfo) =>
-              info.label === nextIndexOrLabel
+        // Tabs emit an index; v-select is bound to objects and emits the item.
+        const next: any = nextIndexOrLabel;
+        if (typeof next === 'number') {
+          this.selectedIndex = next;
+        } else {
+          const label = typeof next === 'string' ? next : next?.label;
+          const idx = this.branchItems.findIndex(
+            (info: CombinatorSubSchemaRenderInfo) => info.label === label
           );
+          if (idx >= 0) this.selectedIndex = idx;
         }
 
         this.handleChange(this.control.path, this.getValue());
@@ -275,6 +291,13 @@ export default defineComponent({
             : undefined;
       }
       return val;
+    },
+    onShow() {
+      // Materialise the value when the panel opens, so writes into it while
+      // the editor is visible have somewhere to land.
+      if (this.control.data === undefined || this.control.data === null) {
+        this.handleChange(this.control.path, this.getValue());
+      }
     },
     onHide() {
       this.handleChange(this.control.path, undefined);

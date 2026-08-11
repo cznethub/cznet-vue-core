@@ -8,17 +8,15 @@
   border: 0 !important;
 }
 
+// Help text is supporting context; it must not compete with the value the
+// user typed. This file ships in dist/index.css and is imported app-wide,
+// so rules here reach the whole consuming app.
 .v-messages {
-  font-size: 1rem !important;
   font-weight: 400;
-  line-height: 1.5rem;
-  letter-spacing: 0.03125em !important;
-  font-family: "Roboto", sans-serif !important;
-  margin-top: 0;
-
-  .v-messages__message {
-    line-height: 1.5rem;
-  }
+  line-height: 1rem;
+  letter-spacing: 0.03125em;
+  font-family: "Roboto", sans-serif;
+  margin-top: 2px;
 }
 
 /** 
@@ -67,3 +65,8 @@
   flex-shrink: 1;
   width: 0;
 }
+
+.cz-confirm .cz-confirm__card {
+  border-radius: 8px;
+}
+

@@ -4,50 +4,24 @@
     :styles="styles"
     :appliedOptions="appliedOptions"
   >
+    <!-- `hasToggle` is deliberately false: the empty state and the add
+         affordance are rendered explicitly below instead. `isFlat` when
+         unlabelled, so a titled dialog doesn't draw a border around nothing. -->
     <cz-fieldset
       v-if="control.visible"
       :data-id="computedLabel.replaceAll(` `, ``)"
-      :description="control.description"
-      :hasToggle="noData"
+      :description="sectionDescription"
+      :hasToggle="false"
+      :isFlat="!computedLabel"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
       :errors="control.errors"
       :title="control.schema.title"
       :computedLabel="computedLabel"
-      @show="noData && control.enabled ? addButtonClick() : null"
       ref="fieldset"
     >
-      <template v-if="control.enabled" #actions="{ show }">
-        <v-tooltip bottom transition="fade">
-          <template #activator="{ props }">
-            <v-btn
-              icon="mdi-plus"
-              variant="elevated"
-              size="small"
-              border="solid thin"
-              @click="
-                addButtonClick();
-                show();
-              "
-              :class="styles.arrayList.addButton"
-              :aria-label="`Add to ${control.label}`"
-              v-bind="props"
-              :disabled="
-                !control.enabled ||
-                appliedOptions.isDisabled ||
-                (appliedOptions.restrict &&
-                  maxItems !== undefined &&
-                  control.data &&
-                  control.data.length >= maxItems)
-              "
-            ></v-btn>
-          </template>
-          {{ `Add to ${control.label}` }}
-        </v-tooltip>
-      </template>
-
-      <v-container v-if="!noData" justify-space-around align-content-center>
-        <v-row justify="center">
+      <v-container v-if="!noData" fluid class="pa-0">
+        <v-row justify="center" no-gutters>
           <v-expansion-panels multiple v-model="panels">
             <v-expansion-panel
               v-for="(element, index) in control.data"
@@ -73,12 +47,12 @@
 
                 <div
                   v-if="appliedOptions.elementLabelProp"
-                  :title="getItemLabel(element)"
+                  :title="getItemLabel(element, index)"
                   align-self="center"
                   justify-self="start"
                   class="text-truncate flex-grow-1"
                 >
-                  {{ getItemLabel(element) }}
+                  {{ getItemLabel(element, index) }}
                 </div>
                 <v-spacer v-else />
 
@@ -169,7 +143,7 @@
                 class="pa-0"
               >
                 <dispatch-renderer
-                  :schema="control.schema"
+                  :schema="itemSchema(element)"
                   :uischema="foundUISchema"
                   :path="composePaths(control.path, `${index}`)"
                   :enabled="control.enabled"
@@ -182,6 +156,40 @@
         </v-row>
       </v-container>
 
+      <div
+        v-else
+        class="text-body-2 text-medium-emphasis font-italic py-2"
+      >
+        {{ emptyLabel }}
+      </div>
+
+      <!-- Add affordance sits at the end of the list, where users look. -->
+      <div
+        v-if="
+          control.enabled &&
+          !appliedOptions.isViewMode &&
+          !appliedOptions.isReadOnly &&
+          !appliedOptions.isDisabled
+        "
+        :class="noData ? '' : 'mt-3'"
+      >
+        <v-btn
+          variant="tonal"
+          size="small"
+          prepend-icon="mdi-plus"
+          :class="styles.arrayList.addButton"
+          :aria-label="addLabel"
+          @click="addButtonClick()"
+          :disabled="
+            appliedOptions.restrict &&
+            maxItems !== undefined &&
+            control.data &&
+            control.data.length >= maxItems
+          "
+          >{{ addLabel }}</v-btn
+        >
+      </div>
+
       <v-dialog
         v-if="
           !appliedOptions.isViewMode &&
@@ -189,23 +197,32 @@
           !appliedOptions.isDisabled
         "
         :model-value="suggestToDelete !== null"
-        max-width="600"
+        max-width="420"
+        content-class="cz-confirm"
         @keydown.esc="suggestToDelete = null"
         @click:outside="suggestToDelete = null"
       >
-        <v-card>
-          <v-card-title class="text-h6">
-            Delete {{ childLabelForIndex(suggestToDelete) || 'element' }}?
-          </v-card-title>
+        <v-card class="cz-confirm__card">
+          <div class="d-flex ga-3 pa-5 pb-3">
+            <v-avatar color="error" variant="tonal" size="40" class="flex-shrink-0">
+              <v-icon size="20">mdi-trash-can-outline</v-icon>
+            </v-avatar>
+            <div class="min-w-0">
+              <div class="text-subtitle-1 font-weight-medium">
+                Delete {{ deleteTargetLabel }}?
+              </div>
+              <div class="text-body-2 text-medium-emphasis mt-1">
+                This removes it from the form. Nothing is saved until you
+                save the resource.
+              </div>
+            </div>
+          </div>
 
-          <v-card-text>The element will be deleted.</v-card-text>
-
-          <v-card-actions>
+          <v-card-actions class="px-5 pb-4 pt-0">
             <v-spacer></v-spacer>
-
             <v-btn variant="text" @click="suggestToDelete = null">Cancel</v-btn>
             <v-btn
-              variant="text"
+              variant="flat"
               color="error"
               ref="confirm"
               @click="onRemoveItem"
@@ -363,6 +380,46 @@ export default defineComponent({
         this.control.rootSchema
       );
     },
+    // `hide-label` empties control.label, so fall back to the item noun.
+    addLabel(): string {
+      return `Add ${this.itemNoun}`;
+    },
+    /**
+     * Let the uischema override the schema's `description`;
+     * `description: false` hides it entirely.
+     */
+    sectionDescription(): string {
+      // @ts-ignore
+      const override = this.appliedOptions.description;
+      if (override === false) return '';
+      return override ?? this.control.description ?? '';
+    },
+    emptyLabel(): string {
+      return `No ${this.itemNoun.toLowerCase()} added yet.`;
+    },
+    // Prefer the row's own label; `childLabelForIndex` falls back to the
+    // first primitive property, which is usually `@type`.
+    deleteTargetLabel(): string {
+      if (this.suggestToDelete === null) return 'this item';
+      const el = this.control.data?.[this.suggestToDelete];
+      return (
+        this.getItemLabel(el, this.suggestToDelete) ||
+        this.childLabelForIndex(this.suggestToDelete) ||
+        this.itemNoun
+      );
+    },
+    itemNoun(): string {
+      return (
+        // Consumers can name the row explicitly; schema `title` is a type name.
+        // @ts-ignore
+        this.appliedOptions.itemNoun ||
+        this.control.label ||
+        // @ts-ignore
+        this.control.schema?.title ||
+        this.arraySchema?.title ||
+        'item'
+      );
+    },
     hideAvatar(): boolean {
       // @ts-ignore
       return !!this.appliedOptions.hideAvatar;
@@ -379,12 +436,62 @@ export default defineComponent({
   methods: {
     composePaths,
     createDefaultValue,
+    /**
+     * Resolve a `$ref`, returning the original node when it can't be resolved.
+     */
+    deref(schema: any): any {
+      if (!schema?.$ref) return schema;
+      return (
+        Resolve.schema(
+          this.control.rootSchema,
+          schema.$ref,
+          this.control.rootSchema
+        ) ?? schema
+      );
+    },
+    /**
+     * JsonForms' schemaMatches only resolves a child scope when the schema has
+     * type `object`, which a raw combinator (`{ anyOf: [...] }`) lacks. Dispatch
+     * against the concrete branch instead, picked by the `@type` discriminator.
+     */
+    itemSchema(element: any): JsonSchema {
+      const combinator = this.isCombinatorSchema(this.control.schema);
+      if (!combinator) return this.control.schema;
+
+      // @ts-ignore
+      const branches = (this.control.schema[combinator] || []).map((b: any) =>
+        this.deref(b)
+      );
+      if (!branches.length) return this.control.schema;
+
+      const discriminator = element?.['@type'];
+      const match =
+        discriminator &&
+        branches.find((b: any) => {
+          const t = b?.properties?.['@type'];
+          return (
+            t &&
+            (t.const === discriminator ||
+              (Array.isArray(t.enum) && t.enum.includes(discriminator)))
+          );
+        });
+
+      return match || branches[0];
+    },
     addButtonClick() {
       const combinatorSchema = this.isCombinatorSchema(this.control.schema);
-      const defaultSchema = combinatorSchema
+      const branchSchema = combinatorSchema
         ? // @ts-ignore
           this.control.schema[combinatorSchema]?.[0]
         : this.control.schema;
+
+      // Combinator branches arrive as unresolved `$ref`s, so `type` is
+      // undefined and the object/array check below would fall through to
+      // `undefined` — pushing a hole into the array instead of a new item.
+      // Combinator branches arrive as unresolved `$ref`s, so `type` is
+      // undefined and the object/array check below would fall through to
+      // `undefined` — pushing a hole into the array instead of a new item.
+      const defaultSchema = this.deref(branchSchema);
 
       /**
        * For combinator schemas, only create default values for objects and arrays.
@@ -426,20 +533,20 @@ export default defineComponent({
         );
       });
     },
-    getItemLabel(element: any) {
-      if (!element) {
-        return '';
-      }
-      // @ts-ignore
-      if (Array.isArray(this.appliedOptions.elementLabelProp)) {
-        // @ts-ignore
-        return this.appliedOptions.elementLabelProp
-          .map((prop: string) => element[prop])
-          .join(' ');
-      } else {
-        // @ts-ignore
-        return element[this.appliedOptions.elementLabelProp];
-      }
+    getItemLabel(element: any, index = 0) {
+      const props = Array.isArray(this.appliedOptions.elementLabelProp)
+        ? this.appliedOptions.elementLabelProp
+        : [this.appliedOptions.elementLabelProp];
+
+      const label = props
+        .map((prop: string) => element?.[prop])
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+
+      // A freshly added row has nothing to label it with; without a fallback
+      // its header is blank except for the action icons.
+      return label || `${this.itemNoun} ${index + 1}`;
     },
     onRemoveItem() {
       if (this.suggestToDelete !== null) {
@@ -456,11 +563,19 @@ export default defineComponent({
   transform: none !important;
 }
 
-.v-expansion-panel {
-  border: thin solid rgba(0, 0, 0, 0.12);
+/* Vuetify already renders the panel group as a bordered surface; the extra
+   rule stacked a third border inside the fieldset's outlined v-field. */
+
+/* Vuetify's default wrapper padding is 8px 24px 16px, which is lopsided
+   against our field grid. Even inset instead — zero (the previous value)
+   left inputs touching the panel border. */
+:deep(.v-expansion-panel-text__wrapper) {
+  padding: 1.25rem 1.25rem 1.5rem;
 }
 
-:deep(.v-expansion-panel-text__wrapper) {
-  padding: 0;
+/* Give the row header the same horizontal inset as the body so the title and
+   the fields beneath it line up. */
+:deep(.v-expansion-panel-title) {
+  padding-inline: 1.25rem;
 }
 </style>

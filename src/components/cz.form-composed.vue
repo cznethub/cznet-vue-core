@@ -110,7 +110,10 @@ export default defineComponent({
 // rendered through DispatchRenderer (a deep descendant Vue can't see at
 // compile time for scope-attr injection). The `.cz-form-composed` class on
 // the json-forms host limits the impact to composed forms.
-.cz-form-composed {
+// `.cz-field-modal__content` is listed alongside the host class because
+// v-dialog teleports its content outside the json-forms host.
+.cz-form-composed,
+.cz-field-modal__content {
   // ControlWrapper.vue: <div v-if="visible" class="my-5" ...>
   .my-5 {
     margin-top: 0 !important;
@@ -127,10 +130,9 @@ export default defineComponent({
     min-height: 0;
   }
 
-  // Sub-controls inside ArrayLayoutRenderer/ObjectControlRenderer often
-  // nest <control-wrapper> blocks; strip the inner padding too so array
-  // rows don't gain extra airy space when stacked.
-  .v-card .my-5 {
+  // Inside an array row the layouts own the rhythm (VerticalLayoutRenderer's
+  // `row-gap`, HorizontalLayoutRenderer's grid gap), so zero the margin.
+  .v-expansion-panel .my-5 {
     margin: 0 !important;
   }
 }

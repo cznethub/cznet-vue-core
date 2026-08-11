@@ -37,12 +37,23 @@ export const defaultConfigs: Config = {
   },
 };
 
+/**
+ * Array indices from an AJV instancePath, e.g. "/creator/2/name" → " 3",
+ * so each row of an array reports a distinguishable title.
+ */
+function instanceSuffix(instancePath: string): string {
+  const indices = [...instancePath.matchAll(/\/(\d+)(?=\/|$)/g)].map(
+    m => Number(m[1]) + 1
+  );
+  return indices.length ? ` ${indices.join('.')}` : '';
+}
+
 export function getErrorTitle(error: ErrorObject): string {
   if (error.instancePath) {
-    return (
+    const base =
       (error.parentSchema as any)?.title ||
-      (error.params as any).missingProperty
-    );
+      (error.params as any).missingProperty;
+    return base ? `${base}${instanceSuffix(error.instancePath)}` : base;
   }
   let title =
     (error.parentSchema as any)?.properties?.[
@@ -103,7 +114,9 @@ export function processFormChange(
         message: getErrorMessage(e),
       })) || [];
 
-  emit('update:is-valid', !event.errors?.length);
+  // Derive validity from the same filtered list the UI surfaces, not
+  // `event.errors`, so Save is never disabled for an unnamed problem.
+  emit('update:is-valid', errors.length === 0);
   emit('update:errors', errors);
   emit('update:model-value', event.data);
 }

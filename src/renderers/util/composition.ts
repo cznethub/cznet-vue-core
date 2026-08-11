@@ -405,6 +405,26 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
   const selectedIndex = ref(0);
   const prevSelectedIndex = ref(0);
 
+  /**
+   * Locate which combinator branch an AJV error came from.
+   *
+   * `schema[keyword]` holds the branches as authored — typically unresolved
+   * `{ $ref }` nodes — while AJV reports `parentSchema` as the *resolved*
+   * definition object. A plain indexOf therefore never matches for $ref
+   * branches. Compare against the resolved branches as well.
+   */
+  const branchIndexOf = (parentSchema: any): number => {
+    const branches = input.control.value.schema?.[keyword] ?? [];
+    const direct = branches.indexOf(parentSchema);
+    if (direct >= 0) return direct;
+
+    const rootSchema = input.control.value.rootSchema;
+    return branches.findIndex((b: any) => {
+      if (!b?.$ref || !rootSchema) return false;
+      return Resolve.schema(rootSchema, b.$ref, rootSchema) === parentSchema;
+    });
+  };
+
   watchEffect(() => {
     // Get child errors at this path and annotate them
     // TODO: find a more reliable way to get errors at a path
@@ -423,14 +443,16 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
       .map((e: ErrorObject) => {
         // TODO: find a better way to detect errors we want to ignore
         if (e.instancePath && e.parentSchema) {
-          const errorSchemaIndex = input.control.value.schema[keyword]?.indexOf(
-            e.parentSchema
-          );
+          const errorSchemaIndex = branchIndexOf(e.parentSchema);
           if (errorSchemaIndex >= 0) {
             // @ts-ignore
             e['_selectedSchemaIndex'] = errorSchemaIndex;
           }
+          // Only suppress an error positively identified as belonging to a
+          // branch other than the selected one. An unmatched branch (-1)
+          // must keep its message.
           if (
+            errorSchemaIndex >= 0 &&
             errorSchemaIndex !== selectedIndex.value &&
             e.keyword !== 'errorMessage'
           ) {

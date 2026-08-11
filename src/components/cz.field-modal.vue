@@ -13,18 +13,22 @@
       :open-edit="openEdit"
     />
 
-    <v-dialog v-model="open" :max-width="maxWidth" scrollable>
-      <v-card>
+    <v-dialog
+      v-model="open"
+      :max-width="maxWidth"
+      scrollable
+      content-class="cz-field-modal__content"
+    >
+      <v-card class="cz-field-modal__card">
         <v-card-title
           v-if="label"
-          class="bg-grey-lighten-3 text-body-1 d-flex align-center"
+          class="cz-field-modal__title text-subtitle-1 font-weight-medium d-flex align-center ga-2"
         >
-          <span>{{ label }}</span>
+          <span class="text-truncate">{{ label }}</span>
           <v-icon
             v-if="hasErrors"
             color="error"
             size="small"
-            class="ml-2"
             :title="`${errors.length} validation issue${errors.length === 1 ? '' : 's'}`"
           >
             mdi-alert-circle
@@ -34,11 +38,12 @@
             icon="mdi-close"
             size="small"
             variant="text"
+            aria-label="Close"
             @click="open = false"
           />
         </v-card-title>
         <v-divider v-if="label" />
-        <v-card-text>
+        <v-card-text class="cz-field-modal__body">
           <cz-field
             :scope="scope"
             :options="options"
@@ -46,9 +51,11 @@
           />
         </v-card-text>
         <v-divider />
-        <v-card-actions>
+        <v-card-actions class="cz-field-modal__actions">
           <v-spacer />
-          <v-btn variant="text" @click="open = false">Done</v-btn>
+          <v-btn variant="flat" color="primary" @click="open = false"
+            >Done</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -180,3 +187,25 @@ export default defineComponent({
   },
 });
 </script>
+
+<!-- Unscoped: v-dialog teleports this content to .v-overlay-container, so a
+     scoped attribute selector would never match it. -->
+<style lang="scss">
+.v-overlay__content.cz-field-modal__content {
+  // These hold whole sub-forms, so they need more room than Vuetify's
+  // confirmation-dialog defaults.
+  .cz-field-modal__title {
+    padding: 1rem 1.25rem;
+    min-height: 0;
+  }
+
+  .cz-field-modal__body {
+    padding: 1.5rem 1.5rem 1.25rem;
+  }
+
+  .cz-field-modal__actions {
+    padding: 0.75rem 1.25rem;
+    min-height: 0;
+  }
+}
+</style>
