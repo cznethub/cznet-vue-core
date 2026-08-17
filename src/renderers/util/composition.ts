@@ -32,12 +32,18 @@ export const useControlAppliedOptions = <I extends { control: any }>(
 /**
  * Rewrite AJV's required-property wording so it reads as a message under the
  * field. Stripping it instead leaves the control red with nothing to say.
+ * A missing value trips both `required` and `type`, so dedupe the lines the
+ * rewrite collapses onto each other.
  */
-export const formatFieldErrors = (errors?: string): string =>
-  (errors ?? '')
+export const formatFieldErrors = (errors?: string): string => {
+  const lines = (errors ?? '')
     .replace(/must have required property '[^']+'/g, 'This field is required')
     .replace(/is a required property/g, 'This field is required')
-    .trim();
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean);
+  return [...new Set(lines)].join('\n');
+};
 
 export const isCombinatorSchema = (schema: any): string => {
   return schema.anyOf
