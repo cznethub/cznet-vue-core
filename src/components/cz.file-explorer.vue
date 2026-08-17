@@ -656,6 +656,7 @@ import { default as Notifications } from '@/models/notifications';
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
+import { createFileExplorerActiveStrategy } from '@/components/cz.file-explorer.selection';
 import CzFilePreview, {
   PreviewRenderer,
 } from '@/components/cz.file-preview.vue';
@@ -821,103 +822,15 @@ class CzFileExplorer extends Vue {
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
-  customActiveStrategy = (_mandatory?: boolean): ActiveStrategy => {
-    const onItemClick = (
-      item: IFolder | IFile,
-      activated: Set<IFile | IFolder>
-    ) => {
-      activated.clear();
-      activated.add(item);
-      if (this.isFolder(item)) {
-        this.open([item]);
-      }
-      this.shiftAnchor = item;
-    };
-
-    const onItemCtrlClick = (
-      item: IFolder | IFile,
-      activated: Set<IFile | IFolder>
-    ) => {
-      if (activated.has(item)) {
-        activated.delete(item);
-      } else {
-        activated.add(item);
-      }
-      this.shiftAnchor = item;
-    };
-
-    const onItemShiftClick = (
-      item: IFolder | IFile,
-      activated: Set<IFile | IFolder>
-    ) => {
-      const parent = this.getParent(item);
-      const itemIndex = parent.children.indexOf(item);
-      const anchorIndex = this.shiftAnchor
-        ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
-        : 0;
-
-      activated.clear();
-
-      const first = Math.min(itemIndex, anchorIndex);
-      const last = Math.max(itemIndex, anchorIndex);
-
-      for (let i = first; i <= last; i++) {
-        activated.add(parent.children[i]);
-      }
-    };
-
-    const strategy: ActiveStrategy = {
-      // @ts-ignore
-      activate: ({ id, value, activated, children, parents, event }) => {
-        id = toRaw(id);
-
-        if (!event && activated.has(id)) return activated;
-
-        // @ts-ignore
-        event?.ctrlKey
-          ? onItemCtrlClick(
-              id as IFile | IFolder,
-              activated as Set<IFile | IFolder>
-            )
-          : // @ts-ignore
-            event?.shiftKey
-            ? onItemShiftClick(
-                id as IFile | IFolder,
-                activated as Set<IFile | IFolder>
-              )
-            : onItemClick(
-                id as IFile | IFolder,
-                activated as Set<IFile | IFolder>
-              );
-
-        return activated;
-      },
-      in: (v: any, children: any, parents: any) => {
-        let set: Set<IFile | IFolder> = new Set(v.map((i: any) => toRaw(i)));
-
-        if (v != null) {
-          for (const id of v) {
-            const activated = strategy.activate({
-              id,
-              value: true,
-              activated: new Set(set),
-              children,
-              parents,
-              event: undefined,
-            });
-
-            set = new Set([...set, ...activated]) as Set<IFile | IFolder>;
-          }
-        }
-        return set;
-      },
-      out: (v: any) => {
-        return Array.from(v);
-      },
-    };
-
-    return strategy;
-  };
+  customActiveStrategy(_mandatory?: boolean): ActiveStrategy {
+    return createFileExplorerActiveStrategy({
+      getParent: item => this.getParent(item),
+      isFolder: item => this.isFolder(item),
+      open: items => this.open(items),
+      getShiftAnchor: () => this.shiftAnchor,
+      setShiftAnchor: item => (this.shiftAnchor = item),
+    });
+  }
 
   menuAttrs: Record<any, any> = {
     // 'position-x': 0,
@@ -1306,9 +1219,13 @@ class CzFileExplorer extends Vue {
   }
 
   getParent(item: IFile | IFolder): IFolder {
+    // Compare raw objects: callers may hold the raw item while the tree
+    // holds reactive proxies (or vice versa).
+    const target = toRaw(item);
     return (
-      this.allFolders.find(folder => folder.children?.includes(item)) ||
-      this.rootDirectory
+      this.allFolders.find(folder =>
+        folder.children?.some(child => toRaw(child) === target)
+      ) || this.rootDirectory
     );
   }
 
