@@ -49,6 +49,19 @@ export function findParentFolder(
   return searchParent(root, item) || root;
 }
 
+/** The folder an item stands for as a drop target: itself, or its parent when it is a file. */
+export function resolveDropTarget(
+  root: IFolder,
+  item: IFile | IFolder | null | undefined
+): IFolder {
+  if (!item) {
+    return root;
+  }
+  return isFolderItem(item)
+    ? (item as IFolder)
+    : findParentFolder(root, item);
+}
+
 /**
  * Where an upload should land: the selected folder, a selected file's parent,
  * or the root when the selection is empty or ambiguous.
@@ -58,7 +71,26 @@ export function resolveUploadTarget(
   selected: (IFile | IFolder)[]
 ): IFolder {
   const active = selected.length === 1 && selected[0] ? selected[0] : root;
-  return isFolderItem(active)
-    ? (active as IFolder)
-    : findParentFolder(root, active);
+  return resolveDropTarget(root, active);
+}
+
+/** Files from a native drop, skipping any directory entries. */
+export function extractDroppedFiles(dataTransfer: DataTransfer | null): File[] {
+  if (!dataTransfer) {
+    return [];
+  }
+
+  const items = Array.from(dataTransfer.items || []);
+  if (!items.length) {
+    return Array.from(dataTransfer.files || []);
+  }
+
+  return items
+    .filter(item => item.kind === 'file')
+    .filter(item => {
+      const entry = (item as any).webkitGetAsEntry?.();
+      return !entry || entry.isFile;
+    })
+    .map(item => item.getAsFile())
+    .filter((file): file is File => !!file);
 }

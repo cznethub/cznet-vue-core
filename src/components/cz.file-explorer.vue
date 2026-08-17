@@ -161,7 +161,9 @@
 
       <v-spacer />
 
-      <template v-if="rootDirectory.children.length && !isReadOnly">
+      <template
+        v-if="showDiscardAll && rootDirectory.children.length && !isReadOnly"
+      >
         <v-spacer></v-spacer>
         <v-btn
           @click="discardAll"
@@ -344,7 +346,13 @@
         />
         <div
           class="files-container"
-          :class="isRootDragging && isDragMoving ? 'border-dash' : ''"
+          :class="{
+            'border-dash':
+              (isRootDragging && isDragMoving) || !!nativeDropTarget,
+          }"
+          @dragover="onNativeDragOver($event)"
+          @dragleave="onNativeDragLeave($event)"
+          @drop="onNativeDrop($event)"
         >
           <drop
             @drop="onDropMove($event, rootDirectory)"
@@ -420,6 +428,12 @@
                             v-else
                             @click.right.exact.prevent="show($event, item)"
                             @retry-upload="retryUpload(item)"
+                            @dragover="onNativeDragOver($event, item)"
+                            @dragleave="onNativeDragLeave($event)"
+                            @drop="onNativeDrop($event, item)"
+                            :class="{
+                              'native-drop-target': isNativeDropTarget(item),
+                            }"
                             :item="item"
                             :isOpen="opened.includes(item)"
                             :folderColor="folderColor"
@@ -666,7 +680,11 @@ import { IFolder, IFile } from '@/types';
 import { default as Notifications } from '@/models/notifications';
 // @ts-ignore
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
-import { resolveUploadTarget } from '@/utils';
+import {
+  extractDroppedFiles,
+  resolveDropTarget,
+  resolveUploadTarget,
+} from '@/utils';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
 import CzFilePreview, {
@@ -749,6 +767,8 @@ class CzFileExplorer extends Vue {
   @Prop({ default: false }) hasFolders!: boolean;
   /** If `true`, render the file browser in read-only state. Files and folders cannot be edited. */
   @Prop({ default: false }) isReadOnly!: boolean;
+  /** Set `false` when uploads happen immediately rather than being staged. */
+  @Prop({ default: true }) showDiscardAll!: boolean;
   /** Files that passed validation; kept in sync via `v-model:valid-items`. */
   @Prop({ default: () => [] }) validItems!: (IFile | IFolder)[];
 
@@ -835,6 +855,8 @@ class CzFileExplorer extends Vue {
   keyCounter = 0;
   ignoreNextClick = false;
   isDragMoving = false;
+  /** Folder a native file drag is currently hovering, or null when not over one. */
+  nativeDropTarget: IFolder | null = null;
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
@@ -1243,16 +1265,15 @@ class CzFileExplorer extends Vue {
   async onFilesDropped(
     newFiles: File[],
     _oldFiles: File[],
-    nameOverrides?: { [index: string]: string }
+    nameOverrides?: { [index: string]: string },
+    targetOverride?: IFolder
   ) {
     if (!newFiles.length) {
       return;
     }
-    const targetFolder: IFolder = this.activeDirectoryItem.hasOwnProperty(
-      'children'
-    )
-      ? (this.activeDirectoryItem as IFolder)
-      : this.getParent(this.activeDirectoryItem);
+    const targetFolder: IFolder =
+      targetOverride ??
+      resolveUploadTarget(this.rootDirectory, this.selected);
 
     const addedFiles = newFiles.map((file, index) => {
       const newItem = {
@@ -1333,6 +1354,52 @@ class CzFileExplorer extends Vue {
   onAddFiles() {
     const folder = this.addFilesTarget;
     this.addFiles?.(folder, this.getPathString(folder));
+  }
+
+  /** True while the pointer carries files from outside the page. */
+  private _isFileDrag(event: DragEvent): boolean {
+    return !!event.dataTransfer?.types?.includes('Files');
+  }
+
+  onNativeDragOver(event: DragEvent, item?: IFile | IFolder) {
+    if (this.isReadOnly || !this._isFileDrag(event)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'copy';
+    }
+    this.nativeDropTarget = resolveDropTarget(this.rootDirectory, item);
+  }
+
+  onNativeDragLeave(event: DragEvent) {
+    const to = event.relatedTarget as Node | null;
+    if (to && (event.currentTarget as Node)?.contains(to)) {
+      return;
+    }
+    this.nativeDropTarget = null;
+  }
+
+  async onNativeDrop(event: DragEvent, item?: IFile | IFolder) {
+    if (this.isReadOnly || !this._isFileDrag(event)) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+
+    const files = extractDroppedFiles(event.dataTransfer);
+    const targetFolder = resolveDropTarget(this.rootDirectory, item);
+    this.nativeDropTarget = null;
+
+    if (files.length) {
+      await this.onFilesDropped(files, [], undefined, targetFolder);
+    }
+  }
+
+  /** Only the folder row itself lights up; a file's target shows on the container. */
+  isNativeDropTarget(item: IFile | IFolder): boolean {
+    return !!this.nativeDropTarget && this.nativeDropTarget === item;
   }
 
   getParent(item: IFile | IFolder): IFolder {
@@ -2020,13 +2087,21 @@ export default toNative(CzFileExplorer);
   height: 15rem;
   overflow: auto;
   resize: vertical;
+  // Always present so showing the drop highlight does not reflow the page.
+  border: 1px dashed transparent;
 
-  // Highlight the drop target while a drag is in flight. The previous markup
-  // wrapped this region in a v-card; now the dashed border lives directly on
-  // the scrollable file-tree container.
   &.border-dash {
-    border: 1px dashed rgba(0, 0, 0, 0.4) !important;
+    border-color: rgba(0, 0, 0, 0.4) !important;
   }
+}
+
+// The folder row a native file drag is hovering. Outline rather than border so
+// it takes no layout space; inset so it is not clipped by the scroll container.
+.native-drop-target {
+  border-radius: 4px;
+  outline: 1px solid rgb(var(--v-theme-primary));
+  outline-offset: -1px;
+  background-color: rgba(var(--v-theme-primary), 0.08);
 }
 
 .cz-drag-select {
