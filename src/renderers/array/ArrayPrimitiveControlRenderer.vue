@@ -24,7 +24,6 @@
       :placeholder="placeholder"
       :required="control.required"
       :clearable="control.enabled && !isReadOnly"
-      @click:clear="loadRequiredTags"
       closable-chips
       :items="suggestions"
       v-bind="vuetifyProps('v-combobox')"
@@ -47,6 +46,11 @@
         </v-chip>
       </template>
 
+      <!-- Our own handler, not Vuetify's onClick, so clearing waits for confirmation. -->
+      <template #clear>
+        <v-icon tabindex="-1" @click="onClickClear" />
+      </template>
+
       <template #message>
         <cz-field-messages
           :description="control.description"
@@ -54,6 +58,35 @@
         />
       </template>
     </v-combobox>
+
+    <v-dialog
+      :model-value="showClearConfirm"
+      max-width="420"
+      content-class="cz-confirm"
+      @keydown.esc="cancelClear"
+      @click:outside="cancelClear"
+    >
+      <v-card class="cz-confirm__card">
+        <div class="d-flex ga-3 pa-5 pb-3">
+          <v-avatar color="error" variant="tonal" size="40" class="flex-shrink-0">
+            <v-icon size="20">mdi-trash-can-outline</v-icon>
+          </v-avatar>
+          <div class="min-w-0 align-self-center">
+            <div class="text-subtitle-1 font-weight-medium">
+              Remove all {{ tags.length }} entries?
+            </div>
+          </div>
+        </div>
+
+        <v-card-actions class="px-5 pb-4 pt-0">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="cancelClear">Cancel</v-btn>
+          <v-btn variant="flat" color="error" @click="confirmClear">
+            Remove all
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </control-wrapper>
 </template>
 
@@ -61,7 +94,17 @@
 import { and, ControlElement, JsonSchema7 } from '@jsonforms/core';
 import { defineComponent } from 'vue';
 import { rendererProps, useJsonFormsControl } from '@jsonforms/vue';
-import { VCombobox, VChip } from 'vuetify/components';
+import {
+  VCombobox,
+  VChip,
+  VDialog,
+  VCard,
+  VCardActions,
+  VBtn,
+  VAvatar,
+  VIcon,
+  VSpacer,
+} from 'vuetify/components';
 import { useVuetifyControl } from '@/renderers/util/composition';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 import { isArray, every, isString } from 'lodash-es';
@@ -71,11 +114,23 @@ export default defineComponent({
   components: {
     VCombobox,
     VChip,
+    VDialog,
+    VCard,
+    VCardActions,
+    VBtn,
+    VAvatar,
+    VIcon,
+    VSpacer,
     ControlWrapper,
     czFieldMessages,
   },
   props: {
     ...rendererProps<ControlElement>(),
+  },
+  data() {
+    return {
+      showClearConfirm: false,
+    };
   },
   setup(props: any) {
     const tags: string[] = [];
@@ -141,6 +196,20 @@ export default defineComponent({
 
       this.tags = [...new Set(this.tags)];
       this.handleChange(this.control.path, this.tags);
+    },
+    onClickClear() {
+      if (this.tags.length) {
+        this.showClearConfirm = true;
+      }
+    },
+    confirmClear() {
+      this.showClearConfirm = false;
+      this.tags = [];
+      this.handleChange(this.control.path, this.tags);
+      this.loadRequiredTags();
+    },
+    cancelClear() {
+      this.showClearConfirm = false;
     },
     removeTag(item: string) {
       if (this.isRequired(item)) {
