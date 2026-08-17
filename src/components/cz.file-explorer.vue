@@ -384,7 +384,6 @@
                           :data="item"
                           @dragstart="onDragStart"
                           @dragend="isDragMoving = false"
-                          drag-class="drag-ghost"
                           go-back
                           :class="{ highlight: item.highlight }"
                         >
@@ -492,6 +491,20 @@
                               </v-menu>
                             </template>
                           </cz-file-explorer-item>
+
+                          <template #drag-image>
+                            <div class="drag-chip">
+                              <v-icon
+                                size="18"
+                                :color="isFolder(item) ? folderColor : fileColor"
+                              >
+                                {{ dragGhostIcon(item) }}
+                              </v-icon>
+                              <span class="drag-chip-label">
+                                {{ dragGhostLabel(item) }}
+                              </span>
+                            </div>
+                          </template>
                         </drag>
                       </drop>
                     </template>
@@ -657,6 +670,7 @@ import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
 import { createFileExplorerActiveStrategy } from '@/components/cz.file-explorer.selection';
+import { resolveAcrossForests } from '@/components/cz.file-explorer.tree';
 import CzFilePreview, {
   PreviewRenderer,
 } from '@/components/cz.file-preview.vue';
@@ -933,13 +947,43 @@ class CzFileExplorer extends Vue {
   }
 
   @Watch('rootDirectory.children', { deep: true })
-  protected onInput() {
+  protected onInput(
+    newChildren?: (IFile | IFolder)[],
+    oldChildren?: (IFile | IFolder)[]
+  ) {
+    if (oldChildren && newChildren && newChildren !== oldChildren) {
+      this._onTreeReplaced(oldChildren);
+    }
     const items = this._getDirectoryItems(this.rootDirectory) as (
       | IFile
       | IFolder
     )[];
     const validItems = items.filter(item => !this.isFileInvalid(item as IFile));
     this.$emit('update:valid-items', validItems);
+  }
+
+  /**
+   * When a consumer replaces the tree wholesale (e.g. re-reading it from the
+   * server after a move), the opened folders and the selection would point at
+   * dead objects and every folder would collapse. Carry that state over to
+   * the new tree by path.
+   */
+  private _onTreeReplaced(oldChildren: (IFile | IFolder)[]) {
+    this._annotateDirectory(this.rootDirectory);
+    const newChildren = this.rootDirectory.children;
+    this.opened = resolveAcrossForests(this.opened, oldChildren, newChildren);
+    this.selected = resolveAcrossForests(
+      this.selected,
+      oldChildren,
+      newChildren
+    );
+    this.shiftAnchor = this.shiftAnchor
+      ? (resolveAcrossForests(
+          [this.shiftAnchor],
+          oldChildren,
+          newChildren
+        )[0] ?? null)
+      : null;
   }
 
   getItemById(id: number) {
@@ -1259,6 +1303,21 @@ class CzFileExplorer extends Vue {
 
   isSelected(item: IFolder | IFile) {
     return this.selected.includes(item);
+  }
+
+  dragGhostIcon(item: IFolder | IFile): string {
+    if (this.isFolder(item)) {
+      return 'mdi-folder';
+    }
+    return (
+      this.fileIcons[item.name.split('.').pop() || ''] ||
+      this.fileIcons['default']
+    );
+  }
+
+  dragGhostLabel(item: IFolder | IFile): string {
+    const count = this.selectedItems.length;
+    return this.isSelected(item) && count > 1 ? `${count} items` : item.name;
   }
 
   select(items: (IFolder | IFile)[]) {
@@ -1920,10 +1979,31 @@ export default toNative(CzFileExplorer);
   min-height: 100%;
 }
 
-.drag-ghost {
-  background: white !important;
-  border: 1px solid #ddd !important;
-  height: 3rem !important;
+// Offscreen host for the #drag-image slot; its hiding rule lives in
+// vue-easy-dnd's dnd.css, which we don't load.
+:deep(.__drag-image) {
+  position: fixed;
+  top: -10000px;
+  left: -10000px;
+}
+
+.drag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 16rem;
+  padding: 0.3rem 0.8rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  font-size: 0.875rem;
+
+  .drag-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 // Make the item content span the full row so controls (drag handle, context
