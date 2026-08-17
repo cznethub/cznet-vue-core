@@ -3,6 +3,18 @@
     <v-sheet
       class="pa-4 d-flex align-center files-container--included flex-wrap gap-1 bg-grey-lighten-4"
     >
+      <v-btn
+        v-if="showAddFiles"
+        @click="onAddFiles"
+        prepend-icon="mdi-file-plus"
+        size="small"
+        variant="elevated"
+        color="primary"
+        class="mr-2"
+      >
+        Add files
+      </v-btn>
+
       <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
         <template #activator="{ props }">
           <v-btn
@@ -622,7 +634,7 @@
           mdi-delete-outline
         </v-icon>
       </drop>
-      <template v-else-if="!isReadOnly">
+      <template v-else-if="!isReadOnly && !showAddFiles">
         <slot name="drop-area">
           <v-file-upload
             v-model="dropFiles"
@@ -654,6 +666,7 @@ import { IFolder, IFile } from '@/types';
 import { default as Notifications } from '@/models/notifications';
 // @ts-ignore
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
+import { resolveUploadTarget } from '@/utils';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
 import CzFilePreview, {
@@ -795,6 +808,10 @@ class CzFileExplorer extends Vue {
    * @returns An boolean array indicating if the file was uploaded successfully
    */
   @Prop() upload?: (_items: IFile[] | IFolder[]) => Promise<boolean[]>;
+
+  /** Opens the consumer's upload UI, targeted at `_folder`. When provided, the
+   * toolbar shows an 'Add files' button and the inline drop area is hidden. */
+  @Prop() addFiles?: (_folder: IFolder, _path: string) => void;
 
   fileIcons = FILE_ICONS;
   breakpoints: any = useDisplay();
@@ -991,6 +1008,14 @@ class CzFileExplorer extends Vue {
     } else {
       return this.selected[0] || this.rootDirectory;
     }
+  }
+
+  get addFilesTarget(): IFolder {
+    return resolveUploadTarget(this.rootDirectory, this.selected);
+  }
+
+  get showAddFiles(): boolean {
+    return !this.isReadOnly && !!this.addFiles;
   }
 
   get canPaste() {
@@ -1303,6 +1328,11 @@ class CzFileExplorer extends Vue {
 
   selectAll() {
     this.select(this.allItems);
+  }
+
+  onAddFiles() {
+    const folder = this.addFilesTarget;
+    this.addFiles?.(folder, this.getPathString(folder));
   }
 
   getParent(item: IFile | IFolder): IFolder {
