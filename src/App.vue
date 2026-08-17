@@ -56,16 +56,14 @@
             :folderNameRegex="folderNameRegex"
             v-model:valid-items="validItems"
             :hasFileMetadata="() => true"
-            :canDownloadItem="() => true"
+            :canDownloadItem="canDownloadItem"
             :renameFileOrFolder="renameFileOrFolderMock"
             :deleteFileOrFolder="deleteFileOrFolderMock"
             :upload="uploadMock"
-            :showDownloadZippedButton="true"
-            :showDownloadArchiveButton="true"
+            :downloadZipped="downloadZippedMock"
+            :downloadArchive="downloadArchiveMock"
             @showMetadata="onShowMetadata($event)"
             @download="onFileDownload($event)"
-            @downloadZipped="onDownloadZipped($event)"
-            @downloadArchive="onDownloadArchive"
             downloadArchiveHelpText="Download all content as Zipped BagIt Archive"
           >
             <template #prepend>
@@ -572,14 +570,9 @@ class App extends Vue {
     // Handle file download
   }
 
-  async onDownloadZipped(items: (IFile | IFolder)[]) {
-    items.forEach(item => console.log(item.path));
-    // Handle zipped file download
-  }
-
-  async onDownloadArchive() {
-    console.log('downloadArchive');
-    // Handle archive download
+  // Folders have no raw representation to download; they are zipped instead.
+  canDownloadItem(item: IFile | IFolder) {
+    return !Object.prototype.hasOwnProperty.call(item, 'children');
   }
 
   async uploadMock(_items: (IFile | IFolder)[]) {
@@ -606,6 +599,27 @@ class App extends Vue {
         _resolve(true);
         // _reject(false);
       }, 500);
+    });
+  }
+
+  // Folders always zip; files zip only when the consumer offers it.
+  // Slower than the other mocks so the button and menu spinners are visible.
+  async downloadZippedMock(_item: IFile | IFolder) {
+    console.log('downloadZipped', _item.path);
+    return new Promise<void>((_resolve, _reject) => {
+      setTimeout(() => {
+        _resolve();
+        // _reject(new Error('zip failed'));
+      }, 2000);
+    });
+  }
+
+  async downloadArchiveMock() {
+    return new Promise<void>((_resolve, _reject) => {
+      setTimeout(() => {
+        _resolve();
+        // _reject(new Error('archive failed'));
+      }, 2000);
     });
   }
 }
