@@ -26,7 +26,14 @@
       :hint="control.description"
       :required="control.required"
       :error-messages="control.errors"
-    />
+    >
+      <template #message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-date-input>
     <!-- :type="pickerType" -->
   </control-wrapper>
 </template>

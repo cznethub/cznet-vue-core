@@ -29,7 +29,14 @@
       @update:model-value="onChange"
       @update:focused="isFocused = $event"
       @blur="isFocused = false"
-    />
+    >
+      <template #message>
+        <cz-field-messages
+          :description="control.description"
+          :errors="cleanedErrors"
+        />
+      </template>
+    </v-combobox>
   </control-wrapper>
 </template>
 
@@ -46,12 +53,14 @@ import { VCombobox } from 'vuetify/components';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { DisabledIconFocus } from './directives';
 import { findEnumSchema } from '../renderer';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 export default defineComponent({
   name: 'anyof-string-or-enum-control-renderer',
   components: {
     VCombobox,
     ControlWrapper,
+    CzFieldMessages,
   },
   directives: {
     DisabledIconFocus,
