@@ -240,10 +240,16 @@ export default defineComponent({
       );
     },
     desc(): string {
+      // An explicit uischema description wins, empty string included: that is
+      // the only way a consumer can suppress a schema description that adds
+      // nothing next to already-labelled controls.
+      // @ts-ignore
+      const fromUischema = this.control.uischema?.options?.description;
+      if (fromUischema !== undefined) {
+        return fromUischema;
+      }
       return (
         this.control.description ||
-        // @ts-ignore
-        this.control.uischema?.options?.description ||
         this.appliedOptions.description ||
         this.anyOfRenderInfos[this.selectedIndex].schema.description ||
         ''
