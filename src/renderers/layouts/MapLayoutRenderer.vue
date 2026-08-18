@@ -1,38 +1,61 @@
 <template>
-  <div v-if="control.visible" v-bind="vuetifyProps('v-container')">
-    <v-container>
-      <v-row>
-        <v-col sm="12" md="5">
-          <v-row
-            v-for="(element, index) in elements"
-            :data-id="`vertical-${index}`"
-            :key="`${control.path}-${index}`"
-            no-gutters
-            v-bind="vuetifyProps(`v-row[${index}]`)"
-          >
-            <v-col cols="12" :class="styles.verticalLayout.item">
-              <dispatch-renderer
-                :schema="control.schema"
-                :uischema="element"
-                :path="control.path"
-                :enabled="control.enabled"
-                :renderers="control.renderers"
-                :cells="control.cells"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
-        <v-col sm="12" md="7">
-          <div ref="mapEl" class="map-container elevation-2"></div>
-        </v-col>
-      </v-row>
-    </v-container>
+  <div v-if="control.visible" class="map-layout" v-bind="vuetifyProps('v-container')">
+   <div class="map-layout__grid">
+    <!-- Map first in source order so it leads on a narrow screen, where the
+         coordinates read as a caption under the thing they describe. -->
+    <div class="map-layout__map">
+      <div ref="mapEl" class="map-container"></div>
+      <div v-if="isEditable" class="map-layout__hint text-caption text-medium-emphasis">
+        {{ hint }}
+      </div>
+    </div>
+
+    <div class="map-layout__fields">
+      <!-- The schema stores a bounding box as one "north east south west"
+           string. Editing that raw is unusable, so present it as four
+           labelled inputs and re-join them on write. -->
+      <div v-if="isBoxSchemaOrgFormat" class="bbox-grid">
+        <v-text-field
+          v-for="field in bboxFields"
+          :key="field.key"
+          :class="`bbox-grid__${field.key}`"
+          :label="field.label"
+          :model-value="boxFields[field.key]"
+          :error-messages="bboxErrors[field.key]"
+          :placeholder="field.placeholder"
+          :disabled="!isEditable"
+          type="number"
+          suffix="°"
+          density="compact"
+          variant="outlined"
+          hide-details="auto"
+          @update:model-value="onBoxFieldInput(field.key, $event)"
+        />
+      </div>
+
+      <div
+        v-for="(element, index) in elements"
+        :data-id="`vertical-${index}`"
+        :key="`${control.path}-${index}`"
+        :class="styles.verticalLayout.item"
+      >
+        <dispatch-renderer
+          :schema="control.schema"
+          :uischema="element"
+          :path="control.path"
+          :enabled="control.enabled"
+          :renderers="control.renderers"
+          :cells="control.cells"
+        />
+      </div>
+    </div>
+   </div>
   </div>
 </template>
 
 <script lang="ts">
 import { ControlElement } from '@jsonforms/core';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,
@@ -40,7 +63,7 @@ import {
   useJsonFormsControlWithDetail,
 } from '@jsonforms/vue';
 import { useVuetifyControl } from '@/renderers/util/composition';
-import { VContainer, VRow, VCol } from 'vuetify/components';
+import { VTextField } from 'vuetify/components';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -57,6 +80,20 @@ L.Icon.Default.mergeOptions({
 
 const pointZoom = 7;
 const maxZoom = 18;
+// Order matters: it is the order of the segments in the stored box string.
+const bboxKeys = ['north', 'east', 'south', 'west'] as const;
+type BboxKey = (typeof bboxKeys)[number];
+const bboxFields: {
+  key: BboxKey;
+  label: string;
+  placeholder: string;
+  limit: number;
+}[] = [
+  { key: 'north', label: 'North', placeholder: '-90 to 90', limit: 90 },
+  { key: 'west', label: 'West', placeholder: '-180 to 180', limit: 180 },
+  { key: 'east', label: 'East', placeholder: '-180 to 180', limit: 180 },
+  { key: 'south', label: 'South', placeholder: '-90 to 90', limit: 90 },
+];
 const boxStyle: L.PathOptions = {
   color: '#1976d2',
   weight: 2,
@@ -68,9 +105,7 @@ const layoutRenderer = defineComponent({
   name: 'map-layout-renderer',
   components: {
     DispatchRenderer,
-    VContainer,
-    VRow,
-    VCol,
+    VTextField,
   },
   props: {
     ...rendererProps<ControlElement>(),
@@ -82,16 +117,28 @@ const layoutRenderer = defineComponent({
       previewRect: null as L.Rectangle | null,
       boxStart: null as L.LatLng | null,
       drawBtn: null as HTMLElement | null,
-      drawMode: false,
+      // A ref: the hint text below the map reads it.
+      drawMode: ref(false),
       isEventFromMap: false,
+      isEventFromBoxFields: false,
       initialized: false,
       changeTimeout: 0,
       resizeObserver: null as ResizeObserver | null,
+      // Kept as strings so a half-typed value ("-", "12.") survives a
+      // keystroke instead of being coerced and written back.
+      boxFields: ref<Record<BboxKey, string>>({
+        north: '',
+        east: '',
+        south: '',
+        west: '',
+      }),
+      bboxFields,
       ...useVuetifyControl(useJsonFormsControlWithDetail(props)),
     };
   },
   mounted() {
     this.initMap();
+    this.syncBoxFields();
     if (this.hasData) {
       this.loadDrawing();
     }
@@ -120,7 +167,15 @@ const layoutRenderer = defineComponent({
       if (this.isEventFromMap) {
         this.isEventFromMap = false;
       } else if (this.initialized) {
-        this.loadDrawing();
+        // A box-field edit still needs the rectangle redrawn, but not the
+        // re-zoom — refitting on every keystroke fights the typist.
+        this.loadDrawing(!this.isEventFromBoxFields);
+      }
+      // Don't write the parsed value back over what the user is typing.
+      if (this.isEventFromBoxFields) {
+        this.isEventFromBoxFields = false;
+      } else {
+        this.syncBoxFields();
       }
     },
   },
@@ -157,6 +212,38 @@ const layoutRenderer = defineComponent({
               southlimit: options.southlimit,
               westlimit: options.westlimit,
             };
+    },
+    hint(): string {
+      if (this.mapType === 'point') {
+        return 'Click the map to place a point, or drag the marker.';
+      }
+      return this.drawMode
+        ? 'Drag on the map to draw the box.'
+        : 'Use the box tool on the map, or type the extents below.';
+    },
+    bboxErrors(): Record<BboxKey, string[]> {
+      const errors = { north: [], east: [], south: [], west: [] } as Record<
+        BboxKey,
+        string[]
+      >;
+      for (const field of bboxFields) {
+        const raw = this.boxFields[field.key].trim();
+        if (!raw) {
+          continue;
+        }
+        const value = Number(raw);
+        if (Number.isNaN(value)) {
+          errors[field.key].push('Must be a number');
+        } else if (Math.abs(value) > field.limit) {
+          errors[field.key].push(`Must be between -${field.limit} and ${field.limit}`);
+        }
+      }
+      const north = Number(this.boxFields.north);
+      const south = Number(this.boxFields.south);
+      if (!errors.north.length && !errors.south.length && north < south) {
+        errors.north.push('Must be greater than or equal to South');
+      }
+      return errors;
     },
     hasData(): boolean {
       if (!this.control.data) {
@@ -224,21 +311,57 @@ const layoutRenderer = defineComponent({
     },
     fit(layer: L.Layer & { getBounds?: () => L.LatLngBounds }) {
       const bounds = layer.getBounds?.();
-      if (bounds) {
-        this.map?.fitBounds(bounds, {
-          maxZoom: this.mapType === 'point' ? pointZoom : maxZoom,
-        });
+      const map = this.map;
+      if (!bounds || !map) {
+        return;
       }
+      if (this.mapType === 'point') {
+        map.fitBounds(bounds, { maxZoom: pointZoom });
+        return;
+      }
+      // Back off a level so the box has some breathing room instead of
+      // sitting flush against the container edges.
+      const zoom = Math.max(map.getMinZoom(), map.getBoundsZoom(bounds) - 1);
+      map.fitBounds(bounds, { maxZoom: Math.min(zoom, maxZoom) });
     },
-    debouncedChange() {
+    debouncedChange(next: Record<string, any>) {
       window.clearTimeout(this.changeTimeout);
       this.changeTimeout = window.setTimeout(() => {
-        this.handleChange(this.control.path, this.control.data);
-      }, 150);
+        this.isEventFromBoxFields = true;
+        this.handleChange(this.control.path, next);
+      }, 300);
+    },
+
+    // ---- bounding box fields ----
+    syncBoxFields() {
+      if (!this.isBoxSchemaOrgFormat) {
+        return;
+      }
+      const raw: string = this.control.data?.[this.inputFields.box] ?? '';
+      const segments = raw.trim().split(/\s+/);
+      bboxKeys.forEach((key, index) => {
+        this.boxFields[key] = segments[index] ?? '';
+      });
+    },
+    onBoxFieldInput(key: BboxKey, value: string) {
+      this.boxFields[key] = value ?? '';
+      const filled = bboxKeys.every(k => this.boxFields[k].trim() !== '');
+      const valid = bboxFields.every(f => !this.bboxErrors[f.key].length);
+      if (!filled || !valid) {
+        return;
+      }
+      const box = bboxKeys.map(k => Number(this.boxFields[k])).join(' ');
+      if (box === this.control.data?.[this.inputFields.box]) {
+        return;
+      }
+      this.debouncedChange({
+        ...(this.control.data ?? {}),
+        [this.inputFields.box]: box,
+      });
     },
 
     // ---- load from data ----
-    loadDrawing() {
+    loadDrawing(fitToBounds = true) {
       this.clearShapes();
       if (!this.hasData) {
         return;
@@ -254,7 +377,9 @@ const layoutRenderer = defineComponent({
         const b = this.boundsFromData();
         if (b) {
           this.drawRectangle(b);
-          this.fit(this.drawnLayer as L.FeatureGroup);
+          if (fitToBounds) {
+            this.fit(this.drawnLayer as L.FeatureGroup);
+          }
         }
       }
     },
@@ -326,11 +451,18 @@ const layoutRenderer = defineComponent({
       const self = this;
       const DrawControl = L.Control.extend({
         onAdd() {
-          const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-          btn.style.cssText =
-            'width:30px;height:30px;line-height:30px;text-align:center;cursor:pointer;background:#fff;font-size:18px;';
+          const btn = L.DomUtil.create(
+            'a',
+            'leaflet-bar leaflet-control map-draw-control'
+          );
+          btn.href = '#';
           btn.title = 'Draw a bounding box';
-          btn.innerHTML = '▭';
+          btn.setAttribute('role', 'button');
+          btn.innerHTML =
+            '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">' +
+            '<path fill="currentColor" d="M4 6h16v12H4z" fill-opacity=".18"/>' +
+            '<path fill="none" stroke="currentColor" stroke-width="2" d="M4 6h16v12H4z"/>' +
+            '</svg>';
           L.DomEvent.on(btn, 'click', e => {
             L.DomEvent.stop(e);
             self.toggleDrawMode(btn);
@@ -342,7 +474,7 @@ const layoutRenderer = defineComponent({
     },
     toggleDrawMode(btn: HTMLElement) {
       this.drawMode = !this.drawMode;
-      btn.style.background = this.drawMode ? '#e3f2fd' : '#fff';
+      btn.classList.toggle('map-draw-control--active', this.drawMode);
       if (!this.map) {
         return;
       }
@@ -357,9 +489,7 @@ const layoutRenderer = defineComponent({
     },
     exitDrawMode() {
       this.drawMode = false;
-      if (this.drawBtn) {
-        this.drawBtn.style.background = '#fff';
-      }
+      this.drawBtn?.classList.remove('map-draw-control--active');
       if (!this.map) {
         return;
       }
@@ -405,11 +535,100 @@ export default layoutRenderer;
 </script>
 
 <style lang="scss" scoped>
+// Map leads on a narrow screen and moves beside the inputs from `md` up.
+// Grid rather than v-row/v-col so the two panes share a row height without
+// the map needing a hardcoded height to fill it.
+// A container query, not a media query: this renders inside a dialog whose
+// width has nothing to do with the viewport's, so a viewport breakpoint put
+// two panes into a 500px modal and squeezed the inputs to ~110px.
+.map-layout {
+  container-type: inline-size;
+
+  &__grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-areas:
+      'map'
+      'fields';
+  }
+
+  &__map {
+    grid-area: map;
+    min-width: 0;
+  }
+
+  &__fields {
+    grid-area: fields;
+    min-width: 0;
+  }
+
+  &__hint {
+    display: block;
+    margin-top: 0.375rem;
+  }
+}
+
+@container (min-width: 40rem) {
+  .map-layout__grid {
+    grid-template-columns: minmax(16rem, 20rem) 1fr;
+    grid-template-areas: 'fields map';
+    gap: 1.5rem;
+  }
+}
+
+// Compass cross: each extent sits where it points, so the shape of the
+// controls matches the shape of the thing being described.
+.bbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'north north'
+    'west east'
+    'south south';
+  gap: 0.75rem;
+  align-items: start;
+
+  &__north {
+    grid-area: north;
+  }
+  &__west {
+    grid-area: west;
+  }
+  &__east {
+    grid-area: east;
+  }
+  &__south {
+    grid-area: south;
+  }
+}
+
 .map-container {
   width: 100%;
-  min-height: 400px;
-  height: 100%;
-  border: 1px solid #ffffff;
+  // Deliberately not a vh-relative height: embedded in a content-sized iframe
+  // the viewport is the whole document, so vh units resolve to nonsense.
+  // These keep the map and the fields inside a standard dialog body together.
+  height: 14rem;
   border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+@container (min-width: 40rem) {
+  .map-container {
+    height: 18rem;
+  }
+}
+
+// Leaflet's own .leaflet-bar anchor styling handles size and hover; this only
+// adds the centering and the "armed" state.
+:deep(.map-draw-control) {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+:deep(.map-draw-control--active) {
+  background: #e3f2fd;
+  color: #1976d2;
 }
 </style>

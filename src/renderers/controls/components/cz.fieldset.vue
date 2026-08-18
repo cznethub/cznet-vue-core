@@ -147,10 +147,13 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+// Every rule here is a direct-child selector on purpose. Without the `>` these
+// leak into the inputs the fieldset wraps — `display: block` stacked each
+// nested field's suffix below its input and doubled its height.
 .v-field.cz-fieldset {
   display: flex;
 
-  :deep(.v-field__field) {
+  & > :deep(.v-field__field) {
     display: block;
   }
 
@@ -158,7 +161,7 @@ export default defineComponent({
     align-items: start;
   }
 
-  :deep(.v-label.v-field-label:not(.v-field-label--floating)) {
+  & > :deep(.v-field__field) > .v-label.v-field-label:not(.v-field-label--floating) {
     pointer-events: auto;
     cursor: text;
     width: 100%;
