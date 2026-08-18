@@ -31,7 +31,8 @@
         <v-tabs
           v-model="selectedIndex"
           @update:model-value="handleTabChange"
-          selected-class="selected-tab"
+          color="primary"
+          density="compact"
         >
           <v-tab
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
@@ -43,8 +44,6 @@
                 appliedOptions.isDisabled) &&
               selectedIndex !== anyOfIndex
             "
-            density="compact"
-            variant="elevated"
           >
             {{
               anyOfRenderInfo.uischema.options?.label || anyOfRenderInfo.label
@@ -307,7 +306,16 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.selected-tab {
-  background-color: #eee;
+// Give the tab strip a baseline to sit on and the panel below some air;
+// otherwise the branch content butts straight into the tab labels.
+.v-tabs {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 0.5rem;
+}
+
+// v-window clips its content. An outlined field's floating label sits above
+// the field's own box, so the first row's label was sheared off at the top.
+.v-window {
+  padding-top: 0.75rem;
 }
 </style>
