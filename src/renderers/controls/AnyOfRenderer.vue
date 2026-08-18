@@ -179,6 +179,19 @@ export default defineComponent({
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
     this.prevSelectedIndex = this.selectedIndex;
   },
+  watch: {
+    // `created` alone leaves the tab stale when the data is replaced from
+    // outside the renderer (a dialog keeps its content mounted once opened),
+    // so a point-shaped value could land while the box tab was still showing.
+    // A user-driven tab change moves the data to the branch it just selected,
+    // which makes this a no-op for that path.
+    'control.indexOfFittingSchema'(next: number | undefined) {
+      if (typeof next === 'number' && next !== this.selectedIndex) {
+        this.selectedIndex = next;
+        this.prevSelectedIndex = next;
+      }
+    },
+  },
   computed: {
     // Prefer a per-branch `options.label` over the raw schema title.
     branchItems(): CombinatorSubSchemaRenderInfo[] {
