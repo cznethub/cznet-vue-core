@@ -214,9 +214,6 @@ export default defineComponent({
         ? this.appliedOptions.mask
         : true;
     },
-    // `dateOnly` keeps the stored value a full ISO date-time — the schema
-    // still says `format: date-time` — but pins it to midnight and hides the
-    // time controls, for fields whose real granularity is the day.
     isDateOnly(): boolean {
       return this.appliedOptions.dateOnly === true;
     },

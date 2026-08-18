@@ -180,11 +180,8 @@ export default defineComponent({
     this.prevSelectedIndex = this.selectedIndex;
   },
   watch: {
-    // `created` alone leaves the tab stale when the data is replaced from
-    // outside the renderer (a dialog keeps its content mounted once opened),
-    // so a point-shaped value could land while the box tab was still showing.
-    // A user-driven tab change moves the data to the branch it just selected,
-    // which makes this a no-op for that path.
+    // Keeps the selected tab on the branch the data actually fits when the
+    // value is replaced from outside the renderer.
     'control.indexOfFittingSchema'(next: number | undefined) {
       if (typeof next === 'number' && next !== this.selectedIndex) {
         this.selectedIndex = next;
@@ -195,12 +192,10 @@ export default defineComponent({
   computed: {
     // Prefer a per-branch `options.label` over the raw schema title.
     branchItems(): CombinatorSubSchemaRenderInfo[] {
-      return this.anyOfRenderInfos.map(
-        (i: CombinatorSubSchemaRenderInfo) => ({
-          ...i,
-          label: (i.uischema as any)?.options?.label || i.label,
-        })
-      );
+      return this.anyOfRenderInfos.map((i: CombinatorSubSchemaRenderInfo) => ({
+        ...i,
+        label: (i.uischema as any)?.options?.label || i.label,
+      }));
     },
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
       const result = createCombinatorRenderInfos(
@@ -325,15 +320,11 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// Give the tab strip a baseline to sit on and the panel below some air;
-// otherwise the branch content butts straight into the tab labels.
 .v-tabs {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   margin-bottom: 0.5rem;
 }
 
-// v-window clips its content. An outlined field's floating label sits above
-// the field's own box, so the first row's label was sheared off at the top.
 .v-window {
   padding-top: 0.75rem;
 }

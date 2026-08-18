@@ -147,9 +147,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// Every rule here is a direct-child selector on purpose. Without the `>` these
-// leak into the inputs the fieldset wraps — `display: block` stacked each
-// nested field's suffix below its input and doubled its height.
 .v-field.cz-fieldset {
   display: flex;
 

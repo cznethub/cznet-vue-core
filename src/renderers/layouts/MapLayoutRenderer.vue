@@ -1,8 +1,7 @@
 <template>
   <div v-if="control.visible" class="map-layout" v-bind="vuetifyProps('v-container')">
    <div class="map-layout__grid">
-    <!-- Map first in source order so it leads on a narrow screen, where the
-         coordinates read as a caption under the thing they describe. -->
+    <!-- Map first in source order: it leads when the panes stack. -->
     <div class="map-layout__map">
       <div ref="mapEl" class="map-container"></div>
       <div v-if="isEditable" class="map-layout__hint text-caption text-medium-emphasis">
@@ -11,9 +10,8 @@
     </div>
 
     <div class="map-layout__fields">
-      <!-- The schema stores a bounding box as one "north east south west"
-           string. Editing that raw is unusable, so present it as four
-           labelled inputs and re-join them on write. -->
+      <!-- The schema stores the box as one "north east south west" string;
+           these four inputs parse it on read and re-join it on write. -->
       <div v-if="isBoxSchemaOrgFormat" class="bbox-grid">
         <v-text-field
           v-for="field in bboxFields"
@@ -124,8 +122,7 @@ const layoutRenderer = defineComponent({
       initialized: false,
       changeTimeout: 0,
       resizeObserver: null as ResizeObserver | null,
-      // Kept as strings so a half-typed value ("-", "12.") survives a
-      // keystroke instead of being coerced and written back.
+      // Strings, so a half-typed value ("-", "12.") survives a keystroke.
       boxFields: ref<Record<BboxKey, string>>({
         north: '',
         east: '',
@@ -167,8 +164,7 @@ const layoutRenderer = defineComponent({
       if (this.isEventFromMap) {
         this.isEventFromMap = false;
       } else if (this.initialized) {
-        // A box-field edit still needs the rectangle redrawn, but not the
-        // re-zoom — refitting on every keystroke fights the typist.
+        // A box-field edit redraws the rectangle but must not re-zoom.
         this.loadDrawing(!this.isEventFromBoxFields);
       }
       // Don't write the parsed value back over what the user is typing.
@@ -319,8 +315,7 @@ const layoutRenderer = defineComponent({
         map.fitBounds(bounds, { maxZoom: pointZoom });
         return;
       }
-      // Back off a level so the box has some breathing room instead of
-      // sitting flush against the container edges.
+      // A level back from the tightest fit, so the box has breathing room.
       const zoom = Math.max(map.getMinZoom(), map.getBoundsZoom(bounds) - 1);
       map.fitBounds(bounds, { maxZoom: Math.min(zoom, maxZoom) });
     },
@@ -535,12 +530,6 @@ export default layoutRenderer;
 </script>
 
 <style lang="scss" scoped>
-// Map leads on a narrow screen and moves beside the inputs from `md` up.
-// Grid rather than v-row/v-col so the two panes share a row height without
-// the map needing a hardcoded height to fill it.
-// A container query, not a media query: this renders inside a dialog whose
-// width has nothing to do with the viewport's, so a viewport breakpoint put
-// two panes into a 500px modal and squeezed the inputs to ~110px.
 .map-layout {
   container-type: inline-size;
 
@@ -576,8 +565,6 @@ export default layoutRenderer;
   }
 }
 
-// Compass cross: each extent sits where it points, so the shape of the
-// controls matches the shape of the thing being described.
 .bbox-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -604,9 +591,6 @@ export default layoutRenderer;
 
 .map-container {
   width: 100%;
-  // Deliberately not a vh-relative height: embedded in a content-sized iframe
-  // the viewport is the whole document, so vh units resolve to nonsense.
-  // These keep the map and the fields inside a standard dialog body together.
   height: 14rem;
   border-radius: 0.5rem;
   overflow: hidden;
@@ -618,8 +602,6 @@ export default layoutRenderer;
   }
 }
 
-// Leaflet's own .leaflet-bar anchor styling handles size and hover; this only
-// adds the centering and the "armed" state.
 :deep(.map-draw-control) {
   display: flex !important;
   align-items: center;
