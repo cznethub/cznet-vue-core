@@ -47,7 +47,11 @@
       </template>
 
       <v-card v-if="showMenu">
-        <v-tabs v-model="activeTab" class="bg-primary-darken-1">
+        <v-tabs
+          v-if="!isDateOnly"
+          v-model="activeTab"
+          class="bg-primary-darken-1"
+        >
           <v-tab value="date" href="#date" class="primary--text">
             <v-icon>mdi-calendar</v-icon>
           </v-tab>
@@ -69,7 +73,7 @@
               tile
             ></v-date-picker>
           </v-window-item>
-          <v-window-item value="time">
+          <v-window-item v-if="!isDateOnly" value="time">
             <v-time-picker
               :model-value="timePickerValue"
               @update:model-value="timePickerValue = $event"
@@ -210,10 +214,17 @@ export default defineComponent({
         ? this.appliedOptions.mask
         : true;
     },
+    // `dateOnly` keeps the stored value a full ISO date-time — the schema
+    // still says `format: date-time` — but pins it to midnight and hides the
+    // time controls, for fields whose real granularity is the day.
+    isDateOnly(): boolean {
+      return this.appliedOptions.dateOnly === true;
+    },
     pickerIcon(): string {
-      return typeof this.appliedOptions.pickerIcon == 'string'
-        ? this.appliedOptions.pickerIcon
-        : 'mdi-calendar-clock';
+      if (typeof this.appliedOptions.pickerIcon == 'string') {
+        return this.appliedOptions.pickerIcon;
+      }
+      return this.isDateOnly ? 'mdi-calendar' : 'mdi-calendar-clock';
     },
     useTabLayout(): boolean {
       if (this.smAndDown) {
@@ -223,7 +234,7 @@ export default defineComponent({
     },
     // Display format
     dateTimeFormat(): string {
-      return 'YYYY-MM-DDTHH:mm';
+      return this.isDateOnly ? 'YYYY-MM-DD' : 'YYYY-MM-DDTHH:mm';
     },
     dateTimeSaveFormat(): string {
       // @ts-ignore
@@ -318,6 +329,11 @@ export default defineComponent({
   methods: {
     onDatePickerValueChange(value: any) {
       this.datePickerValue = value;
+      if (this.isDateOnly) {
+        // Nothing left to pick.
+        this.showMenu = false;
+        return;
+      }
       this.activeTab = 'time';
     },
     onInputChange(value: string): void {
@@ -330,8 +346,9 @@ export default defineComponent({
     },
     onPickerChange(dateValue?: Date, timeValue?: string): void {
       const date = dayjs(dateValue);
+      const midnight = this.useSeconds ? '00:00:00' : '00:00';
       const time = parseDateTime(
-        timeValue ?? (this.useSeconds ? '00:00:00' : '00:00'),
+        this.isDateOnly ? midnight : (timeValue ?? midnight),
         this.useSeconds ? 'HH:mm:ss' : 'HH:mm'
       );
       if (date && time) {
