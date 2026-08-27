@@ -343,7 +343,13 @@ export const useVuetifyArrayControl = <I extends { control: any }>(
   }
 
   const isChildEnabled = (index: number): boolean => {
-    return isEnabled(getChildUiSchema(), input.control.value.data, `${index}`, useAjv())
+    // getChildUiSchema() returns null when the items schema is a combinator
+    // (anyOf/oneOf/allOf) with no own properties — Generate.uiSchema returns
+    // null for a schema without properties. Guard here so isEnabled never
+    // receives null (which would crash on null.rule).
+    const uischema = getChildUiSchema();
+    if (!uischema) return true;
+    return isEnabled(uischema, input.control.value.data, `${index}`, useAjv(), input.control.value.config)
   }
 
   const childLabelForIndex = (index: number | null) => {
