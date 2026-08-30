@@ -67,6 +67,7 @@
 import { defineComponent, ref } from 'vue';
 import { VBtn, VTooltip, VIcon, VTextField, VField } from 'vuetify/components';
 import CzFieldMessages from '../../components/cz.field-messages.vue';
+import { formatFieldErrors } from '../../util/composition';
 
 export default defineComponent({
   name: 'cz-fieldset',
@@ -126,11 +127,7 @@ export default defineComponent({
   },
   computed: {
     cleanedErrors() {
-      // Rewrite rather than strip, so the error keeps a message.
-      return (
-        this.errors?.replaceAll('is a required property', 'is required').trim() ||
-        ''
-      );
+      return formatFieldErrors(this.errors);
     },
     /** @see https://vuetifyjs.com/en/api/v-field/#props */
     vFieldProps() {
