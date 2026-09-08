@@ -142,9 +142,24 @@
                 :class="styles.arrayList.itemContent"
                 class="pa-0"
               >
+                <v-select
+                  v-if="isCombinatorSchema(control.schema) && branchItems.length > 1"
+                  class="mb-4"
+                  :model-value="itemBranchIndex(element)"
+                  @update:model-value="(b) => handleBranchChange(index, b)"
+                  :items="branchItems"
+                  item-title="title"
+                  item-value="value"
+                  label="Type"
+                  :density="appliedOptions.vuetify?.commonAttrs?.density ?? 'compact'"
+                  :variant="appliedOptions.vuetify?.commonAttrs?.variant ?? 'outlined'"
+                  hide-details
+                  :disabled="!control.enabled || !!appliedOptions.isDisabled"
+                  :readonly="!control.enabled || !!appliedOptions.isViewMode || !!appliedOptions.isReadOnly"
+                />
                 <dispatch-renderer
                   :schema="itemSchema(element)"
-                  :uischema="foundUISchema"
+                  :uischema="itemUISchema(element)"
                   :path="composePaths(control.path, `${index}`)"
                   :enabled="control.enabled"
                   :renderers="control.renderers"
@@ -280,6 +295,7 @@ import {
   VExpansionPanelTitle,
   VExpansionPanelText,
   VChip,
+  VSelect,
 } from 'vuetify/components';
 import { ErrorObject } from 'ajv';
 import { ref, Ref } from 'vue';
@@ -311,6 +327,7 @@ export default defineComponent({
     VExpansionPanelText,
     VContainer,
     VChip,
+    VSelect,
     CzFieldset,
     ControlWrapper,
   },
@@ -361,6 +378,28 @@ export default defineComponent({
   computed: {
     noData(): boolean {
       return !this.control.data || this.control.data.length === 0;
+    },
+    /**
+     * Branch items for the inline type-switcher rendered for each array element
+     * when the items schema is a combinator (anyOf/oneOf/allOf).
+     * Labels are sourced from the nested detail map carried by the parent
+     * uischema option (`options.detail.options.detail[i].options.label`).
+     */
+    branchItems(): { title: string; value: number }[] {
+      const combinator = this.isCombinatorSchema(this.control.schema);
+      if (!combinator) return [];
+      // @ts-ignore
+      const branches: any[] = this.control.schema[combinator] || [];
+      // personOrOrgDetail lives at control.uischema.options.detail;
+      // per-branch layouts at .options.detail.options.detail
+      const detailMap = (this.control.uischema as any).options?.detail?.options?.detail;
+      return branches.map((_: any, idx: number) => ({
+        title:
+          detailMap?.[idx]?.options?.label ??
+          this.deref(branches[idx])?.title ??
+          `Type ${idx + 1}`,
+        value: idx,
+      }));
     },
     foundUISchema(): UISchemaElement {
       return findUISchema(
@@ -436,6 +475,60 @@ export default defineComponent({
   methods: {
     composePaths,
     createDefaultValue,
+    /**
+     * Return the combinator branch index that best fits `element`.
+     * Uses the `@type` discriminator; falls back to 0.
+     */
+    itemBranchIndex(element: any): number {
+      const combinator = this.isCombinatorSchema(this.control.schema);
+      if (!combinator) return 0;
+      // @ts-ignore
+      const branches: any[] = ((this.control.schema as any)[combinator] || []).map((b: any) => this.deref(b));
+      const discriminator = element?.['@type'];
+      if (!discriminator) return 0;
+      const idx = branches.findIndex((b: any) => {
+        const t = b?.properties?.['@type'];
+        return (
+          t &&
+          (t.const === discriminator ||
+            (Array.isArray(t.enum) && t.enum.includes(discriminator)))
+        );
+      });
+      return idx >= 0 ? idx : 0;
+    },
+    /**
+     * Return the uischema to use for a given array element.
+     * For combinator items, looks up the per-branch layout from the nested
+     * detail map (`options.detail.options.detail[branchIndex]`); falls back
+     * to `foundUISchema` for non-combinator arrays.
+     */
+    itemUISchema(element: any): UISchemaElement {
+      const combinator = this.isCombinatorSchema(this.control.schema);
+      if (!combinator) return this.foundUISchema;
+      const branchIndex = this.itemBranchIndex(element);
+      const detailMap = (this.control.uischema as any).options?.detail?.options?.detail;
+      if (detailMap != null && detailMap[branchIndex] != null) {
+        return detailMap[branchIndex];
+      }
+      return this.foundUISchema;
+    },
+    /**
+     * Switch an array item to a different combinator branch.
+     * Creates a fresh default value for the chosen branch (preserving the
+     * `@type` discriminator) and replaces the item at `itemIndex`.
+     */
+    handleBranchChange(itemIndex: number, newBranchIndex: number): void {
+      const combinator = this.isCombinatorSchema(this.control.schema);
+      if (!combinator || !this.control.enabled) return;
+      // @ts-ignore
+      const branches: any[] = (this.control.schema as any)[combinator] || [];
+      const defaultSchema = this.deref(branches[newBranchIndex]);
+      const newDefault = createDefaultValue(defaultSchema, this.control.rootSchema);
+      this.handleChange(
+        composePaths(this.control.path, `${itemIndex}`),
+        newDefault
+      );
+    },
     /**
      * Resolve a `$ref`, returning the original node when it can't be resolved.
      */
