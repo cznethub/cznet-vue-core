@@ -96,7 +96,7 @@
     "rimraf": "^6.1.3",
     "rollup-plugin-visualizer": "^7.1.1",
     "sass": "^1.104.0",
-    "stylelint": "^17.14.1",
+    "stylelint": "^17.15.0",
     "stylelint-config-recommended-scss": "^17.0.1",
     "stylelint-config-recommended-vue": "^1.6.1",
     "taze": "^19.17.2",
