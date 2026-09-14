@@ -32,98 +32,59 @@
         ],
         "showSortButtons": true,
         "detail": {
-          "type": "Control",
-          "scope": "#",
-          "options": {
-            "dropdown": true,
-            "flat": true,
-            "title": "Creator type",
-            "detail": {
-              "0": {
-                "type": "VerticalLayout",
-                "options": {
-                  "label": "Person"
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/name"
                 },
-                "elements": [
-                  {
-                    "type": "HorizontalLayout",
-                    "elements": [
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/name"
-                      },
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/email"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "HorizontalLayout",
-                    "elements": [
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/organization"
-                      },
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/address"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "HorizontalLayout",
-                    "elements": [
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/phone"
-                      },
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/homepage",
-                        "options": {
-                          "description": "URL for a website associated with the creator"
-                        }
-                      },
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/profile_url",
-                        "options": {
-                          "placeholder": "e.g. 'https://www.hydroshare.org/user/10/'",
-                          "description": "A URL for the creator's HydroShare profile"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              },
-              "1": {
-                "type": "VerticalLayout",
-                "options": {
-                  "label": "Organization"
+                {
+                  "type": "Control",
+                  "scope": "#/properties/email"
+                }
+              ]
+            },
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/organization"
                 },
-                "elements": [
-                  {
-                    "type": "HorizontalLayout",
-                    "elements": [
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/name"
-                      },
-                      {
-                        "type": "Control",
-                        "scope": "#/properties/email"
-                      }
-                    ]
-                  },
-                  {
-                    "type": "Control",
-                    "scope": "#/properties/homepage"
+                {
+                  "type": "Control",
+                  "scope": "#/properties/address"
+                }
+              ]
+            },
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/phone"
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/homepage",
+                  "options": {
+                    "description": "URL for a website associated with the creator"
                   }
-                ]
-              }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/profile_url",
+                  "options": {
+                    "placeholder": "e.g. 'https://www.hydroshare.org/user/10/'",
+                    "description": "A URL for the creator's HydroShare profile"
+                  }
+                }
+              ]
             }
-          }
+          ]
         }
       }
     },

@@ -431,16 +431,11 @@ export const useCombinatorChildErrors = <I extends { control: any }>(
     if (direct >= 0) return direct;
 
     const rootSchema = input.control.value.rootSchema;
-    const contains = (node: any, seen = new Set()): boolean => {
-      if (!node || typeof node !== 'object' || seen.has(node)) return false;
-      seen.add(node);
-      if (node === parentSchema) return true;
-      if (node.$ref && rootSchema && contains(Resolve.schema(rootSchema, node.$ref, rootSchema), seen)) return true;
-      return Object.values(node).some(child => contains(child, seen));
-    };
-    if (contains(branches[selectedIndex.value])) return selectedIndex.value;
-    return branches.findIndex((b: any) => contains(b));
-    };
+    return branches.findIndex((b: any) => {
+      if (!b?.$ref || !rootSchema) return false;
+      return Resolve.schema(rootSchema, b.$ref, rootSchema) === parentSchema;
+    });
+  };
 
   watchEffect(() => {
     // Get child errors at this path and annotate them
