@@ -384,7 +384,6 @@
                           :data="item"
                           @dragstart="onDragStart"
                           @dragend="isDragMoving = false"
-                          drag-class="drag-ghost"
                           go-back
                           :class="{ highlight: item.highlight }"
                         >
@@ -492,6 +491,20 @@
                               </v-menu>
                             </template>
                           </cz-file-explorer-item>
+
+                          <template #drag-image>
+                            <div class="drag-chip">
+                              <v-icon
+                                size="18"
+                                :color="isFolder(item) ? folderColor : fileColor"
+                              >
+                                {{ dragGhostIcon(item) }}
+                              </v-icon>
+                              <span class="drag-chip-label">
+                                {{ dragGhostLabel(item) }}
+                              </span>
+                            </div>
+                          </template>
                         </drag>
                       </drop>
                     </template>
@@ -656,6 +669,8 @@ import { default as Notifications } from '@/models/notifications';
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
 import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
+import { createFileExplorerActiveStrategy } from '@/components/cz.file-explorer.selection';
+import { resolveAcrossForests } from '@/components/cz.file-explorer.tree';
 import CzFilePreview, {
   PreviewRenderer,
 } from '@/components/cz.file-preview.vue';
@@ -821,103 +836,15 @@ class CzFileExplorer extends Vue {
   isRootDragging = false;
   prettyBytes = prettyBytes;
 
-  customActiveStrategy = (_mandatory?: boolean): ActiveStrategy => {
-    const onItemClick = (
-      item: IFolder | IFile,
-      activated: Set<IFile | IFolder>
-    ) => {
-      activated.clear();
-      activated.add(item);
-      if (this.isFolder(item)) {
-        this.open([item]);
-      }
-      this.shiftAnchor = item;
-    };
-
-    const onItemCtrlClick = (
-      item: IFolder | IFile,
-      activated: Set<IFile | IFolder>
-    ) => {
-      if (activated.has(item)) {
-        activated.delete(item);
-      } else {
-        activated.add(item);
-      }
-      this.shiftAnchor = item;
-    };
-
-    const onItemShiftClick = (
-      item: IFolder | IFile,
-      activated: Set<IFile | IFolder>
-    ) => {
-      const parent = this.getParent(item);
-      const itemIndex = parent.children.indexOf(item);
-      const anchorIndex = this.shiftAnchor
-        ? Math.max(0, parent.children.indexOf(this.shiftAnchor))
-        : 0;
-
-      activated.clear();
-
-      const first = Math.min(itemIndex, anchorIndex);
-      const last = Math.max(itemIndex, anchorIndex);
-
-      for (let i = first; i <= last; i++) {
-        activated.add(parent.children[i]);
-      }
-    };
-
-    const strategy: ActiveStrategy = {
-      // @ts-ignore
-      activate: ({ id, value, activated, children, parents, event }) => {
-        id = toRaw(id);
-
-        if (!event && activated.has(id)) return activated;
-
-        // @ts-ignore
-        event?.ctrlKey
-          ? onItemCtrlClick(
-              id as IFile | IFolder,
-              activated as Set<IFile | IFolder>
-            )
-          : // @ts-ignore
-            event?.shiftKey
-            ? onItemShiftClick(
-                id as IFile | IFolder,
-                activated as Set<IFile | IFolder>
-              )
-            : onItemClick(
-                id as IFile | IFolder,
-                activated as Set<IFile | IFolder>
-              );
-
-        return activated;
-      },
-      in: (v: any, children: any, parents: any) => {
-        let set: Set<IFile | IFolder> = new Set(v.map((i: any) => toRaw(i)));
-
-        if (v != null) {
-          for (const id of v) {
-            const activated = strategy.activate({
-              id,
-              value: true,
-              activated: new Set(set),
-              children,
-              parents,
-              event: undefined,
-            });
-
-            set = new Set([...set, ...activated]) as Set<IFile | IFolder>;
-          }
-        }
-        return set;
-      },
-      out: (v: any) => {
-        return Array.from(v);
-      },
-    };
-
-    return strategy;
-  };
+  customActiveStrategy(_mandatory?: boolean): ActiveStrategy {
+    return createFileExplorerActiveStrategy({
+      getParent: item => this.getParent(item),
+      isFolder: item => this.isFolder(item),
+      open: items => this.open(items),
+      getShiftAnchor: () => this.shiftAnchor,
+      setShiftAnchor: item => (this.shiftAnchor = item),
+    });
+  }
 
   menuAttrs: Record<any, any> = {
     // 'position-x': 0,
@@ -1020,13 +947,43 @@ class CzFileExplorer extends Vue {
   }
 
   @Watch('rootDirectory.children', { deep: true })
-  protected onInput() {
+  protected onInput(
+    newChildren?: (IFile | IFolder)[],
+    oldChildren?: (IFile | IFolder)[]
+  ) {
+    if (oldChildren && newChildren && newChildren !== oldChildren) {
+      this._onTreeReplaced(oldChildren);
+    }
     const items = this._getDirectoryItems(this.rootDirectory) as (
       | IFile
       | IFolder
     )[];
     const validItems = items.filter(item => !this.isFileInvalid(item as IFile));
     this.$emit('update:valid-items', validItems);
+  }
+
+  /**
+   * When a consumer replaces the tree wholesale (e.g. re-reading it from the
+   * server after a move), the opened folders and the selection would point at
+   * dead objects and every folder would collapse. Carry that state over to
+   * the new tree by path.
+   */
+  private _onTreeReplaced(oldChildren: (IFile | IFolder)[]) {
+    this._annotateDirectory(this.rootDirectory);
+    const newChildren = this.rootDirectory.children;
+    this.opened = resolveAcrossForests(this.opened, oldChildren, newChildren);
+    this.selected = resolveAcrossForests(
+      this.selected,
+      oldChildren,
+      newChildren
+    );
+    this.shiftAnchor = this.shiftAnchor
+      ? (resolveAcrossForests(
+          [this.shiftAnchor],
+          oldChildren,
+          newChildren
+        )[0] ?? null)
+      : null;
   }
 
   getItemById(id: number) {
@@ -1306,9 +1263,13 @@ class CzFileExplorer extends Vue {
   }
 
   getParent(item: IFile | IFolder): IFolder {
+    // Compare raw objects: callers may hold the raw item while the tree
+    // holds reactive proxies (or vice versa).
+    const target = toRaw(item);
     return (
-      this.allFolders.find(folder => folder.children?.includes(item)) ||
-      this.rootDirectory
+      this.allFolders.find(folder =>
+        folder.children?.some(child => toRaw(child) === target)
+      ) || this.rootDirectory
     );
   }
 
@@ -1342,6 +1303,21 @@ class CzFileExplorer extends Vue {
 
   isSelected(item: IFolder | IFile) {
     return this.selected.includes(item);
+  }
+
+  dragGhostIcon(item: IFolder | IFile): string {
+    if (this.isFolder(item)) {
+      return 'mdi-folder';
+    }
+    return (
+      this.fileIcons[item.name.split('.').pop() || ''] ||
+      this.fileIcons['default']
+    );
+  }
+
+  dragGhostLabel(item: IFolder | IFile): string {
+    const count = this.selectedItems.length;
+    return this.isSelected(item) && count > 1 ? `${count} items` : item.name;
   }
 
   select(items: (IFolder | IFile)[]) {
@@ -2003,10 +1979,31 @@ export default toNative(CzFileExplorer);
   min-height: 100%;
 }
 
-.drag-ghost {
-  background: white !important;
-  border: 1px solid #ddd !important;
-  height: 3rem !important;
+// Offscreen host for the #drag-image slot; its hiding rule lives in
+// vue-easy-dnd's dnd.css, which we don't load.
+:deep(.__drag-image) {
+  position: fixed;
+  top: -10000px;
+  left: -10000px;
+}
+
+.drag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 16rem;
+  padding: 0.3rem 0.8rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+  font-size: 0.875rem;
+
+  .drag-chip-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 // Make the item content span the full row so controls (drag handle, context
