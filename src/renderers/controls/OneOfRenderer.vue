@@ -13,7 +13,7 @@
       :hasData="hasData"
       :enabled="!appliedOptions.isDisabled"
       :readonly="!control.enabled"
-      :errors="control.errors"
+      :errors="!!isDropDown ? '' : control.errors"
       :title="title"
       :computedLabel="computedLabel"
       :isFlat="isFlat"
@@ -79,6 +79,12 @@
           item-title="label"
         >
           {{ currentLabel }}
+          <template #message>
+            <cz-field-messages
+              :description="selectHint"
+              :errors="cleanedErrors"
+            />
+          </template>
         </v-select>
 
         <dispatch-renderer
@@ -131,6 +137,7 @@ import {
 import CombinatorProperties from '../components/CombinatorProperties.vue';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from './ControlWrapper.vue';
+import CzFieldMessages from '../components/cz.field-messages.vue';
 
 export default defineComponent({
   name: 'any-of-renderer',
@@ -149,6 +156,7 @@ export default defineComponent({
     VTooltip,
     VIcon,
     CzFieldset,
+    CzFieldMessages,
     ControlWrapper,
     VSelect,
   },

@@ -56,6 +56,22 @@
                 </div>
                 <v-spacer v-else />
 
+                <!-- A collapsed row renders none of its controls, so without
+                     this its errors are invisible until the user opens it. -->
+                <div
+                  v-if="rowErrors[index]"
+                  align-self="center"
+                  class="flex-grow-0 flex-shrink-0 d-flex align-center ga-1 text-error mr-2"
+                  :title="rowErrors[index].join('\n')"
+                >
+                  <v-icon size="16">mdi-alert-circle</v-icon>
+                  <span class="text-caption">
+                    {{ rowErrors[index].length }} issue{{
+                      rowErrors[index].length === 1 ? '' : 's'
+                    }}
+                  </span>
+                </div>
+
                 <template
                   v-if="
                     !appliedOptions.isViewMode && !appliedOptions.isReadOnly
@@ -256,6 +272,7 @@ import {
   useJsonFormsControl,
 } from '@jsonforms/vue';
 import {
+  formatFieldErrors,
   useNested,
   useVuetifyArrayControl,
 } from '@/renderers/util/composition';
@@ -283,7 +300,7 @@ import {
 } from 'vuetify/components';
 import { ErrorObject } from 'ajv';
 import { ref, Ref } from 'vue';
-import { isEqual } from 'lodash-es';
+import { isEqual, startCase } from 'lodash-es';
 import { default as CzFieldset } from '../controls/components/cz.fieldset.vue';
 import { default as ControlWrapper } from '../controls/ControlWrapper.vue';
 
@@ -424,6 +441,38 @@ export default defineComponent({
       // @ts-ignore
       return !!this.appliedOptions.hideAvatar;
     },
+    /**
+     * Row index -> field-labelled messages. A collapsed panel renders none of
+     * its controls, so its errors are otherwise invisible until it is opened.
+     */
+    rowErrors(): Record<string, string[]> {
+      // @ts-ignore
+      if (this.appliedOptions.hideArraySummaryValidation) {
+        return {};
+      }
+      const prefix = this.control.path ? `${this.control.path}.` : '';
+      const groups: Record<string, string[]> = {};
+
+      for (const error of this.control.childErrors as ErrorObject[]) {
+        const path = getControlPath(error);
+        if (prefix && !path.startsWith(prefix)) continue;
+        const match = path.slice(prefix.length).match(/^(\d+)(?:\.(.*))?$/);
+        if (!match) continue;
+
+        const label = (match[2] ?? '')
+          .split('.')
+          .filter((segment: string) => segment && !/^\d+$/.test(segment))
+          .map((segment: string) => startCase(segment))
+          .join(' > ');
+        const message = formatFieldErrors(error.message) || 'is invalid';
+        const entry = label ? `${label}: ${message}` : message;
+
+        const row = (groups[match[1]] ??= []);
+        if (!row.includes(entry)) row.push(entry);
+      }
+
+      return groups;
+    },
     maxItems() {
       // @ts-ignore
       return this.control.schema.maxItems || this.arraySchema?.maxItems;
@@ -524,14 +573,6 @@ export default defineComponent({
         // @ts-ignore
         this.fieldset?.hide();
       }
-    },
-    childErrors(index: number): ErrorObject[] {
-      return this.control.childErrors.filter(e => {
-        const errorDataPath = getControlPath(e);
-        return errorDataPath.startsWith(
-          this.composePaths(this.control.path, `${index}`)
-        );
-      });
     },
     getItemLabel(element: any, index = 0) {
       const props = Array.isArray(this.appliedOptions.elementLabelProp)
