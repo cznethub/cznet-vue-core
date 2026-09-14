@@ -507,6 +507,12 @@ export default defineComponent({
       const combinator = this.isCombinatorSchema(this.control.schema);
       if (!combinator) return this.control.schema;
 
+      // A `#`-scoped Control item renders the combinator itself (dropdown or tabs).
+      const detail = this.foundUISchema as ControlElement;
+      if (detail?.type === 'Control' && detail.scope === '#') {
+        return this.control.schema;
+      }
+
       // @ts-ignore
       const branches = (this.control.schema[combinator] || []).map((b: any) =>
         this.deref(b)
