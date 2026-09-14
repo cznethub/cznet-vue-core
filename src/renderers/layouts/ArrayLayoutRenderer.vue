@@ -204,6 +204,16 @@
           "
           >{{ addLabel }}</v-btn
         >
+        <v-btn
+          v-for="(action, actionIndex) in customActions"
+          :key="actionIndex"
+          variant="tonal"
+          size="small"
+          :prepend-icon="action.icon"
+          class="ml-2"
+          @click="action.handler()"
+          >{{ action.label }}</v-btn
+        >
       </div>
 
       <v-dialog
@@ -489,6 +499,16 @@ export default defineComponent({
     minItems() {
       // @ts-ignore
       return this.control.schema.minItems || this.arraySchema?.minItems;
+    },
+    /**
+     * Extra buttons rendered alongside the Add button, e.g. a "Find
+     * HydroShare user" shortcut. Consumer-provided via
+     * `options.customActions`; each handler is a plain function reference
+     * that isn't serialized or stored.
+     */
+    customActions(): { label: string; icon?: string; handler: () => void }[] {
+      // @ts-ignore
+      return this.appliedOptions.customActions || [];
     },
   },
   methods: {
