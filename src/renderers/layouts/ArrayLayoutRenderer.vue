@@ -461,6 +461,8 @@ export default defineComponent({
       const groups: Record<string, string[]> = {};
 
       for (const error of this.control.childErrors as ErrorObject[]) {
+        // Skip errors from unselected combinator branches.
+        if ((error as any)._keyword) continue;
         const path = getControlPath(error);
         if (prefix && !path.startsWith(prefix)) continue;
         const match = path.slice(prefix.length).match(/^(\d+)(?:\.(.*))?$/);
