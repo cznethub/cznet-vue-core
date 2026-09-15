@@ -32,59 +32,62 @@
         ],
         "showSortButtons": true,
         "detail": {
-          "type": "VerticalLayout",
-          "elements": [
-            {
-              "type": "HorizontalLayout",
-              "elements": [
-                {
-                  "type": "Control",
-                  "scope": "#/properties/name"
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/email"
-                }
-              ]
-            },
-            {
-              "type": "HorizontalLayout",
-              "elements": [
-                {
-                  "type": "Control",
-                  "scope": "#/properties/organization"
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/address"
-                }
-              ]
-            },
-            {
-              "type": "HorizontalLayout",
-              "elements": [
-                {
-                  "type": "Control",
-                  "scope": "#/properties/phone"
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/homepage",
-                  "options": {
-                    "description": "URL for a website associated with the creator"
+          "options": {
+            "detail": {
+              "0": {
+                "type": "VerticalLayout",
+                "options": { "label": "Person" },
+                "elements": [
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      { "type": "Control", "scope": "#/properties/name" },
+                      { "type": "Control", "scope": "#/properties/email" }
+                    ]
+                  },
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      { "type": "Control", "scope": "#/properties/organization" },
+                      { "type": "Control", "scope": "#/properties/address" }
+                    ]
+                  },
+                  {
+                    "type": "HorizontalLayout",
+                    "elements": [
+                      { "type": "Control", "scope": "#/properties/phone" },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/homepage",
+                        "options": { "description": "URL for a website associated with the creator" }
+                      },
+                      {
+                        "type": "Control",
+                        "scope": "#/properties/profile_url",
+                        "options": {
+                          "placeholder": "e.g. 'https://www.hydroshare.org/user/10/'",
+                          "description": "A URL for the creator's HydroShare profile"
+                        }
+                      }
+                    ]
                   }
-                },
-                {
-                  "type": "Control",
-                  "scope": "#/properties/profile_url",
-                  "options": {
-                    "placeholder": "e.g. 'https://www.hydroshare.org/user/10/'",
-                    "description": "A URL for the creator's HydroShare profile"
+                ]
+              },
+              "1": {
+                "type": "VerticalLayout",
+                "options": { "label": "Organization" },
+                "elements": [
+                  { "type": "Control", "scope": "#/properties/name" },
+                  { "type": "Control", "scope": "#/properties/email" },
+                  {
+                    "type": "Control",
+                    "scope": "#/properties/homepage",
+                    "options": { "description": "URL for the organization's website" }
                   }
-                }
-              ]
+                ]
+              }
             }
-          ]
+          }
         }
       }
     },

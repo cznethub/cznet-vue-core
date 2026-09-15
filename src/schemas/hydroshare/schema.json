@@ -38,7 +38,10 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "$ref": "#/definitions/Creator"
+        "anyOf": [
+          { "$ref": "#/definitions/CreatorPerson" },
+          { "$ref": "#/definitions/CreatorOrganization" }
+        ]
       }
     },
     "contributors": {
@@ -388,11 +391,11 @@
     "rights"
   ],
   "definitions": {
-    "Creator": {
-      "title": "Creator Metadata",
-      "description": "A class used to represent the metadata associated with a creator of a resource",
+    "CreatorPerson": {
+      "title": "Person",
       "type": "object",
       "properties": {
+        "@type": { "type": "string", "const": "Person", "default": "Person" },
         "name": {
           "title": "Name",
           "description": "A string containing the name of the creator",
@@ -445,9 +448,30 @@
           "$ref": "#/definitions/ProfileUrlPattern"
         }
       },
-      "required": [
-        "name"
-      ]
+      "required": ["name"]
+    },
+    "CreatorOrganization": {
+      "title": "Organization",
+      "type": "object",
+      "properties": {
+        "@type": { "type": "string", "const": "Organization", "default": "Organization" },
+        "name": {
+          "title": "Name",
+          "description": "A string containing the name of the organization",
+          "maxLength": 200,
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "description": "A contact email address for the organization",
+          "type": "string",
+          "format": "email"
+        },
+        "homepage": {
+          "$ref": "#/definitions/UrlPattern"
+        }
+      },
+      "required": ["name"]
     },
     "Contributor": {
       "title": "Contributor Metadata",
