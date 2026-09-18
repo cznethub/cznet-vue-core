@@ -86,20 +86,23 @@ export default defineComponent({
       nested,
     };
   },
-  // @deprecated: all of our renderers can now handle objects with undefined property values
-  // watch: {
-  //   "control.data": function (newVal, _oldVal) {
-  //     if (newVal) {
-  //       const filteredObj = Object.fromEntries(
-  //         Object.entries(newVal).filter(([_, value]) => value !== undefined) // strip out undefined properties
-  //       );
-
-  //       if (isEqual(filteredObj, {})) {
-  //         this.handleChange(this.control.path, undefined);
-  //       }
-  //     }
-  //   },
-  // },
+  watch: {
+    "control.data": {
+      handler(newVal: Record<string, unknown> | undefined) {
+        if (!this.isFlat || !newVal) return;
+        // Flat objects have no user-visible toggle, so clearing all sub-fields
+        // leaves a stub that fails required constraints. Remove the object
+        // entirely when no user-editable property has a value.
+        const hasMeaningfulValue = Object.entries(newVal)
+          .filter(([key]) => key !== '@type')
+          .some(([, v]) => v !== undefined && v !== null && v !== '');
+        if (!hasMeaningfulValue) {
+          this.handleChange(this.control.path, undefined);
+        }
+      },
+      deep: true,
+    },
+  },
   created() {
     // Seed required objects and non-flat ones without a toggle. Never seed an
     // optional object: the empty `{}` would fail its own `required` rules. It
