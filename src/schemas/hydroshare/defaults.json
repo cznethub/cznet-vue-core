@@ -10,6 +10,7 @@
   ],
   "creators": [
     {
+      "@type": "Person",
       "name": "Ramirez, Maurier",
       "phone": "+1 (435) 363-5910",
       "organization": "Utah State University",

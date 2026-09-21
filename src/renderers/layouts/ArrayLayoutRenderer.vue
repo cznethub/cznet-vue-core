@@ -390,6 +390,13 @@ export default defineComponent({
         this.control.rootSchema
       );
     },
+    // A `#`-scoped Control in the item layout renders the combinator itself (dropdown or tabs).
+    rendersCombinator(): boolean {
+      const hasRootControl = (el: any): boolean =>
+        (el?.type === 'Control' && el.scope === '#') ||
+        (Array.isArray(el?.elements) && el.elements.some(hasRootControl));
+      return hasRootControl(this.foundUISchema);
+    },
     arraySchema(): JsonSchema | undefined {
       return Resolve.schema(
         this.control.rootSchema,
@@ -454,6 +461,8 @@ export default defineComponent({
       const groups: Record<string, string[]> = {};
 
       for (const error of this.control.childErrors as ErrorObject[]) {
+        // Skip errors from unselected combinator branches.
+        if ((error as any)._keyword) continue;
         const path = getControlPath(error);
         if (prefix && !path.startsWith(prefix)) continue;
         const match = path.slice(prefix.length).match(/^(\d+)(?:\.(.*))?$/);
@@ -505,7 +514,7 @@ export default defineComponent({
      */
     itemSchema(element: any): JsonSchema {
       const combinator = this.isCombinatorSchema(this.control.schema);
-      if (!combinator) return this.control.schema;
+      if (!combinator || this.rendersCombinator) return this.control.schema;
 
       // @ts-ignore
       const branches = (this.control.schema[combinator] || []).map((b: any) =>
