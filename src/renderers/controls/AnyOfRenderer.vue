@@ -180,8 +180,7 @@ export default defineComponent({
     this.prevSelectedIndex = this.selectedIndex;
   },
   watch: {
-    // Keeps the selected tab on the branch the data actually fits when the
-    // value is replaced from outside the renderer.
+    // Follow the fitting branch when data changes externally.
     'control.indexOfFittingSchema'(next: number | undefined) {
       if (typeof next === 'number' && next !== this.selectedIndex) {
         this.selectedIndex = next;
@@ -235,9 +234,7 @@ export default defineComponent({
       );
     },
     desc(): string {
-      // An explicit uischema description wins, empty string included: that is
-      // the only way a consumer can suppress a schema description that adds
-      // nothing next to already-labelled controls.
+      // An explicit uischema description wins; '' hides the schema's.
       // @ts-ignore
       const fromUischema = this.control.uischema?.options?.description;
       if (fromUischema !== undefined) {

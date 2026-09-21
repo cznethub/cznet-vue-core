@@ -1,53 +1,59 @@
 <template>
-  <div v-if="control.visible" class="map-layout" v-bind="vuetifyProps('v-container')">
-   <div class="map-layout__grid">
-    <!-- Map first in source order: it leads when the panes stack. -->
-    <div class="map-layout__map">
-      <div ref="mapEl" class="map-container"></div>
-      <div v-if="isEditable" class="map-layout__hint text-caption text-medium-emphasis">
-        {{ hint }}
-      </div>
-    </div>
-
-    <div class="map-layout__fields">
-      <!-- The schema stores the box as one "north east south west" string;
-           these four inputs parse it on read and re-join it on write. -->
-      <div v-if="isBoxSchemaOrgFormat" class="bbox-grid">
-        <v-text-field
-          v-for="field in bboxFields"
-          :key="field.key"
-          :class="`bbox-grid__${field.key}`"
-          :label="field.label"
-          :model-value="boxFields[field.key]"
-          :error-messages="bboxErrors[field.key]"
-          :placeholder="field.placeholder"
-          :disabled="!isEditable"
-          type="number"
-          suffix="°"
-          density="compact"
-          variant="outlined"
-          hide-details="auto"
-          @update:model-value="onBoxFieldInput(field.key, $event)"
-        />
+  <div
+    v-if="control.visible"
+    class="map-layout"
+    v-bind="vuetifyProps('v-container')"
+  >
+    <div class="map-layout__grid">
+      <!-- Map first in source order: it leads when the panes stack. -->
+      <div class="map-layout__map">
+        <div ref="mapEl" class="map-container"></div>
+        <div
+          v-if="isEditable"
+          class="map-layout__hint text-caption text-medium-emphasis"
+        >
+          {{ hint }}
+        </div>
       </div>
 
-      <div
-        v-for="(element, index) in elements"
-        :data-id="`vertical-${index}`"
-        :key="`${control.path}-${index}`"
-        :class="styles.verticalLayout.item"
-      >
-        <dispatch-renderer
-          :schema="control.schema"
-          :uischema="element"
-          :path="control.path"
-          :enabled="control.enabled"
-          :renderers="control.renderers"
-          :cells="control.cells"
-        />
+      <div class="map-layout__fields">
+        <!-- Edits the stored "north east south west" box string. -->
+        <div v-if="isBoxSchemaOrgFormat" class="bbox-grid">
+          <v-text-field
+            v-for="field in bboxFields"
+            :key="field.key"
+            :class="`bbox-grid__${field.key}`"
+            :label="field.label"
+            :model-value="boxFields[field.key]"
+            :error-messages="bboxErrors[field.key]"
+            :placeholder="field.placeholder"
+            :disabled="!isEditable"
+            type="number"
+            suffix="°"
+            density="compact"
+            variant="outlined"
+            hide-details="auto"
+            @update:model-value="onBoxFieldInput(field.key, $event)"
+          />
+        </div>
+
+        <div
+          v-for="(element, index) in elements"
+          :data-id="`vertical-${index}`"
+          :key="`${control.path}-${index}`"
+          :class="styles.verticalLayout.item"
+        >
+          <dispatch-renderer
+            :schema="control.schema"
+            :uischema="element"
+            :path="control.path"
+            :enabled="control.enabled"
+            :renderers="control.renderers"
+            :cells="control.cells"
+          />
+        </div>
       </div>
     </div>
-   </div>
   </div>
 </template>
 
@@ -231,7 +237,9 @@ const layoutRenderer = defineComponent({
         if (Number.isNaN(value)) {
           errors[field.key].push('Must be a number');
         } else if (Math.abs(value) > field.limit) {
-          errors[field.key].push(`Must be between -${field.limit} and ${field.limit}`);
+          errors[field.key].push(
+            `Must be between -${field.limit} and ${field.limit}`
+          );
         }
       }
       const north = Number(this.boxFields.north);
