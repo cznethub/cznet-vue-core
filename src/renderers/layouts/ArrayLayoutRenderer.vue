@@ -205,13 +205,13 @@
           >{{ addLabel }}</v-btn
         >
         <v-btn
-          v-for="(action, actionIndex) in customActions"
-          :key="actionIndex"
+          v-for="action in customActions"
+          :key="action.id"
           variant="tonal"
           size="small"
           :prepend-icon="action.icon"
           class="ml-2"
-          @click="action.handler()"
+          @click="fireCustomAction(action)"
           >{{ action.label }}</v-btn
         >
       </div>
@@ -343,6 +343,14 @@ export default defineComponent({
   },
   props: {
     ...rendererProps<ControlElement>(),
+  },
+  // `cz-custom-action` is provided by cz-field-modal.vue (and, for
+  // non-modal usage, would need an equivalent provide elsewhere) — this
+  // renderer is resolved dynamically by JsonForms' dispatch mechanism, so
+  // it's never placed in a consumer's template and can't `$emit` to one
+  // directly. See the comment in cz.field-modal.vue for the full reasoning.
+  inject: {
+    customActionHandler: { from: 'cz-custom-action', default: null },
   },
   setup(props: RendererProps<ControlElement>) {
     const { handleChange } = useJsonFormsControl(props);
@@ -503,10 +511,10 @@ export default defineComponent({
     /**
      * Extra buttons rendered alongside the Add button, e.g. a "Find
      * HydroShare user" shortcut. Consumer-provided via
-     * `options.customActions`; each handler is a plain function reference
-     * that isn't serialized or stored.
+     * `options.customActions`. Clicking a button calls the injected
+     * `cz-custom-action` handler with the action's `id`.
      */
-    customActions(): { label: string; icon?: string; handler: () => void }[] {
+    customActions(): { id: string; label: string; icon?: string }[] {
       // @ts-ignore
       return this.appliedOptions.customActions || [];
     },
@@ -623,6 +631,16 @@ export default defineComponent({
         this.removeItemsClick([this.suggestToDelete]);
       }
       this.suggestToDelete = null;
+    },
+    /**
+     * Call the `cz-custom-action` callback provided by cz-field-modal.vue
+     * for a consumer-defined action button. Context arg contains
+     * this array control's data path so the consumer can tell which field
+     * fired without needing to track that themselves.
+     */
+    fireCustomAction(action: { id: string }): void {
+      // @ts-ignore injected option, not a declared instance property
+      this.customActionHandler?.(action.id, { path: this.control.path });
     },
   },
 });
