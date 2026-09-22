@@ -16,6 +16,7 @@
     <v-dialog
       v-model="open"
       :max-width="maxWidth"
+      :fullscreen="smAndDown"
       scrollable
       content-class="cz-field-modal__content"
     >
@@ -52,6 +53,7 @@
         </v-card-text>
         <v-divider />
         <v-card-actions class="cz-field-modal__actions">
+          <slot name="actions" :close="() => (open = false)" />
           <v-spacer />
           <v-btn variant="flat" color="primary" @click="open = false"
             >Done</v-btn
@@ -71,6 +73,7 @@ import {
   ref,
   type PropType,
 } from 'vue';
+import { useDisplay } from 'vuetify';
 import CzField from './cz.field.vue';
 
 // Helper: convert a JsonForms scope string like
@@ -127,6 +130,7 @@ export default defineComponent({
   },
   setup(props) {
     const ctx = inject<any>('jsonforms', null);
+    const { smAndDown } = useDisplay();
 
     // Re-provide the JsonForms context so the cz-field inside the
     // v-dialog (which Vuetify teleports out of the normal DOM tree) sees
@@ -176,6 +180,7 @@ export default defineComponent({
 
     return {
       open,
+      smAndDown,
       value,
       errors,
       errorsByIndex,

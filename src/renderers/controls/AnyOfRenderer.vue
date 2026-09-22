@@ -31,7 +31,8 @@
         <v-tabs
           v-model="selectedIndex"
           @update:model-value="handleTabChange"
-          selected-class="selected-tab"
+          color="primary"
+          density="compact"
         >
           <v-tab
             v-for="(anyOfRenderInfo, anyOfIndex) in anyOfRenderInfos"
@@ -43,8 +44,6 @@
                 appliedOptions.isDisabled) &&
               selectedIndex !== anyOfIndex
             "
-            density="compact"
-            variant="elevated"
           >
             {{
               anyOfRenderInfo.uischema.options?.label || anyOfRenderInfo.label
@@ -188,15 +187,22 @@ export default defineComponent({
     this.selectedIndex = this.control.indexOfFittingSchema || 0;
     this.prevSelectedIndex = this.selectedIndex;
   },
+  watch: {
+    // Follow the fitting branch when data changes externally.
+    'control.indexOfFittingSchema'(next: number | undefined) {
+      if (typeof next === 'number' && next !== this.selectedIndex) {
+        this.selectedIndex = next;
+        this.prevSelectedIndex = next;
+      }
+    },
+  },
   computed: {
     // Prefer a per-branch `options.label` over the raw schema title.
     branchItems(): CombinatorSubSchemaRenderInfo[] {
-      return this.anyOfRenderInfos.map(
-        (i: CombinatorSubSchemaRenderInfo) => ({
-          ...i,
-          label: (i.uischema as any)?.options?.label || i.label,
-        })
-      );
+      return this.anyOfRenderInfos.map((i: CombinatorSubSchemaRenderInfo) => ({
+        ...i,
+        label: (i.uischema as any)?.options?.label || i.label,
+      }));
     },
     anyOfRenderInfos(): CombinatorSubSchemaRenderInfo[] {
       const result = createCombinatorRenderInfos(
@@ -236,10 +242,14 @@ export default defineComponent({
       );
     },
     desc(): string {
+      // An explicit uischema description wins; '' hides the schema's.
+      // @ts-ignore
+      const fromUischema = this.control.uischema?.options?.description;
+      if (fromUischema !== undefined) {
+        return fromUischema;
+      }
       return (
         this.control.description ||
-        // @ts-ignore
-        this.control.uischema?.options?.description ||
         this.appliedOptions.description ||
         this.anyOfRenderInfos[this.selectedIndex].schema.description ||
         ''
@@ -315,7 +325,12 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.selected-tab {
-  background-color: #eee;
+.v-tabs {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 0.5rem;
+}
+
+.v-window {
+  padding-top: 0.75rem;
 }
 </style>
