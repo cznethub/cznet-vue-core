@@ -125,7 +125,8 @@ export default defineComponent({
     label: { type: String, default: undefined },
     maxWidth: { type: [Number, String], default: 900 },
   },
-  setup(props) {
+  emits: ['custom-action'],
+  setup(props, { emit }) {
     const ctx = inject<any>('jsonforms', null);
 
     // Re-provide the JsonForms context so the cz-field inside the
@@ -137,6 +138,18 @@ export default defineComponent({
     // against an empty default store, which is why existing data
     // appears missing and required-field validations fire on open.
     if (ctx) provide('jsonforms', ctx);
+
+    // Renderers like ArrayLayoutRenderer are resolved dynamically by
+    // JsonForms' dispatch mechanism, so they're never placed in this (or
+    // any consumer's) template — there's no tag for them to `$emit` a
+    // custom event onto. `provide`/`inject` crosses that dynamic-dispatch
+    // boundary the same way the `jsonforms` context re-provide above does;
+    // the renderer calls this function directly, and it re-emits as a
+    // normal `custom-action` event here, where a template listener CAN
+    // be attached.
+    provide('cz-custom-action', (id: string, actionCtx: any) => {
+      emit('custom-action', id, actionCtx);
+    });
 
     const open = ref(false);
 
