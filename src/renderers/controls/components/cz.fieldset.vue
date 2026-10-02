@@ -147,7 +147,7 @@ export default defineComponent({
 .v-field.cz-fieldset {
   display: flex;
 
-  :deep(.v-field__field) {
+  & > :deep(.v-field__field) {
     display: block;
   }
 
@@ -155,7 +155,7 @@ export default defineComponent({
     align-items: start;
   }
 
-  :deep(.v-label.v-field-label:not(.v-field-label--floating)) {
+  & > :deep(.v-field__field) > .v-label.v-field-label:not(.v-field-label--floating) {
     pointer-events: auto;
     cursor: text;
     width: 100%;
