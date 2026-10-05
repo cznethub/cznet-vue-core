@@ -308,7 +308,9 @@
           </template>
 
           <!-- Download zipped -->
-          <template v-if="downloadZipped && showMenuItem">
+          <template
+            v-if="downloadZipped && showMenuItem && canDownloadZippedSelected"
+          >
             <v-list-item
               @click.stop="onDownloadZipped"
               :disabled="isDownloadingZipped"
