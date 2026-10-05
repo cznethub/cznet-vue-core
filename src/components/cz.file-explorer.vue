@@ -183,7 +183,7 @@
     <v-card-text style="min-height: 10rem">
       <slot name="prepend"></slot>
 
-      <v-menu v-model="showMenu" v-bind="menuAttrs" offset-y :attach="true">
+      <v-menu v-model="showMenu" v-bind="menuAttrs" offset-y>
         <v-list width="auto" class="files-container--included">
           <template v-if="!isReadOnly">
             <!-- CREATE NEW FOLDER -->
@@ -1193,7 +1193,6 @@ class CzFileExplorer extends Vue {
     this.showMenu = false;
     // this.menuAttrs['position-x'] = event.clientX;
     // this.menuAttrs['position-y'] = event.clientY;
-    this.menuAttrs['attach'] = event.target;
     this.menuAttrs['target'] = [event.clientX, event.clientY];
     this.$nextTick(() => {
       this.showMenu = true;
