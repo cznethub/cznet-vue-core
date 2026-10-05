@@ -65,6 +65,45 @@ export interface IFile {
   path?: string;
 }
 
+/** Where a custom action runs from, passed to its predicates and handler. */
+export interface IFileExplorerActionContext {
+  /** The folder the action targets: the selected folder, a selected file's parent, or the root. */
+  folder: IFolder;
+  /** `folder` as a path relative to the root, `''` for the root. */
+  folderPath: string;
+  /** `'toolbar'` for the top menu, `'context-menu'` for the right-click menu. */
+  source: 'toolbar' | 'context-menu';
+}
+
+/** A consumer-supplied action rendered in the file explorer's top menu and context menu. */
+export interface IFileExplorerAction {
+  /** Unique identifier for the action. */
+  key: string;
+  label: string;
+  /** An mdi icon name, e.g. `mdi-link-variant`. */
+  icon: string;
+  color?: string;
+  /** Show in the top menu. Defaults to `true`. */
+  toolbar?: boolean;
+  /** Show in the context menu. Defaults to `true`. */
+  contextMenu?: boolean;
+  /**
+   * Whether the action applies to `items`, which are the selection (top menu) or the
+   * right-clicked selection (context menu; empty when right-clicking blank space).
+   * Disables the top menu button and hides the context menu entry when `false`.
+   * Defaults to always applicable.
+   */
+  isEnabled?: (
+    _items: (IFile | IFolder)[],
+    _context: IFileExplorerActionContext
+  ) => boolean;
+  /** Runs the action. Items carry an up-to-date `path`. The action shows as busy until a returned promise settles. */
+  handler: (
+    _items: (IFile | IFolder)[],
+    _context: IFileExplorerActionContext
+  ) => void | Promise<void>;
+}
+
 export interface IFolder {
   name: string;
   // parent?: IFolder | null;

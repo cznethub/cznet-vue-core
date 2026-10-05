@@ -43,3 +43,7 @@ export {
   CzFilePreview,
 };
 export type { PreviewRenderer } from './components/cz.file-preview.vue';
+export type {
+  IFileExplorerAction,
+  IFileExplorerActionContext,
+} from './types';
