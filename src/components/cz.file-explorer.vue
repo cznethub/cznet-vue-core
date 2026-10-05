@@ -1850,25 +1850,27 @@ class CzFileExplorer extends Vue {
     targetFolder.children = targetFolder.children.sort((_a, b) => {
       return b.hasOwnProperty('children') ? 1 : -1;
     });
+    // Mutate the reactive copy so state changes re-render
+    const folder = targetFolder.children.find(
+      item => item.key === newFolder.key
+    ) as IFolder;
     if (this.upload) {
-      this._toggleItemDisabled(newFolder, true);
+      this._toggleItemDisabled(folder, true);
       try {
-        const response = await this.upload([newFolder]);
+        const response = await this.upload([folder]);
         wasUploaded = response[0];
       } catch (e) {
         wasUploaded = false;
-        // Workaround for isDisabled not propagating below
-        this._deleteItem(newFolder);
+        this._deleteItem(folder);
       } finally {
-        // TODO: not propagating if error caught above
-        this._toggleItemDisabled(newFolder, false);
+        this._toggleItemDisabled(folder, false);
       }
     }
 
     if (wasUploaded) {
-      newFolder.isUploaded = true;
+      folder.isUploaded = true;
       this.$nextTick(() => {
-        this._openRecursive(newFolder);
+        this._openRecursive(folder);
       });
     }
   }
