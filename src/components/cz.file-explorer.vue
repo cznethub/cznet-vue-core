@@ -124,6 +124,29 @@
           <span>{{ downloadArchiveHelpText }}</span>
         </v-tooltip>
 
+        <v-tooltip
+          v-for="action of customToolbarActions"
+          :key="action.key"
+          bottom
+          transition="fade"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              @click="runAction(action, 'toolbar')"
+              :disabled="
+                isActionBusy(action) || !isToolbarActionEnabled(action)
+              "
+              :loading="isActionBusy(action)"
+              :icon="action.icon"
+              :color="action.color"
+              size="small"
+              variant="text"
+              v-bind="props"
+            ></v-btn>
+          </template>
+          <span>{{ action.label }}</span>
+        </v-tooltip>
+
         <v-divider class="mx-2" vertical></v-divider>
 
         <template v-if="!isReadOnly">
@@ -328,6 +351,32 @@
                   mdi-download-box-outline
                 </v-icon>
                 {{ isDownloadingZipped ? 'Downloading…' : 'Download zipped' }}
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+
+          <!-- Custom actions -->
+          <template v-if="visibleContextMenuActions.length">
+            <v-divider></v-divider>
+            <v-list-item
+              v-for="action of visibleContextMenuActions"
+              :key="action.key"
+              @click.stop="runAction(action, 'context-menu')"
+              :disabled="isActionBusy(action)"
+            >
+              <v-list-item-title>
+                <v-progress-circular
+                  v-if="isActionBusy(action)"
+                  class="mr-2"
+                  indeterminate
+                  size="16"
+                  width="2"
+                  :color="action.color"
+                ></v-progress-circular>
+                <v-icon v-else class="mr-2" :color="action.color">
+                  {{ action.icon }}
+                </v-icon>
+                {{ action.label }}
               </v-list-item-title>
             </v-list-item>
           </template>
@@ -691,7 +740,12 @@
 <script lang="ts">
 import { Component, Vue, toNative, Prop, Watch } from 'vue-facing-decorator';
 import { toRaw } from 'vue';
-import { IFolder, IFile } from '@/types';
+import {
+  IFolder,
+  IFile,
+  IFileExplorerAction,
+  IFileExplorerActionContext,
+} from '@/types';
 import { default as Notifications } from '@/models/notifications';
 // @ts-ignore
 import { DnDEvent, Drag, Drop, DropMask } from 'vue-easy-dnd';
@@ -704,6 +758,11 @@ import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
 import { createFileExplorerActiveStrategy } from '@/components/cz.file-explorer.selection';
 import { resolveAcrossForests } from '@/components/cz.file-explorer.tree';
+import {
+  contextMenuActions,
+  isActionEnabled,
+  isActionPlaced,
+} from '@/components/cz.file-explorer.actions';
 import CzFilePreview, {
   PreviewRenderer,
 } from '@/components/cz.file-preview.vue';
@@ -850,6 +909,9 @@ class CzFileExplorer extends Vue {
    * toolbar shows an 'Add files' button and the inline drop area is hidden. */
   @Prop() addFiles?: (_folder: IFolder, _path: string) => void;
 
+  /** Consumer-supplied actions rendered in the top menu and the context menu. */
+  @Prop({ default: () => [] }) customActions!: IFileExplorerAction[];
+
   fileIcons = FILE_ICONS;
   breakpoints: any = useDisplay();
   opened: (IFile | IFolder)[] = [];
@@ -864,6 +926,7 @@ class CzFileExplorer extends Vue {
   isDeleting = false;
   isDownloadingZipped = false;
   isDownloadingArchive = false;
+  busyActionKeys: string[] = [];
   fileReleaseDate = null;
   shiftAnchor: IFolder | IFile | null = null;
   search = '';
@@ -967,6 +1030,23 @@ class CzFileExplorer extends Vue {
 
   get showAddFiles(): boolean {
     return !this.isReadOnly && !!this.addFiles;
+  }
+
+  get customToolbarActions(): IFileExplorerAction[] {
+    return this.customActions.filter(a => isActionPlaced(a, 'toolbar'));
+  }
+
+  /** Items a context menu action applies to; none when blank space was right-clicked. */
+  get contextMenuItems(): (IFile | IFolder)[] {
+    return this.showMenuItem ? this.selectedItems : [];
+  }
+
+  get visibleContextMenuActions(): IFileExplorerAction[] {
+    return contextMenuActions(
+      this.customActions,
+      this.contextMenuItems,
+      this.getActionContext('context-menu')
+    );
   }
 
   get canPaste() {
@@ -1108,6 +1188,50 @@ class CzFileExplorer extends Vue {
     }
   }
 
+  getActionContext(
+    source: IFileExplorerActionContext['source']
+  ): IFileExplorerActionContext {
+    const folder =
+      source === 'context-menu' && !this.showMenuItem
+        ? this.rootDirectory
+        : this.addFilesTarget;
+    return { folder, folderPath: this.getPathString(folder), source };
+  }
+
+  isToolbarActionEnabled(action: IFileExplorerAction): boolean {
+    return isActionEnabled(
+      action,
+      this.selectedItems,
+      this.getActionContext('toolbar')
+    );
+  }
+
+  isActionBusy(action: IFileExplorerAction): boolean {
+    return this.busyActionKeys.includes(action.key);
+  }
+
+  async runAction(
+    action: IFileExplorerAction,
+    source: IFileExplorerActionContext['source']
+  ) {
+    const items =
+      source === 'toolbar' ? [...this.selectedItems] : [...this.contextMenuItems];
+    const context = this.getActionContext(source);
+    this.showMenu = false;
+
+    if (this.isActionBusy(action) || !isActionEnabled(action, items, context)) {
+      return;
+    }
+
+    items.forEach(item => (item.path = this.getPathString(item)));
+    this.busyActionKeys.push(action.key);
+    try {
+      await action.handler(items, context);
+    } finally {
+      this.busyActionKeys = this.busyActionKeys.filter(k => k !== action.key);
+    }
+  }
+
   onViewDetails(item: IFile | IFolder) {
     // Annotate the paths before emmitting the items
     item.path = this.getPathString(item);
@@ -1181,7 +1305,8 @@ class CzFileExplorer extends Vue {
       item &&
       this.isReadOnly &&
       !this.hasFileMetadata?.(item) &&
-      !this.canDownloadItem?.(item)
+      !this.canDownloadItem?.(item) &&
+      !this.customActions.length
     ) {
       return false;
     }
