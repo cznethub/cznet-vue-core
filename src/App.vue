@@ -62,6 +62,7 @@
             :upload="uploadMock"
             :downloadZipped="downloadZippedMock"
             :downloadArchive="downloadArchiveMock"
+            :customActions="customActionsMock"
             @showMetadata="onShowMetadata($event)"
             @download="onFileDownload($event)"
             downloadArchiveHelpText="Download all content as Zipped BagIt Archive"
@@ -293,7 +294,7 @@ import { Component, Vue, toNative, Ref } from 'vue-facing-decorator';
 import { h } from 'vue';
 import CzNotifications from './components/cz.notifications.vue';
 import Notifications from './models/notifications';
-import { Config, IFolder, IFile } from '@/types';
+import { Config, IFolder, IFile, IFileExplorerAction } from '@/types';
 import { stringify } from '@/utils';
 import CzFileExplorer from './components/cz.file-explorer.vue';
 import CzForm from './components/cz.form.vue';
@@ -613,6 +614,28 @@ class App extends Vue {
       }, 2000);
     });
   }
+
+  customActionsMock: IFileExplorerAction[] = [
+    {
+      key: 'log-path',
+      label: 'Log path',
+      icon: 'mdi-console',
+      isEnabled: items => items.length === 1,
+      handler: items => console.log('log-path', items[0].path),
+    },
+    {
+      key: 'log-folder',
+      label: 'Log target folder',
+      icon: 'mdi-folder-information-outline',
+      handler: (_items, context) =>
+        new Promise<void>(resolve =>
+          setTimeout(() => {
+            console.log('log-folder', context.folderPath);
+            resolve();
+          }, 1000)
+        ),
+    },
+  ];
 
   async downloadArchiveMock() {
     return new Promise<void>((_resolve, _reject) => {
