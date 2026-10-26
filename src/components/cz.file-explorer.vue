@@ -1,11 +1,14 @@
 <template>
   <v-card class="mb-8">
     <v-sheet
-      class="pa-4 d-flex align-center files-container--included flex-wrap gap-1 bg-grey-lighten-4"
+      ref="toolbar"
+      class="pa-4 d-flex align-center files-container--included flex-wrap ga-1 bg-grey-lighten-4"
     >
       <v-btn
         v-if="showAddFiles"
+        ref="addFilesBtn"
         @click="onAddFiles"
+        :disabled="!canUpload"
         prepend-icon="mdi-file-plus"
         size="small"
         variant="elevated"
@@ -15,157 +18,70 @@
         Add files
       </v-btn>
 
-      <v-tooltip v-if="hasFolders && !isReadOnly" bottom transition="fade">
+      <v-tooltip
+        v-for="action of inlineActions"
+        :key="action.key"
+        location="bottom"
+        transition="fade"
+      >
         <template #activator="{ props }">
           <v-btn
-            @click="newFolder"
-            icon="mdi-folder"
+            @click="action.onClick"
+            :icon="action.icon"
+            :color="action.color"
+            :disabled="action.disabled"
+            :loading="action.loading"
+            :aria-label="action.title"
             size="small"
             variant="text"
             v-bind="props"
           ></v-btn>
         </template>
-        New Folder
+        {{ action.title }}
       </v-tooltip>
 
-      <div class="file-action-buttons d-flex align-center flex-wrap gap-1">
-        <v-tooltip bottom transition="fade">
-          <template #activator="{ props }">
-            <v-btn
-              @click="selectAll"
-              :disabled="!rootDirectory.children.length"
-              icon="mdi-select"
-              size="small"
-              variant="text"
-              v-bind="props"
-            ></v-btn>
-          </template>
-          <span>Select All</span>
-        </v-tooltip>
-
-        <!-- <template>
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="unselectAll"
-                icon
-                size="small"
-                :disabled="!selected.length"
-                v-bind="props"
-                v-bind="attrs"
-              >
-                <v-icon>mdi-checkbox-blank-off-outline</v-icon>
-              </v-btn>
-            </template>
-            <span>Unselect All</span>
-          </v-tooltip>
-          <v-divider class="mx-4" vertical></v-divider>
-        </template> -->
-
-        <template v-if="!isReadOnly && hasFolders">
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="cut"
-                :disabled="!canCutSelected"
-                icon="mdi-content-cut"
-                size="small"
-                variant="text"
-                v-bind="props"
-              ></v-btn>
-            </template>
-            Cut
-          </v-tooltip>
-
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="onPaste"
-                :disabled="!canPaste"
-                icon="mdi-content-paste"
-                size="small"
-                variant="text"
-                v-bind="props"
-              />
-            </template>
-            Paste
-          </v-tooltip>
+      <v-menu v-if="overflowActions.length" location="bottom end">
+        <template #activator="{ props }">
+          <v-btn
+            icon="mdi-dots-vertical"
+            size="small"
+            variant="text"
+            aria-label="More actions"
+            title="More actions"
+            v-bind="props"
+          ></v-btn>
         </template>
-
-        <v-tooltip v-if="downloadZipped" bottom transition="fade">
-          <template #activator="{ props }">
-            <v-btn
-              @click="onDownloadZipped"
-              :disabled="!canDownloadZippedSelected || isDownloadingZipped"
-              :loading="isDownloadingZipped"
-              icon="mdi-download-box-outline"
-              size="small"
-              variant="text"
-              color="blue"
-              v-bind="props"
-            ></v-btn>
-          </template>
-          <span>Download zipped</span>
-        </v-tooltip>
-
-        <v-tooltip v-if="downloadArchive" bottom transition="fade">
-          <template #activator="{ props }">
-            <v-btn
-              @click="onDownloadArchive"
-              :disabled="!rootDirectory.children.length || isDownloadingArchive"
-              :loading="isDownloadingArchive"
-              icon="mdi-briefcase-download-outline"
-              size="small"
-              variant="text"
-              color="blue"
-              v-bind="props"
-            ></v-btn>
-          </template>
-          <span>{{ downloadArchiveHelpText }}</span>
-        </v-tooltip>
-
-        <v-divider class="mx-2" vertical></v-divider>
-
-        <template v-if="!isReadOnly">
-          <v-tooltip bottom transition="fade">
-            <template #activator="{ props }">
-              <v-btn
-                @click="deleteSelected"
-                icon="mdi-delete"
-                size="small"
-                variant="text"
-                color="error-lighten-2"
-                :disabled="isDeleting || !selected.length"
-                v-bind="props"
-              ></v-btn>
-            </template>
-            <span>Discard</span>
-          </v-tooltip>
-        </template>
-
-        <v-tooltip bottom transition="fade">
-          <template #activator="{ props }">
-            <v-btn
-              @click="onItemsDownload"
-              :disabled="!canDownloadSomeSelected"
-              icon="mdi-download"
-              size="small"
-              variant="text"
-              color="green"
-              v-bind="props"
-            ></v-btn>
-          </template>
-          <span>Download</span>
-        </v-tooltip>
-      </div>
-
-      <v-spacer />
+        <v-list density="compact" class="files-container--included">
+          <v-list-item
+            v-for="action of overflowActions"
+            :key="action.key"
+            @click="action.onClick"
+            :disabled="action.disabled || action.loading"
+          >
+            <v-list-item-title>
+              <v-progress-circular
+                v-if="action.loading"
+                class="mr-2"
+                indeterminate
+                size="16"
+                width="2"
+                :color="action.color"
+              ></v-progress-circular>
+              <v-icon v-else class="mr-2" :color="action.color">
+                {{ action.icon }}
+              </v-icon>
+              {{ action.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <template
         v-if="showDiscardAll && rootDirectory.children.length && !isReadOnly"
       >
         <v-spacer></v-spacer>
         <v-btn
+          ref="discardAllBtn"
           @click="discardAll"
           :disabled="!isSomeNotUploaded"
           depressed
@@ -663,7 +579,7 @@
           mdi-delete-outline
         </v-icon>
       </drop>
-      <template v-else-if="!isReadOnly && !showAddFiles">
+      <template v-else-if="!isReadOnly && !showAddFiles && canUpload">
         <slot name="drop-area">
           <v-file-upload
             v-model="dropFiles"
@@ -677,6 +593,8 @@
           ></v-file-upload>
         </slot>
       </template>
+
+      <slot name="append"></slot>
     </v-card-text>
   </v-card>
 
@@ -704,6 +622,11 @@ import CzDragSelect from '@/components/cz.drag-select.vue';
 import CzFileExplorerItem from '@/components/cz.file-explorer-item.vue';
 import { createFileExplorerActiveStrategy } from '@/components/cz.file-explorer.selection';
 import { resolveAcrossForests } from '@/components/cz.file-explorer.tree';
+import {
+  FileExplorerAction,
+  countInlineActions,
+  getUploadBatchError,
+} from '@/components/cz.file-explorer.toolbar';
 import CzFilePreview, {
   PreviewRenderer,
 } from '@/components/cz.file-preview.vue';
@@ -733,6 +656,9 @@ import { ActiveStrategy, useDisplay } from 'vuetify';
 import { ClickOutside } from 'vuetify/directives';
 import prettyBytes from 'pretty-bytes';
 import { FILE_ICONS } from '@/constants';
+
+const TOOLBAR_BUTTON_WIDTH = 40;
+const TOOLBAR_GAP = 4;
 
 @Component({
   name: 'cz-file-explorer',
@@ -850,6 +776,21 @@ class CzFileExplorer extends Vue {
    * toolbar shows an 'Add files' button and the inline drop area is hidden. */
   @Prop() addFiles?: (_folder: IFolder, _path: string) => void;
 
+  /** Set `false` to block adding files while keeping the other edit actions available. */
+  @Prop({ default: true }) canUpload!: boolean;
+
+  /** Maximum number of files accepted in a single drop. */
+  @Prop() maxFilesPerUpload?: number;
+
+  /** Checks dropped files before they are added; return a message to reject the whole batch. */
+  @Prop() validateUpload?: (
+    _files: File[],
+    _folder: IFolder
+  ) => string | null | undefined;
+
+  /** Maximum number of toolbar rows before actions move into the overflow menu. */
+  @Prop({ default: 2 }) maxToolbarRows!: number;
+
   fileIcons = FILE_ICONS;
   breakpoints: any = useDisplay();
   opened: (IFile | IFolder)[] = [];
@@ -876,6 +817,9 @@ class CzFileExplorer extends Vue {
   nativeDropTarget: IFolder | null = null;
   isRootDragging = false;
   prettyBytes = prettyBytes;
+  toolbarWidth = 0;
+  toolbarFixedWidth = 0;
+  toolbarObserver: ResizeObserver | null = null;
 
   customActiveStrategy(_mandatory?: boolean): ActiveStrategy {
     return createFileExplorerActiveStrategy({
@@ -993,6 +937,149 @@ class CzFileExplorer extends Vue {
    */
   get canDownloadZippedSelected() {
     return this.selected.length === 1;
+  }
+
+  /** Toolbar actions in priority order; the last ones overflow first. */
+  get toolbarActions(): FileExplorerAction[] {
+    const actions: FileExplorerAction[] = [];
+
+    if (!this.isReadOnly && this.hasFolders) {
+      actions.push(
+        {
+          key: 'new-folder',
+          title: 'New Folder',
+          icon: 'mdi-folder',
+          onClick: () => this.newFolder(),
+        },
+        {
+          key: 'cut',
+          title: 'Cut',
+          icon: 'mdi-content-cut',
+          disabled: !this.canCutSelected,
+          onClick: () => this.cut(),
+        },
+        {
+          key: 'paste',
+          title: 'Paste',
+          icon: 'mdi-content-paste',
+          disabled: !this.canPaste,
+          onClick: () => this.onPaste(),
+        }
+      );
+    }
+
+    if (!this.isReadOnly) {
+      actions.push({
+        key: 'discard',
+        title: 'Discard',
+        icon: 'mdi-delete',
+        color: 'error-lighten-2',
+        disabled: this.isDeleting || !this.selected.length,
+        onClick: () => this.deleteSelected(),
+      });
+    }
+
+    actions.push({
+      key: 'download',
+      title: 'Download',
+      icon: 'mdi-download',
+      color: 'green',
+      disabled: !this.canDownloadSomeSelected,
+      onClick: () => this.onItemsDownload(),
+    });
+
+    if (this.downloadZipped) {
+      actions.push({
+        key: 'download-zipped',
+        title: 'Download zipped',
+        icon: 'mdi-download-box-outline',
+        color: 'blue',
+        disabled: !this.canDownloadZippedSelected || this.isDownloadingZipped,
+        loading: this.isDownloadingZipped,
+        onClick: () => this.onDownloadZipped(),
+      });
+    }
+
+    actions.push({
+      key: 'select-all',
+      title: 'Select All',
+      icon: 'mdi-select',
+      disabled: !this.rootDirectory.children.length,
+      onClick: () => this.selectAll(),
+    });
+
+    if (this.downloadArchive) {
+      actions.push({
+        key: 'download-archive',
+        title: this.downloadArchiveHelpText,
+        icon: 'mdi-briefcase-download-outline',
+        color: 'blue',
+        disabled:
+          !this.rootDirectory.children.length || this.isDownloadingArchive,
+        loading: this.isDownloadingArchive,
+        onClick: () => this.onDownloadArchive(),
+      });
+    }
+
+    return actions;
+  }
+
+  get inlineActionCount(): number {
+    return countInlineActions(this.toolbarActions.length, {
+      rowWidth: this.toolbarWidth,
+      fixedWidth: this.toolbarFixedWidth,
+      buttonWidth: TOOLBAR_BUTTON_WIDTH,
+      gap: TOOLBAR_GAP,
+      rows: this.maxToolbarRows,
+    });
+  }
+
+  get inlineActions(): FileExplorerAction[] {
+    return this.toolbarActions.slice(0, this.inlineActionCount);
+  }
+
+  get overflowActions(): FileExplorerAction[] {
+    return this.toolbarActions.slice(this.inlineActionCount);
+  }
+
+  mounted() {
+    const toolbar = (this.$refs.toolbar as any)?.$el as HTMLElement | undefined;
+    if (!toolbar || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+    this.toolbarObserver = new ResizeObserver(entries => {
+      this.toolbarWidth = entries[0]?.contentRect.width ?? 0;
+      this.measureToolbarFixedWidth();
+    });
+    this.toolbarObserver.observe(toolbar);
+  }
+
+  beforeUnmount() {
+    this.toolbarObserver?.disconnect();
+  }
+
+  @Watch('showAddFiles')
+  @Watch('showDiscardAll')
+  protected onToolbarFixedButtonsChange() {
+    this.$nextTick(() => this.measureToolbarFixedWidth());
+  }
+
+  /** Width the first toolbar row loses to the text buttons, including margins and gaps. */
+  measureToolbarFixedWidth() {
+    this.toolbarFixedWidth = ['addFilesBtn', 'discardAllBtn'].reduce(
+      (acc, ref) => {
+        const el = (this.$refs[ref] as any)?.$el as HTMLElement | undefined;
+        if (!el) {
+          return acc;
+        }
+        const style = getComputedStyle(el);
+        const margins =
+          (parseFloat(style.marginLeft) || 0) +
+          (parseFloat(style.marginRight) || 0);
+        return acc + el.offsetWidth + margins + TOOLBAR_GAP;
+      },
+      0
+    );
   }
 
   @Watch('rootDirectory.children', { deep: true })
@@ -1233,6 +1320,20 @@ class CzFileExplorer extends Vue {
       targetOverride ??
       resolveUploadTarget(this.rootDirectory, this.selected);
 
+    if (!this.canUpload) {
+      this.dropFiles = [];
+      return;
+    }
+
+    const batchError =
+      getUploadBatchError(newFiles, this.maxFilesPerUpload) ||
+      this.validateUpload?.(newFiles, targetFolder);
+    if (batchError) {
+      Notifications.toast({ message: batchError, type: 'error' });
+      this.dropFiles = [];
+      return;
+    }
+
     const addedFiles = newFiles.map((file, index) => {
       const newItem = {
         name: this._getAvailableName(
@@ -1320,7 +1421,7 @@ class CzFileExplorer extends Vue {
   }
 
   onNativeDragOver(event: DragEvent, item?: IFile | IFolder) {
-    if (this.isReadOnly || !this._isFileDrag(event)) {
+    if (this.isReadOnly || !this.canUpload || !this._isFileDrag(event)) {
       return;
     }
     event.preventDefault();
@@ -1340,7 +1441,7 @@ class CzFileExplorer extends Vue {
   }
 
   async onNativeDrop(event: DragEvent, item?: IFile | IFolder) {
-    if (this.isReadOnly || !this._isFileDrag(event)) {
+    if (this.isReadOnly || !this.canUpload || !this._isFileDrag(event)) {
       return;
     }
     event.preventDefault();
@@ -1981,10 +2082,6 @@ export default toNative(CzFileExplorer);
 <style lang="scss" scoped>
 .border-grey {
   border: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-.file-action-buttons {
-  min-height: 2.5rem;
 }
 
 // `.cz-upload-drop-area` is set as the class on the `<v-file-upload>` root,
